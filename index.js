@@ -8,14 +8,11 @@ import {
 } from 'openhim-mediator-utils'
 
 import mediatorConfig, { urn } from './mediatorConfig.json'
+import config from './config'
 
-const openhimConfig = {
-  username: 'root@openhim.org',
-  password: 'password',
-  apiURL: 'https://openhim-core:8080',
-  trustSelfSigned: true,
-  urn
-}
+const configOptions = config.getConfig()
+
+const openhimConfig = Object.assign({urn}, configOptions.openhim)
 
 const app = express()
 
@@ -23,8 +20,8 @@ app.all('*', (_req, res) => {
   res.send('Hello World')
 })
 
-app.listen(3000, () => {
-  console.log('Server listening on port 3000...')
+app.listen(configOptions.port, () => {
+  console.log(`Server listening on port ${configOptions.port}...`)
 
   mediatorSetup()
 })
