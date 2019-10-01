@@ -4,8 +4,7 @@ import express from 'express'
 
 import {
   registerMediator,
-  activateHeartbeat,
-  fetchConfig
+  activateHeartbeat
 } from 'openhim-mediator-utils'
 
 import mediatorConfig, { urn } from './mediatorConfig.json'
@@ -39,22 +38,10 @@ const mediatorSetup = () => {
 
     console.log('Successfully registered mediator!')
 
-    fetchConfig(openhimConfig, (err, initialConfig) => {
-      if (err) {
-        console.error('Failed to fetch initial config: ', err)
-        process.exit(1)
-      }
-      console.log('Initial Config: ', JSON.stringify(initialConfig))
+    const emitter = activateHeartbeat(openhimConfig)
 
-      const emitter = activateHeartbeat(openhimConfig)
-
-      emitter.on('error', err => {
-        console.error('Heartbeat failed: ', err)
-      })
-
-      emitter.on('config', newConfig => {
-        console.log('Received updated config:', JSON.stringify(newConfig))
-      })
+    emitter.on('error', err => {
+      console.error('Heartbeat failed: ', err)
     })
   })
 }
