@@ -1,8 +1,8 @@
 {
-  "name": "openhim-bootstrap-mediator",
+  "name": "openhim-mediator-generic-mapper",
   "version": "1.0.0",
-  "description": "Scaffolding mediator to be used for tutorials",
-  "repository": "git@github.com:jembi/openhim-bootstrap-mediator.git",
+  "description": "Generic Mapping Mediator",
+  "repository": "git@github.com:jembi/openhim-mediator-mapping.git",
   "author": "Jembi Health Systems NPC",
   "license": "MIT",
   "scripts": {
