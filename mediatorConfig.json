@@ -2,5 +2,13 @@
   "urn": "urn:mediator:generic_mapper",
   "version": "1.0.0",
   "name": "Mapping Mediator",
-  "description": "Generic OpenHIM Mapping Mediator"
+  "description": "Generic OpenHIM Mapping Mediator",
+  "endpoints": [
+    {
+      "name": "Generic Mapping Mediator",
+      "host": "localhost",
+      "port": "3003",
+      "type": "http"
+    }
+  ]
 }
