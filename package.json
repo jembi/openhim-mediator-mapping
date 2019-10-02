@@ -6,12 +6,11 @@
   "author": "Jembi Health Systems NPC",
   "license": "MIT",
   "scripts": {
-    "start": "babel-node index.js"
+    "start": "nodemon"
   },
   "dependencies": {
-    "babel-cli": "^6.26.0",
-    "babel-env": "^2.4.1",
     "express": "^4.17.1",
+    "nodemon": "^1.19.3",
     "openhim-mediator-utils": "^0.2.3"
   }
 }

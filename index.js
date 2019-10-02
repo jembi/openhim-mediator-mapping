@@ -1,18 +1,21 @@
 'use strict'
 
-import express from 'express'
+const express = require('express')
 
-import {
+const {
   registerMediator,
   activateHeartbeat
-} from 'openhim-mediator-utils'
+} = require('openhim-mediator-utils')
 
-import mediatorConfig, { urn } from './mediatorConfig.json'
-import config from './config'
+const mediatorConfig = require('./mediatorConfig.json')
+const config = require('./config')
 
 const configOptions = config.getConfig()
 
-const openhimConfig = Object.assign({urn}, configOptions.openhim)
+const openhimConfig = Object.assign(
+  { urn: mediatorConfig.urn },
+  configOptions.openhim
+)
 
 const app = express()
 
