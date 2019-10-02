@@ -3,10 +3,7 @@
 const koa = require('koa')
 const koaRouter = require('koa-router')
 
-const {
-  registerMediator,
-  activateHeartbeat
-} = require('openhim-mediator-utils')
+const {registerMediator, activateHeartbeat} = require('openhim-mediator-utils')
 
 const mediatorConfig = require('./mediatorConfig.json')
 const config = require('./config')
@@ -14,7 +11,7 @@ const config = require('./config')
 const configOptions = config.getConfig()
 
 const openhimConfig = Object.assign(
-  { urn: mediatorConfig.urn },
+  {urn: mediatorConfig.urn},
   configOptions.openhim
 )
 

@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 exports.getConfig = function() {
   return Object.freeze({
