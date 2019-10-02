@@ -1,0 +1,11 @@
+{
+  "name": "OpenIMIS Patient Mapper",
+  "endpoint": {
+    "pattern": "/openIMISPatient",
+    "methods": ["POST", "GET"]
+  },
+  "transformation": {
+    "input": "JSON",
+    "output": "JSON"
+  }
+}
