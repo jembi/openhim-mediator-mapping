@@ -1,0 +1,7 @@
+{
+  "person.preferredName.givenName": "name.given[0]",
+  "person.preferredName.middleName": "name.given[]",
+  "person.preferredName.familyName": "name.family",
+  "person.preferredName.display": "name.text",
+  "deceasedBoolean": "person.dead"
+}
