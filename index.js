@@ -1,6 +1,7 @@
 'use strict'
 
-const express = require('express')
+const koa = require('koa')
+const koaRouter = require('koa-router')
 
 const {
   registerMediator,
@@ -17,11 +18,14 @@ const openhimConfig = Object.assign(
   configOptions.openhim
 )
 
-const app = express()
+const app = new koa()
+const router = new koaRouter()
 
-app.all('*', (_req, res) => {
-  res.send('Hello World')
+router.all('/', ctx => {
+  ctx.body = 'Hello World!'
 })
+
+app.use(router.routes()).use(router.allowedMethods())
 
 app.listen(configOptions.port, () => {
   console.log(`Server listening on port ${configOptions.port}...`)

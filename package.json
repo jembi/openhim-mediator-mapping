@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "express": "^4.17.1",
+    "koa": "^2.8.2",
+    "koa-router": "^7.4.0",
     "nodemon": "^1.19.3",
     "openhim-mediator-utils": "^0.2.3"
   }
