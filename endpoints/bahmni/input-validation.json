@@ -1,1 +1,549 @@
-{}
+{
+    "uuid": {
+        "type": "guid",
+        "required": true
+    },
+    "display": {
+        "type": "string",
+        "required": true
+    },
+    "identifiers": {
+        "type": "array",
+        "element": {
+            "display": {
+                "type": "string"
+            },
+            "uuid": {
+                "type": "guid"
+            },
+            "identifier": {
+                "type": "string"
+            },
+            "identifierType": {
+                "uuid": {
+                    "type": "guid"
+                },
+                "display": {
+                    "type": "string"
+                },
+                "links": {
+                    "type": "array",
+                    "element": {
+                        "rel": {
+                            "type": "string"
+                        },
+                        "uri": {
+                            "type": "link"
+                        }
+                    }
+                }
+            },
+            "location": {
+                "type": "string",
+                "required": false
+            },
+            "preferred": {
+                "type": "boolean",
+                "default": false
+            },
+            "voided": {
+                "type": "boolean",
+                "default": false
+            },
+            "links": {
+                "type": "array",
+                "element": {
+                    "rel": {
+                        "type": "string"
+                    },
+                    "uri": {
+                        "type": "link"
+                    }
+                }
+            },
+            "resourceVersion": {
+                "type": "string",
+                "required": true
+            }
+        }
+    },
+    "person": {
+        "uuid": {
+            "type": "guid"
+        },
+        "display": {
+            "type": "string"
+        },
+        "gender": {
+            "type": "string"
+        },
+        "age": {
+            "type": "number"
+        },
+        "birthdate": {
+            "type": "timestamp",
+            "format": "iso-xxx"
+        },
+        "birthdateEstimated": {
+            "type": "boolean",
+            "default": "false"
+        },
+        "dead": {
+            "type": "boolean",
+            "default": "false"
+        },
+        "deathDate": {
+            "type": "timestamp",
+            "format": "iso-xxx",
+            "required": false
+        },
+        "causeOfDeath": {
+            "type": "timestamp",
+            "format": "iso-xxx",
+            "required": false
+        },
+        "preferredName": {
+            "display": {
+                "type": "string"
+            },
+            "uuid": {
+                "type": "guid"
+            },
+            "givenName": {
+                "type": "string"
+            },
+            "middleName": {
+                "type": "string"
+            },
+            "familyName": {
+                "type": "string"
+            },
+            "familyName2": {
+                "type": "string",
+                "required": false
+            },
+            "voided": {
+                "type": "boolean",
+                "default": false
+            },
+            "links": {
+                "type": "array",
+                "element": {
+                    "rel": {
+                        "type": "string"
+                    },
+                    "uri": {
+                        "type": "link"
+                    }
+                }
+            },
+            "resourceVersion": {
+                "type": "string",
+                "required": true
+            }
+        },
+        "preferredAddress": {
+            "display": {
+                "type": "string"
+            },
+            "uuid": {
+                "type": "guid"
+            },
+            "preferred": {
+                "type": "boolean"
+            },
+            "address1": {
+                "type": "string"
+            },
+            "address2": {
+                "type": "string"
+            },
+            "cityVillage": {
+                "type": "string"
+            },
+            "stateProvince": {
+                "type": "string"
+            },
+            "country": {
+                "type": "string"
+            },
+            "postalCode": {
+                "type": "string"
+            },
+            "countyDistrict": {
+                "type": "string"
+            },
+            "address3": {
+                "type": "string"
+            },
+            "address4": {
+                "type": "string"
+            },
+            "address5": {
+                "type": "string"
+            },
+            "address6": {
+                "type": "string"
+            },
+            "startDate": {
+                "type": "timestamp"
+            },
+            "endDate": {
+                "type": "timestamp"
+            },
+            "latitude": {
+                "type": "number"
+            },
+            "longitude": {
+                "type": "number"
+            },
+            "voided": {
+                "type": "boolean"
+            },
+            "address7": {
+                "type": "string"
+            },
+            "address8": {
+                "type": "string"
+            },
+            "address9": {
+                "type": "string"
+            },
+            "address10": {
+                "type": "string"
+            },
+            "address11": {
+                "type": "string"
+            },
+            "address12": {
+                "type": "string"
+            },
+            "address13": {
+                "type": "string"
+            },
+            "address14": {
+                "type": "string"
+            },
+            "address15": {
+                "type": "string"
+            },
+            "links": {
+                "type": "array",
+                "element": {
+                    "rel": {
+                        "type": "string"
+                    },
+                    "uri": {
+                        "type": "link"
+                    }
+                }
+            },
+            "resourceVersion": "2.0"
+        },
+        "names": {
+            "type": "array",
+            "element": {
+                "display": {
+                    "type": "string"
+                },
+                "uuid": {
+                    "type": "guid"
+                },
+                "givenName": {
+                    "type": "string"
+                },
+                "middleName": {
+                    "type": "string"
+                },
+                "familyName": {
+                    "type": "string"
+                },
+                "familyName2": {
+                    "type": "string"
+                },
+                "voided": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "links": {
+                    "type": "array",
+                    "element": {
+                        "rel": {
+                            "type": "string"
+                        },
+                        "uri": {
+                            "type": "link"
+                        }
+                    }
+                },
+                "resourceVersion": {
+                    "type": "string",
+                    "required": true
+                }
+            }
+        },
+        "addresses": {
+            "type": "array",
+            "element": {
+                "display": {
+                    "type": "string"
+                },
+                "uuid": {
+                    "type": "guid"
+                },
+                "preferred": {
+                    "type": "boolean"
+                },
+                "address1": {
+                    "type": "string"
+                },
+                "address2": {
+                    "type": "string"
+                },
+                "cityVillage": {
+                    "type": "string"
+                },
+                "stateProvince": {
+                    "type": "string"
+                },
+                "country": {
+                    "type": "string"
+                },
+                "postalCode": {
+                    "type": "string"
+                },
+                "countyDistrict": {
+                    "type": "string"
+                },
+                "address3": {
+                    "type": "string"
+                },
+                "address4": {
+                    "type": "string"
+                },
+                "address5": {
+                    "type": "string"
+                },
+                "address6": {
+                    "type": "string"
+                },
+                "startDate": {
+                    "type": "timestamp"
+                },
+                "endDate": {
+                    "type": "timestamp"
+                },
+                "latitude": {
+                    "type": "number"
+                },
+                "longitude": {
+                    "type": "number"
+                },
+                "voided": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "address7": {
+                    "type": "string"
+                },
+                "address8": {
+                    "type": "string"
+                },
+                "address9": {
+                    "type": "string"
+                },
+                "address10": {
+                    "type": "string"
+                },
+                "address11": {
+                    "type": "string"
+                },
+                "address12": {
+                    "type": "string"
+                },
+                "address13": {
+                    "type": "string"
+                },
+                "address14": {
+                    "type": "string"
+                },
+                "address15": {
+                    "type": "string"
+                },
+                "links": {
+                    "type": "array",
+                    "element": {
+                        "rel": {
+                            "type": "string"
+                        },
+                        "uri": {
+                            "type": "link"
+                        }
+                    }
+                },
+                "resourceVersion": {
+                    "type": "string",
+                    "required": true
+                }
+            }
+        },
+        "attributes": {
+            "type": "array",
+            "element": {
+                "display": {
+                    "type": "string"
+                },
+                "uuid": {
+                    "type": "guid"
+                },
+                "value": {
+                    "type": "string"
+                },
+                "attributeType": {
+                    "type": "object",
+                    "element": {
+                        "uuid": {
+                            "type": "guid"
+                        },
+                        "display": {
+                            "type": "string"
+                        },
+                        "links": {
+                            "rel": {
+                                "type": "string"
+                            },
+                            "uri": {
+                                "type": "link"
+                            }
+                        }
+                    }
+                },
+                "voided": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "links": {
+                    "type": "array",
+                    "element": {
+                        "rel": {
+                            "type": "string"
+                        },
+                        "uri": {
+                            "type": "link"
+                        }
+                    }
+                },
+                "resourceVersion": {
+                    "type": "string",
+                    "required": true
+                }
+            }
+        },
+        "voided": {
+            "type": "boolean",
+            "default": false
+        },
+        "auditInfo": {
+            "type": "object",
+            "element": {
+                "creator": {
+                    "uuid": {
+                        "type": "guid"
+                    },
+                    "display": {
+                        "type": "string"
+                    },
+                    "links": {
+                        "type": "array",
+                        "element": {
+                            "rel": {
+                                "type": "string"
+                            },
+                            "uri": {
+                                "type": "link"
+                            }
+                        }
+                    }
+                }
+            },
+            "dateCreated": {
+                "type": "timestamp"
+            },
+            "changedBy": {
+                "type": "string"
+            },
+            "dateChanged": {
+                "type": "timestamp"
+            }
+        },
+        "deathdateEstimated": {
+            "type": "boolean",
+            "default": false 
+        },
+        "birthtime": {
+            "type": "timestamp"
+        },
+        "links": {
+            "type": "array",
+            "element": {
+                "rel": {
+                    "type": "string"
+                },
+                "uri": {
+                    "type": "link"
+                }
+            }
+        },
+        "resourceVersion": {
+            "type": "string"
+        }
+    },
+    "voided": {
+        "type": "boolean"
+    },
+    "auditInfo": {
+        "type": "object",
+        "element": {
+            "creator": {
+                "uuid": {
+                    "type": "guid"
+                },
+                "display": {
+                    "type": "string"
+                },
+                "links": {
+                    "type": "array",
+                    "element": {
+                        "rel": {
+                            "type": "string"
+                        },
+                        "uri": {
+                            "type": "link"
+                        }
+                    }
+                }
+            }
+        },
+        "dateCreated": {
+            "type": "timestamp"
+        },
+        "changedBy": {
+            "type": "string"
+        },
+        "dateChanged": {
+            "type": "string"
+        }
+    },
+    "links": {
+        "rel": {
+            "type": "string"
+        },
+        "uri": {
+            "type": "link"
+        }
+    },
+    "resourceVersion": {
+        "type": "string",
+        "required": true
+    }
+}
