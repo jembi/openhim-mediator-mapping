@@ -2,17 +2,20 @@
 
 const koa = require('koa')
 const koaRouter = require('koa-router')
+const fs = require('fs')
 
 const {registerMediator, activateHeartbeat} = require('openhim-mediator-utils')
 
 const logger = require('./logger')
-const mediatorConfig = require('../mediatorConfig.json')
 const config = require('./config')
+
+const mediatorConfigFile = fs.readFileSync(__dirname +'/../mediatorConfig.json')
+const mediatorConfigJson = JSON.parse(mediatorConfigFile)
 
 const configOptions = config.getConfig()
 
 const openhimConfig = Object.assign(
-  {urn: mediatorConfig.urn},
+  {urn: mediatorConfigJson.urn},
   configOptions.openhim
 )
 
@@ -32,7 +35,7 @@ app.listen(configOptions.port, () => {
 })
 
 const mediatorSetup = () => {
-  registerMediator(openhimConfig, mediatorConfig, err => {
+  registerMediator(openhimConfig, mediatorConfigJson, err => {
     if (err) {
       logger.error('Failed to register mediator. Check your Config: ', err)
       process.exit(1)
