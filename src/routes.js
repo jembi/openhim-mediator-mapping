@@ -13,8 +13,7 @@ exports.createRoutes = router => {
 
 const validateDirectoryStructure = () => {
   if (!fs.existsSync(path.resolve(__dirname, '..', 'endpoints'))) {
-    logger.error('Directory "endpoints" not found in project root')
-    process.exit(1)
+    throw new Error('Directory "endpoints" not found in project root')
   }
 
   const routeDirectories = fs.readdirSync(
@@ -36,8 +35,7 @@ const validateDirectoryStructure = () => {
     })
   })
   if (!correctDirectoryStructure) {
-    logger.error('Add required files then restart app')
-    process.exit(1)
+    throw new Error('Add required files then restart app')
   }
 }
 
