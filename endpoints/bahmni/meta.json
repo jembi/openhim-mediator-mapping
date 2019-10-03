@@ -1,8 +1,8 @@
 {
   "name": "Bahmni Patient Mapper",
   "endpoint": {
-    "pattern": "/BahmniPatient",
-    "methods": ["POST", "GET"]
+    "pattern": "/bahmniPatient",
+    "methods": ["POST"]
   },
   "transformation": {
     "input": "JSON",
