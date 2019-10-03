@@ -3,6 +3,7 @@
 const koa = require('koa')
 const koaRouter = require('koa-router')
 const fs = require('fs')
+const path = require('path')
 
 const {registerMediator, activateHeartbeat} = require('openhim-mediator-utils')
 
@@ -10,7 +11,7 @@ const logger = require('./logger')
 const config = require('./config')
 
 const mediatorConfigFile = fs.readFileSync(
-  __dirname + '/../mediatorConfig.json'
+  path.resolve(__dirname, '..', 'mediatorConfig.json')
 )
 const mediatorConfigJson = JSON.parse(mediatorConfigFile)
 
