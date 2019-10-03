@@ -6,7 +6,7 @@ const koaRouter = require('koa-router')
 const {registerMediator, activateHeartbeat} = require('openhim-mediator-utils')
 
 const logger = require('./logger')
-const mediatorConfig = require('./mediatorConfig.json')
+const mediatorConfig = require('../mediatorConfig.json')
 const config = require('./config')
 
 const configOptions = config.getConfig()
