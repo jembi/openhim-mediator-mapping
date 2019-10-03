@@ -1,11 +1,13 @@
-FROM node:10-alpine
+FROM node:dubnium-alpine
+
 WORKDIR /app
 
-# Copy app files into container
-COPY . /app
+COPY package.json package-lock.json ./
 
-# Install node packages
 RUN npm install
 
-CMD npm start
-EXPOSE 3000
+COPY . .
+
+CMD ["npm", "start"]
+
+EXPOSE 3003
