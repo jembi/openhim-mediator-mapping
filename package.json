@@ -6,7 +6,8 @@
   "author": "Jembi Health Systems NPC",
   "license": "MIT",
   "scripts": {
-    "start": "nodemon src/index.js"
+    "start": "node src/index.js",
+    "start:dev": "nodemon src/index.js"
   },
   "dependencies": {
     "express": "^4.17.1",
