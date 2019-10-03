@@ -13,7 +13,9 @@
     "koa": "^2.8.2",
     "koa-router": "^7.4.0",
     "nodemon": "^1.19.3",
-    "openhim-mediator-utils": "^0.2.3"
+    "openhim-mediator-utils": "^0.2.3",
+    "pino": "^5.13.4",
+    "pino-pretty": "^3.2.1"
   },
   "devDependencies": {
     "eslint-config-prettier": "^6.3.0",
