@@ -1,7 +1,14 @@
 {
   "person.preferredName.givenName": "name.given[0]",
-  "person.preferredName.middleName": "name.given[]",
+  "person.preferredName.middleName": "name.given[1]",
   "person.preferredName.familyName": "name.family",
   "person.preferredName.display": "name.text",
-  "deceasedBoolean": "person.dead"
+  "deceasedBoolean": "person.dead",
+  "person.addresses[0].display": "address[0].text",
+  "person.addresses[0].countyDistrict": "address[0].district",
+  "person.addresses[0].postalcode": "address[0].postalCode",
+  "person.addresses[0].country": "address[0].country",
+  "person.addresses[0].stateProvince": "address[0].state",
+  "person.addresses[0].cityVillage": "address[0].city",
+  "person.uuid": "id"
 }
