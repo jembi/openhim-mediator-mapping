@@ -4,7 +4,7 @@ const fs = require('fs')
 const path = require('path')
 
 const logger = require('./logger')
-const {expectedEndpointsDirectories} = require('./constants')
+const {expectedEndpointsDirectories, meta} = require('./constants')
 
 exports.createRoutes = router => {
   validateDirectoryStructure()
@@ -36,7 +36,7 @@ const validateDirectoryStructure = () => {
     })
   })
   if (!correctDirectoryStructure) {
-    logger.error('Add required files')
+    logger.error('Add required files then restart app')
     process.exit(1)
   }
 }
@@ -48,13 +48,15 @@ const setUpRoutes = router => {
 
   routeDirectories.forEach(directory => {
     const metaFile = fs.readFileSync(
-      path.resolve(__dirname, '..', 'endpoints', directory, 'meta.json')
+      path.resolve(__dirname, '..', 'endpoints', directory, meta)
     )
     const metaJson = JSON.parse(metaFile)
     router.post(metaJson.endpoint.pattern, ctx => {
       ctx.body = `${directory} path exists!`
     })
-    logger.info(`New Route added: ${directory} at path ${metaJson.endpoint.pattern}`)
+    logger.info(
+      `New Route added: ${directory} at path ${metaJson.endpoint.pattern}`
+    )
   })
 }
 
