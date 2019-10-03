@@ -9,7 +9,9 @@ const {registerMediator, activateHeartbeat} = require('openhim-mediator-utils')
 const logger = require('./logger')
 const config = require('./config')
 
-const mediatorConfigFile = fs.readFileSync(__dirname +'/../mediatorConfig.json')
+const mediatorConfigFile = fs.readFileSync(
+  __dirname + '/../mediatorConfig.json'
+)
 const mediatorConfigJson = JSON.parse(mediatorConfigFile)
 
 const configOptions = config.getConfig()
@@ -25,6 +27,11 @@ const router = new koaRouter()
 router.all('/', ctx => {
   ctx.body = 'Hello World!'
 })
+
+if (!fs.existsSync(__dirname + '/../endpoints')) {
+  logger.error('Directory "endpoints" not found in project root')
+  process.exit(1)
+}
 
 app.use(router.routes()).use(router.allowedMethods())
 
