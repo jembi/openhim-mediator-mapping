@@ -8,10 +8,7 @@ const {expectedEndpointsDirectories} = require('./constants')
 
 exports.createRoutes = router => {
   validateDirectoryStructure()
-
-  router.all('/', ctx => {
-    ctx.body = 'Hello World!'
-  })
+  setUpRoutes(router)
 }
 
 const validateDirectoryStructure = () => {
@@ -44,4 +41,22 @@ const validateDirectoryStructure = () => {
   }
 }
 
+const setUpRoutes = router => {
+  const routeDirectories = fs.readdirSync(
+    path.resolve(__dirname, '..', 'endpoints')
+  )
+
+  routeDirectories.forEach(directory => {
+    const metaFile = fs.readFileSync(
+      path.resolve(__dirname, '..', 'endpoints', directory, 'meta.json')
+    )
+    const metaJson = JSON.parse(metaFile)
+    router.post(metaJson.endpoint.pattern, ctx => {
+      ctx.body = `${directory} path exists!`
+    })
+    logger.info(`New Route added: ${directory} at path ${metaJson.endpoint.pattern}`)
+  })
+}
+
+exports.setUpRoutes
 exports.validateDirectoryStructure
