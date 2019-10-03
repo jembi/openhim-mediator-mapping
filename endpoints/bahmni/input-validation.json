@@ -1,1 +1,17 @@
-{}
+{
+  "name": {
+    "type": "string",
+    "required": true
+  },
+  "addresses": {
+    "type": "array",
+    "required": true
+  },
+  "age": {
+    "type": "Number"
+  },
+  "active": {
+    "type": "boolean",
+    "default": true
+  }
+}
