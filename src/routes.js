@@ -57,6 +57,3 @@ const setUpRoutes = router => {
     )
   })
 }
-
-exports.setUpRoutes
-exports.validateDirectoryStructure
