@@ -80,6 +80,20 @@ const createJoiValidationSchema = (resourceName) => {
   return null
 }
 
+const validateInput = (ctx, joiSchema) => {
+  const { error, result } = joiSchema.validate(ctx.input)
+
+  if (error) {
+    ctx.isInputValid = false
+    ctx.status = 400
+    ctx.body = error
+  } else {
+    ctx.isInputValid = true
+    ctx.input = result
+  }
+}
+
 if (process.env.NODE_ENV == "test") {
   exports.createJoiValidationSchema = createJoiValidationSchema
+  exports.validateInput = validateInput
 }
