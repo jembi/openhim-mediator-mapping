@@ -4,7 +4,12 @@ const fs = require('fs')
 const path = require('path')
 
 const logger = require('./logger')
-const {expectedEndpointsDirectories, meta} = require('./constants')
+const {
+  expectedEndpointsDirectories,
+  meta,
+  inputValidation,
+  inputMapping
+} = require('./constants')
 
 exports.createRoutes = router => {
   validateDirectoryStructure()
@@ -39,6 +44,31 @@ const validateDirectoryStructure = () => {
   }
 }
 
+const validateInput = directory => async (ctx, next) => {
+  const validationFile = fs.readFileSync(
+    path.resolve(__dirname, '..', 'endpoints', directory, inputValidation)
+  )
+
+  const validationSchema = JSON.parse(validationFile)
+  ctx.validation = validationSchema
+
+  await next()
+
+  logger.debug(`Mapping Schema: ${JSON.stringify(ctx.mapping)}`)
+}
+
+const transformInput = directory => ctx => {
+  logger.debug(`Validation Schema: ${JSON.stringify(ctx.validation)}`)
+
+  const mappingFile = fs.readFileSync(
+    path.resolve(__dirname, '..', 'endpoints', directory, inputMapping)
+  )
+  const mappingSchema = JSON.parse(mappingFile)
+
+  ctx.status = 200
+  ctx.mapping = mappingSchema
+}
+
 const setUpRoutes = router => {
   const routeDirectories = fs.readdirSync(
     path.resolve(__dirname, '..', 'endpoints')
@@ -49,9 +79,12 @@ const setUpRoutes = router => {
       path.resolve(__dirname, '..', 'endpoints', directory, meta)
     )
     const metaJson = JSON.parse(metaFile)
-    router.post(metaJson.endpoint.pattern, ctx => {
-      ctx.body = `${directory} path exists!`
-    })
+    router.post(
+      metaJson.endpoint.pattern,
+      validateInput(directory),
+      transformInput(directory)
+    )
+
     logger.info(
       `New Route added: ${directory} at path ${metaJson.endpoint.pattern}`
     )
