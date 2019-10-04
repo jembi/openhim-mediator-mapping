@@ -93,6 +93,21 @@ const validateInput = (ctx, joiSchema) => {
   }
 }
 
+exports.validationMiddleware = (ctx, next) => {
+  if (ctx && ctx.resourceName) {
+    const joiSchema = createJoiValidationSchema(ctx.resourceName)
+
+    if (joiSchema) {
+      validateInput(ctx, joiSchema)
+    } else {
+      ctx.error = 'Joi validation schema creation failed'
+    }
+  } else {
+    ctx.error = 'Resource to be created not given'
+  }
+  await next()
+}
+
 if (process.env.NODE_ENV == "test") {
   exports.createJoiValidationSchema = createJoiValidationSchema
   exports.validateInput = validateInput
