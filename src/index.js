@@ -39,8 +39,8 @@ app.listen(configOptions.port, () => {
 const mediatorSetup = () => {
   registerMediator(openhimConfig, mediatorConfigJson, err => {
     if (err) {
-      logger.error('Failed to register mediator. Check your Config: ', err)
-      process.exit(1)
+      logger.error('Failed to register mediator')
+      throw new Error(err.message)
     }
 
     logger.info('Successfully registered mediator!')
