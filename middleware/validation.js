@@ -1,7 +1,8 @@
 'use strict'
 
 const Joi = require('@hapi/joi')
-const bahmniPatientInputValidations = require('../endpoints/bahmni/input-validation.json')
+const bahmniInputValidations = require('../endpoints/bahmni/input-validation.json')
+const openIMISInputValidations = require('../endpoints/openIMIS/input-validation.json')
 
 // This method creates a joi vaidation schema. It returns null if the scheam creation fails
 const createJoiValidationSchema = (resourceName) => {
@@ -11,8 +12,12 @@ const createJoiValidationSchema = (resourceName) => {
   // TODO add more cases for other resources
   switch (resourceName) {
     case 'bahmniPatient':
-      validations = bahmniPatientInputValidations
-      break;
+      validations = bahmniInputValidations
+      break
+
+    case 'openIMIS':
+      validations = openIMISInputValidations
+      break
 
     default:
       break;
@@ -78,4 +83,3 @@ const createJoiValidationSchema = (resourceName) => {
 if (process.env.NODE_ENV == "test") {
   exports.createJoiValidationSchema = createJoiValidationSchema
 }
-
