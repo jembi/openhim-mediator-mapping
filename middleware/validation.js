@@ -93,7 +93,7 @@ const validateInput = (ctx, joiSchema) => {
   }
 }
 
-exports.validationMiddleware = (ctx, next) => {
+exports.validationMiddleware = async (ctx, next) => {
   if (ctx && ctx.resourceName) {
     const joiSchema = createJoiValidationSchema(ctx.resourceName)
 
