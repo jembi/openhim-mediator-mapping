@@ -5,13 +5,21 @@ const { createJoiValidationSchema, validateInput } = require('../../middleware/v
 tape.test('Validation Middleware', t => {
   t.test('createJoiValidationSchema()' , t => {
     t.test('should return null when resource name is not supported', t => {
-      const result = createJoiValidationSchema('unsupported')
+      const ctx = {
+        resourceName: 'unsupported' 
+      }
+
+      const result = createJoiValidationSchema(ctx)
       t.equal(result, null)
       t.end()
     })
   
     t.test('should return a schema object', t => {
-      const result = createJoiValidationSchema('bahmniPatient')
+      const ctx = {
+        resourceName: 'bahmni'
+      }
+
+      const result = createJoiValidationSchema(ctx)
       t.notEqual(result, null)
       t.end()
     })
