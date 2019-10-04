@@ -28,5 +28,5 @@ const map = {
   
 const expected = '{"Envelope":{"Request":{"Item":{"SKU":"12345","UPC":"99999912345X","ShortTitle":"Test Item","ShortDescription":"Description of test item","Dimensions":{"Length":5,"Width":2,"Height":8},"Inventory":12}}}}'
 
-tap.equal(expected, JSON.stringify(mapper(src, map)))
+tap.equal(JSON.stringify(mapper(src, map)), expected)
 
