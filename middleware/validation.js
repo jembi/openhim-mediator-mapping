@@ -1,26 +1,24 @@
 'use strict'
 
 const Joi = require('@hapi/joi')
-const bahmniInputValidations = require('../endpoints/bahmni/input-validation.json')
-const openIMISInputValidations = require('../endpoints/openIMIS/input-validation.json')
+const path = require('path')
+const fs = require('fs')
 
-// This method creates a joi vaidation schema. It returns null if the scheam creation fails
-const createJoiValidationSchema = (resourceName) => {
+/*
+  This method creates a joi vaidation schema.
+  It returns null if the schema creation fails and updates the context with an error
+*/
+const createJoiValidationSchema = (ctx) => {
   let validations
   const schemaObject = {}
 
-  // TODO add more cases for other resources
-  switch (resourceName) {
-    case 'bahmniPatient':
-      validations = bahmniInputValidations
-      break
-
-    case 'openIMIS':
-      validations = openIMISInputValidations
-      break
-
-    default:
-      break;
+  try {
+    const resourcePath = path.resolve(__dirname, '..', 'endpoints', ctx.resourceName, 'input-validation.json')
+    const file = fs.readFileSync(resourcePath)
+    validations = JSON.parse(file)
+  } catch (error) {
+    ctx.error = error
+    return null
   }
 
   if (validations) {
@@ -74,6 +72,7 @@ const createJoiValidationSchema = (resourceName) => {
     })
 
     if (schemaObject) return Joi.object(schemaObject)
+    ctx.error = 'Joi validation schema creation failed'
     return null
   }
 
@@ -95,15 +94,13 @@ const validateInput = (ctx, joiSchema) => {
 
 exports.validationMiddleware = async (ctx, next) => {
   if (ctx && ctx.resourceName) {
-    const joiSchema = createJoiValidationSchema(ctx.resourceName)
+    const joiSchema = createJoiValidationSchema(ctx)
 
     if (joiSchema) {
       validateInput(ctx, joiSchema)
-    } else {
-      ctx.error = 'Joi validation schema creation failed'
     }
   } else {
-    ctx.error = 'Resource to be created not given'
+    ctx.error = 'Input resource name not given'
   }
   await next()
 }
