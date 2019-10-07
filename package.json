@@ -15,8 +15,10 @@
   "dependencies": {
     "express": "^4.17.1",
     "koa": "^2.8.2",
+    "koa-body": "^4.1.1",
     "koa-router": "^7.4.0",
     "nodemon": "^1.19.3",
+    "object-mapper": "^5.0.0",
     "openhim-mediator-utils": "^0.2.3",
     "pino": "^5.13.4",
     "pino-pretty": "^3.2.1"

@@ -2,6 +2,7 @@
 
 const fs = require('fs')
 const path = require('path')
+const objectMapper = require('object-mapper')
 
 const logger = require('../logger')
 const {inputMapping} = require('../constants')
@@ -14,6 +15,7 @@ const transformInput = directory => ctx => {
   )
   const mappingSchema = JSON.parse(mappingFile)
 
+  ctx.body = objectMapper(ctx.request.body, mappingSchema)
   ctx.status = 200
   ctx.mapping = mappingSchema
 }
