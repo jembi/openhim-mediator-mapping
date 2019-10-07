@@ -1,19 +1,22 @@
 const tape = require('tape')
 const Joi = require('@hapi/joi')
-const { createJoiValidationSchema, validateInput } = require('../../middleware/validation')
+const {
+  createJoiValidationSchema,
+  validateInput
+} = require('../../middleware/validation')
 
 tape.test('Validation Middleware', t => {
-  t.test('createJoiValidationSchema()' , t => {
+  t.test('createJoiValidationSchema()', t => {
     t.test('should return null when resource name is not supported', t => {
       const ctx = {
-        resourceName: 'unsupported' 
+        resourceName: 'unsupported'
       }
 
       const result = createJoiValidationSchema(ctx)
       t.equal(result, null)
       t.end()
     })
-  
+
     t.test('should return a schema object', t => {
       const ctx = {
         resourceName: 'bahmni'
@@ -32,21 +35,24 @@ tape.test('Validation Middleware', t => {
       age: Joi.number().required()
     })
 
-    t.test('should update ctx properties\' status and isInputValid when validation fails', t => {
-      const ctx = {
-        input: {
-          name: 'tyler',
-          surname: 'durden'
+    t.test(
+      "should update ctx properties' status and isInputValid when validation fails",
+      t => {
+        const ctx = {
+          input: {
+            name: 'tyler',
+            surname: 'durden'
+          }
         }
+
+        validateInput(ctx, joiSchema)
+
+        t.equal(ctx.status, 400)
+        t.equal(ctx.isInputValid, false)
+        t.notEqual(ctx.body.toString().match(/"age" is required/).length, 0)
+        t.end()
       }
-
-      validateInput(ctx, joiSchema)
-
-      t.equal(ctx.status, 400)
-      t.equal(ctx.isInputValid, false)
-      t.notEqual(ctx.body.toString().match(/"age" is required/).length, 0)
-      t.end()
-    })
+    )
 
     t.test('should update ctx response body when validation fails', t => {
       const ctx = {
@@ -62,19 +68,22 @@ tape.test('Validation Middleware', t => {
       t.end()
     })
 
-    t.test('should update the isInputValid property to true when validation succeeds', t => {
-      const ctx = {
-        input: {
-          name: 'tyler',
-          surname: 'durden',
-          age: 21
+    t.test(
+      'should update the isInputValid property to true when validation succeeds',
+      t => {
+        const ctx = {
+          input: {
+            name: 'tyler',
+            surname: 'durden',
+            age: 21
+          }
         }
+
+        validateInput(ctx, joiSchema)
+
+        t.equal(ctx.isInputValid, true)
+        t.end()
       }
-
-      validateInput(ctx, joiSchema)
-
-      t.equal(ctx.isInputValid, true)
-      t.end()
-    })
+    )
   })
 })

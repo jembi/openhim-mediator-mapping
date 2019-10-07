@@ -8,12 +8,18 @@ const fs = require('fs')
   This method creates a joi vaidation schema.
   It returns null if the schema creation fails and updates the context with an error
 */
-const createJoiValidationSchema = (ctx) => {
+const createJoiValidationSchema = ctx => {
   let validations
   const schemaObject = {}
 
   try {
-    const resourcePath = path.resolve(__dirname, '..', 'endpoints', ctx.resourceName, 'input-validation.json')
+    const resourcePath = path.resolve(
+      __dirname,
+      '..',
+      'endpoints',
+      ctx.resourceName,
+      'input-validation.json'
+    )
     const file = fs.readFileSync(resourcePath)
     validations = JSON.parse(file)
   } catch (error) {
@@ -32,9 +38,9 @@ const createJoiValidationSchema = (ctx) => {
             schemaObject[`${key}`] = Joi.string().default(rule.default)
           } else {
             schemaObject[`${key}`] = Joi.string()
-          } 
-          break;
-        
+          }
+          break
+
         case 'number':
           if (rule.required) {
             schemaObject[`${key}`] = Joi.number().required()
@@ -42,9 +48,9 @@ const createJoiValidationSchema = (ctx) => {
             schemaObject[`${key}`] = Joi.number().default(rule.default)
           } else {
             schemaObject[`${key}`] = Joi.number()
-          } 
-          break;
-        
+          }
+          break
+
         case 'boolean':
           if (rule.required) {
             schemaObject[`${key}`] = Joi.boolean().required()
@@ -53,8 +59,8 @@ const createJoiValidationSchema = (ctx) => {
           } else {
             schemaObject[`${key}`] = Joi.boolean()
           }
-          break;
-        
+          break
+
         case 'array':
           if (rule.required) {
             schemaObject[`${key}`] = Joi.array().required()
@@ -63,11 +69,10 @@ const createJoiValidationSchema = (ctx) => {
           } else {
             schemaObject[`${key}`] = Joi.array()
           }
-          break;
+          break
 
         default:
-
-          break;
+          break
       }
     })
 
@@ -80,7 +85,7 @@ const createJoiValidationSchema = (ctx) => {
 }
 
 const validateInput = (ctx, joiSchema) => {
-  const { error, result } = joiSchema.validate(ctx.input)
+  const {error, result} = joiSchema.validate(ctx.input)
 
   if (error) {
     ctx.isInputValid = false
@@ -105,7 +110,7 @@ exports.validationMiddleware = async (ctx, next) => {
   await next()
 }
 
-if (process.env.NODE_ENV == "test") {
+if (process.env.NODE_ENV == 'test') {
   exports.createJoiValidationSchema = createJoiValidationSchema
   exports.validateInput = validateInput
 }
