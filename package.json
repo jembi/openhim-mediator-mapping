@@ -6,8 +6,11 @@
   "author": "Jembi Health Systems NPC",
   "license": "MIT",
   "scripts": {
+    "lint": "prettier --write src/**/*.js",
+    "lint:check": "prettier --check src/**/*.js",
     "start": "node src/index.js",
-    "start:dev": "nodemon src/index.js"
+    "start:dev": "nodemon src/index.js",
+    "test": "echo add tests"
   },
   "dependencies": {
     "express": "^4.17.1",
