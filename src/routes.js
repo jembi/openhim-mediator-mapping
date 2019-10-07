@@ -5,6 +5,8 @@ const path = require('path')
 
 const logger = require('./logger')
 const {expectedEndpointsDirectories, meta} = require('./constants')
+const {validateInput} = require('./middleware/validator')
+const {transformInput} = require('./middleware/mapper')
 
 exports.createRoutes = router => {
   validateDirectoryStructure()
@@ -49,9 +51,12 @@ const setUpRoutes = router => {
       path.resolve(__dirname, '..', 'endpoints', directory, meta)
     )
     const metaJson = JSON.parse(metaFile)
-    router.post(metaJson.endpoint.pattern, ctx => {
-      ctx.body = `${directory} path exists!`
-    })
+    router.post(
+      metaJson.endpoint.pattern,
+      validateInput(directory),
+      transformInput(directory)
+    )
+
     logger.info(
       `New Route added: ${directory} at path ${metaJson.endpoint.pattern}`
     )
