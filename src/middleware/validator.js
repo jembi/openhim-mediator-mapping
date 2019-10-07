@@ -21,7 +21,7 @@ const createJoiValidationSchema = ctx => {
       '..',
       '..',
       'endpoints',
-      ctx.resourceName,
+      ctx.directory,
       inputValidation
     )
     const file = fs.readFileSync(resourcePath)
@@ -94,26 +94,26 @@ const createJoiValidationSchema = ctx => {
 }
 
 const validateInput = (ctx, joiSchema) => {
-  const {error, result} = joiSchema.validate(ctx.input)
+  const {error, value} = joiSchema.validate(ctx.request.body)
 
   if (error) {
-    logger.error(`User input failed validation: ${error}`)
-    ctx.isInputValid = false
     ctx.status = 400
     ctx.body = error
   } else {
     logger.debug('Successfully validated user input')
-    ctx.isInputValid = true
-    ctx.input = result
+    ctx.input = value
   }
 }
 
-exports.validationMiddleware = async (ctx, next) => {
-  if (ctx && ctx.resourceName) {
+exports.validationMiddleware = (directory) => async (ctx, next) => {
+  if (directory) {
+    ctx.directory = directory
     const joiSchema = createJoiValidationSchema(ctx)
 
-    if (joiSchema) {
-      validateInput(ctx, joiSchema)
+    validateInput(ctx, joiSchema)
+    if (!ctx.input) {
+      logger.error(`Validation Failed: ${ctx.body.message}`)
+      return new Error(`Validation Failed: ${ctx.body}`)
     }
   } else {
     logger.error('No input resource name provided')

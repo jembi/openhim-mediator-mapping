@@ -7,15 +7,15 @@ const objectMapper = require('object-mapper')
 const logger = require('../logger')
 const {inputMapping} = require('../constants')
 
-const transformInput = directory => ctx => {
-  logger.debug(`Validation Schema: ${JSON.stringify(ctx.validation)}`)
+const transformInput = ctx => {
+  logger.debug(`Validation Schema: ${JSON.stringify(ctx.input)}`)
 
   const mappingFile = fs.readFileSync(
-    path.resolve(__dirname, '..', '..', 'endpoints', directory, inputMapping)
+    path.resolve(__dirname, '..', '..', 'endpoints', ctx.directory, inputMapping)
   )
   const mappingSchema = JSON.parse(mappingFile)
 
-  ctx.body = objectMapper(ctx.request.body, mappingSchema)
+  ctx.body = objectMapper(ctx.input, mappingSchema)
   ctx.status = 200
   ctx.mapping = mappingSchema
 }

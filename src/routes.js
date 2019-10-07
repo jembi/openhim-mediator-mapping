@@ -5,7 +5,7 @@ const path = require('path')
 
 const logger = require('./logger')
 const {expectedEndpointsDirectories, meta} = require('./constants')
-const {validateInput} = require('./middleware/validator')
+const {validationMiddleware} = require('./middleware/validator')
 const {transformInput} = require('./middleware/mapper')
 
 exports.createRoutes = router => {
@@ -53,8 +53,8 @@ const setUpRoutes = router => {
     const metaJson = JSON.parse(metaFile)
     router.post(
       metaJson.endpoint.pattern,
-      validateInput(directory),
-      transformInput(directory)
+      validationMiddleware(directory),
+      transformInput
     )
 
     logger.info(
