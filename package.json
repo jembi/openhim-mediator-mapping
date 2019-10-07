@@ -6,16 +6,20 @@
   "author": "Jembi Health Systems NPC",
   "license": "MIT",
   "scripts": {
-    "test": "NODE_ENV='test' tape tests/*/*Test.js",
+    "lint": "prettier --write src/**/*.js",
+    "lint:check": "prettier --check src/**/*.js",
     "start": "node src/index.js",
-    "start:dev": "nodemon src/index.js"
+    "start:dev": "nodemon src/index.js",
+    "test": "NODE_ENV='test' tape tests/*/*Test.js"
   },
   "dependencies": {
     "@hapi/joi": "^16.1.5",
     "express": "^4.17.1",
     "koa": "^2.8.2",
+    "koa-body": "^4.1.1",
     "koa-router": "^7.4.0",
     "nodemon": "^1.19.3",
+    "object-mapper": "^5.0.0",
     "openhim-mediator-utils": "^0.2.3",
     "pino": "^5.13.4",
     "pino-pretty": "^3.2.1"
