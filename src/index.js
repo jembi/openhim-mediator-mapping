@@ -1,6 +1,7 @@
 'use strict'
 
 const koa = require('koa')
+const koaBody = require('koa-body')
 const koaRouter = require('koa-router')
 const fs = require('fs')
 const path = require('path')
@@ -28,7 +29,7 @@ const router = new koaRouter()
 
 routes.createRoutes(router)
 
-app.use(router.routes()).use(router.allowedMethods())
+app.use(koaBody()).use(router.routes()).use(router.allowedMethods())
 
 app.listen(configOptions.port, () => {
   logger.info(`Server listening on port ${configOptions.port}...`)
