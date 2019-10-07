@@ -1,0 +1,12 @@
+language: node_js
+node_js:
+  - "lts/dubnium"
+  - "node"
+matrix:
+  fast_finish: true
+  allow_failures:
+    - node_js: 'node'
+script:
+  - npm test
+after_success:
+  - npm run lint:check

@@ -1,9 +1,11 @@
+'use strict'
+
 const tape = require('tape')
 const Joi = require('@hapi/joi')
 const {
   createJoiValidationSchema,
   validateInput
-} = require('../../middleware/validation')
+} = require('../../src/middleware/validator')
 
 tape.test('Validation Middleware', t => {
   t.test('createJoiValidationSchema()', t => {
