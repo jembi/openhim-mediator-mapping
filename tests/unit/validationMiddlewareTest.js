@@ -1,19 +1,21 @@
+'use strict'
+
 const tape = require('tape')
 const Joi = require('@hapi/joi')
-const { createJoiValidationSchema, validateInput } = require('../../middleware/validation')
+const { createJoiValidationSchema, validateInput } = require('../../src/middleware/validator')
 
 tape.test('Validation Middleware', t => {
   t.test('createJoiValidationSchema()' , t => {
     t.test('should return null when resource name is not supported', t => {
       const ctx = {
-        resourceName: 'unsupported' 
+        resourceName: 'unsupported'
       }
 
       const result = createJoiValidationSchema(ctx)
       t.equal(result, null)
       t.end()
     })
-  
+
     t.test('should return a schema object', t => {
       const ctx = {
         resourceName: 'bahmni'
