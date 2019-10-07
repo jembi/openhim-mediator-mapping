@@ -11,7 +11,7 @@ tape.test('Validation Middleware', t => {
   t.test('createJoiValidationSchema()', t => {
     t.test('should return null when resource name is not supported', t => {
       const ctx = {
-        resourceName: 'unsupported'
+        directory: 'unsupported'
       }
 
       const result = createJoiValidationSchema(ctx)
@@ -21,7 +21,7 @@ tape.test('Validation Middleware', t => {
 
     t.test('should return a schema object', t => {
       const ctx = {
-        resourceName: 'bahmni'
+        directory: 'bahmni'
       }
 
       const result = createJoiValidationSchema(ctx)
