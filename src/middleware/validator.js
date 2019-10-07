@@ -11,7 +11,7 @@ const {inputValidation} = require('../constants')
   This method creates a joi validation schema.
   It returns null if the schema creation fails and updates the context with an error
 */
-const createJoiValidationSchema = ctx => {
+const createValidationSchema = ctx => {
   let validations
   const schemaObject = {}
 
@@ -86,7 +86,6 @@ const createJoiValidationSchema = ctx => {
           }
           break
 
-
         default:
           logger.warn(`No matching validation for rule type: ${rule.type}`)
           break
@@ -104,8 +103,8 @@ const createJoiValidationSchema = ctx => {
   return null
 }
 
-const validateInput = (ctx, joiSchema) => {
-  const {error, value} = joiSchema.validate(ctx.request.body)
+const validateInput = (ctx, schema) => {
+  const {error, value} = schema.validate(ctx.request.body)
 
   if (error) {
     ctx.status = 400
@@ -116,12 +115,12 @@ const validateInput = (ctx, joiSchema) => {
   }
 }
 
-exports.validationMiddleware = (directory) => async (ctx, next) => {
+exports.validationMiddleware = directory => async (ctx, next) => {
   if (directory) {
     ctx.directory = directory
-    const joiSchema = createJoiValidationSchema(ctx)
+    const schema = createValidationSchema(ctx)
 
-    validateInput(ctx, joiSchema)
+    validateInput(ctx, schema)
     if (!ctx.input) {
       logger.error(`Validation Failed: ${ctx.body.message}`)
       return new Error(`Validation Failed: ${ctx.body}`)
@@ -134,6 +133,6 @@ exports.validationMiddleware = (directory) => async (ctx, next) => {
 }
 
 if (process.env.NODE_ENV == 'test') {
-  exports.createJoiValidationSchema = createJoiValidationSchema
+  exports.createValidationSchema = createValidationSchema
   exports.validateInput = validateInput
 }
