@@ -4,12 +4,9 @@ const fs = require('fs')
 const path = require('path')
 
 const logger = require('./logger')
-const {
-  expectedEndpointsDirectories,
-  meta,
-  inputValidation,
-  inputMapping
-} = require('./constants')
+const {expectedEndpointsDirectories, meta} = require('./constants')
+const {validateInput} = require('./middleware/validator')
+const {transformInput} = require('./middleware/mapper')
 
 exports.createRoutes = router => {
   validateDirectoryStructure()
@@ -42,31 +39,6 @@ const validateDirectoryStructure = () => {
   if (!correctDirectoryStructure) {
     throw new Error('Add required files then restart app')
   }
-}
-
-const validateInput = directory => async (ctx, next) => {
-  const validationFile = fs.readFileSync(
-    path.resolve(__dirname, '..', 'endpoints', directory, inputValidation)
-  )
-
-  const validationSchema = JSON.parse(validationFile)
-  ctx.validation = validationSchema
-
-  await next()
-
-  logger.debug(`Mapping Schema: ${JSON.stringify(ctx.mapping)}`)
-}
-
-const transformInput = directory => ctx => {
-  logger.debug(`Validation Schema: ${JSON.stringify(ctx.validation)}`)
-
-  const mappingFile = fs.readFileSync(
-    path.resolve(__dirname, '..', 'endpoints', directory, inputMapping)
-  )
-  const mappingSchema = JSON.parse(mappingFile)
-
-  ctx.status = 200
-  ctx.mapping = mappingSchema
 }
 
 const setUpRoutes = router => {
