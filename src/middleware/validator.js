@@ -27,6 +27,7 @@ const createJoiValidationSchema = ctx => {
     const file = fs.readFileSync(resourcePath)
     validations = JSON.parse(file)
   } catch (error) {
+    logger.error(`Failed to get validation schema from file: ${error.message}`)
     ctx.error = error
     return null
   }
@@ -76,6 +77,7 @@ const createJoiValidationSchema = ctx => {
           break
 
         default:
+          logger.warn(`No matching validation for rule type: ${rule.type}`)
           break
       }
     })
@@ -87,7 +89,7 @@ const createJoiValidationSchema = ctx => {
     ctx.error = 'Joi validation schema creation failed'
     return null
   }
-
+  logger.warn('No validation schema in file')
   return null
 }
 
@@ -95,11 +97,12 @@ const validateInput = (ctx, joiSchema) => {
   const {error, result} = joiSchema.validate(ctx.input)
 
   if (error) {
-    logger.warn()
+    logger.error(`User input failed validation: ${error}`)
     ctx.isInputValid = false
     ctx.status = 400
     ctx.body = error
   } else {
+    logger.debug('Successfully validated user input')
     ctx.isInputValid = true
     ctx.input = result
   }
@@ -113,6 +116,7 @@ exports.validationMiddleware = async (ctx, next) => {
       validateInput(ctx, joiSchema)
     }
   } else {
+    logger.error('No input resource name provided')
     ctx.error = 'Input resource name not given'
   }
   await next()
