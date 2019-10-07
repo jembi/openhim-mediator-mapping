@@ -76,6 +76,17 @@ const createJoiValidationSchema = ctx => {
           }
           break
 
+        case 'object':
+          if (rule.required) {
+            schemaObject[`${key}`] = Joi.object().required()
+          } else if (rule.default) {
+            schemaObject[`${key}`] = Joi.object().default(rule.default)
+          } else {
+            schemaObject[`${key}`] = Joi.object()
+          }
+          break
+
+
         default:
           logger.warn(`No matching validation for rule type: ${rule.type}`)
           break

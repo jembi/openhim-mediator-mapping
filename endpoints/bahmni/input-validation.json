@@ -1,6 +1,6 @@
 {
   "uuid": {
-    "type": "guid",
+    "type": "string",
     "required": true
   },
   "display": {
@@ -10,18 +10,20 @@
   "identifiers": {
     "type": "array",
     "element": {
+      "type": "object",
       "display": {
         "type": "string"
       },
       "uuid": {
-        "type": "guid"
+        "type": "string"
       },
       "identifier": {
         "type": "string"
       },
       "identifierType": {
+        "type": "object",
         "uuid": {
-          "type": "guid"
+          "type": "string"
         },
         "display": {
           "type": "string"
@@ -33,7 +35,7 @@
               "type": "string"
             },
             "uri": {
-              "type": "link"
+              "type": "string"
             }
           }
         }
@@ -57,7 +59,7 @@
             "type": "string"
           },
           "uri": {
-            "type": "link"
+            "type": "string"
           }
         }
       },
@@ -68,8 +70,9 @@
     }
   },
   "person": {
+    "type": "object",
     "uuid": {
-      "type": "guid"
+      "type": "string"
     },
     "display": {
       "type": "string"
@@ -107,7 +110,7 @@
         "type": "string"
       },
       "uuid": {
-        "type": "guid"
+        "type": "string"
       },
       "givenName": {
         "type": "string"
@@ -133,7 +136,7 @@
             "type": "string"
           },
           "uri": {
-            "type": "link"
+            "type": "string"
           }
         }
       },
@@ -147,7 +150,7 @@
         "type": "string"
       },
       "uuid": {
-        "type": "guid"
+        "type": "string"
       },
       "preferred": {
         "type": "boolean"
@@ -234,7 +237,7 @@
             "type": "string"
           },
           "uri": {
-            "type": "link"
+            "type": "string"
           }
         }
       },
@@ -247,7 +250,7 @@
           "type": "string"
         },
         "uuid": {
-          "type": "guid"
+          "type": "string"
         },
         "givenName": {
           "type": "string"
@@ -272,7 +275,7 @@
               "type": "string"
             },
             "uri": {
-              "type": "link"
+              "type": "string"
             }
           }
         },
@@ -289,7 +292,7 @@
           "type": "string"
         },
         "uuid": {
-          "type": "guid"
+          "type": "string"
         },
         "preferred": {
           "type": "boolean"
@@ -377,7 +380,7 @@
               "type": "string"
             },
             "uri": {
-              "type": "link"
+              "type": "string"
             }
           }
         },
@@ -394,26 +397,26 @@
           "type": "string"
         },
         "uuid": {
-          "type": "guid"
+          "type": "string"
         },
         "value": {
           "type": "string"
         },
         "attributeType": {
-          "type": "object",
           "element": {
             "uuid": {
-              "type": "guid"
+              "type": "string"
             },
             "display": {
               "type": "string"
             },
             "links": {
+              "type": "object",
               "rel": {
                 "type": "string"
               },
               "uri": {
-                "type": "link"
+                "type": "string"
               }
             }
           }
@@ -429,7 +432,7 @@
               "type": "string"
             },
             "uri": {
-              "type": "link"
+              "type": "string"
             }
           }
         },
@@ -448,7 +451,7 @@
       "element": {
         "creator": {
           "uuid": {
-            "type": "guid"
+            "type": "string"
           },
           "display": {
             "type": "string"
@@ -460,7 +463,7 @@
                 "type": "string"
               },
               "uri": {
-                "type": "link"
+                "type": "string"
               }
             }
           }
@@ -490,7 +493,7 @@
           "type": "string"
         },
         "uri": {
-          "type": "link"
+          "type": "string"
         }
       }
     },
@@ -506,7 +509,7 @@
     "element": {
       "creator": {
         "uuid": {
-          "type": "guid"
+          "type": "string"
         },
         "display": {
           "type": "string"
@@ -518,7 +521,7 @@
               "type": "string"
             },
             "uri": {
-              "type": "link"
+              "type": "string"
             }
           }
         }
@@ -535,11 +538,12 @@
     }
   },
   "links": {
+    "type": "array",
     "rel": {
       "type": "string"
     },
     "uri": {
-      "type": "link"
+      "type": "string"
     }
   },
   "resourceVersion": {
