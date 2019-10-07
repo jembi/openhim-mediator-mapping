@@ -4,14 +4,8 @@ const fs = require('fs')
 const path = require('path')
 
 const logger = require('../logger')
-const {inputValidation} = require('../constants')
 
-const validateInput = directory => async (ctx, next) => {
-  const validationFile = fs.readFileSync(
-    path.resolve(__dirname, '..', '..', 'endpoints', directory, inputValidation)
-  )
-
-  const validationSchema = JSON.parse(validationFile)
+const validateInput = validationSchema => async (ctx, next) => {
   ctx.validation = validationSchema
 
   await next()

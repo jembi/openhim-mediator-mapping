@@ -7,6 +7,7 @@ const logger = require('./logger')
 const {expectedEndpointsDirectories, meta} = require('./constants')
 const {validateInput} = require('./middleware/validator')
 const {transformInput} = require('./middleware/mapper')
+const {inputMeta, inputValidation, inputMapping} = require('./constants')
 
 exports.createRoutes = router => {
   validateDirectoryStructure()
@@ -41,24 +42,31 @@ const validateDirectoryStructure = () => {
   }
 }
 
+const createObjectFromFile = (directory, endpointFile) => {
+  const jsonData = fs.readFileSync(
+    path.resolve(__dirname, '..', 'endpoints', directory, endpointFile)
+  )
+  return JSON.parse(jsonData)
+}
+
 const setUpRoutes = router => {
   const routeDirectories = fs.readdirSync(
     path.resolve(__dirname, '..', 'endpoints')
   )
 
   routeDirectories.forEach(directory => {
-    const metaFile = fs.readFileSync(
-      path.resolve(__dirname, '..', 'endpoints', directory, meta)
-    )
-    const metaJson = JSON.parse(metaFile)
+    const metaData = createObjectFromFile(directory, inputMeta)
+    const validationSchema = createObjectFromFile(directory, inputValidation)
+    const mappingSchema = createObjectFromFile(directory, inputMapping)
+
     router.post(
-      metaJson.endpoint.pattern,
-      validateInput(directory),
-      transformInput(directory)
+      metaData.endpoint.pattern,
+      validateInput(validationSchema),
+      transformInput(mappingSchema)
     )
 
     logger.info(
-      `New Route added: ${directory} at path ${metaJson.endpoint.pattern}`
+      `New Route added: ${directory} at path ${metaData.endpoint.pattern}`
     )
   })
 }
