@@ -1,37 +1,45 @@
 'use strict'
 
 const tape = require('tape')
+const tapc = require('tape-catch')
 const Joi = require('@hapi/joi')
 const {
   createValidationSchema,
-  validateInput
+  performValidation
 } = require('../../src/middleware/validator')
 
 tape.test('Validation Middleware', t => {
   t.test('createValidationSchema()', t => {
-    t.test('should return null when resource name is not supported', t => {
-      const ctx = {
+    t.test('should throw when resource is not supplied', t => {
+      t.throws(createValidationSchema, new Error(`Error: No validation rules supplied`))
+      t.end()
+    })
+
+    t.test('should throw when resource type is not supported', t => {
+      const validationMap = {
         directory: 'unsupported'
       }
 
-      const result = createValidationSchema(ctx)
-
-      t.equal(result, null)
+      t.throws(() => createValidationSchema(validationMap), new Error(`Validation rule type is not supported:`))
       t.end()
     })
 
     t.test('should return a schema object', t => {
-      const ctx = {
-        directory: 'bahmni'
+      const validationMap = {
+        'directory': {
+          'type': 'string',
+          'required': true
+        }
       }
 
-      const result = createValidationSchema(ctx)
+      const result = createValidationSchema(validationMap)
+
       t.notEqual(result, null)
       t.end()
     })
   })
 
-  t.test('validateInput()', t => {
+  t.test('performValidation()', t => {
     const joiSchema = Joi.object({
       name: Joi.string().required(),
       surname: Joi.string(),
@@ -48,7 +56,7 @@ tape.test('Validation Middleware', t => {
         }
       }
 
-      validateInput(ctx, joiSchema)
+      performValidation(ctx, joiSchema)
 
       t.equal(ctx.status, 400)
       t.notEqual(ctx.body.toString().match(/"age" is required/).length, 0)
@@ -65,7 +73,7 @@ tape.test('Validation Middleware', t => {
         }
       }
 
-      validateInput(ctx, joiSchema)
+      performValidation(ctx, joiSchema)
 
       t.notEqual(ctx.body.toString().match(/"name" is required/).length, 0)
       t.end()
@@ -82,7 +90,7 @@ tape.test('Validation Middleware', t => {
         }
       }
 
-      validateInput(ctx, joiSchema)
+      performValidation(ctx, joiSchema)
 
       t.notEqual(ctx.input, undefined)
       t.end()
