@@ -11,6 +11,12 @@
       "function": "createBahniFhirName"
     }
   },
+  "person.gender": {
+    "key": "gender",
+    "transform": {
+      "function": "getGenderFromCode"
+    }
+  },
   "person.dead": "deceasedBoolean",
   "person.deathDate": "deceasedDateTime",
   "person.addresses[0].display": "address[0].text",
