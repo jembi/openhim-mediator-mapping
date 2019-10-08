@@ -1,4 +1,10 @@
 {
+  "identifiers[]": {
+    "key": "identifier[]+",
+    "transform": {
+      "function": "createBahmniFhirIdentifier"
+    }
+  },
   "person.preferredName.givenName": "name.given[0]",
   "person.preferredName.middleName": "name.given[1]",
   "person.preferredName.familyName": "name.family",
