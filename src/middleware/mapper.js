@@ -4,12 +4,27 @@ const objectMapper = require('object-mapper')
 
 const logger = require('../logger')
 
-const transformInput = mappingSchema => ctx => {
-  logger.debug(`Validation Schema: ${JSON.stringify(ctx.validation)}`)
+const createMappedObject = (ctx, mappingSchema) => {
+  if (!mappingSchema || mappingSchema == undefined) {
+    throw new Error(`No mapping schema supplied`)
+  }
 
   ctx.body = objectMapper(ctx.request.body, mappingSchema)
   ctx.status = 200
-  ctx.mapping = mappingSchema
 }
 
-exports.transformInput = transformInput
+
+exports.transformInput = mappingSchema => async (ctx, next) => {
+  try {
+    createMappedObject(ctx, mappingSchema)
+    await next()
+  } catch (error) {
+    ctx.error = error
+    return logger.error(`Transformation Failed: ${ctx.body.message}`)
+  }
+}
+
+
+if (process.env.NODE_ENV == 'test') {
+  exports.createMappedObject = createMappedObject
+}
