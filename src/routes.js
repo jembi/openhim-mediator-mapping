@@ -5,7 +5,7 @@ const path = require('path')
 
 const logger = require('./logger')
 const {expectedEndpointsDirectories, meta} = require('./constants')
-const {validateInput} = require('./middleware/validator')
+const {validationMiddleware} = require('./middleware/validator')
 const {transformInput} = require('./middleware/mapper')
 const {inputMeta, inputValidation, inputMapping} = require('./constants')
 
