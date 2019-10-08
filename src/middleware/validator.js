@@ -7,6 +7,10 @@ const Joi = require('@hapi/joi')
 const logger = require('../logger')
 
 const createValidationSchema = validationMap => {
+  if (!validationMap || validationMap === undefined) {
+    throw new Error('No validation rules supplied')
+  }
+
   const validations = validationMap
   const schemaObject = {}
 
@@ -65,8 +69,7 @@ const createValidationSchema = validationMap => {
           break
 
         default:
-          logger.warn(`No matching validation for rule type: ${rule.type}`)
-          break
+          throw new Error(`Validation rule type is not supported: ${rule.type}`)
       }
     })
 
@@ -74,11 +77,10 @@ const createValidationSchema = validationMap => {
       return Joi.object(schemaObject)
     }
 
-    ctx.error = 'Joi validation schema creation failed'
-    return null
+    throw new Error('Joi validation schema creation failed')
   }
-  logger.warn('No validation schema in file')
-  return null
+
+  throw new Error('No validation schema in file')
 }
 
 const performValidation = (ctx, schema) => {
@@ -94,18 +96,14 @@ const performValidation = (ctx, schema) => {
 }
 
 exports.validateInput = validationMap => async (ctx, next) => {
-  if (validationMap) {
+  try {
     const schema = createValidationSchema(validationMap)
-
     performValidation(ctx, schema)
-    if (!ctx.input) {
-      logger.error(`Validation Failed: ${ctx.body.message}`)
-      return new Error(`Validation Failed: ${ctx.body}`)
-    }
-  } else {
-    logger.error('No input resource name provided')
-    ctx.error = 'Input resource name not given'
+  } catch (error) {
+    ctx.error = error
+    return logger.error(`Validation Failed: ${ctx.body.message}`)
   }
+
   await next()
 }
 
