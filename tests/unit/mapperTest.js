@@ -1,7 +1,6 @@
 'use strict'
 
 const tape = require('tape')
-const tapc = require('tape-catch')
 const { createMappedObject } = require('../../src/middleware/mapper')
 
 
