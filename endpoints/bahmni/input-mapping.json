@@ -1,15 +1,18 @@
 {
   "identifiers[]": {
-    "key": "identifier[]+",
+    "key": "identifier",
     "transform": {
       "function": "createBahmniFhirIdentifier"
     }
   },
-  "person.preferredName.givenName": "name.given[0]",
-  "person.preferredName.middleName": "name.given[1]",
-  "person.preferredName.familyName": "name.family",
-  "person.preferredName.display": "name.text",
-  "deceasedBoolean": "person.dead",
+  "person.names[]": {
+    "key": "name",
+    "transform": {
+      "function": "createBahniFhirName"
+    }
+  },
+  "person.dead": "deceasedBoolean",
+  "person.deathDate": "deceasedDateTime",
   "person.addresses[0].display": "address[0].text",
   "person.addresses[0].countyDistrict": "address[0].district",
   "person.addresses[0].postalcode": "address[0].postalCode",
