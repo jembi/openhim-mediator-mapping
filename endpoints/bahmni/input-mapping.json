@@ -10,5 +10,11 @@
   "person.addresses[0].country": "address[0].country",
   "person.addresses[0].stateProvince": "address[0].state",
   "person.addresses[0].cityVillage": "address[0].city",
-  "person.uuid": "id"
+  "person.uuid": "id",
+  "person.birthdate": {
+    "key": "birthDate",
+    "transform": {
+      "function": "dateTimeToDate"
+    }
+  }
 }
