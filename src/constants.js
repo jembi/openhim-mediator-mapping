@@ -3,8 +3,10 @@
 const inputMapping = 'input-mapping.json'
 const inputValidation = 'input-validation.json'
 const meta = 'meta.json'
+const output = 'output.json'
 
 exports.expectedEndpointsDirectories = [inputMapping, inputValidation, meta]
 exports.inputMapping = inputMapping
 exports.inputValidation = inputValidation
 exports.meta = meta
+exports.output = output
