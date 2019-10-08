@@ -6,8 +6,9 @@ const Joi = require('@hapi/joi')
 
 const logger = require('../logger')
 
-const validateInput = validationSchema => async (ctx, next) => {
-  const validations = validationSchema
+const createValidationSchema = validationMap => {
+  const validations = validationMap
+  const schemaObject = {}
 
   if (validations) {
     Object.keys(validations).forEach(key => {
@@ -80,7 +81,7 @@ const validateInput = validationSchema => async (ctx, next) => {
   return null
 }
 
-const validateInput = (ctx, schema) => {
+const performValidation = (ctx, schema) => {
   const {error, value} = schema.validate(ctx.request.body)
 
   if (error) {
@@ -92,12 +93,11 @@ const validateInput = (ctx, schema) => {
   }
 }
 
-exports.validationMiddleware = directory => async (ctx, next) => {
-  if (directory) {
-    ctx.directory = directory
-    const schema = createValidationSchema(ctx)
+exports.validateInput = validationMap => async (ctx, next) => {
+  if (validationMap) {
+    const schema = createValidationSchema(validationMap)
 
-    validateInput(ctx, schema)
+    performValidation(ctx, schema)
     if (!ctx.input) {
       logger.error(`Validation Failed: ${ctx.body.message}`)
       return new Error(`Validation Failed: ${ctx.body}`)
@@ -111,5 +111,5 @@ exports.validationMiddleware = directory => async (ctx, next) => {
 
 if (process.env.NODE_ENV == 'test') {
   exports.createValidationSchema = createValidationSchema
-  exports.validateInput = validateInput
+  exports.performValidation = performValidation
 }

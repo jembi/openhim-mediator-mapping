@@ -5,8 +5,8 @@ const path = require('path')
 
 const logger = require('./logger')
 const {expectedEndpointsDirectories, meta} = require('./constants')
-const {validationMiddleware} = require('./middleware/validator')
 const {transformInput} = require('./middleware/mapper')
+const {validateInput} = require('./middleware/validator')
 const {inputMeta, inputValidation, inputMapping} = require('./constants')
 
 exports.createRoutes = router => {
@@ -56,12 +56,12 @@ const setUpRoutes = router => {
 
   routeDirectories.forEach(directory => {
     const metaData = createObjectFromFile(directory, inputMeta)
-    const validationSchema = createObjectFromFile(directory, inputValidation)
+    const validationMap = createObjectFromFile(directory, inputValidation)
     const mappingSchema = createObjectFromFile(directory, inputMapping)
 
     router.post(
       metaData.endpoint.pattern,
-      validateInput(validationSchema),
+      validateInput(validationMap),
       transformInput(mappingSchema)
     )
 
