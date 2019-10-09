@@ -5,7 +5,7 @@ const objectMapper = require('object-mapper')
 const logger = require('../logger')
 
 const createMappedObject = (ctx, mappingSchema) => {
-  if (!mappingSchema || mappingSchema == undefined) {
+  if (!mappingSchema) {
     throw new Error(`No mapping schema supplied`)
   }
 
