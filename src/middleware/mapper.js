@@ -1,23 +1,31 @@
 'use strict'
 
-const fs = require('fs')
-const path = require('path')
 const objectMapper = require('object-mapper')
 
 const logger = require('../logger')
-const {inputMapping} = require('../constants')
 
-const transformInput = ctx => {
-  logger.debug(`Validation Schema: ${JSON.stringify(ctx.input)}`)
+const createMappedObject = (ctx, mappingSchema) => {
+  if (!mappingSchema) {
+    throw new Error(`No mapping schema supplied`)
+  }
 
-  const mappingFile = fs.readFileSync(
-    path.resolve(__dirname, '..', '..', 'endpoints', ctx.directory, inputMapping)
-  )
-  const mappingSchema = JSON.parse(mappingFile)
-
-  ctx.body = objectMapper(ctx.input, mappingSchema)
+  ctx.body = objectMapper(ctx.request.body, mappingSchema)
   ctx.status = 200
-  ctx.mapping = mappingSchema
 }
 
-exports.transformInput = transformInput
+
+exports.transformInput = mappingSchema => async (ctx, next) => {
+  try {
+    createMappedObject(ctx, mappingSchema)
+  } catch (error) {
+    ctx.status = 400
+    ctx.body = error
+    return logger.error(`Transformation Failed: ${error.message}`)
+  }
+  await next()
+}
+
+
+if (process.env.NODE_ENV == 'test') {
+  exports.createMappedObject = createMappedObject
+}
