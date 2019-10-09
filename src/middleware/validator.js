@@ -87,21 +87,27 @@ const performValidation = (ctx, schema) => {
   const {error, value} = schema.validate(ctx.request.body)
 
   if (error) {
-    ctx.status = 400
-    ctx.body = error
-  } else {
-    logger.debug('Successfully validated user input')
-    ctx.input = value
+    throw new Error(`Validation execution failed: ${error.message}`)
   }
 }
 
 exports.validateInput = validationMap => async (ctx, next) => {
+  let schema
   try {
-    const schema = createValidationSchema(validationMap)
+    schema = createValidationSchema(validationMap)
+    logger.debug('Successfully validated user input')
+  } catch (error) {
+    ctx.status = 400
+    ctx.body = error
+    return logger.error(error)
+  }
+
+  try {
     performValidation(ctx, schema)
   } catch (error) {
-    ctx.error = error
-    return logger.error(`Validation Failed: ${ctx.body.message}`)
+    ctx.status = 400
+    ctx.body = error
+    return logger.error(error)
   }
 
   await next()
