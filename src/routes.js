@@ -51,14 +51,17 @@ const setUpRoutes = router => {
       path.resolve(__dirname, '..', 'endpoints', directory, meta)
     )
     const metaJson = JSON.parse(metaFile)
-    router.post(
-      metaJson.endpoint.pattern,
-      validationMiddleware(directory),
-      transformInput
-    )
+    metaJson.endpoint.methods.forEach(method => {
+      console.log(method)
+      router[`${method}`](
+        metaJson.endpoint.pattern,
+        validationMiddleware(directory),
+        transformInput
+      )
+    })
 
     logger.info(
-      `New Route added: ${directory} at path ${metaJson.endpoint.pattern}`
+      `Route added: ${directory} at path ${metaJson.endpoint.pattern} for methods ${metaJson.endpoint.methods}`
     )
   })
 }

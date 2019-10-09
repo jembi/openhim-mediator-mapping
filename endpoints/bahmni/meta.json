@@ -2,7 +2,7 @@
   "name": "Bahmni Patient Mapper",
   "endpoint": {
     "pattern": "/bahmniPatient",
-    "methods": ["POST"]
+    "methods": ["post", "put"]
   },
   "transformation": {
     "input": "JSON",
