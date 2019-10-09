@@ -7,7 +7,7 @@ const Joi = require('@hapi/joi')
 const logger = require('../logger')
 
 const createValidationSchema = validationMap => {
-  if (!validationMap || validationMap === undefined) {
+  if (!validationMap) {
     throw new Error('No validation rules supplied')
   }
 
