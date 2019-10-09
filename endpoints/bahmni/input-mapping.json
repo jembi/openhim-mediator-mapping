@@ -19,11 +19,11 @@
   },
   "person.dead": "deceasedBoolean",
   "person.deathDate": "deceasedDateTime",
-  "person.addresses[0].display": "address[0].text",
-  "person.addresses[0].countyDistrict": "address[0].district",
-  "person.addresses[0].postalcode": "address[0].postalCode",
-  "person.addresses[0].country": "address[0].country",
-  "person.addresses[0].stateProvince": "address[0].state",
-  "person.addresses[0].cityVillage": "address[0].city",
+  "person.addresses[]": {
+    "key": "address",
+    "transform": {
+      "function": "getBahmniFhirAddress"
+    }
+  },
   "person.uuid": "id"
 }
