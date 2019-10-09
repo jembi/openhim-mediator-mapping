@@ -17,11 +17,13 @@ const createMappedObject = (ctx, mappingSchema) => {
 exports.transformInput = mappingSchema => async (ctx, next) => {
   try {
     createMappedObject(ctx, mappingSchema)
-    await next()
   } catch (error) {
-    ctx.error = error
-    return logger.error(`Transformation Failed: ${ctx.body.message}`)
+    ctx.status = 400
+    ctx.body = error
+    return logger.error(`Transformation Failed: ${error.message}`)
   }
+
+  await next()
 }
 
 
