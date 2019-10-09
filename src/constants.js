@@ -1,10 +1,10 @@
 'use strict'
 
-const inputMapping = 'input-mapping.json'
-const inputValidation = 'input-validation.json'
 const inputMeta = 'meta.json'
+const inputValidation = 'input-validation.json'
+const inputMapping = 'input-mapping.json'
 
-exports.expectedEndpointsDirectories = [inputMapping, inputValidation, inputMeta]
-exports.inputMapping = inputMapping
-exports.inputValidation = inputValidation
+exports.expectedEndpointsDirectories = [inputMeta, inputValidation, inputMapping]
 exports.inputMeta = inputMeta
+exports.inputValidation = inputValidation
+exports.inputMapping = inputMapping
