@@ -22,7 +22,6 @@ exports.transformInput = mappingSchema => async (ctx, next) => {
     ctx.body = error
     return logger.error(`Transformation Failed: ${error.message}`)
   }
-
   await next()
 }
 
