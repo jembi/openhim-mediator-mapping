@@ -55,10 +55,7 @@ tape.test('Validation Middleware', t => {
         }
       }
 
-      performValidation(ctx, joiSchema)
-
-      t.equal(ctx.status, 400)
-      t.notEqual(ctx.body.toString().match(/"age" is required/).length, 0)
+      t.throws(() => performValidation(ctx, joiSchema), `Validation execution failed: "age" is required`)
       t.end()
     })
 
@@ -72,13 +69,11 @@ tape.test('Validation Middleware', t => {
         }
       }
 
-      performValidation(ctx, joiSchema)
-
-      t.notEqual(ctx.body.toString().match(/"name" is required/).length, 0)
+      t.throws(() => performValidation(ctx, joiSchema), `Validation execution failed: "name" is required`)
       t.end()
     })
 
-    t.test('should set the ctx input property when validation succeeds', t => {
+    t.test('should set not throw when validation succeeds', t => {
       const ctx = {
         request: {
           body: {
@@ -91,7 +86,6 @@ tape.test('Validation Middleware', t => {
 
       performValidation(ctx, joiSchema)
 
-      t.notEqual(ctx.input, undefined)
       t.end()
     })
   })
