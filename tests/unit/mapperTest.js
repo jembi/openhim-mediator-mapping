@@ -3,7 +3,6 @@
 const tape = require('tape')
 const { createMappedObject } = require('../../src/middleware/mapper')
 
-
 tape.test('Mapper', t => {
   t.test('createMappedObject()', t => {
     t.test('should throw when mapping schema is not supplied', t => {
