@@ -35,7 +35,7 @@ tape.test('Mapper', t => {
 
       createMappedObject(ctx, mappingSchema)
 
-      t.equal(JSON.stringify(ctx.body), JSON.stringify(expected))
+      t.deepEqual(ctx.body, expected)
       t.end()
     })      
   })
