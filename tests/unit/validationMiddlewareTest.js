@@ -45,7 +45,7 @@ tape.test('Validation Middleware', t => {
       age: Joi.number().required()
     })
 
-    t.test('should update ctx status when validation fails', t => {
+    t.test('should throw for missing required string fields', t => {
       const ctx = {
         request: {
           body: {
@@ -59,7 +59,7 @@ tape.test('Validation Middleware', t => {
       t.end()
     })
 
-    t.test('should update ctx response body when validation fails', t => {
+    t.test('should throw for missing required number fields', t => {
       const ctx = {
         request: {
           body: {
@@ -73,7 +73,7 @@ tape.test('Validation Middleware', t => {
       t.end()
     })
 
-    t.test('should set not throw when validation succeeds', t => {
+    t.test('should not throw when validation succeeds', t => {
       const ctx = {
         request: {
           body: {
