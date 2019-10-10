@@ -3,6 +3,7 @@
 const fs = require('fs')
 const path = require('path')
 const Joi = require('@hapi/joi')
+const builder = require('joi-json').builder(Joi)
 
 const logger = require('../logger')
 
@@ -11,76 +12,13 @@ const createValidationSchema = validationMap => {
     throw new Error('No validation rules supplied')
   }
 
-  const validations = validationMap
-  const schemaObject = {}
+  const schema = Joi.object(builder.build(validationMap))
 
-  if (validations) {
-    Object.keys(validations).forEach(key => {
-      let rule = validations[`${key}`]
-      switch (rule.type) {
-        case 'string':
-          if (rule.required) {
-            schemaObject[`${key}`] = Joi.string().required()
-          } else if (rule.default) {
-            schemaObject[`${key}`] = Joi.string().default(rule.default)
-          } else {
-            schemaObject[`${key}`] = Joi.string()
-          }
-          break
-
-        case 'number':
-          if (rule.required) {
-            schemaObject[`${key}`] = Joi.number().required()
-          } else if (rule.default) {
-            schemaObject[`${key}`] = Joi.number().default(rule.default)
-          } else {
-            schemaObject[`${key}`] = Joi.number()
-          }
-          break
-
-        case 'boolean':
-          if (rule.required) {
-            schemaObject[`${key}`] = Joi.boolean().required()
-          } else if (rule.default) {
-            schemaObject[`${key}`] = Joi.boolean().default(rule.default)
-          } else {
-            schemaObject[`${key}`] = Joi.boolean()
-          }
-          break
-
-        case 'array':
-          if (rule.required) {
-            schemaObject[`${key}`] = Joi.array().required()
-          } else if (rule.default) {
-            schemaObject[`${key}`] = Joi.array().default(rule.default)
-          } else {
-            schemaObject[`${key}`] = Joi.array()
-          }
-          break
-
-        case 'object':
-          if (rule.required) {
-            schemaObject[`${key}`] = Joi.object().required()
-          } else if (rule.default) {
-            schemaObject[`${key}`] = Joi.object().default(rule.default)
-          } else {
-            schemaObject[`${key}`] = Joi.object()
-          }
-          break
-
-        default:
-          throw new Error(`Validation rule type is not supported: ${rule.type}`)
-      }
-    })
-
-    if (schemaObject) {
-      return Joi.object(schemaObject)
-    }
-
-    throw new Error('Joi validation schema creation failed')
+  if (schema) {
+    return schema
   }
 
-  throw new Error('No validation schema in file')
+  throw new Error('Joi validation schema creation failed')
 }
 
 const performValidation = (ctx, schema) => {

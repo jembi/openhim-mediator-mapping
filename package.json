@@ -15,6 +15,7 @@
   "dependencies": {
     "@hapi/joi": "^16.1.5",
     "express": "^4.17.1",
+    "joi-json": "^2.1.0",
     "koa": "^2.8.2",
     "koa-body": "^4.1.1",
     "koa-router": "^7.4.0",
