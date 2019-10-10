@@ -22,9 +22,12 @@ tape.test('Mapper', t => {
       }
 
       const mappingSchema = {
-        'inputOne': 'outputOne',
-        'inputTwo': 'outputTwo',
-        'inputThree': 'outputThree'
+        'input': {
+          'inputOne': 'outputOne',
+          'inputTwo': 'outputTwo',
+          'inputThree': 'outputThree'
+        },
+        'constants': {}
       }
 
       const expected = {
