@@ -45,11 +45,11 @@
         "@type": "string"
       },
       "preferred": {
-        "type": "boolean",
+        "@type": "boolean",
         "default": false
       },
       "voided": {
-        "type": "boolean",
+        "@type": "boolean",
         "default": false
       },
       "links": {
@@ -85,8 +85,7 @@
       "@type": "number"
     },
     "birthdate": {
-      "@type": "date",
-      "format": "iso-xxx"
+      "@type": "date"
     },
     "birthdateEstimated": {
       "@type": "boolean",
@@ -97,12 +96,10 @@
       "default": "false"
     },
     "deathDate": {
-      "@type": "date",
-      "format": "iso-xxx"
+      "@type": "date"
     },
     "causeOfDeath": {
-      "@type": "date",
-      "format": "iso-xxx"
+      "@type": "string"
     },
     "preferredName": {
       "display": {
