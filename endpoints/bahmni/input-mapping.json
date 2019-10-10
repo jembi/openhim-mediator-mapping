@@ -22,6 +22,12 @@
       "function": "dateTimeToDate"
     }
   },
+  "person.voided": {
+    "key": "active",
+    "transform": {
+      "function": "booleanFlip"
+    }
+  },
   "person.dead": "deceasedBoolean",
   "person.deathDate": "deceasedDateTime",
   "person.addresses[].display": "address[].text",
