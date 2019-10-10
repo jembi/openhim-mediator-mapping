@@ -10,30 +10,37 @@ const {
 tape.test('Validation Middleware', t => {
   t.test('createValidationSchema()', t => {
     t.test('should throw when resource is not supplied', t => {
-      t.throws(createValidationSchema, new Error(`Error: No validation rules supplied`))
-      t.end()
-    })
-
-    t.test('should throw when resource type is not supported', t => {
-      const validationMap = {
-        directory: 'unsupported'
-      }
-
-      t.throws(() => createValidationSchema(validationMap), new Error(`Validation rule type is not supported:`))
+      t.throws(createValidationSchema, /No validation rules supplied/)
       t.end()
     })
 
     t.test('should return a schema object', t => {
       const validationMap = {
-        'directory': {
-          'type': 'string',
-          'required': true
+        '@type': 'object',
+        name: {
+          '@type': 'string',
+          required: true
+        },
+        surname: {
+          '@type': 'string'
         }
       }
 
-      const result = createValidationSchema(validationMap)
+      const invalidInput = {
+        surname: 'Wick'
+      }
 
-      t.notEqual(result, null)
+      const validInput = {
+        name: 'Peter',
+        surname: 'Grifin'
+      }
+
+      const schema = createValidationSchema(validationMap)
+      const validationOne = schema.validate(invalidInput)
+      const validationTwo = schema.validate(validInput)
+
+      t.notEqual(validationOne.error.toString().match(/name is required/))
+      t.equal(validationTwo.error, undefined)
       t.end()
     })
   })
@@ -55,7 +62,10 @@ tape.test('Validation Middleware', t => {
         }
       }
 
-      t.throws(() => performValidation(ctx, joiSchema), `Validation execution failed: "age" is required`)
+      t.throws(
+        () => performValidation(ctx, joiSchema),
+        `Validation execution failed: "age" is required`
+      )
       t.end()
     })
 
@@ -69,7 +79,10 @@ tape.test('Validation Middleware', t => {
         }
       }
 
-      t.throws(() => performValidation(ctx, joiSchema), `Validation execution failed: "name" is required`)
+      t.throws(
+        () => performValidation(ctx, joiSchema),
+        `Validation execution failed: "name" is required`
+      )
       t.end()
     })
 
