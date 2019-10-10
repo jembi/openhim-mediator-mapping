@@ -1,48 +1,48 @@
 {
   "uuid": {
-    "type": "string",
+    "@type": "uuid",
     "required": true
   },
   "display": {
-    "type": "string",
+    "@type": "string",
     "required": true
   },
   "identifiers": {
-    "type": "array",
-    "element": {
-      "type": "object",
+    "@type": "array",
+    "items": {
+      "@type": "object",
       "display": {
-        "type": "string"
+        "@type": "string"
       },
       "uuid": {
-        "type": "string"
+        "@type": "uuid"
       },
       "identifier": {
-        "type": "string"
+        "@type": "string"
       },
       "identifierType": {
-        "type": "object",
+        "@type": "object",
         "uuid": {
-          "type": "string"
+          "@type": "uuid"
         },
         "display": {
-          "type": "string"
+          "@type": "string"
         },
         "links": {
-          "type": "array",
-          "element": {
+          "@type": "array",
+          "items": {
+            "@type": "object",
             "rel": {
-              "type": "string"
+              "@type": "string"
             },
             "uri": {
-              "type": "string"
+              "@type": "string"
             }
           }
         }
       },
       "location": {
-        "type": "string",
-        "required": false
+        "@type": "string"
       },
       "preferred": {
         "type": "boolean",
@@ -53,501 +53,516 @@
         "default": false
       },
       "links": {
-        "type": "array",
-        "element": {
+        "@type": "array",
+        "items": {
+          "@type": "object",
           "rel": {
-            "type": "string"
+            "@type": "string"
           },
           "uri": {
-            "type": "string"
+            "@type": "string"
           }
         }
       },
       "resourceVersion": {
-        "type": "string",
+        "@type": "string",
         "required": true
       }
     }
   },
   "person": {
-    "type": "object",
+    "@type": "object",
     "uuid": {
-      "type": "string"
+      "@type": "uuid"
     },
     "display": {
-      "type": "string"
+      "@type": "string"
     },
     "gender": {
-      "type": "string"
+      "@type": "string"
     },
     "age": {
-      "type": "number"
+      "@type": "number"
     },
     "birthdate": {
-      "type": "timestamp",
+      "@type": "date",
       "format": "iso-xxx"
     },
     "birthdateEstimated": {
-      "type": "boolean",
+      "@type": "boolean",
       "default": "false"
     },
     "dead": {
-      "type": "boolean",
+      "@type": "boolean",
       "default": "false"
     },
     "deathDate": {
-      "type": "timestamp",
-      "format": "iso-xxx",
-      "required": false
+      "@type": "date",
+      "format": "iso-xxx"
     },
     "causeOfDeath": {
-      "type": "timestamp",
-      "format": "iso-xxx",
-      "required": false
+      "@type": "date",
+      "format": "iso-xxx"
     },
     "preferredName": {
       "display": {
-        "type": "string"
+        "@type": "string"
       },
       "uuid": {
-        "type": "string"
+        "@type": "string"
       },
       "givenName": {
-        "type": "string"
+        "@type": "string"
       },
       "middleName": {
-        "type": "string"
+        "@type": "string"
       },
       "familyName": {
-        "type": "string"
+        "@type": "string"
       },
       "familyName2": {
-        "type": "string",
-        "required": false
+        "@type": "string"
       },
       "voided": {
-        "type": "boolean",
-        "default": false
+        "@type": "boolean"
       },
       "links": {
-        "type": "array",
-        "element": {
+        "@type": "array",
+        "items": {
+          "@type": "object",
           "rel": {
-            "type": "string"
+            "@type": "string"
           },
           "uri": {
-            "type": "string"
+            "@type": "string"
           }
         }
       },
       "resourceVersion": {
-        "type": "string",
+        "@type": "string",
         "required": true
       }
     },
     "preferredAddress": {
+      "@type": "object",
       "display": {
-        "type": "string"
+        "@type": "string"
       },
       "uuid": {
-        "type": "string"
+        "@type": "uuid"
       },
       "preferred": {
-        "type": "boolean"
+        "@type": "boolean"
       },
       "address1": {
-        "type": "string"
+        "@type": "string"
       },
       "address2": {
-        "type": "string"
+        "@type": "string"
       },
       "cityVillage": {
-        "type": "string"
+        "@type": "string"
       },
       "stateProvince": {
-        "type": "string"
+        "@type": "string"
       },
       "country": {
-        "type": "string"
+        "@type": "string"
       },
       "postalCode": {
-        "type": "string"
+        "@type": "string"
       },
       "countyDistrict": {
-        "type": "string"
+        "@type": "string"
       },
       "address3": {
-        "type": "string"
+        "@type": "string"
       },
       "address4": {
-        "type": "string"
+        "@type": "string"
       },
       "address5": {
-        "type": "string"
+        "@type": "string"
       },
       "address6": {
-        "type": "string"
+        "@type": "string"
       },
       "startDate": {
-        "type": "timestamp"
+        "@type": "date"
       },
       "endDate": {
-        "type": "timestamp"
+        "@type": "date"
       },
       "latitude": {
-        "type": "number"
+        "@type": "number"
       },
       "longitude": {
-        "type": "number"
+        "@type": "number"
       },
       "voided": {
-        "type": "boolean"
+        "@type": "boolean"
       },
       "address7": {
-        "type": "string"
+        "@type": "string"
       },
       "address8": {
-        "type": "string"
+        "@type": "string"
       },
       "address9": {
-        "type": "string"
+        "@type": "string"
       },
       "address10": {
-        "type": "string"
+        "@type": "string"
       },
       "address11": {
-        "type": "string"
+        "@type": "string"
       },
       "address12": {
-        "type": "string"
+        "@type": "string"
       },
       "address13": {
-        "type": "string"
+        "@type": "string"
       },
       "address14": {
-        "type": "string"
+        "@type": "string"
       },
       "address15": {
-        "type": "string"
+        "@type": "string"
       },
       "links": {
-        "type": "array",
-        "element": {
+        "@type": "array",
+        "items": {
+          "@type": "object",
           "rel": {
-            "type": "string"
+            "@type": "string"
           },
           "uri": {
-            "type": "string"
+            "@type": "string"
           }
         }
       },
-      "resourceVersion": "2.0"
+      "resourceVersion": {
+        "@type": "number",
+        "required": true
+      }
     },
     "names": {
-      "type": "array",
-      "element": {
+      "@type": "array",
+      "items": {
+        "@type": "object",
         "display": {
-          "type": "string"
+          "@type": "string"
         },
         "uuid": {
-          "type": "string"
+          "@type": "uuid"
         },
         "givenName": {
-          "type": "string"
+          "@type": "string"
         },
         "middleName": {
-          "type": "string"
+          "@type": "string"
         },
         "familyName": {
-          "type": "string"
+          "@type": "string"
         },
         "familyName2": {
-          "type": "string"
+          "@type": "string"
         },
         "voided": {
-          "type": "boolean",
+          "@type": "boolean",
           "default": false
         },
         "links": {
-          "type": "array",
-          "element": {
+          "@type": "array",
+          "items": {
+            "@type": "object",
             "rel": {
-              "type": "string"
+              "@type": "string"
             },
             "uri": {
-              "type": "string"
+              "@type": "string"
             }
           }
         },
         "resourceVersion": {
-          "type": "string",
+          "@type": "string",
           "required": true
         }
       }
     },
     "addresses": {
-      "type": "array",
-      "element": {
+      "@type": "array",
+      "items": {
+        "@type": "object",
         "display": {
-          "type": "string"
+          "@type": "string"
         },
         "uuid": {
-          "type": "string"
+          "@type": "uuid"
         },
         "preferred": {
-          "type": "boolean"
+          "@type": "boolean"
         },
         "address1": {
-          "type": "string"
+          "@type": "string"
         },
         "address2": {
-          "type": "string"
+          "@type": "string"
         },
         "cityVillage": {
-          "type": "string"
+          "@type": "string"
         },
         "stateProvince": {
-          "type": "string"
+          "@type": "string"
         },
         "country": {
-          "type": "string"
+          "@type": "string"
         },
         "postalCode": {
-          "type": "string"
+          "@type": "string"
         },
         "countyDistrict": {
-          "type": "string"
+          "@type": "string"
         },
         "address3": {
-          "type": "string"
+          "@type": "string"
         },
         "address4": {
-          "type": "string"
+          "@type": "string"
         },
         "address5": {
-          "type": "string"
+          "@type": "string"
         },
         "address6": {
-          "type": "string"
+          "@type": "string"
         },
         "startDate": {
-          "type": "timestamp"
+          "@type": "date"
         },
         "endDate": {
-          "type": "timestamp"
+          "@type": "date"
         },
         "latitude": {
-          "type": "number"
+          "@type": "number"
         },
         "longitude": {
-          "type": "number"
+          "@type": "number"
         },
         "voided": {
-          "type": "boolean",
+          "@type": "boolean",
           "default": false
         },
         "address7": {
-          "type": "string"
+          "@type": "string"
         },
         "address8": {
-          "type": "string"
+          "@type": "string"
         },
         "address9": {
-          "type": "string"
+          "@type": "string"
         },
         "address10": {
-          "type": "string"
+          "@type": "string"
         },
         "address11": {
-          "type": "string"
+          "@type": "string"
         },
         "address12": {
-          "type": "string"
+          "@type": "string"
         },
         "address13": {
-          "type": "string"
+          "@type": "string"
         },
         "address14": {
-          "type": "string"
+          "@type": "string"
         },
         "address15": {
-          "type": "string"
+          "@type": "string"
         },
         "links": {
-          "type": "array",
-          "element": {
+          "@type": "array",
+          "items": {
+            "@type": "object",
             "rel": {
-              "type": "string"
+              "@type": "string"
             },
             "uri": {
-              "type": "string"
+              "@type": "string"
             }
           }
         },
         "resourceVersion": {
-          "type": "string",
+          "@type": "string",
           "required": true
         }
       }
     },
     "attributes": {
-      "type": "array",
-      "element": {
+      "@type": "array",
+      "items": {
+        "@type": "object",
         "display": {
-          "type": "string"
+          "@type": "string"
         },
         "uuid": {
-          "type": "string"
+          "@type": "uuid"
         },
         "value": {
-          "type": "string"
+          "@type": "string"
         },
-        "attributeType": {
-          "element": {
-            "uuid": {
-              "type": "string"
-            },
-            "display": {
-              "type": "string"
-            },
-            "links": {
-              "type": "object",
+        "attribute@Type": {
+          "@type": "object",
+          "uuid": {
+            "@type": "uuid"
+          },
+          "display": {
+            "@type": "string"
+          },
+          "links": {
+            "@type": "array",
+            "items": {
+              "@type": "object",
               "rel": {
-                "type": "string"
+                "@type": "string"
               },
               "uri": {
-                "type": "string"
+                "@type": "string"
               }
             }
           }
         },
         "voided": {
-          "type": "boolean",
+          "@type": "boolean",
           "default": false
         },
         "links": {
-          "type": "array",
-          "element": {
+          "@type": "array",
+          "items": {
+            "@type": "object",
             "rel": {
-              "type": "string"
+              "@type": "string"
             },
             "uri": {
-              "type": "string"
+              "@type": "string"
             }
           }
         },
         "resourceVersion": {
-          "type": "string",
+          "@type": "string",
           "required": true
         }
       }
     },
     "voided": {
-      "type": "boolean",
+      "@type": "boolean",
       "default": false
     },
     "auditInfo": {
-      "type": "object",
-      "element": {
-        "creator": {
-          "uuid": {
-            "type": "string"
-          },
-          "display": {
-            "type": "string"
-          },
-          "links": {
-            "type": "array",
-            "element": {
-              "rel": {
-                "type": "string"
-              },
-              "uri": {
-                "type": "string"
-              }
+      "@type": "object",
+      "creator": {
+        "uuid": {
+          "@type": "uuid"
+        },
+        "display": {
+          "@type": "string"
+        },
+        "links": {
+          "@type": "array",
+          "items": {
+            "@type": "object",
+            "rel": {
+              "@type": "string"
+            },
+            "uri": {
+              "@type": "string"
             }
           }
         }
       },
       "dateCreated": {
-        "type": "timestamp"
+        "@type": "date"
       },
       "changedBy": {
-        "type": "string"
+        "@type": "string"
       },
       "dateChanged": {
-        "type": "timestamp"
+        "@type": "date"
       }
     },
     "deathdateEstimated": {
-      "type": "boolean",
+      "@type": "boolean",
       "default": false
     },
     "birthtime": {
-      "type": "timestamp"
+      "@type": "date"
     },
     "links": {
-      "type": "array",
-      "element": {
+      "@type": "array",
+      "items": {
+        "@type": "object",
         "rel": {
-          "type": "string"
+          "@type": "string"
         },
         "uri": {
-          "type": "string"
+          "@type": "string"
         }
       }
     },
     "resourceVersion": {
-      "type": "string"
+      "@type": "string",
+      "required": true
     }
   },
   "voided": {
-    "type": "boolean"
+    "@type": "boolean"
   },
   "auditInfo": {
-    "type": "object",
-    "element": {
-      "creator": {
-        "uuid": {
-          "type": "string"
-        },
-        "display": {
-          "type": "string"
-        },
-        "links": {
-          "type": "array",
-          "element": {
-            "rel": {
-              "type": "string"
-            },
-            "uri": {
-              "type": "string"
-            }
+    "@type": "object",
+    "creator": {
+      "@type": "object",
+      "uuid": {
+        "@type": "uuid"
+      },
+      "display": {
+        "@type": "string"
+      },
+      "links": {
+        "@type": "array",
+        "items": {
+          "@type": "object",
+          "rel": {
+            "@type": "string"
+          },
+          "uri": {
+            "@type": "string"
           }
         }
       }
     },
     "dateCreated": {
-      "type": "timestamp"
+      "@type": "date"
     },
     "changedBy": {
-      "type": "string"
+      "@type": "string"
     },
     "dateChanged": {
-      "type": "string"
+      "@type": "date"
     }
   },
   "links": {
-    "type": "array",
-    "rel": {
-      "type": "string"
-    },
-    "uri": {
-      "type": "string"
+    "@type": "array",
+    "items": {
+      "@type": "object",
+      "rel": {
+        "@type": "string"
+      },
+      "uri": {
+        "@type": "string"
+      }
     }
   },
   "resourceVersion": {
-    "type": "string",
+    "@type": "string",
     "required": true
   }
 }
