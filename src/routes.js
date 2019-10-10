@@ -3,11 +3,10 @@
 const fs = require('fs')
 const path = require('path')
 
+const {expectedEndpointsDirectories, inputMeta, inputValidation, inputMapping} = require('./constants')
 const logger = require('./logger')
-const {expectedEndpointsDirectories, meta} = require('./constants')
 const {transformInput} = require('./middleware/mapper')
 const {validateInput} = require('./middleware/validator')
-const {inputMeta, inputValidation, inputMapping} = require('./constants')
 
 exports.createRoutes = router => {
   validateDirectoryStructure()
