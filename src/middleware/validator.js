@@ -1,7 +1,5 @@
 'use strict'
 
-const fs = require('fs')
-const path = require('path')
 const Joi = require('@hapi/joi')
 const builder = require('joi-json').builder(Joi)
 
