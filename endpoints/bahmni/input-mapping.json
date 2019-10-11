@@ -51,7 +51,14 @@
     "person.gender": {
       "key": "gender",
       "transform": {
-        "function": "getGenderFromCode"
+        "function": "mapCodes",
+        "parameters": {
+          "F": "female",
+          "M": "male",
+          "O": "other",
+          "default": "unknown",
+          "null": null
+        }
       }
     }
   },
