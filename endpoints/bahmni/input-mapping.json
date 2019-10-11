@@ -1,56 +1,61 @@
 {
-  "identifiers[].identifier": "identifier[].value",
-  "identifiers[].display": "identifier[].type.text",
-  "identifiers[].uuid": "identifier[].type.coding[].code",
-  "identifiers[].resourceVersion": "identifier[].type.coding[].version",
-  "identifiers[].identifierType.display": "identifier[].type.coding[].display",
-  "identifiers[].identifierType.links[0].uri": "identifier[].type.coding[].system",
-  "identifiers[].links[0].uri": "identifier[].system",
-  "person.names[].display": "name[].text",
-  "person.names[].familyName": "name[].family",
-  "person.names[].givenName": "name[].given[]+",
-  "person.names[].middleName": "name[].given[]+",
-  "person.gender": {
-    "key": "gender",
-    "transform": {
-      "function": "getGenderFromCode"
+  "input": {
+    "identifiers[].identifier": "identifier[].value",
+    "identifiers[].display": "identifier[].type.text",
+    "identifiers[].uuid": "identifier[].type.coding[].code",
+    "identifiers[].resourceVersion": "identifier[].type.coding[].version",
+    "identifiers[].identifierType.display": "identifier[].type.coding[].display",
+    "identifiers[].identifierType.links[0].uri": "identifier[].type.coding[].system",
+    "identifiers[].links[0].uri": "identifier[].system",
+    "person.names[].display": "name[].text",
+    "person.names[].familyName": "name[].family",
+    "person.names[].givenName": "name[].given[]+",
+    "person.names[].middleName": "name[].given[]+",
+    "person.birthdate": {
+      "key": "birthDate",
+      "transform": {
+        "function": "dateTimeToDate"
+      }
+    },
+    "person.voided": {
+      "key": "active",
+      "transform": {
+        "function": "booleanFlip"
+      }
+    },
+    "person.dead": "deceasedBoolean",
+    "person.deathDate": "deceasedDateTime",
+    "person.addresses[].display": "address[].text",
+    "person.addresses[].cityVillage": "address[].city",
+    "person.addresses[].stateProvince": "address[].state",
+    "person.addresses[].country": "address[].country",
+    "person.addresses[].postalCode": "address[].postalCode",
+    "person.addresses[].countyDistrict": "address[].district",
+    "person.addresses[].startDate": "address[].period.start",
+    "person.addresses[].endDate": "address[].period.end",
+    "person.addresses[].address1": "address[].line[]+",
+    "person.addresses[].address2": "address[].line[]+",
+    "person.addresses[].address3": "address[].line[]+",
+    "person.addresses[].address4": "address[].line[]+",
+    "person.addresses[].address5": "address[].line[]+",
+    "person.addresses[].address6": "address[].line[]+",
+    "person.addresses[].address7": "address[].line[]+",
+    "person.addresses[].address8": "address[].line[]+",
+    "person.addresses[].address9": "address[].line[]+",
+    "person.addresses[].address10": "address[].line[]+",
+    "person.addresses[].address11": "address[].line[]+",
+    "person.addresses[].address12": "address[].line[]+",
+    "person.addresses[].address13": "address[].line[]+",
+    "person.addresses[].address14": "address[].line[]+",
+    "person.addresses[].address15": "address[].line[]+",
+    "person.gender": {
+      "key": "gender",
+      "transform": {
+        "function": "getGenderFromCode"
+      }
     }
   },
-  "person.birthdate": {
-    "key": "birthDate",
-    "transform": {
-      "function": "dateTimeToDate"
-    }
-  },
-  "person.voided": {
-    "key": "active",
-    "transform": {
-      "function": "booleanFlip"
-    }
-  },
-  "person.dead": "deceasedBoolean",
-  "person.deathDate": "deceasedDateTime",
-  "person.addresses[].display": "address[].text",
-  "person.addresses[].cityVillage": "address[].city",
-  "person.addresses[].stateProvince": "address[].state",
-  "person.addresses[].country": "address[].country",
-  "person.addresses[].postalCode": "address[].postalCode",
-  "person.addresses[].countyDistrict": "address[].district",
-  "person.addresses[].startDate": "address[].period.start",
-  "person.addresses[].endDate": "address[].period.end",
-  "person.addresses[].address1": "address[].line[]+",
-  "person.addresses[].address2": "address[].line[]+",
-  "person.addresses[].address3": "address[].line[]+",
-  "person.addresses[].address4": "address[].line[]+",
-  "person.addresses[].address5": "address[].line[]+",
-  "person.addresses[].address6": "address[].line[]+",
-  "person.addresses[].address7": "address[].line[]+",
-  "person.addresses[].address8": "address[].line[]+",
-  "person.addresses[].address9": "address[].line[]+",
-  "person.addresses[].address10": "address[].line[]+",
-  "person.addresses[].address11": "address[].line[]+",
-  "person.addresses[].address12": "address[].line[]+",
-  "person.addresses[].address13": "address[].line[]+",
-  "person.addresses[].address14": "address[].line[]+",
-  "person.addresses[].address15": "address[].line[]+"
+  "constants": {
+    "resourceType": "resourceType"
+  }
 }

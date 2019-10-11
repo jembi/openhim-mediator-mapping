@@ -3,11 +3,16 @@
 const fs = require('fs')
 const path = require('path')
 
+const {
+  expectedEndpointsDirectories,
+  inputMeta,
+  inputValidation,
+  inputMapping,
+  inputConstants
+} = require('./constants')
 const logger = require('./logger')
-const {expectedEndpointsDirectories, meta} = require('./constants')
 const {transformInput} = require('./middleware/mapper')
 const {validateInput} = require('./middleware/validator')
-const {inputMeta, inputValidation, inputMapping} = require('./constants')
 
 exports.createRoutes = router => {
   validateDirectoryStructure()
@@ -58,11 +63,12 @@ const setUpRoutes = router => {
     const metaData = createObjectFromFile(directory, inputMeta)
     const validationMap = createObjectFromFile(directory, inputValidation)
     const mappingSchema = createObjectFromFile(directory, inputMapping)
+    const constants = createObjectFromFile(directory, inputConstants)
 
     router.post(
       metaData.endpoint.pattern,
       validateInput(validationMap),
-      transformInput(mappingSchema)
+      transformInput(mappingSchema, constants)
     )
 
     logger.info(

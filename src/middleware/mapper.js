@@ -4,19 +4,26 @@ const objectMapper = require('object-mapper')
 
 const logger = require('../logger')
 
-const createMappedObject = (ctx, mappingSchema) => {
+const createMappedObject = (ctx, mappingSchema, inputConstants) => {
   if (!mappingSchema) {
     throw new Error(`No mapping schema supplied`)
   }
 
-  ctx.body = objectMapper(ctx.request.body, mappingSchema)
+  const output = {}
+
+  Object.assign(output, objectMapper(inputConstants, mappingSchema.constants))
+  Object.assign(output, objectMapper(ctx.request.body, mappingSchema.input))
+
+  ctx.body = output
   ctx.status = 200
 }
 
-
-exports.transformInput = mappingSchema => async (ctx, next) => {
+exports.transformInput = (mappingSchema, inputConstants) => async (
+  ctx,
+  next
+) => {
   try {
-    createMappedObject(ctx, mappingSchema)
+    createMappedObject(ctx, mappingSchema, inputConstants)
   } catch (error) {
     ctx.status = 400
     ctx.body = error
@@ -24,7 +31,6 @@ exports.transformInput = mappingSchema => async (ctx, next) => {
   }
   await next()
 }
-
 
 if (process.env.NODE_ENV == 'test') {
   exports.createMappedObject = createMappedObject
