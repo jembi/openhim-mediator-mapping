@@ -14,15 +14,14 @@ const createValidationSchema = validationMap => {
 
   const schema = Joi.object(builder.build(validationMap))
 
-  if (schema) {
-    return schema
+  if (!schema) {
+    throw new Error('Joi validation schema creation failed')
   }
-
-  throw new Error('Joi validation schema creation failed')
+  return schema
 }
 
 const performValidation = (ctx, schema) => {
-  const {error, value} = schema.validate(ctx.request.body)
+  const {error} = schema.validate(ctx.request.body)
 
   if (error) {
     throw new Error(`Validation execution failed: ${error.message}`)
