@@ -1,7 +1,7 @@
 'use strict'
 
 const tape = require('tape')
-const { createMappedObject } = require('../../src/middleware/mapper')
+const {createMappedObject} = require('../../src/middleware/mapper')
 
 tape.test('Mapper', t => {
   t.test('createMappedObject()', t => {
@@ -22,12 +22,12 @@ tape.test('Mapper', t => {
       }
 
       const mappingSchema = {
-        'input': {
-          'inputOne': 'outputOne',
-          'inputTwo': 'outputTwo',
-          'inputThree': 'outputThree'
+        input: {
+          inputOne: 'outputOne',
+          inputTwo: 'outputTwo',
+          inputThree: 'outputThree'
         },
-        'constants': {}
+        constants: {}
       }
 
       const expected = {
