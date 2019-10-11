@@ -13,7 +13,6 @@ const createMappedObject = (ctx, mappingSchema) => {
   ctx.status = 200
 }
 
-
 exports.transformInput = mappingSchema => async (ctx, next) => {
   try {
     createMappedObject(ctx, mappingSchema)
@@ -24,7 +23,6 @@ exports.transformInput = mappingSchema => async (ctx, next) => {
   }
   await next()
 }
-
 
 if (process.env.NODE_ENV == 'test') {
   exports.createMappedObject = createMappedObject
