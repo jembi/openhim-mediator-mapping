@@ -10,7 +10,10 @@ const {
 tape.test('Validation Middleware', t => {
   t.test('createValidationSchema()', t => {
     t.test('should throw when resource is not supplied', t => {
-      t.throws(createValidationSchema, new Error(`Error: No validation rules supplied`))
+      t.throws(
+        createValidationSchema,
+        new Error(`Error: No validation rules supplied`)
+      )
       t.end()
     })
 
@@ -19,15 +22,18 @@ tape.test('Validation Middleware', t => {
         directory: 'unsupported'
       }
 
-      t.throws(() => createValidationSchema(validationMap), new Error(`Validation rule type is not supported:`))
+      t.throws(
+        () => createValidationSchema(validationMap),
+        new Error(`Validation rule type is not supported:`)
+      )
       t.end()
     })
 
     t.test('should return a schema object', t => {
       const validationMap = {
-        'directory': {
-          'type': 'string',
-          'required': true
+        directory: {
+          type: 'string',
+          required: true
         }
       }
 
@@ -55,7 +61,10 @@ tape.test('Validation Middleware', t => {
         }
       }
 
-      t.throws(() => performValidation(ctx, joiSchema), `Validation execution failed: "age" is required`)
+      t.throws(
+        () => performValidation(ctx, joiSchema),
+        `Validation execution failed: "age" is required`
+      )
       t.end()
     })
 
@@ -69,7 +78,10 @@ tape.test('Validation Middleware', t => {
         }
       }
 
-      t.throws(() => performValidation(ctx, joiSchema), `Validation execution failed: "name" is required`)
+      t.throws(
+        () => performValidation(ctx, joiSchema),
+        `Validation execution failed: "name" is required`
+      )
       t.end()
     })
 
