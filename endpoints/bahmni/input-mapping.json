@@ -16,5 +16,18 @@
     "transform": {
       "function": "dateTimeToDate"
     }
+  },
+  "person.gender": {
+    "key": "gender",
+    "transform": {
+      "function": "mapCodes",
+      "parameters": {
+        "F": "female",
+        "M": "male",
+        "O": "other",
+        "default": "unknown",
+        "null": null
+      }
+    }
   }
 }
