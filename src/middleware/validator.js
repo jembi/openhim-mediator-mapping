@@ -16,12 +16,12 @@ const performValidation = (ctx, schema) => {
   }
 
   const ajv = new Ajv({
-    nullable: configurations.acceptNullValues
+    nullable: configurations.nullable
   })
   const valid = ajv.validate(schema, ctx.request.body)
 
   if (!valid) {
-    throw new Error(`Validation execution failed: ${ajv.errorsText()}`)
+    throw new Error(`Validation failed: ${ajv.errorsText()}`)
   }
 }
 
