@@ -67,11 +67,11 @@ This is the path on which the OpenHIM Mapping Mediator will listen to trigger a 
 
 #### Expected Input
 
-In future, this Mapping Mediator will be able to accept any standardised message type (ie: `JSON`, `XML`, and`Turtle`) then convert it into JSON to be validated and mapped by our core engine. Initially we will only support `JSON`
+In future, this Mapping Mediator will be able to accept any standardized message type (ie: `JSON`, `XML`, and`Turtle`) then convert it into JSON to be validated and mapped by our core engine. Initially we will only support `JSON`
 
-#### Desired Ouput
+#### Desired Output
 
-In future this Mapping Mediator will be able to transform our transformed JSON output into any standardised message type (ie: `JSON`, `XML`, and `Turtle`) before returning the response to the client. Initially we will only support `JSON`
+In future this Mapping Mediator will be able to transform our transformed JSON output into any standardized message type (ie: `JSON`, `XML`, and `Turtle`) before returning the response to the client. Initially we will only support `JSON`
 
 ### Input Validation Schema
 
@@ -95,7 +95,7 @@ Other validation rules that can be set are available [here](https://www.npmjs.co
 
 ## NodeJS and NPM
 
-This project was develop using Dubnium NodeJS.
+This project was developed using Dubnium NodeJS.
 
 To start up the project navigate into the root of the project in a terminal and run the following:
 
@@ -114,14 +114,14 @@ Or you could setup channels on your OpenHIM instance corresponding to your endpo
 
 ## Docker
 
-> This section needs work - it does not include how to add files to an existing docker image which would be useful... The dockerfile should preferably exclude our sample BAHMNI and OpenIMIS mapping from the image and instead allow those file sto be added via ENVs? perhaps.
+> To run in docker
 
 From the project directory run:
 
 ```sh
 docker build -t mapper .
 
-docker run --network {network-name} -p 3003:3003 --name mapper mapper
+docker run --network {network-name} -v /endpoints:/endpoints -p 3003:3003 --name mapper mapper
 ```
 
 The network flag is optional. If connecting to a specific docker network find the network name by running:
@@ -134,4 +134,10 @@ Environmental variables can be included using the `-e` flag. For example:
 
 ```sh
 docker run --network {network-name} -p 3003:3003 --name mapper -e TRUST_SELF_SIGNED=true mapper
+```
+
+If a new endpoint is added to the endpoints folder, the docker container will have to be restarted:
+
+```sh
+docker restart mapper
 ```

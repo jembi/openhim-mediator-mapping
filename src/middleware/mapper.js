@@ -26,7 +26,8 @@ exports.transformInput = (mappingSchema, inputConstants) => async (
     createMappedObject(ctx, mappingSchema, inputConstants)
   } catch (error) {
     ctx.status = 400
-    ctx.body = error
+    ctx.type = 'json'
+    ctx.body = JSON.stringify({ error: `Transformation Failed: ${error.message}` })
     return logger.error(`Transformation Failed: ${error.message}`)
   }
   await next()

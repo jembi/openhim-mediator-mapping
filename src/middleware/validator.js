@@ -27,11 +27,14 @@ const performValidation = (ctx, schema) => {
 
 exports.validateInput = schema => async (ctx, next) => {
   try {
+    const schema = createValidationSchema(validationMap)
     performValidation(ctx, schema)
+    logger.info('Successfully validated user input')
   } catch (error) {
     ctx.status = 400
-    ctx.body = error
-    return logger.error(error)
+    ctx.type = 'json'
+    ctx.body = JSON.stringify({ error: error.message })
+    return logger.error(error.message)
   }
 
   await next()

@@ -15,17 +15,17 @@
   "dependencies": {
     "ajv": "^6.10.2",
     "express": "^4.17.1",
-    "koa": "^2.8.2",
+    "koa": "^2.10.0",
     "koa-body": "^4.1.1",
     "koa-router": "^7.4.0",
     "nodemon": "^1.19.3",
     "object-mapper": "jembi/node-object-mapper#master",
     "openhim-mediator-utils": "^0.2.3",
     "pino": "^5.13.4",
-    "pino-pretty": "^3.2.1"
+    "pino-pretty": "^3.2.2"
   },
   "devDependencies": {
-    "eslint-config-prettier": "^6.3.0",
+    "eslint-config-prettier": "^6.4.0",
     "eslint-plugin-import": "^2.18.2",
     "eslint-plugin-node": "^10.0.0",
     "eslint-plugin-prettier": "^3.1.1",
