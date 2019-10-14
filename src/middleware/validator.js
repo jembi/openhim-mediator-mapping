@@ -22,8 +22,6 @@ const performValidation = (ctx, schema) => {
 
   if (!valid) {
     throw new Error(`Validation failed: ${ajv.errorsText()}`)
-  } else {
-    logger.info("Validation successful")
   }
 }
 
