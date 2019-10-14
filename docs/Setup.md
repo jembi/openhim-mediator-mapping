@@ -26,6 +26,10 @@ The supported environment variables are listed as follows:
 
   > Only set this variable to `true` if you are using it in a non-production environment
 
+* ACCEPT_NULL_VALUES - Default: **true**
+
+  > This is used to configure the validation middleware to accept null values
+
 ## Configuration files
 
 The configuration files must be stored in a directory in the root of the project named endpoints. Within this endpoints directory should be further broken down into sub-directories each containing a minimum of three specific files: `meta.json`, `input-mapping.json`, and `input-validation.json`. `output.json` is optional a this point. The endpoints directory should be in the following structure:
@@ -70,6 +74,22 @@ In future, this Mapping Mediator will be able to accept any standardised message
 In future this Mapping Mediator will be able to transform our transformed JSON output into any standardised message type (ie: `JSON`, `XML`, and `Turtle`) before returning the response to the client. Initially we will only support `JSON`
 
 ### Input Validation Schema
+
+The input coming in can be validated before the mapping. For the validation, a library called `AJV` is used. A validation schema has to be defined and then put in the endpoints folder. By default the app is set up such that the values of the input's properties can be nullable. To unset this set the environment variable **ACCEPT_NULL_VALUES** to **false** on app start up. Below is an example of the validation schema json
+
+```txt
+{
+  "type": "object",
+  "properties": {
+    "name": { "type": "string" },
+    "surname": { "type": "string", "nullable": true },
+    "emails": {"type": "array", "items": { "type": "number" }}
+  },
+  "required": ["name"]
+}
+```
+
+Other validation rules that can be set are available [here](https://www.npmjs.com/package/ajv#validation-keywords)
 
 ### Input Mapping Schema
 
