@@ -93,7 +93,7 @@ exports.validateInput = validationMap => async (ctx, next) => {
   try {
     const schema = createValidationSchema(validationMap)
     performValidation(ctx, schema)
-    logger.debug('Successfully validated user input')
+    logger.info('Successfully validated user input')
   } catch (error) {
     ctx.status = 400
     ctx.type = 'json'
