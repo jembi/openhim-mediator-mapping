@@ -96,7 +96,8 @@ exports.validateInput = validationMap => async (ctx, next) => {
     logger.debug('Successfully validated user input')
   } catch (error) {
     ctx.status = 400
-    ctx.body = error.message
+    ctx.type = 'json'
+    ctx.body = JSON.stringify({ error: error.message })
     return logger.error(error)
   }
 
@@ -104,7 +105,8 @@ exports.validateInput = validationMap => async (ctx, next) => {
     performValidation(ctx, schema)
   } catch (error) {
     ctx.status = 400
-    ctx.body = error.message
+    ctx.type = 'json'
+    ctx.body = JSON.stringify({ error: error.message })
     return logger.error(error)
   }
 
