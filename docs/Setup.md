@@ -8,25 +8,25 @@ The Mapping mediator can be setup within a NodeJS environment along with NPM or 
 
 The supported environment variables are listed as follows:
 
-* SERVER_PORT - Default: **3003**
+- SERVER_PORT - Default: **3003**
 
-* LOG_LEVEL - Default: **info**
+- LOG_LEVEL - Default: **info**
 
-* OPENHIM_URL - Default: <http://localhost:8080>
+- OPENHIM_URL - Default: <http://localhost:8080>
 
   > If running the OpenHIM in a docker container substitute in the `container name` instead of localhost.
 
-* OPENHIM_USERNAME - Default: **root@openhim.org**
+- OPENHIM_USERNAME - Default: **root@openhim.org**
 
-* OPENHIM_PASSWORD - Default: **openhim-password**
+- OPENHIM_PASSWORD - Default: **openhim-password**
 
-  >The OpenHIM requires this default API password to be changed on first login.
+  > The OpenHIM requires this default API password to be changed on first login.
 
-* TRUST_SELF_SIGNED - Default: **false**
+- TRUST_SELF_SIGNED - Default: **false**
 
   > Only set this variable to `true` if you are using it in a non-production environment
 
-* ACCEPT_NULL_VALUES - Default: **true**
+- ACCEPT_NULL_VALUES - Default: **true**
 
   > This is used to configure the validation middleware to accept null values
 
@@ -57,9 +57,9 @@ The configuration files must be stored in a directory in the root of the project
 
 The `meta.json` file contains the details involved in route setup. The following can be set in the `meta.json` file:
 
-* Mapping route path
-* Expected **input** message type
-* Desired **output** message type
+- Mapping route path
+- Expected **input** message type
+- Desired **output** message type
 
 #### Mapping Route Path
 
@@ -75,21 +75,33 @@ In future this Mapping Mediator will be able to transform our transformed JSON o
 
 ### Input Validation Schema
 
-The input coming in can be validated before the mapping. For the validation, a library called `AJV` is used. A validation schema has to be defined and then put in the endpoints folder. By default the app is set up such that the values of the input's properties can be nullable. To unset this set the environment variable **ACCEPT_NULL_VALUES** to **false** on app start up. Below is an example of the validation schema json
+The input coming in can be validated before the mapping. For the validation, a library called [AJV](https://www.npmjs.com/package/ajv) is used. A validation schema has to be defined and then put in the endpoints folder. By default the app is set up such that the values of the input's properties can be nullable. To unset this set the environment variable **ACCEPT_NULL_VALUES** to **false** on app start up. Below is an example of the validation schema json
 
-```txt
+```json
 {
   "type": "object",
   "properties": {
-    "name": { "type": "string" },
-    "surname": { "type": "string", "nullable": true },
-    "emails": {"type": "array", "items": { "type": "number" }}
+    "name": {"type": "string"},
+    "surname": {"type": "string", "nullable": true},
+    "emails": {"type": "array", "items": {"type": "string", "format": "email"}},
+    "date": {"type": "string", "format": "date-time"},
+    "id": {"type": "string", "format": "uuid"},
+    "jobs": {
+      "type": "object",
+      "properties": {"marketing": {"type": "string", "required": ["marketing"]}}
+    }
   },
-  "required": ["name"]
+  "required": ["name", "id", "emails"]
 }
 ```
 
-Other validation rules that can be set are available [here](https://www.npmjs.com/package/ajv#validation-keywords)
+Data types like date, email, uuid, etc. all inherit the string type. To specify these, you use the keyword [format](https://github.com/epoberezkin/ajv/blob/master/KEYWORDS.md#format) as done below
+
+```json
+"email": { "type": "string", "format": "email" }
+```
+
+> The formats that are supported are: **date**, **date-time**, **uri**, **email**, **hostname**, **ipv6** and **regex**. More validation rules are available [here](https://www.npmjs.com/package/ajv#validation-keywords)
 
 ### Input Mapping Schema
 
