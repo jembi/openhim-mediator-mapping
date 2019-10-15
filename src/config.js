@@ -10,6 +10,7 @@ exports.getConfig = function() {
       password: process.env.OPENHIM_PASSWORD || 'openhim-password',
       trustSelfSigned: process.env.TRUST_SELF_SIGNED === 'true',
       register: process.env.OPENHIM_REGISTER || 'true'
-    })
+    }),
+    nullable: process.env.ACCEPT_NULL_VALUES !== 'false'
   })
 }
