@@ -50,10 +50,7 @@ tape.test('Validation Middleware', t => {
         required: ['name']
       }
 
-      t.throws(
-        () => performValidation(ctx, schema),
-        /Validation failed/
-      )
+      t.throws(() => performValidation(ctx, schema), /Validation failed/)
       t.end()
     })
 
