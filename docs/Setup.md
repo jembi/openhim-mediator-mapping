@@ -2,7 +2,7 @@
 
 **This project is a proof of concept and not recommended as Production ready code!**
 
-The Mapping mediator can be setup within a NodeJS environment along with NPM or with Docker. In either case it is configured using environment variables.
+The Mapping mediator can be setup within a [NodeJS](https://nodejs.org/en/) environment along with [NPM](https://www.npmjs.com/) or with [Docker](https://docs.docker.com/). In either case it is configured using environment variables.
 
 ## Environment Variables
 
@@ -95,19 +95,15 @@ The input coming in can be validated before the mapping. For the validation, a l
 }
 ```
 
-Data types like date, email, uuid, etc. all inherit the string type. To specify these, you use the keyword [format](https://github.com/epoberezkin/ajv/blob/master/KEYWORDS.md#format) as done below
+Data types such as `date`, `email`, `uuid`, etc. all inherit the type `string`. To specify the type, use the keyword `format` as seen above.
 
-```json
-"email": { "type": "string", "format": "email" }
-```
-
-> The formats that are supported are: **date**, **date-time**, **uri**, **email**, **hostname**, **ipv6** and **regex**. More validation rules are available [here](https://www.npmjs.com/package/ajv#validation-keywords)
+> The [formats](https://github.com/epoberezkin/ajv/blob/master/KEYWORDS.md#format) that are supported are: **date**, **date-time**, **uri**, **email**, **hostname**, **ipv6** and **regex**. More validation rules are available [here](https://www.npmjs.com/package/ajv#validation-keywords)
 
 ### Input Mapping Schema
 
 ## NodeJS and NPM
 
-This project was developed using Dubnium NodeJS.
+This project was developed using [Dubnium](https://scotch.io/tutorials/whats-new-in-node-10-dubnium) NodeJS.
 
 To start up the project navigate into the root of the project in a terminal and run the following:
 
@@ -122,7 +118,7 @@ Once the mediator has successfully started up you can test it by sending a POST 
 curl --request POST --header "Content-Type: application/json" --data '{"key1":"value1", "key2":"value2"}' http://localhost:3003/<path_configured_in_meta.json>
 ```
 
-Or you could setup channels on your OpenHIM instance corresponding to your endpoints and send requests through to the OpenHIM to track the transaction there.
+Or you could setup channels on your OpenHIM instance corresponding to your endpoints and send requests through to the OpenHIM to track the transaction there. See [here](https://github.com/jembi/openhim-mediator-tutorial/blob/master/0_Starting_OpenHIM.md#step-5---testing-the-openhim-routing) for a quick OpenHIM tutorial.
 
 ## Docker
 
