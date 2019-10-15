@@ -11,6 +11,7 @@ const {
   inputConstants
 } = require('./constants')
 const logger = require('./logger')
+const {parsePayloadMiddleware} = require('./middleware/parser')
 const {transformInput} = require('./middleware/mapper')
 const {validateInput} = require('./middleware/validator')
 
@@ -67,6 +68,7 @@ const setUpRoutes = router => {
 
     router.post(
       metaData.endpoint.pattern,
+      parsePayloadMiddleware(metaData),
       validateInput(validationMap),
       transformInput(mappingSchema, constants)
     )
