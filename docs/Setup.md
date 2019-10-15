@@ -14,7 +14,7 @@ The supported environment variables are listed as follows:
 
 - OPENHIM_URL - Default: <http://localhost:8080>
 
-  > If running the OpenHIM in a docker container substitute in the `container name` instead of localhost.
+  > If running the OpenHIM in a docker container substitute in the **container name** instead of **localhost**.
 
 - OPENHIM_USERNAME - Default: **root@openhim.org**
 
@@ -28,7 +28,7 @@ The supported environment variables are listed as follows:
 
 - ACCEPT_NULL_VALUES - Default: **true**
 
-  > This is used to configure the validation middleware to accept null values
+  > This is used to configure the validation middleware to accept `null` values
 
 ## Configuration files
 
@@ -75,7 +75,9 @@ In future this Mapping Mediator will be able to transform our transformed JSON o
 
 ### Input Validation Schema
 
-The input coming in can be validated before the mapping. For the validation, a library called [AJV](https://www.npmjs.com/package/ajv) is used. A validation schema has to be defined and then put in the endpoints folder. By default the app is set up such that the values of the input's properties can be nullable. To unset this set the environment variable **ACCEPT_NULL_VALUES** to **false** on app start up. Below is an example of the validation schema json
+To ensure good data quality, the Mapping mediator implements a validation middleware layer. This middleware layer will validate the user's input before the mapping the output object. Applying the validation middleware is recommended but optional. The level of validation is completely configurable by the user. Any fields that don't require validation can be left out of the validation schema.
+
+For the validation, the module [AJV](https://www.npmjs.com/package/ajv) is used. The validation schema has to be defined in a file named `input-validation.json` within a subdirectory of `/endpoints`. By default, the values of the user's input properties can be set to `nullable`. To prevent any `null` values passing validation supply the following environment variable **ACCEPT_NULL_VALUES=false** on app start up. Below is an example of the validation schema.
 
 ```json
 {
@@ -109,7 +111,8 @@ To start up the project navigate into the root of the project in a terminal and 
 
 ```sh
 npm install
-<Environment Variables> npm start
+
+<Environment_Variables> npm start
 ```
 
 Once the mediator has successfully started up you can test it by sending a POST request directly to your configured endpoints on the mediator.
@@ -138,7 +141,7 @@ The network flag is optional. If connecting to a specific docker network find th
 docker network ls
 ```
 
-Environmental variables can be included using the `-e` flag. For example:
+**Environmental variables** can be included using the `-e` flag. For example:
 
 ```sh
 docker run --network {network-name} -p 3003:3003 --name mapper -e TRUST_SELF_SIGNED=true mapper
