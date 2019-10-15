@@ -30,7 +30,7 @@ const parseIncomingBody = async (ctx, inputFormat, next) => {
         explicitArray: false
       }
     }
-    
+
     try {
       logger.info(`Parsing incoming body into JSON format for processing`)
       await KoaBodyParser(options)(ctx, next)
@@ -53,7 +53,7 @@ exports.parseBodyMiddleware = metaData => async (ctx, next) => {
     parseOutgoingBody(ctx, metaData.transformation.output)
   } catch (error) {
     ctx.status = 400
-    ctx.body = xmlBuilder.buildObject({ error: error.message })
+    ctx.body = xmlBuilder.buildObject({error: error.message})
     return logger.error(error.message)
   }
 }
