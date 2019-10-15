@@ -17,7 +17,6 @@
     "koa": "^2.10.0",
     "koa-body": "^4.1.1",
     "koa-router": "^7.4.0",
-    "nodemon": "^1.19.3",
     "object-mapper": "jembi/node-object-mapper#master",
     "openhim-mediator-utils": "^0.2.3",
     "pino": "^5.13.4",
@@ -29,6 +28,7 @@
     "eslint-plugin-node": "^10.0.0",
     "eslint-plugin-prettier": "^3.1.1",
     "eslint-plugin-promise": "^4.2.1",
+    "nodemon": "^1.19.3",
     "prettier": "^1.18.2",
     "tape": "^4.11.0"
   }
