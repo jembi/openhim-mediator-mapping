@@ -14,7 +14,6 @@
   },
   "dependencies": {
     "ajv": "^6.10.2",
-    "express": "^4.17.1",
     "koa": "^2.10.0",
     "koa-body": "^4.1.1",
     "koa-router": "^7.4.0",
