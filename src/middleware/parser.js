@@ -30,7 +30,7 @@ const parseIncomingBody = async (ctx, inputFormat, next) => {
         explicitArray: false
       }
     }
-    
+
     try {
       await KoaBodyParser(options)(ctx, next)
       logger.info(`Parsed incoming body into JSON format for processing`)
@@ -54,7 +54,7 @@ exports.parsePayloadMiddleware = metaData => async (ctx, next) => {
   } catch (error) {
     ctx.status = 400
     ctx.type = 'json'
-    ctx.body = JSON.stringify({ error: error.message })
+    ctx.body = JSON.stringify({error: error.message})
     return logger.error(error.message)
   }
 }
