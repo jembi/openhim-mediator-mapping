@@ -37,7 +37,8 @@
                   }
                 }
               }
-            }
+            },
+            "required": ["links"]
           },
           "links": {
             "type": "array",
@@ -51,7 +52,8 @@
               }
             }
           }
-        }
+        },
+        "required": ["links"]
       }
     },
     "person": {
