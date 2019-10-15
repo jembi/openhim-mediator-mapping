@@ -32,7 +32,9 @@ exports.validateInput = schema => async (ctx, next) => {
   } catch (error) {
     ctx.status = 400
     ctx.type = 'json'
-    ctx.body = JSON.stringify({error: error.message})
+    ctx.body = {
+      error: error.message
+    }
     return logger.error(error.message)
   }
 
