@@ -32,24 +32,27 @@ The supported environment variables are listed as follows:
 
 ## Configuration files
 
-The configuration files must be stored in a directory in the root of the project named endpoints. Within this endpoints directory should be further broken down into sub-directories each containing a minimum of three specific files: `meta.json`, `input-mapping.json`, and `input-validation.json`. `output.json` is optional a this point. The endpoints directory should be in the following structure:
+The configuration files must be stored in a directory in the root of the project named endpoints. This endpoints directory should be further broken down into sub-directories each containing a minimum of four specific files: `meta.json`, `input-mapping.json`, `input-validation.json`, and `constants.json`. `output.json` is optional a this point. The endpoints directory should be in the following structure:
 
 ```txt
 ├── Endpoints
     ├── Example Patient Mapping
-        ├── meta.json
-        ├── input-validation.json
+        ├── constants.json
         ├── input-mapping.json
+        ├── input-validation.json
+        ├── meta.json
         ├── output.json (optional)
     ├── Example Observation Mapping
-        ├── meta.json
-        ├── input-validation.json
+        ├── constants.json
         ├── input-mapping.json
+        ├── input-validation.json
+        ├── meta.json
         ├── output.json (optional)
     ├── Example Different Patient Mapping
-        ├── meta.json
-        ├── input-validation.json
+        ├── constants.json
         ├── input-mapping.json
+        ├── input-validation.json
+        ├── meta.json
         ├── output.json (optional)
 ```
 
