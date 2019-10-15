@@ -2,19 +2,15 @@
 
 const fs = require('fs')
 const path = require('path')
-
-const {registerMediator, activateHeartbeat} = require('openhim-mediator-utils')
-
 const logger = require('./logger')
 const config = require('./config')
+const {registerMediator, activateHeartbeat} = require('openhim-mediator-utils')
 
 const mediatorConfigFile = fs.readFileSync(
   path.resolve(__dirname, '..', 'mediatorConfig.json')
 )
 const mediatorConfigJson = JSON.parse(mediatorConfigFile)
-
 const configOptions = config.getConfig()
-
 const openhimConfig = Object.assign(
   {urn: mediatorConfigJson.urn},
   configOptions.openhim
