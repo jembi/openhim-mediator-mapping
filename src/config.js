@@ -9,6 +9,7 @@ exports.getConfig = function() {
       username: process.env.OPENHIM_USERNAME || 'root@openhim.org',
       password: process.env.OPENHIM_PASSWORD || 'openhim-password',
       trustSelfSigned: process.env.TRUST_SELF_SIGNED === 'true'
-    })
+    }),
+    nullable: process.env.ACCEPT_NULL_VALUES !== 'false'
   })
 }
