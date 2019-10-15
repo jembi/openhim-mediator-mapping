@@ -4,6 +4,8 @@
 
 The Mapping mediator can be setup within a [NodeJS](https://nodejs.org/en/) environment along with [NPM](https://www.npmjs.com/) or with [Docker](https://docs.docker.com/). In either case it is configured using environment variables.
 
+---
+
 ## Environment Variables
 
 The supported environment variables are listed as follows:
@@ -29,6 +31,8 @@ The supported environment variables are listed as follows:
 - ACCEPT_NULL_VALUES - Default: **true**
 
   > This is used to configure the validation middleware to accept `null` values
+
+---
 
 ## Configuration files
 
@@ -56,7 +60,7 @@ The configuration files must be stored in a directory in the root of the project
         ├── output.json (optional)
 ```
 
-### Meta Data
+### 1. Meta Data
 
 The `meta.json` file contains the details involved in route setup. The following can be set in the `meta.json` file:
 
@@ -76,7 +80,7 @@ In future, this Mapping Mediator will be able to accept any standardized message
 
 In future this Mapping Mediator will be able to transform our transformed JSON output into any standardized message type (ie: `JSON`, and `XML`) before returning the response to the client. Initially we will only support `JSON`
 
-### Input Validation Schema
+### 2. Input Validation Schema
 
 To ensure good data quality, the Mapping mediator implements a validation middleware layer. This middleware layer will validate the user's input before the mapping the output object. Applying the validation middleware is recommended but optional. The level of validation is completely configurable by the user. Any fields that don't require validation can be left out of the validation schema.
 
@@ -104,7 +108,17 @@ Data types such as `date`, `email`, `uuid`, etc. all inherit the type `string`. 
 
 > The [formats](https://github.com/epoberezkin/ajv/blob/master/KEYWORDS.md#format) that are supported are: **date**, **date-time**, **uri**, **email**, **hostname**, **ipv6** and **regex**. More validation rules are available [here](https://www.npmjs.com/package/ajv#validation-keywords)
 
-### Input Mapping Schema
+### 3. Input Mapping Schema
+
+### 4. Constants
+
+The constants file contains data to be used alongside the client input data. The constants file can contain values for fields required in the output data that weren't available from the original client input.
+
+Fields in the constants file can be referenced in the mapping schema in the `constants` section similar to the user input mapping.
+
+### 5. Output
+
+---
 
 ## NodeJS and NPM
 
@@ -125,6 +139,8 @@ curl --request POST --header "Content-Type: application/json" --data '{"key1":"v
 ```
 
 Or you could setup channels on your OpenHIM instance corresponding to your endpoints and send requests through to the OpenHIM to track the transaction there. See [here](https://github.com/jembi/openhim-mediator-tutorial/blob/master/0_Starting_OpenHIM.md#step-5---testing-the-openhim-routing) for a quick OpenHIM tutorial.
+
+---
 
 ## Docker
 
