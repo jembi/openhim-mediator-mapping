@@ -70,11 +70,11 @@ This is the path on which the OpenHIM Mapping Mediator will listen to trigger a 
 
 #### Expected Input
 
-In future, this Mapping Mediator will be able to accept any standardized message type (ie: `JSON`, `XML`, and`Turtle`) then convert it into JSON to be validated and mapped by our core engine. Initially we will only support `JSON`
+In future, this Mapping Mediator will be able to accept any standardized message type (ie: `JSON`, and `XML`) then convert it into JSON to be validated and mapped by our core engine. Initially we will only support `JSON`
 
 #### Desired Output
 
-In future this Mapping Mediator will be able to transform our transformed JSON output into any standardized message type (ie: `JSON`, `XML`, and `Turtle`) before returning the response to the client. Initially we will only support `JSON`
+In future this Mapping Mediator will be able to transform our transformed JSON output into any standardized message type (ie: `JSON`, and `XML`) before returning the response to the client. Initially we will only support `JSON`
 
 ### Input Validation Schema
 
@@ -127,8 +127,6 @@ curl --request POST --header "Content-Type: application/json" --data '{"key1":"v
 Or you could setup channels on your OpenHIM instance corresponding to your endpoints and send requests through to the OpenHIM to track the transaction there. See [here](https://github.com/jembi/openhim-mediator-tutorial/blob/master/0_Starting_OpenHIM.md#step-5---testing-the-openhim-routing) for a quick OpenHIM tutorial.
 
 ## Docker
-
-> To run in docker
 
 From the project directory run:
 
