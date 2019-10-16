@@ -57,3 +57,8 @@ exports.parseBodyMiddleware = metaData => async (ctx, next) => {
     return logger.error(error.message)
   }
 }
+
+if (process.env.NODE_ENV === 'test') {
+  exports.parseIncomingBody = parseIncomingBody
+  exports.parseOutgoingBody = parseOutgoingBody
+}
