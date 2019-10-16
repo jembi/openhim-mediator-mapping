@@ -9,9 +9,9 @@ const xmlBuilder = new xml2js.Builder()
 const parseOutgoingBody = (ctx, outputFormat) => {
   if (outputFormat === 'XML') {
     try {
+      logger.info(`Parsing outgoing body in ${outputFormat} format`)
       ctx.body = xmlBuilder.buildObject(ctx.body)
       ctx.set('Content-Type', 'application/xml')
-      logger.info(`Parsed outgoing body in ${outputFormat} format`)
     } catch (error) {
       throw new Error(`Parsing outgoing body failed: ${error.message}`)
     }
@@ -32,8 +32,8 @@ const parseIncomingBody = async (ctx, inputFormat, next) => {
     }
 
     try {
+      logger.info(`Parsing incoming body into JSON format for processing`)
       await KoaBodyParser(options)(ctx, next)
-      logger.info(`Parsed incoming body into JSON format for processing`)
     } catch (error) {
       throw new Error(`Parsing incoming body failed: ${error.message}`)
     }
@@ -42,7 +42,7 @@ const parseIncomingBody = async (ctx, inputFormat, next) => {
   }
 }
 
-exports.parsePayloadMiddleware = metaData => async (ctx, next) => {
+exports.parseBodyMiddleware = metaData => async (ctx, next) => {
   try {
     // parse incoming body
     await parseIncomingBody(ctx, metaData.transformation.input, next)
@@ -53,8 +53,7 @@ exports.parsePayloadMiddleware = metaData => async (ctx, next) => {
     parseOutgoingBody(ctx, metaData.transformation.output)
   } catch (error) {
     ctx.status = 400
-    ctx.type = 'json'
-    ctx.body = JSON.stringify({error: error.message})
+    ctx.body = xmlBuilder.buildObject({error: error.message})
     return logger.error(error.message)
   }
 }
