@@ -4,6 +4,7 @@ const xml2js = require('xml2js')
 const KoaBodyParser = require('@viweei/koa-body-parser')
 
 const logger = require('../logger')
+const constants = require('../constants')
 const xmlBuilder = new xml2js.Builder()
 
 const parseOutgoingBody = (ctx, outputFormat) => {
@@ -21,7 +22,7 @@ const parseOutgoingBody = (ctx, outputFormat) => {
 const parseIncomingBody = async (ctx, inputFormat, next) => {
   // parse incoming body
   // KoaBodyParser executed the next() callback to allow the other middleware to continue before coming back here
-  if (['JSON', 'XML'].includes(inputFormat)) {
+  if (constants.allowedContentTypes.includes(inputFormat)) {
     // check content-type matches inputForm specified
     if (!ctx.get('Content-Type').includes(inputFormat.toLowerCase())) {
       throw new Error(
