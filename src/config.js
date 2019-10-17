@@ -11,6 +11,14 @@ exports.getConfig = function() {
       trustSelfSigned: process.env.TRUST_SELF_SIGNED === 'true',
       register: process.env.OPENHIM_REGISTER || 'true'
     }),
+    parser: Object.freeze({
+      limit: process.env.PARSER_LIMIT || '1mb',
+      xmlOptions: {
+        trim: process.env.PARSER_XML_OPTIONS_TRIM || 'true',
+        explicitRoot: process.env.PARSER_XML_OPTIONS_EXPLICIT_ROOT || 'false',
+        explicitArray: process.env.PARSER_XML_OPTIONS_EXPLICIT_ARRAY || 'false'
+      }
+    }),
     validation: Object.freeze({
       nullable: process.env.ACCEPT_NULL_VALUES !== 'false',
       coerceTypes: process.env.VALIDATION_COERCE_TYPES || 'false'

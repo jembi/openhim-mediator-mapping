@@ -5,6 +5,8 @@ const KoaBodyParser = require('@viweei/koa-body-parser')
 
 const logger = require('../logger')
 const constants = require('../constants')
+const config = require('../config').getConfig()
+
 const xmlBuilder = new xml2js.Builder()
 
 const parseOutgoingBody = (ctx, outputFormat) => {
@@ -33,11 +35,11 @@ const parseIncomingBody = async (ctx, inputFormat, next) => {
     }
 
     const options = {
-      limit: '1mb',
+      limit: config.parser.limit,
       xmlOptions: {
-        trim: true,
-        explicitRoot: false,
-        explicitArray: false
+        trim: (config.parser.xmlOptions.trim == 'true'),
+        explicitRoot: (config.parser.xmlOptions.explicitRoot == 'true'),
+        explicitArray: (config.parser.xmlOptions.explicitArray == 'true')
       }
     }
 
