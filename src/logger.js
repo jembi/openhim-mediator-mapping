@@ -8,7 +8,8 @@ const logger = pino({
   prettyPrint: true,
   serializers: {
     err: pino.stdSerializers.err
-  }
+  },
+  enabled: configOptions.enableLogging
 })
 
 module.exports = exports = logger
