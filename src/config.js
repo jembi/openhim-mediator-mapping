@@ -11,6 +11,9 @@ exports.getConfig = function() {
       trustSelfSigned: process.env.TRUST_SELF_SIGNED === 'true',
       register: process.env.OPENHIM_REGISTER || 'true'
     }),
-    nullable: process.env.ACCEPT_NULL_VALUES !== 'false'
+    validation: Object.freeze({
+      nullable: process.env.ACCEPT_NULL_VALUES !== 'false',
+      coerceTypes: process.env.VALIDATION_COERCE_TYPES || 'false'
+    })
   })
 }

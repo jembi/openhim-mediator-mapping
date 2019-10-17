@@ -15,9 +15,16 @@ const performValidation = (ctx, schema) => {
     throw new Error(`Invalid request body`)
   }
 
+  const coerceTypes =
+    configurations.validation.coerceTypes === 'false'
+      ? false
+      : configurations.validation.coerceTypes
+
   const ajv = new Ajv({
-    nullable: configurations.nullable
+    nullable: configurations.validation.nullable,
+    coerceTypes: coerceTypes
   })
+
   const valid = ajv.validate(schema, ctx.request.body)
 
   if (!valid) {
