@@ -68,9 +68,12 @@ exports.parseBodyMiddleware = metaData => async (ctx, next) => {
     if (metaData.transformation.input.toUpperCase() === 'XML') {
       ctx.body = xmlBuilder.buildObject({error: error.message})
     } else {
-      ctx.body = { error: error.message }
+      ctx.body = {error: error.message}
     }
-    ctx.set('Content-Type', 'application/' + metaData.transformation.input.toLowerCase())
+    ctx.set(
+      'Content-Type',
+      'application/' + metaData.transformation.input.toLowerCase()
+    )
     return logger.error(error.message)
   }
 }
