@@ -25,7 +25,7 @@ const performValidation = (ctx, schema) => {
   }
 }
 
-exports.validateInput = schema => async (ctx, next) => {
+exports.validateBodyMiddleware = schema => async (ctx, next) => {
   try {
     performValidation(ctx, schema)
     logger.info('Successfully validated user input')

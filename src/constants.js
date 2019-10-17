@@ -15,4 +15,4 @@ exports.inputMeta = inputMeta
 exports.inputValidation = inputValidation
 exports.inputMapping = inputMapping
 exports.inputConstants = inputConstants
-exports.allowedContentTypes = ['JSON', 'XML']
+exports.ALLOWED_CONTENT_TYPES = ['JSON', 'XML']
