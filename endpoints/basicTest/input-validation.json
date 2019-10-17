@@ -8,31 +8,19 @@
       "type": "string"
     },
     "length": {
-      "anyOf": [
-        { "type": "string" },
-        { "type": "integer" }
-      ]
+      "type": "number"
     },
     "width": {
-      "anyOf": [
-        { "type": "string" },
-        { "type": "integer" }
-      ]
+      "type": "number"
     },
     "height": {
-      "anyOf": [
-        { "type": "string" },
-        { "type": "integer" }
-      ]
+      "type": "number"
     },
     "inventory": {
       "type": "object",
       "properties": {
         "onHandQty": {
-          "anyOf": [
-            { "type": "string" },
-            { "type": "integer" }
-          ]
+          "type": "number"
         }
       },
       "required": ["onHandQty"]
