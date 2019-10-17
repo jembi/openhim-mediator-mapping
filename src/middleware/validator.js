@@ -13,7 +13,6 @@ const performValidation = (ctx, schema) => {
     throw new Error(`Invalid request body`)
   }
 
-  console.log(config)
   const ajv = new Ajv({
     nullable: config.validation.nullable,
     coerceTypes: config.validation.coerceTypes

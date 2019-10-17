@@ -22,8 +22,8 @@ exports.getConfig = function() {
       }
     }),
     validation: Object.freeze({
-      nullable: parseStringToBoolean(process.env.ACCEPT_NULL_VALUES, false),
-      coerceTypes: parseStringToBoolean(process.env.VALIDATION_COERCE_TYPES, process.env.VALIDATION_COERCE_TYPES) || false // default to whatever is supplied - Can be string 'array'
+      nullable: parseStringToBoolean(process.env.VALIDATION_ACCEPT_NULL_VALUES, false),
+      coerceTypes: parseStringToBoolean(process.env.VALIDATION_COERCE_TYPES, process.env.VALIDATION_COERCE_TYPES) || false
     })
   })
 }
