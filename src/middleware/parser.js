@@ -62,10 +62,15 @@ exports.parseBodyMiddleware = metaData => async (ctx, next) => {
     // wait for middleware to bubble up before running the below method
 
     // parse outgoing body
-    parseOutgoingBody(ctx, metaData.transformation.output)
+    parseOutgoingBody(ctx, metaData.transformation.input)
   } catch (error) {
     ctx.status = 400
-    ctx.body = xmlBuilder.buildObject({error: error.message})
+    if (metaData.transformation.input.toUpperCase() === 'XML') {
+      ctx.body = xmlBuilder.buildObject({error: error.message})
+    } else {
+      ctx.body = { error: error.message }
+    }
+    ctx.set('Content-Type', 'application/' + metaData.transformation.input.toLowerCase())
     return logger.error(error.message)
   }
 }
