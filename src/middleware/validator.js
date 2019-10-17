@@ -2,9 +2,7 @@
 
 const Ajv = require('ajv')
 const logger = require('../logger')
-const config = require('../config')
-
-const configurations = config.getConfig()
+const config = require('../config').getConfig()
 
 const performValidation = (ctx, schema) => {
   if (!schema) {
@@ -15,14 +13,10 @@ const performValidation = (ctx, schema) => {
     throw new Error(`Invalid request body`)
   }
 
-  const coerceTypes =
-    configurations.validation.coerceTypes === 'false'
-      ? false
-      : configurations.validation.coerceTypes
-
+  console.log(config)
   const ajv = new Ajv({
-    nullable: configurations.validation.nullable,
-    coerceTypes: coerceTypes
+    nullable: config.validation.nullable,
+    coerceTypes: config.validation.coerceTypes
   })
 
   const valid = ajv.validate(schema, ctx.request.body)
