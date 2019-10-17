@@ -22,6 +22,15 @@ const parseIncomingBody = async (ctx, inputFormat, next) => {
   // parse incoming body
   // KoaBodyParser executed the next() callback to allow the other middleware to continue before coming back here
   if (['JSON', 'XML'].includes(inputFormat)) {
+    // check content-type matches inputForm specified
+    if (!ctx.get('Content-Type').includes(inputFormat.toLowerCase())) {
+      throw new Error(
+        `Supplied input format does not match incoming content-type: Expected ${inputFormat.toLowerCase()} format, but received ${ctx.get(
+          'Content-Type'
+        ).split('/')[1]}`
+      )
+    }
+
     const options = {
       limit: '1mb',
       xmlOptions: {
