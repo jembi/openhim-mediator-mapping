@@ -4,7 +4,7 @@ const xml2js = require('xml2js')
 const KoaBodyParser = require('@viweei/koa-body-parser')
 
 const logger = require('../logger')
-const { ALLOWED_CONTENT_TYPES } = require('../constants')
+const {ALLOWED_CONTENT_TYPES} = require('../constants')
 const config = require('../config').getConfig()
 
 const xmlBuilder = new xml2js.Builder()
