@@ -1,0 +1,42 @@
+{
+  "type": "object",
+  "properties": {
+    "sku": {
+      "type": "string"
+    },
+    "upc": {
+      "type": "string"
+    },
+    "length": {
+      "anyOf": [
+        { "type": "string" },
+        { "type": "integer" }
+      ]
+    },
+    "width": {
+      "anyOf": [
+        { "type": "string" },
+        { "type": "integer" }
+      ]
+    },
+    "height": {
+      "anyOf": [
+        { "type": "string" },
+        { "type": "integer" }
+      ]
+    },
+    "inventory": {
+      "type": "object",
+      "properties": {
+        "onHandQty": {
+          "anyOf": [
+            { "type": "string" },
+            { "type": "integer" }
+          ]
+        }
+      },
+      "required": ["onHandQty"]
+    }
+  },
+  "required": ["sku", "inventory"]
+}

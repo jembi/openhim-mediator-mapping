@@ -26,9 +26,9 @@ const parseIncomingBody = async (ctx, inputFormat, next) => {
     // check content-type matches inputForm specified
     if (!ctx.get('Content-Type').includes(inputFormat.toLowerCase())) {
       throw new Error(
-        `Supplied input format does not match incoming content-type: Expected ${inputFormat.toLowerCase()} format, but received ${ctx.get(
-          'Content-Type'
-        ).split('/')[1]}`
+        `Supplied input format does not match incoming content-type: Expected ${inputFormat.toLowerCase()} format, but received ${
+          ctx.get('Content-Type').split('/')[1]
+        }`
       )
     }
 
