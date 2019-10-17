@@ -71,10 +71,7 @@ exports.parseBodyMiddleware = metaData => async (ctx, next) => {
     } else {
       ctx.body = {error: error.message}
     }
-    ctx.set(
-      'Content-Type',
-      'application/' + incomingContentType.toLowerCase()
-    )
+    ctx.set('Content-Type', 'application/' + incomingContentType.toLowerCase())
     return logger.error(error.message)
   }
 }
