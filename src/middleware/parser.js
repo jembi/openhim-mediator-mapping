@@ -37,9 +37,9 @@ const parseIncomingBody = async (ctx, inputFormat, next) => {
     const options = {
       limit: config.parser.limit,
       xmlOptions: {
-        trim: (config.parser.xmlOptions.trim == 'true'),
-        explicitRoot: (config.parser.xmlOptions.explicitRoot == 'true'),
-        explicitArray: (config.parser.xmlOptions.explicitArray == 'true')
+        trim: config.parser.xmlOptions.trim == 'true',
+        explicitRoot: config.parser.xmlOptions.explicitRoot == 'true',
+        explicitArray: config.parser.xmlOptions.explicitArray == 'true'
       }
     }
 
