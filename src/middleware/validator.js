@@ -2,9 +2,7 @@
 
 const Ajv = require('ajv')
 const logger = require('../logger')
-const config = require('../config')
-
-const configurations = config.getConfig()
+const config = require('../config').getConfig()
 
 const performValidation = (ctx, schema) => {
   if (!schema) {
@@ -16,12 +14,12 @@ const performValidation = (ctx, schema) => {
   }
 
   const coerceTypes =
-    configurations.validation.coerceTypes === 'false'
+    config.validation.coerceTypes === 'false'
       ? false
-      : configurations.validation.coerceTypes
+      : config.validation.coerceTypes
 
   const ajv = new Ajv({
-    nullable: configurations.validation.nullable,
+    nullable: config.validation.nullable,
     coerceTypes: coerceTypes
   })
 
