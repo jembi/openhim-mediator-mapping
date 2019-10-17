@@ -11,7 +11,10 @@ const createMappedObject = (ctx, mappingSchema, inputConstants) => {
 
   const output = {}
 
-  Object.assign(output, objectMapper(inputConstants, mappingSchema.constants))
+  if (inputConstants && mappingSchema.constants) {
+    Object.assign(output, objectMapper(inputConstants, mappingSchema.constants))
+  }
+
   Object.assign(output, objectMapper(ctx.request.body, mappingSchema.input))
 
   ctx.body = output

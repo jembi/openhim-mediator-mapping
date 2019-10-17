@@ -1,16 +1,12 @@
 'use strict'
 
 const koa = require('koa')
-const koaBody = require('koa-body')
 const koaRouter = require('koa-router')
 
 const openhim = require('./openhim')
 const logger = require('./logger')
-const config = require('./config')
+const config = require('./config').getConfig()
 const routes = require('./routes')
-
-const configOptions = config.getConfig()
-const registerMediator = (configOptions.openhim.register == 'true')
 
 const app = new koa()
 const router = new koaRouter()
@@ -18,14 +14,13 @@ const router = new koaRouter()
 routes.createRoutes(router)
 
 app
-  .use(koaBody())
   .use(router.routes())
   .use(router.allowedMethods())
 
-app.listen(configOptions.port, () => {
-  logger.info(`Server listening on port ${configOptions.port}...`)
+app.listen(config.port, () => {
+  logger.info(`Server listening on port ${config.port}...`)
 
-  if (registerMediator) {
+  if (config.openhim.register) {
     openhim.mediatorSetup()
   }
 })

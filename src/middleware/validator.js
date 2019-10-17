@@ -2,9 +2,7 @@
 
 const Ajv = require('ajv')
 const logger = require('../logger')
-const config = require('../config')
-
-const configurations = config.getConfig()
+const config = require('../config').getConfig()
 
 const performValidation = (ctx, schema) => {
   if (!schema) {
@@ -16,8 +14,10 @@ const performValidation = (ctx, schema) => {
   }
 
   const ajv = new Ajv({
-    nullable: configurations.nullable
+    nullable: config.validation.nullable,
+    coerceTypes: config.validation.coerceTypes
   })
+
   const valid = ajv.validate(schema, ctx.request.body)
 
   if (!valid) {
@@ -32,7 +32,9 @@ exports.validateInput = schema => async (ctx, next) => {
   } catch (error) {
     ctx.status = 400
     ctx.type = 'json'
-    ctx.body = JSON.stringify({error: error.message})
+    ctx.body = {
+      error: error.message
+    }
     return logger.error(error.message)
   }
 

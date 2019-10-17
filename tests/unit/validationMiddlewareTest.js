@@ -77,6 +77,13 @@ tape.test('Validation Middleware', t => {
     })
 
     t.test('should validate when a property has a value of null', t => {
+      // clear the module with the out-dated config
+      delete require.cache[require.resolve('../../src/middleware/validator')]
+      // set environment variable to allow null values
+      process.env.VALIDATION_ACCEPT_NULL_VALUES = 'true'
+      // require module to get updated config
+      const validatorUpdatedEnv = require('../../src/middleware/validator')
+
       const ctx = {
         request: {
           body: {
@@ -94,7 +101,7 @@ tape.test('Validation Middleware', t => {
         required: ['name']
       }
 
-      t.doesNotThrow(() => performValidation(ctx, schema))
+      t.doesNotThrow(() => validatorUpdatedEnv.performValidation(ctx, schema))
       t.end()
     })
   })
