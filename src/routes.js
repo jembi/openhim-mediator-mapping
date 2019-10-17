@@ -4,7 +4,6 @@ const fs = require('fs')
 const path = require('path')
 
 const {
-  expectedEndpointsDirectories,
   inputMeta,
   inputValidation,
   inputMapping,
@@ -24,28 +23,6 @@ const validateDirectoryStructure = () => {
   if (!fs.existsSync(path.resolve(__dirname, '..', 'endpoints'))) {
     throw new Error('Directory "endpoints" not found in project root')
   }
-
-  const routeDirectories = fs.readdirSync(
-    path.resolve(__dirname, '..', 'endpoints')
-  )
-  let correctDirectoryStructure = true
-  routeDirectories.forEach(directory => {
-    expectedEndpointsDirectories.forEach(expectedFile => {
-      if (
-        !fs.existsSync(
-          path.resolve(__dirname, '..', 'endpoints', directory, expectedFile)
-        )
-      ) {
-        logger.error(
-          `Missing file "${expectedFile}" in directory "${directory}"`
-        )
-        correctDirectoryStructure = false
-      }
-    })
-  })
-  if (!correctDirectoryStructure) {
-    throw new Error('Add required files then restart app')
-  }
 }
 
 const createObjectFromFile = (directory, endpointFile) => {
@@ -55,26 +32,58 @@ const createObjectFromFile = (directory, endpointFile) => {
   return JSON.parse(jsonData)
 }
 
+const validateFileExists = (directory, expectedFile) => {
+  if (
+    !fs.existsSync(
+      path.resolve(__dirname, '..', 'endpoints', directory, expectedFile)
+    )
+  ) {
+    return false
+  }
+  return true
+}
+
+const validateAndLoadFile = (directory, endpointFile, required) => {
+  if (validateFileExists(directory, endpointFile)) {
+    return createObjectFromFile(directory, endpointFile)
+  }
+
+  if (required) {
+    logger.error(
+      `Missing file "${endpointFile}" in directory "${directory}"`
+    )
+    return null
+  }
+  
+  return true
+}
+
 const setUpRoutes = router => {
   const routeDirectories = fs.readdirSync(
     path.resolve(__dirname, '..', 'endpoints')
   )
 
   routeDirectories.forEach(directory => {
-    const metaData = createObjectFromFile(directory, inputMeta)
-    const validationMap = createObjectFromFile(directory, inputValidation)
-    const mappingSchema = createObjectFromFile(directory, inputMapping)
-    const constants = createObjectFromFile(directory, inputConstants)
+    const metaData = validateAndLoadFile(directory, inputMeta, true)
+    const validationMap = validateAndLoadFile(directory, inputValidation, true)
+    const mappingSchema = validateAndLoadFile(directory, inputMapping, true)
+    const constants = validateAndLoadFile(directory, inputConstants, false)
 
-    router.post(
-      metaData.endpoint.pattern,
-      parseBodyMiddleware(metaData),
-      validateInput(validationMap),
-      transformInput(mappingSchema, constants)
-    )
+    if (metaData && validationMap && mappingSchema && constants) {
+      router.post(
+        metaData.endpoint.pattern,
+        parseBodyMiddleware(metaData),
+        validateInput(validationMap),
+        transformInput(mappingSchema, constants)
+      )
 
-    logger.info(
-      `New Route added: ${directory} at path ${metaData.endpoint.pattern}`
-    )
+      logger.info(
+        `New Route added: ${directory} at path ${metaData.endpoint.pattern}`
+      )
+    } else {
+      logger.error(
+        `Route failed to start: ${directory} at path ${metaData.endpoint.pattern}`
+      )
+    }
   })
 }
