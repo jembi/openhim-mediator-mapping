@@ -17,10 +17,16 @@ app
   .use(router.routes())
   .use(router.allowedMethods())
 
-app.listen(config.port, () => {
-  logger.info(`Server listening on port ${config.port}...`)
+if (!module.parent) {
+  app.listen(configOptions.port, () => {
+    logger.info(`Server listening on port ${configOptions.port}...`)
+  
+    if (registerMediator) {
+      openhim.mediatorSetup()
+    }
+  })
+}
 
-  if (config.openhim.register) {
-    openhim.mediatorSetup()
-  }
-})
+if (process.env.NODE_ENV === 'test') {
+  module.exports = app
+}
