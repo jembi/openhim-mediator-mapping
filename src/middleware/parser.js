@@ -55,8 +55,11 @@ const parseIncomingBody = async (ctx, inputFormat, next) => {
 }
 
 exports.parseBodyMiddleware = metaData => async (ctx, next) => {
-  const incomingContentType = ctx.get('Content-Type').split('/')[1].toUpperCase()
-  const outputContentType = metaData.transformation.output.toUpperCase() 
+  const incomingContentType = ctx
+    .get('Content-Type')
+    .split('/')[1]
+    .toUpperCase()
+  const outputContentType = metaData.transformation.output.toUpperCase()
   try {
     // parse incoming body
     await parseIncomingBody(ctx, incomingContentType, next)
@@ -72,10 +75,7 @@ exports.parseBodyMiddleware = metaData => async (ctx, next) => {
     } else {
       ctx.body = {error: error.message}
     }
-    ctx.set(
-      'Content-Type',
-      'application/' + outputContentType.toLowerCase()
-    )
+    ctx.set('Content-Type', 'application/' + outputContentType.toLowerCase())
     return logger.error(error.message)
   }
 }
