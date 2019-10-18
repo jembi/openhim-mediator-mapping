@@ -21,7 +21,7 @@ const createMappedObject = (ctx, mappingSchema, inputConstants) => {
   ctx.status = 200
 }
 
-exports.transformInput = (mappingSchema, inputConstants) => async (
+exports.mapBodyMiddleware = (mappingSchema, inputConstants) => async (
   ctx,
   next
 ) => {

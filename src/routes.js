@@ -11,8 +11,8 @@ const {
 } = require('./constants')
 const logger = require('./logger')
 const {parseBodyMiddleware} = require('./middleware/parser')
-const {transformInput} = require('./middleware/mapper')
-const {validateInput} = require('./middleware/validator')
+const {mapBodyMiddleware} = require('./middleware/mapper')
+const {validateBodyMiddleware} = require('./middleware/validator')
 
 exports.createRoutes = router => {
   validateDirectoryStructure()
@@ -73,8 +73,8 @@ const setUpRoutes = router => {
       router.post(
         metaData.endpoint.pattern,
         parseBodyMiddleware(metaData),
-        validateInput(validationMap),
-        transformInput(mappingSchema, constants)
+        validateBodyMiddleware(validationMap),
+        mapBodyMiddleware(mappingSchema, constants)
       )
 
       logger.info(
