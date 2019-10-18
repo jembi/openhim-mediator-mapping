@@ -2,9 +2,7 @@
 
 const Ajv = require('ajv')
 const logger = require('../logger')
-const config = require('../config')
-
-const configurations = config.getConfig()
+const config = require('../config').getConfig()
 
 const performValidation = (ctx, schema) => {
   if (!schema) {
@@ -15,14 +13,9 @@ const performValidation = (ctx, schema) => {
     throw new Error(`Invalid request body`)
   }
 
-  const coerceTypes =
-    configurations.validation.coerceTypes === 'false'
-      ? false
-      : configurations.validation.coerceTypes
-
   const ajv = new Ajv({
-    nullable: configurations.validation.nullable,
-    coerceTypes: coerceTypes
+    nullable: config.validation.nullable,
+    coerceTypes: config.validation.coerceTypes
   })
 
   const valid = ajv.validate(schema, ctx.request.body)
@@ -32,7 +25,7 @@ const performValidation = (ctx, schema) => {
   }
 }
 
-exports.validateInput = schema => async (ctx, next) => {
+exports.validateBodyMiddleware = schema => async (ctx, next) => {
   performValidation(ctx, schema)
   logger.info('Successfully validated user input')
   await next()
