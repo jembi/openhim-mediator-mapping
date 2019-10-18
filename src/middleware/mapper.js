@@ -25,16 +25,7 @@ exports.mapBodyMiddleware = (mappingSchema, inputConstants) => async (
   ctx,
   next
 ) => {
-  try {
-    createMappedObject(ctx, mappingSchema, inputConstants)
-  } catch (error) {
-    ctx.status = 400
-    ctx.type = 'json'
-    ctx.body = JSON.stringify({
-      error: `Transformation Failed: ${error.message}`
-    })
-    return logger.error(`Transformation Failed: ${error.message}`)
-  }
+  createMappedObject(ctx, mappingSchema, inputConstants)
   await next()
 }
 

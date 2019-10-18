@@ -55,17 +55,27 @@ const parseIncomingBody = async (ctx, inputFormat, next) => {
 }
 
 exports.parseBodyMiddleware = metaData => async (ctx, next) => {
+  const incomingContentType = ctx
+    .get('Content-Type')
+    .split('/')[1]
+    .toUpperCase()
+  const outputContentType = metaData.transformation.output.toUpperCase()
   try {
     // parse incoming body
-    await parseIncomingBody(ctx, metaData.transformation.input, next)
+    await parseIncomingBody(ctx, incomingContentType, next)
 
     // wait for middleware to bubble up before running the below method
 
     // parse outgoing body
-    parseOutgoingBody(ctx, metaData.transformation.output)
+    parseOutgoingBody(ctx, outputContentType)
   } catch (error) {
     ctx.status = 400
-    ctx.body = xmlBuilder.buildObject({error: error.message})
+    if (outputContentType === 'XML') {
+      ctx.body = xmlBuilder.buildObject({error: error.message})
+    } else {
+      ctx.body = {error: error.message}
+    }
+    ctx.set('Content-Type', 'application/' + outputContentType.toLowerCase())
     return logger.error(error.message)
   }
 }
