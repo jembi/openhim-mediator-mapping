@@ -13,9 +13,7 @@ const router = new koaRouter()
 
 routes.createRoutes(router)
 
-app
-  .use(router.routes())
-  .use(router.allowedMethods())
+app.use(router.routes()).use(router.allowedMethods())
 
 app.listen(config.port, () => {
   logger.info(`Server listening on port ${config.port}...`)

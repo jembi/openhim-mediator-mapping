@@ -2,6 +2,7 @@
 
 const fs = require('fs')
 const path = require('path')
+const uuid = require('uuid')
 
 const {
   inputMeta,
@@ -72,6 +73,16 @@ const setUpRoutes = router => {
 
       router.post(
         metaData.endpoint.pattern,
+        async (ctx, next) => {
+          ctx.state.uuid = ctx.headers['x-openhim-transactionid']
+            ? ctx.headers['x-openhim-transactionid']
+            : uuid.v4()
+          ctx.state.metaData = metaData
+          logger.info(
+            `${ctx.state.metaData.name} (${ctx.state.uuid}): Initiating new request`
+          )
+          await next()
+        },
         parseBodyMiddleware(metaData),
         validateBodyMiddleware(validationMap),
         mapBodyMiddleware(mappingSchema, constants)

@@ -12,6 +12,12 @@ tape.test('Validation Middleware', t => {
             name: 'tyler',
             surname: 'durden'
           }
+        },
+        state: {
+          uuid: 'randomUidForRequest',
+          metaData: {
+            name: 'Testing endpoint'
+          }
         }
       }
       const schema = null
@@ -25,7 +31,13 @@ tape.test('Validation Middleware', t => {
 
     t.test('should throw when request body is not supplied', t => {
       const ctx = {
-        request: {}
+        request: {},
+        state: {
+          uuid: 'randomUidForRequest',
+          metaData: {
+            name: 'Testing endpoint'
+          }
+        }
       }
       const schema = {}
 
@@ -38,6 +50,12 @@ tape.test('Validation Middleware', t => {
         request: {
           body: {
             surname: 'durden'
+          }
+        },
+        state: {
+          uuid: 'randomUidForRequest',
+          metaData: {
+            name: 'Testing endpoint'
           }
         }
       }
