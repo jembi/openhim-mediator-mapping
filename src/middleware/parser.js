@@ -60,12 +60,12 @@ const parseIncomingBody = async (ctx, inputFormat, next) => {
   }
 }
 
-exports.parseBodyMiddleware = metaData => async (ctx, next) => {
+exports.parseBodyMiddleware = () => async (ctx, next) => {
   const incomingContentType = ctx
     .get('Content-Type')
     .split('/')[1]
     .toUpperCase()
-  const outputContentType = metaData.transformation.output.toUpperCase()
+  const outputContentType = ctx.state.metaData.transformation.output.toUpperCase()
   try {
     // parse incoming body
     await parseIncomingBody(ctx, incomingContentType, next)

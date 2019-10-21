@@ -2,7 +2,6 @@
 
 const fs = require('fs')
 const path = require('path')
-const uuid = require('uuid')
 
 const {
   inputMeta,
@@ -11,6 +10,7 @@ const {
   inputConstants
 } = require('./constants')
 const logger = require('./logger')
+const {initiateContextMiddleware} = require('./middleware/initiate')
 const {parseBodyMiddleware} = require('./middleware/parser')
 const {mapBodyMiddleware} = require('./middleware/mapper')
 const {validateBodyMiddleware} = require('./middleware/validator')
@@ -73,17 +73,8 @@ const setUpRoutes = router => {
 
       router.post(
         metaData.endpoint.pattern,
-        async (ctx, next) => {
-          ctx.state.uuid = ctx.headers['x-openhim-transactionid']
-            ? ctx.headers['x-openhim-transactionid']
-            : uuid.v4()
-          ctx.state.metaData = metaData
-          logger.info(
-            `${ctx.state.metaData.name} (${ctx.state.uuid}): Initiating new request`
-          )
-          await next()
-        },
-        parseBodyMiddleware(metaData),
+        initiateContextMiddleware(metaData),
+        parseBodyMiddleware(),
         validateBodyMiddleware(validationMap),
         mapBodyMiddleware(mappingSchema, constants)
       )
