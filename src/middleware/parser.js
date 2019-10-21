@@ -61,14 +61,11 @@ const parseIncomingBody = async (ctx, inputFormat, next) => {
 }
 
 exports.parseBodyMiddleware = () => async (ctx, next) => {
-  const incomingContentType = ctx
-    .get('Content-Type')
-    .split('/')[1]
-    .toUpperCase()
+  const inputContentType = ctx.state.metaData.transformation.input.toUpperCase()
   const outputContentType = ctx.state.metaData.transformation.output.toUpperCase()
   try {
     // parse incoming body
-    await parseIncomingBody(ctx, incomingContentType, next)
+    await parseIncomingBody(ctx, inputContentType, next)
 
     // wait for middleware to bubble up before running the below method
 
