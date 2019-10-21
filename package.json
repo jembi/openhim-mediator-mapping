@@ -21,6 +21,7 @@
     "openhim-mediator-utils": "^0.2.3",
     "pino": "^5.13.4",
     "pino-pretty": "^3.2.2",
+    "uuid": "^3.3.3",
     "xml2js": "^0.4.22"
   },
   "devDependencies": {
