@@ -33,14 +33,11 @@ const createObjectFromFile = (directory, endpointFile) => {
 }
 
 const validateFileExists = (directory, expectedFile) => {
-  if (
-    !fs.existsSync(
-      path.resolve(__dirname, '..', 'endpoints', directory, expectedFile)
-    )
-  ) {
-    return false
-  }
-  return true
+  return !fs.existsSync(
+    path.resolve(__dirname, '..', 'endpoints', directory, expectedFile)
+  )
+    ? false
+    : true
 }
 
 const validateAndLoadFile = (directory, endpointFile, required) => {
@@ -49,13 +46,12 @@ const validateAndLoadFile = (directory, endpointFile, required) => {
   }
 
   if (required) {
-    logger.error(
+    throw new Error(
       `Missing file "${endpointFile}" in directory "${directory}"`
     )
-    return null
   }
-  
-  return true
+
+  return null
 }
 
 const setUpRoutes = router => {
@@ -64,12 +60,16 @@ const setUpRoutes = router => {
   )
 
   routeDirectories.forEach(directory => {
-    const metaData = validateAndLoadFile(directory, inputMeta, true)
-    const validationMap = validateAndLoadFile(directory, inputValidation, true)
-    const mappingSchema = validateAndLoadFile(directory, inputMapping, true)
-    const constants = validateAndLoadFile(directory, inputConstants, false)
+    try {
+      const metaData = validateAndLoadFile(directory, inputMeta, true)
+      const validationMap = validateAndLoadFile(
+        directory,
+        inputValidation,
+        true
+      )
+      const mappingSchema = validateAndLoadFile(directory, inputMapping, true)
+      const constants = validateAndLoadFile(directory, inputConstants, false)
 
-    if (metaData && validationMap && mappingSchema && constants) {
       router.post(
         metaData.endpoint.pattern,
         parseBodyMiddleware(metaData),
@@ -78,12 +78,10 @@ const setUpRoutes = router => {
       )
 
       logger.info(
-        `New Route added: ${directory} at path ${metaData.endpoint.pattern}`
+        `Route added: "${directory}" at endpoint "${metaData.endpoint.pattern}"`
       )
-    } else {
-      logger.error(
-        `Route failed to start: ${directory} at path ${metaData.endpoint.pattern}`
-      )
+    } catch (error) {
+      logger.error(`Route setup failed: ${error.message}`)
     }
   })
 }
