@@ -1,7 +1,17 @@
+'use strict'
+
 const tape = require('tape')
 const http = require('http')
 const supertest = require('supertest')
+const {createTestEndpoint, removeTestEndpoint} = require('../testUtils')
+
+// Create an endpoint for the tests
+createTestEndpoint()
+
 const app = require('../../src/index')
+
+// Remove the test endpoint folder
+removeTestEndpoint()
 
 tape.test('Parsing Integration Tests', t => {
   tape.onFinish(() => {
@@ -12,12 +22,12 @@ tape.test('Parsing Integration Tests', t => {
   const request = supertest(server)
 
   t.test(
-    'should fail to parse when body format and content-type do not match',
+    'should fail to map when parsing fails (body format and content-type mismatch)',
     t => {
       const payload = '{length: 8.0, width: 4.0}'
 
       request
-        .post('/test')
+        .post('/integrationTest')
         .send(payload)
         .expect(400)
         .set('Content-Type', 'application/xml')
@@ -26,8 +36,6 @@ tape.test('Parsing Integration Tests', t => {
           if (err) {
             t.fail(err)
           }
-
-          console.log('Your body: ', res.text)
 
           t.equals(
             res.text.match(/Parsing incoming body failed: Bad Request/).length,
