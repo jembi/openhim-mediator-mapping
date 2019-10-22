@@ -7,5 +7,8 @@
     "ecmaVersion": 2017
   },
   "plugins": ["prettier"],
-  "extends": ["eslint:recommended", "plugin:prettier/recommended"]
+  "extends": ["eslint:recommended", "plugin:prettier/recommended"],
+  "rules": {
+    "require-atomic-updates": "off" // should be defaulted to "off" soon: https://github.com/eslint/eslint/issues/11899
+  }
 }

@@ -18,6 +18,12 @@ tap.test('Mapper', { autoend: true }, t => {
             inputTwo: 2,
             inputThree: 3
           }
+        },
+        state: {
+          uuid: 'randomUidForRequest',
+          metaData: {
+            name: 'Testing endpoint'
+          }
         }
       }
 
