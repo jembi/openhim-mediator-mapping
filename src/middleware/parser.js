@@ -12,13 +12,17 @@ const xmlBuilder = new xml2js.Builder()
 const parseOutgoingBody = (ctx, outputFormat) => {
   if (outputFormat === 'XML') {
     try {
-      logger.info(`Parsing outgoing body in ${outputFormat} format`)
       ctx.body = xmlBuilder.buildObject(ctx.body)
       ctx.set('Content-Type', 'application/xml')
     } catch (error) {
-      throw new Error(`Parsing outgoing body failed: ${error.message}`)
+      throw new Error(
+        `${ctx.state.metaData.name} (${ctx.state.uuid}): Parsing outgoing body failed: ${error.message}`
+      )
     }
   }
+  logger.info(
+    `${ctx.state.metaData.name} (${ctx.state.uuid}): Parsing outgoing body into ${outputFormat} format`
+  )
 }
 
 const parseIncomingBody = async (ctx, inputFormat, next) => {
@@ -28,7 +32,9 @@ const parseIncomingBody = async (ctx, inputFormat, next) => {
     // check content-type matches inputForm specified
     if (!ctx.get('Content-Type').includes(inputFormat.toLowerCase())) {
       throw new Error(
-        `Supplied input format does not match incoming content-type: Expected ${inputFormat.toLowerCase()} format, but received ${
+        `${ctx.state.metaData.name} (${
+          ctx.state.uuid
+        }): Supplied input format does not match incoming content-type: Expected ${inputFormat.toLowerCase()} format, but received ${
           ctx.get('Content-Type').split('/')[1]
         }`
       )
@@ -37,26 +43,26 @@ const parseIncomingBody = async (ctx, inputFormat, next) => {
     const options = {
       limit: config.parser.limit,
       xmlOptions: {
-        trim: config.parser.xmlOptions.trim == 'true',
-        explicitRoot: config.parser.xmlOptions.explicitRoot == 'true',
-        explicitArray: config.parser.xmlOptions.explicitArray == 'true'
+        trim: config.parser.xmlOptions.trim,
+        explicitRoot: config.parser.xmlOptions.explicitRoot,
+        explicitArray: config.parser.xmlOptions.explicitArray
       }
     }
 
-    try {
-      logger.info(`Parsing incoming body into JSON format for processing`)
-      await KoaBodyParser(options)(ctx, next)
-    } catch (error) {
-      throw new Error(`Parsing incoming body failed: ${error.message}`)
-    }
+    logger.info(
+      `${ctx.state.metaData.name} (${ctx.state.uuid}): Parsing incoming body into JSON format for processing`
+    )
+    await KoaBodyParser(options)(ctx, next)
   } else {
-    throw new Error(`transformation method "${inputFormat}" not yet supported`)
+    throw new Error(
+      `${ctx.state.metaData.name} (${ctx.state.uuid}): transformation method "${inputFormat}" not yet supported`
+    )
   }
 }
 
-exports.parseBodyMiddleware = metaData => async (ctx, next) => {
-  const inputContentType = metaData.transformation.input.toUpperCase()
-  const outputContentType = metaData.transformation.output.toUpperCase()
+exports.parseBodyMiddleware = () => async (ctx, next) => {
+  const inputContentType = ctx.state.metaData.transformation.input.toUpperCase()
+  const outputContentType = ctx.state.metaData.transformation.output.toUpperCase()
   try {
     // parse incoming body
     await parseIncomingBody(ctx, inputContentType, next)
@@ -67,12 +73,10 @@ exports.parseBodyMiddleware = metaData => async (ctx, next) => {
     parseOutgoingBody(ctx, outputContentType)
   } catch (error) {
     ctx.status = 400
-    if (outputContentType === 'XML') {
-      ctx.body = xmlBuilder.buildObject({error: error.message})
-    } else {
-      ctx.body = {error: error.message}
-    }
-    ctx.set('Content-Type', 'application/' + outputContentType.toLowerCase())
-    return logger.error(error.message)
+    logger.error(error.message)
+
+    // parse outgoing body
+    ctx.body = {error: error.message}
+    return parseOutgoingBody(ctx, outputContentType)
   }
 }

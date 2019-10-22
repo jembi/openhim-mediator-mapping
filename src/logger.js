@@ -5,7 +5,11 @@ const configOptions = config.getConfig()
 
 const logger = pino({
   level: configOptions.logLevel,
-  prettyPrint: true,
+  prettyPrint: {
+    colorize: true,
+    translateTime: 'sys:UTC:yyyy-mm-dd"T"HH:MM:ss:l"Z"',
+    ignore: 'pid,hostname'
+  },
   serializers: {
     err: pino.stdSerializers.err
   }

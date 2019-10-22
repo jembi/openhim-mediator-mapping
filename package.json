@@ -6,11 +6,11 @@
   "author": "Jembi Health Systems NPC",
   "license": "MIT",
   "scripts": {
-    "lint": "prettier --write src/**/*.js",
-    "lint:check": "prettier --check **/**/*.js",
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
     "start": "node src/index.js",
     "start:dev": "nodemon src/index.js",
-    "test": "NODE_ENV='test' tape tests/*/*Test.js"
+    "test": "NODE_ENV='test' tape tests/*/*Test.js && npm run lint"
   },
   "dependencies": {
     "@viweei/koa-body-parser": "^1.0.2",
@@ -21,9 +21,11 @@
     "openhim-mediator-utils": "^0.2.3",
     "pino": "^5.13.4",
     "pino-pretty": "^3.2.2",
+    "uuid": "^3.3.3",
     "xml2js": "^0.4.22"
   },
   "devDependencies": {
+    "eslint": "^6.5.1",
     "eslint-config-prettier": "^6.4.0",
     "eslint-plugin-import": "^2.18.2",
     "eslint-plugin-node": "^10.0.0",

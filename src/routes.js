@@ -4,13 +4,13 @@ const fs = require('fs')
 const path = require('path')
 
 const {
-  expectedEndpointsDirectories,
   inputMeta,
   inputValidation,
   inputMapping,
   inputConstants
 } = require('./constants')
 const logger = require('./logger')
+const {initiateContextMiddleware} = require('./middleware/initiate')
 const {parseBodyMiddleware} = require('./middleware/parser')
 const {mapBodyMiddleware} = require('./middleware/mapper')
 const {validateBodyMiddleware} = require('./middleware/validator')
@@ -24,28 +24,6 @@ const validateDirectoryStructure = () => {
   if (!fs.existsSync(path.resolve(__dirname, '..', 'endpoints'))) {
     throw new Error('Directory "endpoints" not found in project root')
   }
-
-  const routeDirectories = fs.readdirSync(
-    path.resolve(__dirname, '..', 'endpoints')
-  )
-  let correctDirectoryStructure = true
-  routeDirectories.forEach(directory => {
-    expectedEndpointsDirectories.forEach(expectedFile => {
-      if (
-        !fs.existsSync(
-          path.resolve(__dirname, '..', 'endpoints', directory, expectedFile)
-        )
-      ) {
-        logger.error(
-          `Missing file "${expectedFile}" in directory "${directory}"`
-        )
-        correctDirectoryStructure = false
-      }
-    })
-  })
-  if (!correctDirectoryStructure) {
-    throw new Error('Add required files then restart app')
-  }
 }
 
 const createObjectFromFile = (directory, endpointFile) => {
@@ -55,26 +33,57 @@ const createObjectFromFile = (directory, endpointFile) => {
   return JSON.parse(jsonData)
 }
 
+const validateFileExists = (directory, expectedFile) => {
+  return !fs.existsSync(
+    path.resolve(__dirname, '..', 'endpoints', directory, expectedFile)
+  )
+    ? false
+    : true
+}
+
+const validateAndLoadFile = (directory, endpointFile, required) => {
+  if (validateFileExists(directory, endpointFile)) {
+    return createObjectFromFile(directory, endpointFile)
+  }
+
+  if (required) {
+    throw new Error(
+      `Missing file "${endpointFile}" in directory "${directory}"`
+    )
+  }
+
+  return null
+}
+
 const setUpRoutes = router => {
   const routeDirectories = fs.readdirSync(
     path.resolve(__dirname, '..', 'endpoints')
   )
 
   routeDirectories.forEach(directory => {
-    const metaData = createObjectFromFile(directory, inputMeta)
-    const validationMap = createObjectFromFile(directory, inputValidation)
-    const mappingSchema = createObjectFromFile(directory, inputMapping)
-    const constants = createObjectFromFile(directory, inputConstants)
+    try {
+      const metaData = validateAndLoadFile(directory, inputMeta, true)
+      const validationMap = validateAndLoadFile(
+        directory,
+        inputValidation,
+        true
+      )
+      const mappingSchema = validateAndLoadFile(directory, inputMapping, true)
+      const constants = validateAndLoadFile(directory, inputConstants, false)
 
-    router.post(
-      metaData.endpoint.pattern,
-      parseBodyMiddleware(metaData),
-      validateBodyMiddleware(validationMap),
-      mapBodyMiddleware(mappingSchema, constants)
-    )
+      router.post(
+        metaData.endpoint.pattern,
+        initiateContextMiddleware(metaData),
+        parseBodyMiddleware(),
+        validateBodyMiddleware(validationMap),
+        mapBodyMiddleware(mappingSchema, constants)
+      )
 
-    logger.info(
-      `New Route added: ${directory} at path ${metaData.endpoint.pattern}`
-    )
+      logger.info(
+        `Route added: "${directory}" at endpoint "${metaData.endpoint.pattern}"`
+      )
+    } catch (error) {
+      logger.error(`Route setup failed: ${error.message}`)
+    }
   })
 }
