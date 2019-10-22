@@ -27,7 +27,7 @@ tape.test('Parser', t => {
     )
   })
 
-  t.test('parseOutGoingBody', t => {
+  t.test('parseOutgoingBody', t => {
     t.test('should throw an error when parsing fails', t => {
       const ctx = {}
       const outputFormat = 'XML'
