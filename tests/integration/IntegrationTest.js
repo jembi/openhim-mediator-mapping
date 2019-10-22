@@ -39,7 +39,7 @@ tape.test('Parsing Integration Tests', t => {
 
           t.equals(
             res.text,
-            '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<error>Parsing incoming body failed: Bad Request</error>'
+            '{"error":"Parsing incoming body failed: Bad Request"}'
           )
           t.end()
         })
@@ -67,7 +67,7 @@ tape.test('Parsing Integration Tests', t => {
 
           t.equals(
             res.text,
-            '{"error":"Validation failed: data should have required property \'name\'"}'
+            '{"error":"Parsing incoming body failed: Validation failed: data should have required property \'name\'"}'
           )
           t.end()
         })
