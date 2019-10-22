@@ -6,13 +6,20 @@ const {
   parseOutgoingBody
 } = require('../../src/middleware/parser')
 
-tap.test('Parser', { autoend: true }, t => {
-  t.test('parseIncomingBody', { autoend: true }, t => {
+tap.test('Parser', {autoend: true}, t => {
+  t.test('parseIncomingBody', {autoend: true}, t => {
     t.test(
       'should throw error when transformation method is not supported',
       async t => {
         t.plan(1)
-        const ctx = {}
+        const ctx = {
+          state: {
+            uuid: 'randomUidForRequest',
+            metaData: {
+              name: 'Testing endpoint'
+            }
+          }
+        }
         const inputFormat = 'unsupported'
         const next = () => {}
         try {
@@ -20,16 +27,23 @@ tap.test('Parser', { autoend: true }, t => {
         } catch (error) {
           t.equal(
             error.message,
-            'transformation method "unsupported" not yet supported'
+            'Testing endpoint (randomUidForRequest): transformation method "unsupported" not yet supported'
           )
         }
       }
     )
   })
 
-  t.test('parseOutgoingBody', { autoend: true }, t => {
+  t.test('parseOutgoingBody', {autoend: true}, t => {
     t.test('should throw an error when parsing fails', t => {
-      const ctx = {}
+      const ctx = {
+        state: {
+          uuid: 'randomUidForRequest',
+          metaData: {
+            name: 'Testing endpoint'
+          }
+        }
+      }
       const outputFormat = 'XML'
 
       t.throws(
@@ -45,6 +59,12 @@ tap.test('Parser', { autoend: true }, t => {
           Name: 'Jet',
           Surname: 'Li',
           Email: 'jet@openhim.org'
+        },
+        state: {
+          uuid: 'randomUidForRequest',
+          metaData: {
+            name: 'Testing endpoint'
+          }
         },
         set: (key, value) => {
           ctx.header = {}

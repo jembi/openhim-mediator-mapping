@@ -3,8 +3,8 @@
 const tap = require('tap')
 const {performValidation} = require('../../src/middleware/validator')
 
-tap.test('Validation Middleware', { autoend: true }, t => {
-  t.test('performValidation()', { autoend: true }, t => {
+tap.test('Validation Middleware', {autoend: true}, t => {
+  t.test('performValidation()', {autoend: true}, t => {
     t.test('should throw when validation schema is falsy', t => {
       const ctx = {
         request: {

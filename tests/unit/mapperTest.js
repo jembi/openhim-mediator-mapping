@@ -3,10 +3,22 @@
 const tap = require('tap')
 const {createMappedObject} = require('../../src/middleware/mapper')
 
-tap.test('Mapper', { autoend: true }, t => {
-  t.test('createMappedObject()', { autoend: true }, t => {
+tap.test('Mapper', {autoend: true}, t => {
+  t.test('createMappedObject()', {autoend: true}, t => {
     t.test('should throw when mapping schema is not supplied', t => {
-      t.throws(createMappedObject, new Error(`No mapping schema supplied`))
+      const ctx = {
+        state: {
+          uuid: 'randomUidForRequest',
+          metaData: {
+            name: 'Testing endpoint'
+          }
+        }
+      }
+
+      t.throws(
+        () => createMappedObject(ctx),
+        'Testing endpoint (randomUidForRequest): No mapping schema supplied'
+      )
       t.end()
     })
 

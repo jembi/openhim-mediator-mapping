@@ -25,7 +25,7 @@ const parseOutgoingBody = (ctx, outputFormat) => {
   )
 }
 
-const parseIncomingBody = async (ctx, inputFormat, next) => {
+const parseIncomingBody = async (ctx, inputFormat) => {
   // parse incoming body
   // KoaBodyParser executed the next() callback to allow the other middleware to continue before coming back here
   if (ALLOWED_CONTENT_TYPES.includes(inputFormat)) {
@@ -52,7 +52,18 @@ const parseIncomingBody = async (ctx, inputFormat, next) => {
     logger.info(
       `${ctx.state.metaData.name} (${ctx.state.uuid}): Parsing incoming body into JSON format for processing`
     )
-    await KoaBodyParser(options)(ctx, next)
+
+    try {
+      await KoaBodyParser(options)(ctx, () => {
+        // pass in a empty function in place of the next() callback used in the middleware
+        // next() is handled outside of the internal middleware
+        // Using next() inside this middleware inject the next middleware logic inside this one
+      })
+    } catch (error) {
+      throw Error(
+        `${ctx.state.metaData.name} (${ctx.state.uuid}): Parsing incoming body failed: ${error.message}`
+      )
+    }
   } else {
     throw new Error(
       `${ctx.state.metaData.name} (${ctx.state.uuid}): transformation method "${inputFormat}" not yet supported`
@@ -65,7 +76,9 @@ exports.parseBodyMiddleware = () => async (ctx, next) => {
   const outputContentType = ctx.state.metaData.transformation.output.toUpperCase()
   try {
     // parse incoming body
-    await parseIncomingBody(ctx, inputContentType, next)
+    await parseIncomingBody(ctx, inputContentType)
+
+    await next()
 
     // wait for middleware to bubble up before running the below method
 

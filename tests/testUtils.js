@@ -50,10 +50,10 @@ const inputMappingFileContent = {
   input: {
     name: 'firstName',
     surname: 'lastName',
-    'attributes': 'character'
+    attributes: 'character'
   },
   constants: {
-    resourceType: "resourceType"
+    resourceType: 'resourceType'
   }
 }
 
@@ -68,10 +68,10 @@ const files = [
   {path: inputConstantsFilePath, content: inputConstantsFileContent}
 ]
 
-exports.createTestEndpoint = (callback) => {
+exports.createTestEndpoint = callback => {
   if (!fs.existsSync(pathToDirectory)) {
     fs.mkdir(pathToDirectory, err => {
-      if (err) return reject(err)
+      if (err) throw Error(err)
     })
   }
 

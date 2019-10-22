@@ -8,12 +8,12 @@ const {createTestEndpoint, removeTestEndpoint} = require('../testUtils')
 
 let app, server, request
 
-tap.test('Parsing Integration Tests', { autoend: true }, t => {
+tap.test('Parsing Integration Tests', {autoend: true}, t => {
   t.test('Setup endpoints', t => {
     // Create an endpoint for the tests
-    createTestEndpoint((error) => {
+    createTestEndpoint(error => {
       if (error) {
-        throw new Error(error)
+        throw Error(error)
       }
 
       app = require('../../src/index')
@@ -39,6 +39,7 @@ tap.test('Parsing Integration Tests', { autoend: true }, t => {
         .send(payload)
         .expect(400)
         .set('Content-Type', 'application/xml')
+        .set('x-openhim-transactionid', 'openhim-unique-tx-id')
         .set('Accept', 'application/json')
         .end((err, res) => {
           if (err) {
@@ -47,7 +48,7 @@ tap.test('Parsing Integration Tests', { autoend: true }, t => {
 
           t.equals(
             res.text,
-            '{"error":"Parsing incoming body failed: Bad Request"}'
+            '{"error":"IntegrationTest (openhim-unique-tx-id): Parsing incoming body failed: Bad Request"}'
           )
           t.end()
         })
@@ -67,6 +68,7 @@ tap.test('Parsing Integration Tests', { autoend: true }, t => {
         .send(payload)
         .expect(400)
         .set('Content-Type', 'application/xml')
+        .set('x-openhim-transactionid', 'openhim-unique-tx-id')
         .set('Accept', 'application/json')
         .end((err, res) => {
           if (err) {
@@ -75,7 +77,7 @@ tap.test('Parsing Integration Tests', { autoend: true }, t => {
 
           t.equals(
             res.text,
-            '{"error":"Parsing incoming body failed: Validation failed: data should have required property \'name\'"}'
+            '{"error":"IntegrationTest (openhim-unique-tx-id): Validation failed: data should have required property \'name\'"}'
           )
           t.end()
         })
