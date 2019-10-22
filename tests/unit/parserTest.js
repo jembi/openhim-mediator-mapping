@@ -27,7 +27,7 @@ tap.test('Parser', { autoend: true }, t => {
     )
   })
 
-  t.test('parseOutGoingBody', { autoend: true }, t => {
+  t.test('parseOutgoingBody', { autoend: true }, t => {
     t.test('should throw an error when parsing fails', t => {
       const ctx = {}
       const outputFormat = 'XML'

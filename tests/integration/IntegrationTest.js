@@ -43,8 +43,8 @@ tap.test('Parsing Integration Tests', { autoend: true }, t => {
           }
 
           t.equals(
-            res.text.match(/Parsing incoming body failed: Bad Request/).length,
-            1
+            res.text,
+            '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<error>Parsing incoming body failed: Bad Request</error>'
           )
           t.end()
         })
@@ -70,7 +70,10 @@ tap.test('Parsing Integration Tests', { autoend: true }, t => {
             t.fail(err)
           }
 
-          t.equals(res.text.match(/Validation failed:/).length, 1)
+          t.equals(
+            res.text,
+            '{"error":"Validation failed: data should have required property \'name\'"}'
+          )
           t.end()
         })
     }
