@@ -13,15 +13,13 @@ const router = new koaRouter()
 
 routes.createRoutes(router)
 
-app
-  .use(router.routes())
-  .use(router.allowedMethods())
+app.use(router.routes()).use(router.allowedMethods())
 
 if (!module.parent) {
-  app.listen(configOptions.port, () => {
-    logger.info(`Server listening on port ${configOptions.port}...`)
-  
-    if (registerMediator) {
+  app.listen(config.port, () => {
+    logger.info(`Server listening on port ${config.port}...`)
+
+    if (config.openhim.register) {
       openhim.mediatorSetup()
     }
   })
