@@ -12,7 +12,8 @@ const logger = pino({
   },
   serializers: {
     err: pino.stdSerializers.err
-  }
+  },
+  enabled: configOptions.enableLogging
 })
 
 module.exports = exports = logger

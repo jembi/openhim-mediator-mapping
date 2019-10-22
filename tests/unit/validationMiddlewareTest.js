@@ -1,10 +1,10 @@
 'use strict'
 
-const tape = require('tape')
+const tap = require('tap')
 const {performValidation} = require('../../src/middleware/validator')
 
-tape.test('Validation Middleware', t => {
-  t.test('performValidation()', t => {
+tap.test('Validation Middleware', {autoend: true}, t => {
+  t.test('performValidation()', {autoend: true}, t => {
     t.test('should throw when validation schema is falsy', t => {
       const ctx = {
         request: {

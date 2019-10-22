@@ -6,6 +6,7 @@ exports.getConfig = function() {
   return Object.freeze({
     port: process.env.SERVER_PORT || 3003,
     logLevel: process.env.LOG_LEVEL || 'info',
+    enableLogging: parseStringToBoolean(process.env.ENABLE_LOGGING, true),
     openhim: Object.freeze({
       apiURL: process.env.OPENHIM_URL || 'https://localhost:8080',
       username: process.env.OPENHIM_USERNAME || 'root@openhim.org',
