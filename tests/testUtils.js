@@ -49,10 +49,10 @@ const inputMappingFileContent = {
   input: {
     name: 'firstName',
     surname: 'lastName',
-    'attributes': 'character'
+    attributes: 'character'
   },
   constants: {
-    resourceType: "resourceType"
+    resourceType: 'resourceType'
   }
 }
 
