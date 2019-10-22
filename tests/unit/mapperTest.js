@@ -1,10 +1,10 @@
 'use strict'
 
-const tape = require('tape')
+const tap = require('tap')
 const {createMappedObject} = require('../../src/middleware/mapper')
 
-tape.test('Mapper', t => {
-  t.test('createMappedObject()', t => {
+tap.test('Mapper', { autoend: true }, t => {
+  t.test('createMappedObject()', { autoend: true }, t => {
     t.test('should throw when mapping schema is not supplied', t => {
       t.throws(createMappedObject, new Error(`No mapping schema supplied`))
       t.end()

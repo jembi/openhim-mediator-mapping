@@ -1,25 +1,30 @@
 'use strict'
 
-const tape = require('tape')
+const tap = require('tap')
 const http = require('http')
 const supertest = require('supertest')
+
 const {createTestEndpoint, removeTestEndpoint} = require('../testUtils')
 
-// Create an endpoint for the tests
-createTestEndpoint()
+let app, server, request
 
-const app = require('../../src/index')
-
-// Remove the test endpoint folder
-removeTestEndpoint()
-
-tape.test('Parsing Integration Tests', t => {
-  tape.onFinish(() => {
+tap.test('Parsing Integration Tests', { autoend: true }, t => {
+  tap.tearDown(() => {
     server.close()
+
+    // Remove the test endpoint folder
+    removeTestEndpoint()
   })
 
-  const server = http.createServer(app.callback())
-  const request = supertest(server)
+  t.test('Setup endpoints', t => {
+    // Create an endpoint for the tests
+    createTestEndpoint()
+
+    app = require('../../src/index')
+    server = http.createServer(app.callback())
+    request = supertest(server)
+    t.end()
+  })
 
   t.test(
     'should fail to map when parsing fails (body format and content-type mismatch)',

@@ -10,7 +10,7 @@
     "lint:check": "prettier --check **/**/*.js",
     "start": "node src/index.js",
     "start:dev": "nodemon src/index.js",
-    "test": "NODE_ENV='test' ENABLE_LOGGING='false' tape tests/*/*Test.js"
+    "test": "NODE_ENV='test' ENABLE_LOGGING='false' tap tests/*/*Test.js"
   },
   "dependencies": {
     "@viweei/koa-body-parser": "^1.0.2",
@@ -32,6 +32,6 @@
     "nodemon": "^1.19.3",
     "prettier": "^1.18.2",
     "supertest": "^4.0.2",
-    "tape": "^4.11.0"
+    "tap": "^14.8.0"
   }
 }

@@ -1,13 +1,13 @@
 'use strict'
 
-const tape = require('tape')
+const tap = require('tap')
 const {
   parseIncomingBody,
   parseOutgoingBody
 } = require('../../src/middleware/parser')
 
-tape.test('Parser', t => {
-  t.test('parseIncomingBody', t => {
+tap.test('Parser', { autoend: true }, t => {
+  t.test('parseIncomingBody', { autoend: true }, t => {
     t.test(
       'should throw error when transformation method is not supported',
       async t => {
@@ -27,7 +27,7 @@ tape.test('Parser', t => {
     )
   })
 
-  t.test('parseOutGoingBody', t => {
+  t.test('parseOutGoingBody', { autoend: true }, t => {
     t.test('should throw an error when parsing fails', t => {
       const ctx = {}
       const outputFormat = 'XML'
