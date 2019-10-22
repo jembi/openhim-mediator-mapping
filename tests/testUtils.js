@@ -1,6 +1,7 @@
 'use strict'
 
 const fs = require('fs')
+const util = require('util')
 const path = require('path')
 const {
   inputMeta,
@@ -67,17 +68,24 @@ const files = [
   {path: inputConstantsFilePath, content: inputConstantsFileContent}
 ]
 
-exports.createTestEndpoint = () => {
+exports.createTestEndpoint = (callback) => {
   if (!fs.existsSync(pathToDirectory)) {
     fs.mkdir(pathToDirectory, err => {
-      if (err) throw err
+      if (err) return reject(err)
     })
   }
 
+  const writeFilePromise = util.promisify(fs.writeFile)
+  const promises = []
+
   files.forEach(file => {
     if (!fs.existsSync(file.path)) {
-      fs.writeFileSync(file.path, JSON.stringify(file.content))
+      promises.push(writeFilePromise(file.path, JSON.stringify(file.content)))
     }
+  })
+
+  Promise.all(promises).then(() => {
+    callback(null, true)
   })
 }
 

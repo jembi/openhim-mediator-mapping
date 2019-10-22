@@ -9,6 +9,20 @@ const {createTestEndpoint, removeTestEndpoint} = require('../testUtils')
 let app, server, request
 
 tap.test('Parsing Integration Tests', { autoend: true }, t => {
+  t.test('Setup endpoints', t => {
+    // Create an endpoint for the tests
+    createTestEndpoint((error) => {
+      if (error) {
+        throw new Error(error)
+      }
+
+      app = require('../../src/index')
+      server = http.createServer(app.callback())
+      request = supertest(server)
+      t.end()
+    })
+  })
+
   tap.tearDown(() => {
     server.close()
 
@@ -16,21 +30,10 @@ tap.test('Parsing Integration Tests', { autoend: true }, t => {
     removeTestEndpoint()
   })
 
-  t.test('Setup endpoints', t => {
-    // Create an endpoint for the tests
-    createTestEndpoint()
-
-    app = require('../../src/index')
-    server = http.createServer(app.callback())
-    request = supertest(server)
-    t.end()
-  })
-
   t.test(
     'should fail to map when parsing fails (body format and content-type mismatch)',
     t => {
       const payload = '{length: 8.0, width: 4.0}'
-
       request
         .post('/integrationTest')
         .send(payload)
