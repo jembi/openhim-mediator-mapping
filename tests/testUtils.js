@@ -71,7 +71,7 @@ const files = [
 exports.createTestEndpoint = callback => {
   if (!fs.existsSync(pathToDirectory)) {
     fs.mkdir(pathToDirectory, err => {
-      if (err) throw Error(err)
+      if (err) return callback(err)
     })
   }
 
