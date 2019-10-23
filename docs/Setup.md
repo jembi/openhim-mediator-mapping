@@ -135,7 +135,7 @@ Data types such as `date`, `email`, `uuid`, etc. all inherit the type `string`. 
 
 ### 3. Input Mapping Schema
 
-The mapping schema in the `input-mapping.json` JSON document defines how the incoming data will be retrieved and used to build up a new object in the desired out. 
+The mapping schema in the `input-mapping.json` JSON document defines how the incoming data will be retrieved and used to build up a new object in the desired outcome. 
 
 The basic structure of this schema is `key:value` based. This means that the `key` of the object defines where to look for a value from the incoming document, and the `value` of that `key` defines where to populate/build the new property on the outgoing document.
 
@@ -156,7 +156,7 @@ The structure for both these properties are the same and are defined as below.
 {
   "input": {
     "rootProperty": "rootProperty", // map incoming root property to an outgoing root property
-    "rootObject.object1.object2.property": "rootObject.property", // map incoming nested property to and outgoing nested property
+    "rootObject.object1.object2.property": "rootObject.property", // map incoming nested property to an outgoing nested property
     "array[]": "array[]", // map incoming root array to an outgoing array. Note: not specifying an index for the array will push in the new value, instead of overriding it at the specified index
     "rootArray[1]": "rootArray[1]", // map incoming root array at index 1 to an outgoing array at index 1 (useful when using an output.json template to override a specific index value).
     "rootArray[].property": "rootArray[].property", // map all incoming array nested property to an outgoing array nested property. Note: not specifying an index for the array will push in the new value, instead of overriding it at the specified index
