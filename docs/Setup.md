@@ -141,7 +141,7 @@ The basic structure of this schema is `key:value` based. This means that the `ke
 
 The root structure of this input mapping schema consists of two properties as defined below
 
-```json
+```javascript
 {
   "input": { ... },
   "constants": { ... } // optional
@@ -152,7 +152,7 @@ The root `input` property is used to define the mapping of the incoming document
 
 The structure for both these properties are the same and are defined as below.
 
-```json
+```javascript
 {
   "input": {
     "rootProperty": "rootProperty", // map incoming root property to an outgoing root property
