@@ -148,7 +148,7 @@ The root structure of this input mapping schema consists of two properties as de
 }
 ```
 
-The root `input` property is used to define the mapping of the incoming document and populate/build the outgoing object. The `constants` property is used to make reference to the `constants.json` schema for using static values that doesn't come the the incoming document.
+The root `input` property is used to define the mapping of the incoming document and populate/build the outgoing object. The `constants` property is used to make reference to the `constants.json` schema for using static values that doesn't come from the incoming document.
 
 The structure for both these properties are the same and are defined as below.
 
@@ -156,7 +156,7 @@ The structure for both these properties are the same and are defined as below.
 {
   "input": {
     "rootProperty": "rootProperty", // map incoming root property to an outgoing root property
-    "rootObject.object1.object2.propert": "rootObject.property", // map incoming nested property to and outgoing nested property
+    "rootObject.object1.object2.property": "rootObject.property", // map incoming nested property to and outgoing nested property
     "array[]": "array[]", // map incoming root array to an outgoing array. Note: not specifying an index for the array will push in the new value, instead of overriding it at the specified index
     "rootArray[1]": "rootArray[1]", // map incoming root array at index 1 to an outgoing array at index 1 (useful when using an output.json template to override a specific index value).
     "rootArray[].property": "rootArray[].property", // map all incoming array nested property to an outgoing array nested property. Note: not specifying an index for the array will push in the new value, instead of overriding it at the specified index
