@@ -60,7 +60,7 @@ The supported environment variables are listed as follows:
 
 ## Configuration files
 
-The configuration files must be stored in a directory in the root of the project named endpoints. This endpoints directory should be further broken down into sub-directories each containing a minimum of four specific files: `meta.json`, `input-mapping.json`, `input-validation.json`, and `constants.json`. `output.json` is optional a this point. The endpoints directory should be in the following structure:
+The configuration files must be stored in a directory in the root of the project named endpoints. This endpoints directory should be further broken down into sub-directories each containing a minimum of four specific files: `meta.json`, `input-mapping.json`, `input-validation.json`, and `constants.json`. `output.json` is optional at this point. The endpoints directory should be in the following structure:
 
 ```txt
 ├── Endpoints
@@ -135,29 +135,29 @@ Data types such as `date`, `email`, `uuid`, etc. all inherit the type `string`. 
 
 ### 3. Input Mapping Schema
 
-The mapping schema in the `input-mapping.json` JSON document defines how the incoming data will be retrieved and used to build up a new object in the desired outcome. 
+The mapping schema in the `input-mapping.json` JSON document defines how the incoming data will be retrieved and used to build up a new object in the desired outcome.
 
 The basic structure of this schema is `key:value` based. This means that the `key` of the object defines where to look for a value from the incoming document, and the `value` of that `key` defines where to populate/build the new property on the outgoing document.
 
 The root structure of this input mapping schema consists of two properties as defined below
 
-```json
+```javascript
 {
   "input": { ... },
   "constants": { ... } // optional
 }
 ```
 
-The root `input` property is used to define the mapping of the incoming document and populate/build the outgoing object. The `constants` property is used to make reference to the `constants.json` schema for using static values that doesn't come from the incoming document.
+The root `input` property is used to define the mapping of the incoming document and populate/build the outgoing object. The `constants` property is used to make reference to the `constants.json` schema for using static values that do not come from the incoming document.
 
 The structure for both these properties are the same and are defined as below.
 
-```json
+```javascript
 {
   "input": {
     "rootProperty": "rootProperty", // map incoming root property to an outgoing root property
     "rootObject.object1.object2.property": "rootObject.property", // map incoming nested property to an outgoing nested property
-    "array[]": "array[]", // map incoming root array to an outgoing array. Note: not specifying an index for the array will push in the new value, instead of overriding it at the specified index
+    "array[]": "array", // map incoming root array to an outgoing array.
     "rootArray[1]": "rootArray[1]", // map incoming root array at index 1 to an outgoing array at index 1 (useful when using an output.json template to override a specific index value).
     "rootArray[].property": "rootArray[].property", // map all incoming array nested property to an outgoing array nested property. Note: not specifying an index for the array will push in the new value, instead of overriding it at the specified index
     "rootArray[1].property": "rootArray[1].property", // map incoming array nested property at index 1 to an outgoing array nested property at index 1 (useful when using an output.json template to override a specific index value).
