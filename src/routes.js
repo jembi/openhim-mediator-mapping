@@ -10,7 +10,7 @@ const {
   inputConstants
 } = require('./constants')
 const logger = require('./logger')
-const {externalRequest} = require('./middleware/externalRequests')
+const {requestsMiddleware} = require('./middleware/externalRequests')
 const {initiateContextMiddleware} = require('./middleware/initiate')
 const {parseBodyMiddleware} = require('./middleware/parser')
 const {mapBodyMiddleware} = require('./middleware/mapper')
@@ -75,7 +75,7 @@ const setUpRoutes = router => {
       router.post(
         metaData.endpoint.pattern,
         initiateContextMiddleware(metaData),
-        externalRequest(),
+        requestsMiddleware(),
         parseBodyMiddleware(),
         validateBodyMiddleware(validationMap),
         mapBodyMiddleware(mappingSchema, constants)
