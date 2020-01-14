@@ -1,0 +1,20 @@
+{
+  "name": "DHIS2 Mapper",
+  "endpoint": {
+    "pattern": "/dhis2"
+  },
+  "transformation": {
+    "input": "JSON",
+    "output": "JSON"
+  },
+  "requests": {
+    "lookup": [
+      {
+        "id": "dhis",
+        "method": "GET",
+        "url": "http://localhost:9990"
+      }
+    ],
+    "response": [{}]
+  }
+}
