@@ -15,25 +15,25 @@
   "dependencies": {
     "@viweei/koa-body-parser": "^1.0.2",
     "ajv": "^6.10.2",
-    "koa": "^2.10.0",
+    "koa": "^2.11.0",
     "koa-router": "^7.4.0",
     "object-mapper": "jembi/node-object-mapper",
     "openhim-mediator-utils": "^0.2.3",
-    "pino": "^5.13.4",
-    "pino-pretty": "^3.2.2",
+    "pino": "^5.16.0",
+    "pino-pretty": "^3.5.0",
     "uuid": "^3.3.3",
-    "xml2js": "^0.4.22"
+    "xml2js": "^0.4.23"
   },
   "devDependencies": {
-    "eslint": "^6.5.1",
-    "eslint-config-prettier": "^6.4.0",
-    "eslint-plugin-import": "^2.18.2",
-    "eslint-plugin-node": "^10.0.0",
-    "eslint-plugin-prettier": "^3.1.1",
+    "eslint": "^6.8.0",
+    "eslint-config-prettier": "^6.9.0",
+    "eslint-plugin-import": "^2.20.0",
+    "eslint-plugin-node": "^11.0.0",
+    "eslint-plugin-prettier": "^3.1.2",
     "eslint-plugin-promise": "^4.2.1",
-    "nodemon": "^1.19.3",
-    "prettier": "^1.18.2",
+    "nodemon": "^2.0.2",
+    "prettier": "^1.19.1",
     "supertest": "^4.0.2",
-    "tap": "^14.8.0"
+    "tap": "^14.10.6"
   }
 }
