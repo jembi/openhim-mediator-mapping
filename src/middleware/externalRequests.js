@@ -21,7 +21,8 @@ exports.requestsMiddleware = () => async (ctx, next) => {
       return fetch(requestDetails.url)
         .then(checkStatus)
         .then(async res => {
-          ctx.externalRequest[requestDetails.id] = await res.json()
+          // Assign any data received from the response to the assigned id in the context
+          ctx.externalRequest[requestDetails.id] = await res.text()
         })
         .catch(err => {
           logger.error(err)
