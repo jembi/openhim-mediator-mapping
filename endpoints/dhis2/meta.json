@@ -10,9 +10,14 @@
   "requests": {
     "lookup": [
       {
-        "id": "dhis",
+        "id": "dhis-orgs",
         "method": "GET",
-        "url": "http://localhost:9990"
+        "url": "https://admin:district@play.dhis2.org/2.30/api/organisationUnits.json"
+      },
+      {
+        "id": "dhis-elements",
+        "method": "GET",
+        "url": "https://admin:district@play.dhis2.org/2.30/api/dataElements.json"
       }
     ],
     "response": [{}]
