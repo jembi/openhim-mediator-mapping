@@ -17,7 +17,6 @@ exports.requestsMiddleware = () => async (ctx, next) => {
   if (requests && requests.lookup && requests.lookup.length) {
     ctx.externalRequest = {}
     const responseData = requests.lookup.map(requestDetails => {
-      logger.debug(requestDetails.url)
       return fetch(requestDetails.url)
         .then(checkStatus)
         .then(async res => {
@@ -31,7 +30,9 @@ exports.requestsMiddleware = () => async (ctx, next) => {
 
     await Promise.all(responseData)
       .then(() => {
-        logger.info(`CTX 2: ${JSON.stringify(ctx.externalRequest)}`)
+        logger.debug(
+          `All requests resolved: ${JSON.stringify(ctx.externalRequest)}`
+        )
       })
       .catch(err => {
         logger.error(err)
