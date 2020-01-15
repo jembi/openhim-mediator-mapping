@@ -15,12 +15,13 @@ function checkStatus(res) {
 exports.requestsMiddleware = () => async (ctx, next) => {
   const requests = ctx.state.metaData.requests
   if (requests && requests.lookup && requests.lookup.length) {
+    ctx.externalRequest = {}
     const responseData = requests.lookup.map(requestDetails => {
       logger.debug(requestDetails.url)
       return fetch(requestDetails.url)
         .then(checkStatus)
-        .then(res => {
-          return {[requestDetails.id]: res.json()}
+        .then(async res => {
+          ctx.externalRequest[requestDetails.id] = await res.json()
         })
         .catch(err => {
           logger.error(err)
@@ -28,8 +29,8 @@ exports.requestsMiddleware = () => async (ctx, next) => {
     })
 
     await Promise.all(responseData)
-      .then(result => {
-        logger.info(`Promise all data: ${result}`)
+      .then(() => {
+        logger.info(`CTX 2: ${JSON.stringify(ctx.externalRequest)}`)
       })
       .catch(err => {
         logger.error(err)
