@@ -15,9 +15,9 @@
   "dependencies": {
     "@viweei/koa-body-parser": "^1.0.2",
     "ajv": "^6.10.2",
+    "axios": "^0.19.1",
     "koa": "^2.11.0",
     "koa-router": "^7.4.0",
-    "node-fetch": "^2.6.0",
     "object-mapper": "jembi/node-object-mapper",
     "openhim-mediator-utils": "^0.2.3",
     "pino": "^5.16.0",

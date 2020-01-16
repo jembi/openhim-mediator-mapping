@@ -1,6 +1,6 @@
 'use strict'
 
-const fetch = require('node-fetch')
+const axios = require('axios')
 
 const logger = require('../logger')
 
