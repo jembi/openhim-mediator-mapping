@@ -11,17 +11,21 @@
     "lookup": [
       {
         "id": "dhis-orgs",
-        "method": "get",
-        "url": "https://play.dhis2.org/2.30/api/organisationUnits.json",
-        "headers": {
-          "Content-Type": "application/json",
-          "Authorization": "Basic YWRtaW46ZGlzdHJpY3Q="
+        "config": {
+          "method": "get",
+          "url": "https://play.dhis2.org/2.30/api/organisationUnits.json",
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Basic YWRtaW46ZGlzdHJpY3Q="
+          }
         }
       },
       {
         "id": "dhis-elements",
-        "method": "get",
-        "url": "https://admin:district@play.dhis2.org/2.30/api/dataElements.xml"
+        "config": {
+          "method": "get",
+          "url": "https://admin:district@play.dhis2.org/2.30/api/dataElements.xml"
+        }
       }
     ],
     "response": [{}]
