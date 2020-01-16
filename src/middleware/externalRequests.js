@@ -1,7 +1,7 @@
 'use strict'
 
 const fetch = require('node-fetch')
-
+const axios = require('axios')
 const logger = require('../logger')
 
 function checkStatus(res) {
@@ -39,4 +39,149 @@ exports.requestsMiddleware = () => async (ctx, next) => {
       })
   }
   await next()
+}
+
+// For now only json data is processed
+const sendResponseRequest = async (ctx, requests) => {
+  // Send request downstream only when mapping has been successful
+  if (ctx && ctx.externalRequest && ctx.status === 200) {
+    if (
+      requests &&
+      Array.isArray(requests.response) &&
+      requests.response.length
+    ) {
+      //Create orchestrations
+      ctx.orchestrations = []
+
+      const promises = requests.response.map(request => {
+        if (request && request.url && request.method && request.id) {
+          const body = ctx.body
+          const axiosConfig = {
+            url: request.url,
+            method: request.method,
+            body: body
+          }
+
+          if (
+            request.credentials &&
+            request.credentials.username &&
+            request.credentials.password
+          ) {
+            axiosConfig.auth = {
+              username: request.credentials.username,
+              password: request.credentials.password
+            }
+          }
+          ctx.body = {}
+          const reqTimestamp = new Date()
+
+          return axios(axiosConfig).then(response => {
+            if ([201, 200].includes(response.status)) {
+              if (request.primary) {
+                ctx.hasPrimaryRequest = true
+                ctx.body = {}
+                ctx.body[request.id] = response.body
+
+                const orch = createOrchestration(
+                  request.url,
+                  request.method,
+                  ctx.headers,
+                  body,
+                  response,
+                  reqTimestamp
+                )
+
+                ctx.orchestrations.push(orch)
+              } else {
+                if (!ctx.hasPrimaryRequest) {
+                  ctx.body[request.id] = response.body
+                }
+                const orch = createOrchestration(
+                  request.url,
+                  request.method,
+                  request.headers,
+                  body,
+                  response,
+                  reqTimestamp
+                )
+
+                ctx.orchestrations.push(orch)
+              }
+            }
+          })
+        }
+      })
+
+      await Promise.all(promises)
+        .then(() => {
+          ctx
+          if (ctx.headers) {
+
+          }
+        })
+    }
+  }
+}
+
+const createOrchestration = (
+  url,
+  method,
+  headers,
+  reqBody,
+  responseObject,
+  reqTimestamp,
+  name
+) => {
+  if (!url || !method)
+    throw new Error('Orchestration creation failed: url/method not supplied')
+  if (!reqTimestamp)
+    throw new Error('Orchestration request timestamp not supplied')
+  if (!name) throw new Error('Orchestration name not supplied')
+
+  const request = {
+    host: urlObject.hostname,
+    port: urlObject.port,
+    path: urlObject.pathname,
+    timestamp: reqTimestamp
+  }
+  const response = {}
+  const urlObject = new URL(url)
+
+  if (urlObject.searchParams) {
+    request.queryString = urlObject.searchParams
+  }
+  if (headers) {
+    request.headers = headers
+  }
+  if (reqBody) {
+    request.body = reqBody
+  }
+  if (responseObject && responseObject.status) {
+    response.status = responseObject.status
+  }
+  if (responseObject && responseObject.body) {
+    response.status = responseObject.body
+  }
+  if (responseObject && responseObject.headers) {
+    response.status = responseObject.headers
+  }
+
+  const orchestration = {
+    request,
+    response,
+    name: name
+  }
+
+  return orchestration
+}
+
+if (process.env.NODE_ENV === 'test') {
+  exports.createOrchestration = createOrchestration
+  exports.sendResponseRequest = sendResponseRequest
+}
+
+const contructOpenhimResponse = (ctx, response, orchestration) {
+  ctx.body = `
+    
+  `
 }
