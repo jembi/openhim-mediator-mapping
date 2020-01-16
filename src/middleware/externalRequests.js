@@ -49,12 +49,12 @@ exports.requestsMiddleware = () => async (ctx, next) => {
 
     await Promise.all(responseData)
       .then(() => {
-        logger.debug(
+        logger.trace(
           `All requests resolved: ${JSON.stringify(ctx.externalRequest)}`
         )
       })
       .catch(err => {
-        logger.error(err)
+        throw new Error(`Rejected Promise: ${err}`)
       })
   }
   await next()
