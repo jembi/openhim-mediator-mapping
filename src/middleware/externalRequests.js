@@ -18,7 +18,7 @@ function prepareRequestConfig(requestDetails, query) {
 
 exports.requestsMiddleware = () => async (ctx, next) => {
   const requests = ctx.state.metaData.requests
-  if (requests && requests.lookup && requests.lookup.length) {
+  if (requests && requests.lookup && requests.lookup.length > 0) {
     ctx.externalRequest = {}
     const responseData = requests.lookup.map(requestDetails => {
       return axios(prepareRequestConfig(requestDetails, ctx.request.query))
