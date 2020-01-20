@@ -41,9 +41,9 @@ tap.test('Mapper', {autoend: true}, t => {
 
       const mappingSchema = {
         input: {
-          inputOne: 'outputOne',
-          inputTwo: 'outputTwo',
-          inputThree: 'outputThree'
+          'requestBody.inputOne': 'outputOne',
+          'requestBody.inputTwo': 'outputTwo',
+          'requestBody.inputThree': 'outputThree'
         },
         constants: {}
       }
