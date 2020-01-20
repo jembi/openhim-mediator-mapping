@@ -98,10 +98,11 @@ const sendResponseRequest = async (ctx, requests) => {
                 const orch = createOrchestration(
                   request.url,
                   request.method,
-                  ctx.headers,
+                  request.headers,
                   body,
                   response,
-                  reqTimestamp
+                  reqTimestamp,
+                  request.id
                 )
 
                 ctx.orchestrations.push(orch)
@@ -115,7 +116,8 @@ const sendResponseRequest = async (ctx, requests) => {
                   request.headers,
                   body,
                   response,
-                  reqTimestamp
+                  reqTimestamp,
+                  request.id
                 )
 
                 ctx.orchestrations.push(orch)
