@@ -79,10 +79,16 @@ const sendResponseRequest = async (ctx, requests) => {
               password: request.credentials.password
             }
           }
+
+          if (request.headers) {
+            axiosConfig.headers = request.headers
+          }
+
           ctx.body = {}
           const reqTimestamp = new Date()
 
           return axios(axiosConfig).then(response => {
+            // The two http methods supported are PUT and POST
             if ([201, 200].includes(response.status)) {
               if (request.primary) {
                 ctx.hasPrimaryRequest = true
