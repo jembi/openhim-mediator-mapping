@@ -52,14 +52,10 @@ const inputValidationFileContent = {
 }
 
 const inputMappingFileContent = {
-  input: {
-    'requestBody.name': 'firstName',
-    'requestBody.surname': 'lastName',
-    'requestBody.attributes': 'character'
-  },
-  constants: {
-    resourceType: 'resourceType'
-  }
+  'constants.resourceType': 'resourceType',
+  'requestBody.name': 'firstName',
+  'requestBody.surname': 'lastName',
+  'requestBody.attributes': 'character'
 }
 
 const inputConstantsFileContent = {

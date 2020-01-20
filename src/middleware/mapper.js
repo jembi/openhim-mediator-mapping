@@ -13,20 +13,14 @@ const createMappedObject = (ctx, mappingSchema, inputConstants) => {
 
   const dataToBeMapped = {
     requestBody: ctx.request.body,
-    lookupRequests: ctx.lookupRequests
+    lookupRequests: ctx.lookupRequests,
+    constants: inputConstants
   }
 
   const output = {}
 
   try {
-    if (inputConstants && mappingSchema.constants) {
-      Object.assign(
-        output,
-        objectMapper(inputConstants, mappingSchema.constants)
-      )
-    }
-
-    Object.assign(output, objectMapper(dataToBeMapped, mappingSchema.input))
+    Object.assign(output, objectMapper(dataToBeMapped, mappingSchema))
   } catch (error) {
     throw Error(
       `${ctx.state.metaData.name} (${ctx.state.uuid}): Object mapping failed: ${error.message}`

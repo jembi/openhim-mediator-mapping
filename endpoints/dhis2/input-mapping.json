@@ -1,4 +1,7 @@
 {
-  "input": {},
-  "constants": {}
+  "constants.resourceType": "resourceType",
+  "constants.type": "type",
+  "lookupRequests.dhis-orgs[].organisationUnits.displayName": "entry[].resource.name",
+  "lookupRequests.dhis-orgs[].organisationUnits.id": "entry[].resource.identifier[].value",
+  "constants.entry.resourceType": "entry[].resource.resourceType"
 }
