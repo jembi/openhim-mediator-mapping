@@ -19,13 +19,6 @@
             "Authorization": "Basic YWRtaW46ZGlzdHJpY3Q="
           }
         }
-      },
-      {
-        "id": "dhis-elements",
-        "config": {
-          "method": "get",
-          "url": "https://admin:district@play.dhis2.org/2.30/api/dataElements.xml"
-        }
       }
     ],
     "response": [{}]
