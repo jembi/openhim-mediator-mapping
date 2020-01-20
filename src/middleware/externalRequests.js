@@ -2,7 +2,14 @@
 
 const fetch = require('node-fetch')
 const axios = require('axios')
+const fs = require('fs')
+const path = require('path')
 const logger = require('../logger')
+
+const mediatorConfigFile = fs.readFileSync(
+  path.resolve(__dirname, '..', '..', 'mediatorConfig.json')
+)
+const mediatorConfigJson = JSON.parse(mediatorConfigFile)
 
 function checkStatus(res) {
   if (res.ok) {
