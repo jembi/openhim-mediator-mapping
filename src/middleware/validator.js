@@ -12,9 +12,19 @@ const performValidation = (ctx, schema) => {
     )
   }
 
-  if (!ctx || !ctx.request || !ctx.request.body) {
+  const dataToValidate = {}
+
+  if (ctx && ctx.request && ctx.request.body) {
+    dataToValidate.requestBody = ctx.request.body
+  }
+
+  if (ctx.externalRequests) {
+    dataToValidate.lookupRequests = ctx.externalRequests
+  }
+
+  if (!dataToValidate.requestBody && !dataToValidate.lookupRequests) {
     throw new Error(
-      `${ctx.state.metaData.name} (${ctx.state.uuid}): Invalid request body`
+      `${ctx.state.metaData.name} (${ctx.state.uuid}): No data to validate`
     )
   }
 
@@ -23,7 +33,7 @@ const performValidation = (ctx, schema) => {
     coerceTypes: config.validation.coerceTypes
   })
 
-  const valid = ajv.validate(schema, ctx.request.body)
+  const valid = ajv.validate(schema, dataToValidate)
 
   if (!valid) {
     throw new Error(
