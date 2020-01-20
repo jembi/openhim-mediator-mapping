@@ -127,13 +127,24 @@ const sendResponseRequest = async (ctx, requests) => {
         }
       })
 
-      await Promise.all(promises)
-        .then(() => {
-          ctx
-          if (ctx.headers) {
+      await Promise.all(promises).then(() => {
+        const statusText = 'Successful'
 
-          }
-        })
+        // Respond in openhim mediator format if request came from the openhim
+        if (
+          ctx.request.header &&
+          ctx.request.header['X-OpenHIM-TransactionID']
+        ) {
+          ctx.set('Content-Type', 'application/json+openhim')
+
+          constructOpenhimResponse(
+            ctx,
+            ctx.body,
+            ctx.orchestrations,
+            statusText
+          )
+        }
+      })
     }
   }
 }
@@ -190,13 +201,23 @@ const createOrchestration = (
   return orchestration
 }
 
+const constructOpenhimResponse = (
+  ctx,
+  response,
+  orchestrations,
+  statusText
+) => {
+  ctx.body = `{
+    "x-mediator-urn": ${mediatorConfigJson.urn},
+    "status": ${statusText},
+    "response": ${JSON.stringify(response)},
+    "orchestrations": ${JSON.stringify(orchestrations)}
+  }`
+}
+
 if (process.env.NODE_ENV === 'test') {
   exports.createOrchestration = createOrchestration
   exports.sendResponseRequest = sendResponseRequest
+  exports.constructOpenhimResponse = constructOpenhimResponse
 }
 
-const contructOpenhimResponse = (ctx, response, orchestration) {
-  ctx.body = `
-    
-  `
-}
