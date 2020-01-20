@@ -126,29 +126,55 @@ const sendResponseRequest = async (ctx, requests) => {
 
                 ctx.orchestrations.push(orch)
               }
+            } else if (response.status >= 500) {
+              if (request.primary) {
+                ctx.hasPrimaryRequest = true
+                ctx.body = {}
+                ctx.body[request.id] = response.body
+                ctx.primaryError = true
+              } else {
+                ctx.secondaryFailures = true
+                if (!ctx.hasPrimaryRequest) {
+                  ctx.body[request.id] = response.body
+                }
+              }
             }
           })
         }
       })
 
-      await Promise.all(promises).then(() => {
-        const statusText = 'Successful'
+      let statusText
 
-        // Respond in openhim mediator format if request came from the openhim
-        if (
-          ctx.request.header &&
-          ctx.request.header['X-OpenHIM-TransactionID']
-        ) {
-          ctx.set('Content-Type', 'application/json+openhim')
+      await Promise.all(promises)
+        .then(() => {
+          ctx.status = 200
+          statusText = 'Successful'
+          logger.info('Mapped object successfully orchestrated')
+        })
+        .catch(err => {
+          logger.error(`Mapped object orchestration failure: ${err.message}`)
+          if (ctx.primaryError) {
+            ctx.status = 500
+            statusText = 'Failed'
+          } else if (ctx.secondaryFailures) {
+            statusText = 'Completed with error(s)'
+          } else {
+            statusText = 'Completed'
+          }
+        })
 
-          constructOpenhimResponse(
-            ctx,
-            ctx.body,
-            ctx.orchestrations,
-            statusText
-          )
-        }
-      })
+      // Respond in openhim mediator format if request came from the openhim
+      if (ctx.request.header && ctx.request.header['X-OpenHIM-TransactionID']) {
+        ctx.set('Content-Type', 'application/json+openhim')
+
+        constructOpenhimResponse(
+          ctx,
+          ctx.response,
+          ctx.orchestrations,
+          statusText,
+          Date.now()
+        )
+      }
     }
   }
 }
