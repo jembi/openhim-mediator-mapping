@@ -90,6 +90,8 @@ const sendResponseRequest = async (ctx, requests) => {
           return axios(axiosConfig).then(response => {
             // The two http methods supported are PUT and POST
             if ([201, 200].includes(response.status)) {
+              const responseTimestamp = new Date()
+
               if (request.primary) {
                 ctx.hasPrimaryRequest = true
                 ctx.body = {}
@@ -102,6 +104,7 @@ const sendResponseRequest = async (ctx, requests) => {
                   body,
                   response,
                   reqTimestamp,
+                  responseTimestamp,
                   request.id
                 )
 
@@ -117,6 +120,7 @@ const sendResponseRequest = async (ctx, requests) => {
                   body,
                   response,
                   reqTimestamp,
+                  responseTimestamp,
                   request.id
                 )
 
@@ -156,6 +160,7 @@ const createOrchestration = (
   reqBody,
   responseObject,
   reqTimestamp,
+  responseTimestamp,
   name
 ) => {
   if (!url || !method)
@@ -164,14 +169,18 @@ const createOrchestration = (
     throw new Error('Orchestration request timestamp not supplied')
   if (!name) throw new Error('Orchestration name not supplied')
 
+  const urlObject = new URL(url)
+
   const request = {
     host: urlObject.hostname,
     port: urlObject.port,
     path: urlObject.pathname,
     timestamp: reqTimestamp
   }
-  const response = {}
-  const urlObject = new URL(url)
+
+  const response = {
+    timestamp: responseTimestamp
+  }
 
   if (urlObject.searchParams) {
     request.queryString = urlObject.searchParams
@@ -220,4 +229,3 @@ if (process.env.NODE_ENV === 'test') {
   exports.sendResponseRequest = sendResponseRequest
   exports.constructOpenhimResponse = constructOpenhimResponse
 }
-
