@@ -51,7 +51,7 @@ exports.requestsMiddleware = () => async (ctx, next) => {
 // For now only json data is processed
 const sendResponseRequest = async (ctx, requests) => {
   // Send request downstream only when mapping has been successful
-  if (ctx && ctx.externalRequest && ctx.status === 200) {
+  if (ctx && ctx.status === 200) {
     if (
       requests &&
       Array.isArray(requests.response) &&
