@@ -186,10 +186,10 @@ const createOrchestration = (
     response.status = responseObject.status
   }
   if (responseObject && responseObject.body) {
-    response.status = responseObject.body
+    response.body = responseObject.body
   }
   if (responseObject && responseObject.headers) {
-    response.status = responseObject.headers
+    response.headers = responseObject.headers
   }
 
   const orchestration = {
