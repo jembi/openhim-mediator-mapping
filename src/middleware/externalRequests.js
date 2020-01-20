@@ -240,8 +240,28 @@ const constructOpenhimResponse = (
   ctx,
   response,
   orchestrations,
-  statusText
+  statusText,
+  responseTimestamp
 ) => {
+  const respObject = {}
+
+  if (response) {
+    if (response.headers) {
+      respObject.headers = response.headers
+    }
+    if (response.status) {
+      respObject.status = response.status
+    }
+    if (response.body) {
+      respObject.body = response.body
+    }
+    if (response.timestamp) {
+      respObject.timestamp = response.timestamp
+    } else if (responseTimestamp) {
+      respObject.timestamp = responseTimestamp
+    }
+  }
+
   ctx.body = `{
     "x-mediator-urn": ${mediatorConfigJson.urn},
     "status": ${statusText},
