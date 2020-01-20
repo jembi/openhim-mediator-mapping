@@ -41,7 +41,7 @@ const prepareLookupRequests = ctx => {
         logger.info(
           `${ctx.state.metaData.name} (${ctx.state.uuid}): Successfully performed request/s`
         )
-        ctx.externalRequests = Object.assign({}, ...data)
+        ctx.lookupRequests = Object.assign({}, ...data)
       })
       .catch(err => {
         throw new Error(`Rejected Promise: ${err}`)

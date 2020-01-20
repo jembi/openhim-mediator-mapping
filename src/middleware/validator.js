@@ -18,8 +18,8 @@ const performValidation = (ctx, schema) => {
     dataToValidate.requestBody = ctx.request.body
   }
 
-  if (ctx.externalRequests) {
-    dataToValidate.lookupRequests = ctx.externalRequests
+  if (ctx.lookupRequests) {
+    dataToValidate.lookupRequests = ctx.lookupRequests
   }
 
   if (!dataToValidate.requestBody && !dataToValidate.lookupRequests) {
