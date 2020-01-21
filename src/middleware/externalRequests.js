@@ -67,4 +67,6 @@ exports.requestsMiddleware = () => async (ctx, next) => {
 
 if (process.env.NODE_ENV == 'test') {
   exports.prepareRequestConfig = prepareRequestConfig
+  exports.prepareLookupRequests = prepareLookupRequests
+  exports.performRequests = performRequests
 }
