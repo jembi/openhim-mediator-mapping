@@ -264,9 +264,9 @@ const constructOpenhimResponse = (
   }
 
   ctx.body = `{
-    "x-mediator-urn": ${mediatorConfigJson.urn},
-    "status": ${statusText},
-    "response": ${JSON.stringify(response)},
+    "x-mediator-urn": "${mediatorConfigJson.urn}",
+    "status": "${statusText}",
+    "response": ${JSON.stringify(respObject)},
     "orchestrations": ${JSON.stringify(orchestrations)}
   }`
 }
