@@ -1,7 +1,10 @@
 'use strict'
 
 const tap = require('tap')
-const {createOrchestration} = require('../../src/middleware/externalRequests')
+const {
+  createOrchestration,
+  constructOpenhimResponse
+} = require('../../src/middleware/externalRequests')
 
 tap.test('External Requests', {autoend: true}, t => {
   t.test('createOrchestration', {autoend: true}, t => {
@@ -110,6 +113,57 @@ tap.test('External Requests', {autoend: true}, t => {
       )
 
       t.deepEqual(expectedOrch, orchestration)
+      t.end()
+    })
+  })
+
+  t.test('constructOpenhimResponse', {autoend: true}, t => {
+    t.test('should create the response', t => {
+      const ctx = {}
+      const timestamp = Date.now()
+      const statusText = 'Successful'
+      const headers = {'Content-Type': 'application/json'}
+      const body = {message: 'success'}
+      const status = 200
+      const response = {
+        headers,
+        status,
+        body,
+        timestamp
+      }
+      const request = {
+        headers,
+        host: 'localhost',
+        method: 'PUT',
+        path: '/patient/',
+        port: '8000',
+        timestamp: Date.now()
+      }
+
+      const orchestrations = [
+        {
+          request,
+          response,
+          name: 'Patient'
+        }
+      ]
+
+      const expectedResponse = `{
+        "x-mediator-urn": "urn:mediator:generic_mapper",
+        "status": "${statusText}",
+        "response": ${JSON.stringify(response)},
+        "orchestrations": ${JSON.stringify(orchestrations)}
+      }`
+
+      constructOpenhimResponse(
+        ctx,
+        response,
+        orchestrations,
+        statusText,
+        timestamp
+      )
+
+      t.deepEqual(JSON.parse(expectedResponse), JSON.parse(ctx.body))
       t.end()
     })
   })
