@@ -86,45 +86,21 @@ const sendResponseRequest = async (ctx, requests) => {
 
           ctx.body = {}
           const reqTimestamp = new Date()
+          let error
 
           return axios(axiosConfig).then(response => {
+            const responseTimestamp = new Date()
+
             // The two http methods supported are PUT and POST
             if ([201, 200].includes(response.status)) {
-              const responseTimestamp = new Date()
-
               if (request.primary) {
                 ctx.hasPrimaryRequest = true
                 ctx.body = {}
                 ctx.body[request.id] = response.body
-
-                const orch = createOrchestration(
-                  request.url,
-                  request.method,
-                  request.headers,
-                  body,
-                  response,
-                  reqTimestamp,
-                  responseTimestamp,
-                  request.id
-                )
-
-                ctx.orchestrations.push(orch)
               } else {
                 if (!ctx.hasPrimaryRequest) {
                   ctx.body[request.id] = response.body
                 }
-                const orch = createOrchestration(
-                  request.url,
-                  request.method,
-                  request.headers,
-                  body,
-                  response,
-                  reqTimestamp,
-                  responseTimestamp,
-                  request.id
-                )
-
-                ctx.orchestrations.push(orch)
               }
             } else if (response.status >= 500) {
               if (request.primary) {
@@ -138,7 +114,21 @@ const sendResponseRequest = async (ctx, requests) => {
                   ctx.body[request.id] = response.body
                 }
               }
+              error = {message: response.body}
+            } else {
+              error = {message: response.body}
             }
+
+            const orch = createOrchestration(
+              request,
+              body,
+              response,
+              reqTimestamp,
+              responseTimestamp,
+              error
+            )
+
+            ctx.orchestrations.push(orch)
           })
         }
       })
