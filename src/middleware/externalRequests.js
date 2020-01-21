@@ -180,27 +180,34 @@ const sendResponseRequest = async (ctx, requests) => {
 }
 
 const createOrchestration = (
-  url,
-  method,
-  headers,
+  request,
   reqBody,
   responseObject,
   reqTimestamp,
   responseTimestamp,
-  name
+  error
 ) => {
-  if (!url || !method)
+  if (!request || !request.url || !request.method)
     throw new Error('Orchestration creation failed: url/method not supplied')
+
+  /*
+    Request timestamp is a required property for an orchestration
+  */
   if (!reqTimestamp)
     throw new Error('Orchestration request timestamp not supplied')
-  if (!name) throw new Error('Orchestration name not supplied')
 
-  const urlObject = new URL(url)
+  /*
+    The request id is used as the orchestration's name. Name is a required property
+  */
+  if (!request.id) throw new Error('Orchestration name not supplied')
 
-  const request = {
+  const urlObject = new URL(request.url)
+
+  const requestObject = {
     host: urlObject.hostname,
     port: urlObject.port,
     path: urlObject.pathname,
+    method: request.method,
     timestamp: reqTimestamp
   }
 
@@ -209,13 +216,13 @@ const createOrchestration = (
   }
 
   if (urlObject.searchParams) {
-    request.queryString = urlObject.searchParams
+    requestObject.queryString = urlObject.searchParams.toString()
   }
-  if (headers) {
-    request.headers = headers
+  if (request.headers) {
+    requestObject.headers = request.headers
   }
   if (reqBody) {
-    request.body = reqBody
+    requestObject.body = reqBody
   }
   if (responseObject && responseObject.status) {
     response.status = responseObject.status
@@ -228,9 +235,13 @@ const createOrchestration = (
   }
 
   const orchestration = {
-    request,
+    request: requestObject,
     response,
-    name: name
+    name: request.id
+  }
+
+  if (error) {
+    orchestration.error = error
   }
 
   return orchestration
