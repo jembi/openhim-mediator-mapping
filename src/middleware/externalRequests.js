@@ -86,13 +86,13 @@ const orchestrateMappingResult = async (ctx, requests) => {
 
           ctx.body = {}
           const reqTimestamp = new Date()
-          let error
+          let response, error, responseTimestamp
 
-          return axios(axiosConfig).then(response => {
-            const responseTimestamp = new Date()
+          return axios(axiosConfig)
+            .then(resp => {
+              response = resp
+              responseTimestamp = new Date()
 
-            // The two http methods supported are PUT and POST
-            if ([201, 200].includes(response.status)) {
               if (request.primary) {
                 ctx.hasPrimaryRequest = true
                 ctx.body = {}
