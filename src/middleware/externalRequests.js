@@ -102,55 +102,81 @@ const orchestrateMappingResult = async (ctx, requests) => {
                   ctx.body[request.id] = response.body
                 }
               }
-            } else if (response.status >= 500) {
-              if (request.primary) {
-                ctx.hasPrimaryRequest = true
-                ctx.body = {}
-                ctx.body[request.id] = response.body
-                ctx.primaryError = true
-              } else {
-                ctx.secondaryFailures = true
-                if (!ctx.hasPrimaryRequest) {
-                  ctx.body[request.id] = response.body
+            })
+            .catch(err => {
+              responseTimestamp = new Date()
+
+              if (err.response) {
+                response = err.response
+                response.body = response.data
+
+                if (response.status >= 500) {
+                  if (request.primary) {
+                    ctx.hasPrimaryRequest = true
+                    ctx.body = {}
+                    ctx.body[request.id] = response.data
+                    ctx.primaryReqFailError = true
+                  } else {
+                    ctx.secondaryFailError = true
+                    if (!ctx.hasPrimaryRequest) {
+                      ctx.body[request.id] = response.data
+                    }
+                  }
+                } else {
+                  if (request.primary) {
+                    ctx.hasPrimaryRequest = true
+                    ctx.body = {}
+                    ctx.body[request.id] = response.data
+                    ctx.primaryCompleted = true
+                  } else {
+                    ctx.secondaryCompleted = true
+                    if (!ctx.hasPrimaryRequest) {
+                      ctx.body[request.id] = response.data
+                    }
+                  }
                 }
+              } else {
+                if (request.primary) {
+                  ctx.hasPrimaryRequest = true
+                  ctx.body = {}
+                  ctx.body[request.id] = err.message
+                  ctx.primaryReqFailError = true
+                } else {
+                  ctx.secondaryFailError = true
+                  if (!ctx.hasPrimaryRequest) {
+                    ctx.body[request.id] = err.message
+                  }
+                }
+                error = {message: err.message}
               }
-              error = {message: response.body}
-            } else {
-              error = {message: response.body}
-            }
+            })
+            .finally(() => {
+              if (
+                ctx.request.header &&
+                ctx.request.header['X-OpenHIM-TransactionID']
+              ) {
+                const orch = createOrchestration(
+                  request,
+                  body,
+                  response,
+                  reqTimestamp,
+                  responseTimestamp,
+                  error
+                )
 
-            const orch = createOrchestration(
-              request,
-              body,
-              response,
-              reqTimestamp,
-              responseTimestamp,
-              error
-            )
-
-            ctx.orchestrations.push(orch)
-          })
+                ctx.orchestrations.push(orch)
+              }
+            })
         }
       })
 
-      let statusText
-
       await Promise.all(promises)
         .then(() => {
-          ctx.status = 200
-          statusText = 'Successful'
           logger.info('Mapped object successfully orchestrated')
+          setTheStatusCodeAndText(ctx)
         })
         .catch(err => {
           logger.error(`Mapped object orchestration failure: ${err.message}`)
-          if (ctx.primaryError) {
-            ctx.status = 500
-            statusText = 'Failed'
-          } else if (ctx.secondaryFailures) {
-            statusText = 'Completed with error(s)'
-          } else {
-            statusText = 'Completed'
-          }
         })
 
       // Respond in openhim mediator format if request came from the openhim
@@ -161,7 +187,7 @@ const orchestrateMappingResult = async (ctx, requests) => {
           ctx,
           ctx.response,
           ctx.orchestrations,
-          statusText,
+          ctx.statusText,
           Date.now()
         )
       }
@@ -271,8 +297,29 @@ const constructOpenhimResponse = (
   }`
 }
 
+const setTheStatusCodeAndText = ctx => {
+  if (ctx.primaryReqFailError) {
+    ctx.statusText = 'Failed'
+    ctx.status = 500
+  } else if (!ctx.primaryReqFailError && ctx.secondaryFailError) {
+    ctx.statusText = 'Completed with error(s)'
+    ctx.status = 200
+  } else if (
+    !ctx.primaryReqFailError &&
+    !ctx.secondaryFailError &&
+    (ctx.primaryCompleted || ctx.secondaryCompleted)
+  ) {
+    ctx.statusText = 'Completed'
+    ctx.status = 200
+  } else {
+    ctx.statusText = 'Successful'
+    ctx.status = 200
+  }
+}
+
 if (process.env.NODE_ENV === 'test') {
   exports.createOrchestration = createOrchestration
-  exports.sendResponseRequest = sendResponseRequest
+  exports.orchestrateMappingResult = orchestrateMappingResult
+  exports.setTheStatusCodeAndText = setTheStatusCodeAndText
   exports.constructOpenhimResponse = constructOpenhimResponse
 }
