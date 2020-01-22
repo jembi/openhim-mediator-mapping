@@ -18,29 +18,32 @@ tap.test('External Requests Middleware', {autoend: true}, t => {
       done()
     })
 
-    t.test(
-      'should throw an error if any promise in the array fails',
-      {autoend: true},
-      t => {
-        performRequestsStub
-          .onFirstCall()
-          .returns([Promise.resolve('Success'), Promise.reject('Fail')])
+    t.test('should throw an error if any promise in the array fails', t => {
+      t.plan(1)
+      performRequestsStub
+        .onFirstCall()
+        .returns([Promise.resolve('Success'), Promise.reject('Fail')])
 
-        const ctx = {
-          state: {
-            metaData: {
-              requests: {
-                lookup: [{}, {}]
-              }
+      const ctx = {
+        state: {
+          uuid: 'randomUidForRequest',
+          metaData: {
+            name: 'Testing endpoint',
+            requests: {
+              lookup: [{}, {}]
             }
           }
         }
-
-        externalRequests.prepareLookupRequests(ctx).catch(err => {
-          t.throws(err, 'test')
-          t.end()
-        })
       }
-    )
+
+      externalRequests
+        .prepareLookupRequests(ctx)
+        .then(() => {
+          t.error('Should not reach here')
+        })
+        .catch(err => {
+          t.throws(err, 'Error should be thrown when a promise rejects')
+        })
+    })
   })
 })
