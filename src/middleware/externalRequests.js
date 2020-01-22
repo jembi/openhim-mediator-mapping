@@ -69,10 +69,13 @@ const prepareRequestConfig = requestDetails => {
 exports.requestsMiddleware = () => async (ctx, next) => {
   await prepareLookupRequests(ctx)
   await next()
+  await orchestrateMappingResult(ctx)
 }
 
 // For now only json data is processed
-const orchestrateMappingResult = async (ctx, requests) => {
+const orchestrateMappingResult = async ctx => {
+  const requests = ctx.state.metaData.requests
+
   // Send request downstream only when mapping has been successful
   if (ctx && ctx.status === 200) {
     if (

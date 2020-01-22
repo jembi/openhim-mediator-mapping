@@ -171,10 +171,15 @@ tap.test('External Requests', {autoend: true}, t => {
 
   t.test('orchestrateMappingResult', {autoend: true}, t => {
     t.test('should not do any orchestration if the mapping fails', async t => {
-      const ctx = {}
-      const requests = {}
+      const ctx = {
+        state: {
+          metaData: {
+            requests: {}
+          }
+        }
+      }
 
-      await orchestrateMappingResult(ctx, requests)
+      await orchestrateMappingResult(ctx)
 
       t.equals(ctx.orchestrations, undefined)
       t.end()
@@ -184,12 +189,16 @@ tap.test('External Requests', {autoend: true}, t => {
       'should not do any orchestrations when the requests object is falsy',
       async t => {
         const ctx = {
-          status: 200
+          status: 200,
+          state: {
+            metaData: {
+              requests: null
+            }
+          }
         }
-        const requests = null
-        await orchestrateMappingResult(ctx, requests)
+        await orchestrateMappingResult(ctx)
 
-        t.equals(ctx.orchestrations, undefined)
+        t.equals(ctx.orchestrations)
         t.end()
       }
     )
@@ -198,12 +207,18 @@ tap.test('External Requests', {autoend: true}, t => {
       'should not do any orchestrations when the requests object does not have the response requests',
       async t => {
         const ctx = {
-          status: 200
+          status: 200,
+          state: {
+            metaData: {
+              requests: {
+                response: []
+              }
+            }
+          },
+          request: {}
         }
-        const requests = {
-          response: []
-        }
-        await orchestrateMappingResult(ctx, requests)
+
+        await orchestrateMappingResult(ctx)
 
         t.equals(ctx.orchestrations, undefined)
         t.end()
@@ -215,12 +230,16 @@ tap.test('External Requests', {autoend: true}, t => {
       async t => {
         const ctx = {
           status: 200,
+          state: {
+            metaData: {
+              requests: {
+                response: [{}]
+              }
+            }
+          },
           request: {}
         }
-        const requests = {
-          response: [{}]
-        }
-        await orchestrateMappingResult(ctx, requests)
+        await orchestrateMappingResult(ctx)
 
         t.equals(ctx.orchestrations.length, 0)
         t.end()
