@@ -22,10 +22,12 @@ tap.test('Validation Middleware', {autoend: true}, t => {
       }
       const schema = null
 
-      t.throws(
-        () => performValidation(ctx, schema),
-        /No validation rules supplied/
-      )
+      try {
+        performValidation(ctx, schema)
+      } catch (e) {
+        t.error('Should not reach here')
+      }
+
       t.end()
     })
 

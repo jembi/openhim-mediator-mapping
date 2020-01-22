@@ -7,9 +7,10 @@ const config = require('../config').getConfig()
 
 const performValidation = (ctx, schema) => {
   if (!schema) {
-    throw new Error(
+    logger.warn(
       `${ctx.state.metaData.name} (${ctx.state.uuid}): No validation rules supplied`
     )
+    return
   }
 
   const dataToValidate = {}
