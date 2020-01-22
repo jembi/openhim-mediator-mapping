@@ -49,7 +49,7 @@ exports.requestsMiddleware = () => async (ctx, next) => {
 }
 
 // For now only json data is processed
-const sendResponseRequest = async (ctx, requests) => {
+const orchestrateMappingResult = async (ctx, requests) => {
   // Send request downstream only when mapping has been successful
   if (ctx && ctx.status === 200) {
     if (
