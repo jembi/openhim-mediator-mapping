@@ -117,6 +117,7 @@ const orchestrateMappingResult = async ctx => {
           return axios(axiosConfig)
             .then(resp => {
               response = resp
+              response.body = resp.data
               responseTimestamp = new Date()
 
               if (request.primary) {
@@ -209,12 +210,14 @@ const orchestrateMappingResult = async ctx => {
       if (ctx.request.header && ctx.request.header['X-OpenHIM-TransactionID']) {
         ctx.set('Content-Type', 'application/json+openhim')
 
+        const date = new Date()
+
         constructOpenhimResponse(
           ctx,
           ctx.response,
           ctx.orchestrations,
           ctx.statusText,
-          Date.now()
+          date
         )
       }
     }
