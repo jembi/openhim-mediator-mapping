@@ -98,9 +98,7 @@ tap.test('External Requests Middleware', {autoend: true}, t => {
     t.test(
       'should not reach the request making function is there is no lookup config',
       t => {
-        performRequestsStub
-          .onFirstCall()
-          .returns(new Error('Should not get here'))
+        performRequestsStub.onFirstCall().returns(null)
 
         const ctx = {
           state: {
@@ -115,6 +113,12 @@ tap.test('External Requests Middleware', {autoend: true}, t => {
         }
 
         externalRequests.prepareLookupRequests(ctx)
+
+        t.equals(
+          performRequestsStub.called,
+          false,
+          'Stub for externalRequest should not be called'
+        )
         t.end()
       }
     )
