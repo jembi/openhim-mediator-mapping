@@ -45,5 +45,39 @@ tap.test('External Requests Middleware', {autoend: true}, t => {
           t.throws(err, 'Error should be thrown when a promise rejects')
         })
     })
+
+    t.test(
+      'should add response data to the ctx when all promises resolve',
+      t => {
+        t.plan(1)
+        performRequestsStub
+          .onFirstCall()
+          .returns([
+            Promise.resolve({id: 'test1', data: 'testA'}),
+            Promise.resolve({id: 'test2', data: 'testB'})
+          ])
+
+        const ctx = {
+          state: {
+            uuid: 'randomUidForRequest',
+            metaData: {
+              name: 'Testing endpoint',
+              requests: {
+                lookup: [{}, {}]
+              }
+            }
+          }
+        }
+
+        externalRequests
+          .prepareLookupRequests(ctx)
+          .then(() => {
+            t.same({test1: 'testA', test2: 'testB'}, ctx.lookupRequests)
+          })
+          .catch(() => {
+            t.error('Should not reach here')
+          })
+      }
+    )
   })
 })

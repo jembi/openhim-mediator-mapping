@@ -5,7 +5,6 @@ const axios = require('axios')
 const logger = require('../logger')
 
 function performRequests(requests) {
-  console.log('Should not get in')
   return requests.map(requestDetails => {
     return axios(prepareRequestConfig(requestDetails))
       .then(res => {
@@ -42,7 +41,12 @@ function prepareLookupRequests(ctx) {
         logger.info(
           `${ctx.state.metaData.name} (${ctx.state.uuid}): Successfully performed request/s`
         )
-        ctx.lookupRequests = Object.assign({}, ...data)
+        // Reduce the array of objects into a single object.
+        // Each object in the array should have a unique id assigned to it in the meta.json
+        ctx.lookupRequests = data.reduce(
+          (obj, item) => ((obj[item.id] = item.data), obj),
+          {}
+        )
       })
       .catch(err => {
         throw new Error(`Rejected Promise: ${err}`)
