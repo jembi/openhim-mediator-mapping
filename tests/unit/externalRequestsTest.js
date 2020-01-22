@@ -19,7 +19,7 @@ tap.test('External Requests Middleware', {autoend: true}, t => {
     })
 
     t.test('should throw an error if any promise in the array fails', t => {
-      t.plan(1)
+      t.plan(2)
       performRequestsStub
         .onFirstCall()
         .returns([Promise.resolve('Success'), Promise.reject('Fail')])
@@ -50,6 +50,7 @@ tap.test('External Requests Middleware', {autoend: true}, t => {
         })
         .catch(err => {
           t.throws(err, 'Error should be thrown when a promise rejects')
+          t.same(err.message, 'Rejected Promise: Fail')
         })
     })
 
