@@ -81,7 +81,7 @@ tap.test('External Requests Middleware', {autoend: true}, t => {
     )
 
     t.test(
-      'should add response data to the ctx when all promises resolve',
+      'should not reach the request making function is there is no lookup config',
       t => {
         performRequestsStub
           .onFirstCall()
