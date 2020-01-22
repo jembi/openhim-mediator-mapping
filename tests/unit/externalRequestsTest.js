@@ -30,7 +30,14 @@ tap.test('External Requests Middleware', {autoend: true}, t => {
           metaData: {
             name: 'Testing endpoint',
             requests: {
-              lookup: [{}, {}]
+              lookup: [
+                {
+                  // first lookup request config - responds with success
+                },
+                {
+                  // second lookup request config - responds with fail
+                }
+              ]
             }
           }
         }
@@ -63,7 +70,14 @@ tap.test('External Requests Middleware', {autoend: true}, t => {
             metaData: {
               name: 'Testing endpoint',
               requests: {
-                lookup: [{}, {}]
+                lookup: [
+                  {
+                    // first lookup request config - responds with success
+                  },
+                  {
+                    // second lookup request config - responds with success
+                  }
+                ]
               }
             }
           }
@@ -92,7 +106,9 @@ tap.test('External Requests Middleware', {autoend: true}, t => {
             uuid: 'randomUidForRequest',
             metaData: {
               name: 'Testing endpoint',
-              requests: {}
+              requests: {
+                // no lookup config
+              }
             }
           }
         }
