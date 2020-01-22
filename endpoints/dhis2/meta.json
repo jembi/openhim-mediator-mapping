@@ -11,13 +11,14 @@
     "lookup": [
       {
         "id": "dhis-orgs",
-        "method": "GET",
-        "url": "https://admin:district@play.dhis2.org/2.30/api/organisationUnits.json"
-      },
-      {
-        "id": "dhis-elements",
-        "method": "GET",
-        "url": "https://admin:district@play.dhis2.org/2.30/api/dataElements.json"
+        "config": {
+          "method": "get",
+          "url": "https://play.dhis2.org/2.30/api/organisationUnits.json",
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Basic YWRtaW46ZGlzdHJpY3Q="
+          }
+        }
       }
     ],
     "response": [{}]
