@@ -1,6 +1,7 @@
 'use strict'
 
 const tap = require('tap')
+const nock = require('nock')
 const {
   createOrchestration,
   constructOpenhimResponse,
@@ -242,6 +243,277 @@ tap.test('External Requests', {autoend: true}, t => {
         await orchestrateMappingResult(ctx)
 
         t.equals(ctx.orchestrations.length, 0)
+        t.end()
+      }
+    )
+
+    t.test(
+      'should send requests and record the orchestrations (to a server that is down) (statusText should be Failed)',
+      async t => {
+        const url = 'http://localhost:8000/'
+        const url2 = 'http://localhost:9000/'
+        const method = 'PUT'
+        const id = '1233243'
+
+        const ctx = {
+          status: 200,
+          state: {
+            metaData: {
+              requests: {
+                response: [
+                  {
+                    url: url,
+                    method: method,
+                    id: id,
+                    primary: true
+                  },
+                  {
+                    url: url2,
+                    method: method,
+                    id: id
+                  }
+                ]
+              }
+            }
+          },
+          request: {
+            header: {
+              'X-OpenHIM-TransactionID': '1232244'
+            }
+          },
+          response: {
+            headers: {}
+          },
+          body: {},
+          set: (key, value) => {
+            ctx.response.headers[key] = value
+          }
+        }
+
+        await orchestrateMappingResult(ctx)
+
+        t.equals(ctx.orchestrations.length, 2)
+        t.match(ctx.orchestrations[0].error.message, /ECONNREFUSED/)
+        t.match(ctx.body, /Failed/)
+        t.end()
+      }
+    )
+
+    t.test(
+      'should send requests and record the orchestrations (response statusText - Successful)',
+      async t => {
+        const url = 'http://localhost:8000/'
+        const method = 'PUT'
+        const id = 'Patient'
+
+        const ctx = {
+          status: 200,
+          state: {
+            metaData: {
+              requests: {
+                response: [
+                  {
+                    url: `${url}patient?name=raze`,
+                    method: method,
+                    id: id,
+                    primary: true
+                  }
+                ]
+              }
+            }
+          },
+          request: {
+            header: {
+              'X-OpenHIM-TransactionID': '1232244'
+            }
+          },
+          response: {
+            headers: {}
+          },
+          body: {
+            surname: 'breez'
+          },
+          set: (key, value) => {
+            ctx.response.headers[key] = value
+          }
+        }
+
+        const response = {name: 'raze', surname: 'breez'}
+
+        nock(url)
+          .put('/patient?name=raze')
+          .reply(200, response)
+
+        await orchestrateMappingResult(ctx)
+
+        t.equals(ctx.orchestrations.length, 1)
+        t.deepEqual(ctx.orchestrations[0].response.body, response)
+
+        // The response statusText should be set to Successful
+        t.match(ctx.body, /Successful/)
+        t.end()
+      }
+    )
+
+    t.test(
+      'should not record orchestrations if response is not being sent to the openhim',
+      async t => {
+        const url = 'http://localhost:8000/'
+        const method = 'PUT'
+        const id = 'Patient'
+
+        const ctx = {
+          status: 200,
+          state: {
+            metaData: {
+              requests: {
+                response: [
+                  {
+                    url: `${url}patient?name=raze`,
+                    method: method,
+                    id: id,
+                    primary: true
+                  }
+                ]
+              }
+            }
+          },
+          request: {
+            header: {}
+          },
+          response: {
+            headers: {}
+          },
+          body: {
+            surname: 'breez'
+          },
+          set: (key, value) => {
+            ctx.response.headers[key] = value
+          }
+        }
+
+        const response = {name: 'raze', surname: 'breez'}
+
+        nock(url)
+          .put('/patient?name=raze')
+          .reply(200, response)
+
+        await orchestrateMappingResult(ctx)
+
+        t.equals(ctx.orchestrations.length, 0)
+
+        t.deepEqual(ctx.body, {Patient: response})
+        t.end()
+      }
+    )
+
+    t.test(
+      "should send requests and set the response body's statusText to Completed",
+      async t => {
+        const url = 'http://localhost:8000/'
+        const method = 'PUT'
+        const id = 'Patient'
+
+        const ctx = {
+          status: 200,
+          state: {
+            metaData: {
+              requests: {
+                response: [
+                  {
+                    url: `${url}patient?name=raze`,
+                    method: method,
+                    id: id,
+                    primary: true
+                  }
+                ]
+              }
+            }
+          },
+          request: {
+            header: {
+              'X-OpenHIM-TransactionID': '1232244'
+            }
+          },
+          response: {
+            headers: {}
+          },
+          body: {
+            surname: 'breez'
+          },
+          set: (key, value) => {
+            ctx.response.headers[key] = value
+          }
+        }
+
+        const response = {name: 'raze', surname: 'breez'}
+
+        nock(url)
+          .put('/patient?name=raze')
+          .reply(400, response)
+
+        await orchestrateMappingResult(ctx)
+
+        t.equals(ctx.orchestrations.length, 1)
+        t.match(ctx.body, /Completed/)
+        t.end()
+      }
+    )
+
+    t.test(
+      "should set the response body's statusText to 'Completed with error(s)' (error on non primary request",
+      async t => {
+        const url = 'http://localhost:8000/'
+        const method = 'PUT'
+        const id = 'Patient'
+
+        const ctx = {
+          status: 200,
+          state: {
+            metaData: {
+              requests: {
+                response: [
+                  {
+                    url: `${url}patient?name=raze`,
+                    method: method,
+                    id: id,
+                    primary: true
+                  },
+                  {
+                    url: `${url}resource?name=raze`,
+                    method: method,
+                    id: id
+                  }
+                ]
+              }
+            }
+          },
+          request: {
+            header: {
+              'X-OpenHIM-TransactionID': '1232244'
+            }
+          },
+          response: {
+            headers: {}
+          },
+          body: {
+            surname: 'breez'
+          },
+          set: (key, value) => {
+            ctx.response.headers[key] = value
+          }
+        }
+
+        const response = {name: 'raze', surname: 'breez'}
+
+        nock(url)
+          .put('/patient?name=raze')
+          .reply(200, response)
+
+        await orchestrateMappingResult(ctx)
+
+        t.equals(ctx.orchestrations.length, 2)
+        t.match(ctx.body, /Completed with error/)
         t.end()
       }
     )
