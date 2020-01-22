@@ -3,7 +3,8 @@
 const tap = require('tap')
 const {
   createOrchestration,
-  constructOpenhimResponse
+  constructOpenhimResponse,
+  orchestrateMappingResult
 } = require('../../src/middleware/externalRequests')
 
 tap.test('External Requests', {autoend: true}, t => {
@@ -166,5 +167,64 @@ tap.test('External Requests', {autoend: true}, t => {
       t.deepEqual(JSON.parse(expectedResponse), JSON.parse(ctx.body))
       t.end()
     })
+  })
+
+  t.test('orchestrateMappingResult', {autoend: true}, t => {
+    t.test('should not do any orchestration if the mapping fails', async t => {
+      const ctx = {}
+      const requests = {}
+
+      await orchestrateMappingResult(ctx, requests)
+
+      t.equals(ctx.orchestrations, undefined)
+      t.end()
+    })
+
+    t.test(
+      'should not do any orchestrations when the requests object is falsy',
+      async t => {
+        const ctx = {
+          status: 200
+        }
+        const requests = null
+        await orchestrateMappingResult(ctx, requests)
+
+        t.equals(ctx.orchestrations, undefined)
+        t.end()
+      }
+    )
+
+    t.test(
+      'should not do any orchestrations when the requests object does not have the response requests',
+      async t => {
+        const ctx = {
+          status: 200
+        }
+        const requests = {
+          response: []
+        }
+        await orchestrateMappingResult(ctx, requests)
+
+        t.equals(ctx.orchestrations, undefined)
+        t.end()
+      }
+    )
+
+    t.test(
+      'should not do any orchestrations when request url/method/id is not supplied',
+      async t => {
+        const ctx = {
+          status: 200,
+          request: {}
+        }
+        const requests = {
+          response: [{}]
+        }
+        await orchestrateMappingResult(ctx, requests)
+
+        t.equals(ctx.orchestrations.length, 0)
+        t.end()
+      }
+    )
   })
 })
