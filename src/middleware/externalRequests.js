@@ -51,11 +51,10 @@ function prepareLookupRequests(ctx) {
       .catch(err => {
         throw new Error(`Rejected Promise: ${err}`)
       })
-  } else {
-    logger.debug(
-      `${ctx.state.metaData.name} (${ctx.state.uuid}): No request/s to make`
-    )
   }
+  logger.debug(
+    `${ctx.state.metaData.name} (${ctx.state.uuid}): No request/s to make`
+  )
 }
 
 const prepareRequestConfig = requestDetails => {
