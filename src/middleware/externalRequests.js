@@ -33,7 +33,7 @@ function performRequests(requests) {
 
 function prepareLookupRequests(ctx) {
   const requests = Object.assign({}, ctx.state.metaData.requests)
-  if (requests && requests.lookup && requests.lookup.length > 0) {
+  if (requests.lookup && requests.lookup.length > 0) {
     const responseData = this.performRequests(requests.lookup)
 
     return Promise.all(responseData)
