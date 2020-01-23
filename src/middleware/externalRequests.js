@@ -4,7 +4,7 @@ const axios = require('axios')
 
 const logger = require('../logger')
 
-function performRequests(requests) {
+const performRequests = requests => {
   return requests.map(requestDetails => {
     return axios(prepareRequestConfig(requestDetails))
       .then(res => {
@@ -31,10 +31,10 @@ function performRequests(requests) {
   })
 }
 
-function prepareLookupRequests(ctx) {
+const prepareLookupRequests = ctx => {
   const requests = Object.assign({}, ctx.state.metaData.requests)
   if (requests.lookup && requests.lookup.length > 0) {
-    const responseData = this.performRequests(requests.lookup)
+    const responseData = performRequests(requests.lookup)
 
     return Promise.all(responseData)
       .then(data => {
@@ -65,12 +65,6 @@ const prepareRequestConfig = requestDetails => {
 }
 
 exports.requestsMiddleware = () => async (ctx, next) => {
-  await this.prepareLookupRequests(ctx)
+  await prepareLookupRequests(ctx)
   await next()
-}
-
-if (process.env.NODE_ENV == 'test') {
-  exports.prepareRequestConfig = prepareRequestConfig
-  exports.prepareLookupRequests = prepareLookupRequests
-  exports.performRequests = performRequests
 }

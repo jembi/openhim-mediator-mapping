@@ -1,28 +1,19 @@
 'use strict'
 
-const sinon = require('sinon')
+const rewire = require('rewire')
 const tap = require('tap')
 
-const externalRequests = require('../../src/middleware/externalRequests')
+const externalRequests = rewire('../../src/middleware/externalRequests')
 
 tap.test('External Requests Middleware', {autoend: true}, t => {
   t.test('prepareLookupRequests', {autoend: true}, t => {
-    let performRequestsStub
-    t.beforeEach(done => {
-      performRequestsStub = sinon.stub(externalRequests, 'performRequests')
-      done()
-    })
-
-    t.afterEach(done => {
-      performRequestsStub.restore()
-      done()
-    })
-
     t.test('should throw an error if any promise in the array fails', t => {
       t.plan(2)
-      performRequestsStub
-        .onFirstCall()
-        .returns([Promise.resolve('Success'), Promise.reject('Fail')])
+
+      const performRequestsStub = externalRequests.__set__(
+        'performRequests',
+        () => [Promise.resolve('Success'), Promise.reject('Fail')]
+      )
 
       const ctx = {
         state: {
@@ -43,12 +34,16 @@ tap.test('External Requests Middleware', {autoend: true}, t => {
         }
       }
 
-      externalRequests
-        .prepareLookupRequests(ctx)
+      const prepareLookupRequests = externalRequests.__get__(
+        'prepareLookupRequests'
+      )
+
+      prepareLookupRequests(ctx)
         .then(() => {
           t.error('Should not reach here')
         })
         .catch(err => {
+          performRequestsStub()
           t.throws(err, 'Error should be thrown when a promise rejects')
           t.same(err.message, 'Rejected Promise: Fail')
         })
@@ -58,12 +53,14 @@ tap.test('External Requests Middleware', {autoend: true}, t => {
       'should add response data to the ctx when all promises resolve',
       t => {
         t.plan(1)
-        performRequestsStub
-          .onFirstCall()
-          .returns([
+
+        const performRequestsStub = externalRequests.__set__(
+          'performRequests',
+          () => [
             Promise.resolve({id: 'test1', data: 'testA'}),
             Promise.resolve({id: 'test2', data: 'testB'})
-          ])
+          ]
+        )
 
         const ctx = {
           state: {
@@ -84,10 +81,14 @@ tap.test('External Requests Middleware', {autoend: true}, t => {
           }
         }
 
-        externalRequests
-          .prepareLookupRequests(ctx)
+        const prepareLookupRequests = externalRequests.__get__(
+          'prepareLookupRequests'
+        )
+
+        prepareLookupRequests(ctx)
           .then(() => {
             t.same({test1: 'testA', test2: 'testB'}, ctx.lookupRequests)
+            performRequestsStub()
           })
           .catch(() => {
             t.error('Should not reach here')
@@ -98,7 +99,12 @@ tap.test('External Requests Middleware', {autoend: true}, t => {
     t.test(
       'should not reach the request making function is there is no lookup config',
       t => {
-        performRequestsStub.onFirstCall().returns(null)
+        let called = false
+        const performRequestsStub = externalRequests.__set__({
+          performRequests: () => {
+            called = true
+          }
+        })
 
         const ctx = {
           state: {
@@ -112,13 +118,14 @@ tap.test('External Requests Middleware', {autoend: true}, t => {
           }
         }
 
-        externalRequests.prepareLookupRequests(ctx)
-
-        t.equals(
-          performRequestsStub.called,
-          false,
-          'Stub for externalRequest should not be called'
+        const prepareLookupRequests = externalRequests.__get__(
+          'prepareLookupRequests'
         )
+
+        prepareLookupRequests(ctx)
+
+        performRequestsStub()
+        t.equals(called, false, 'performRequestsStub should not be called')
         t.end()
       }
     )
