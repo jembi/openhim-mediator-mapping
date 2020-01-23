@@ -204,7 +204,7 @@ const orchestrateMappingResult = async ctx => {
       await Promise.all(promises)
         .then(() => {
           logger.info('Mapped object successfully orchestrated')
-          setStatusCodeAndText(ctx)
+          setStatusText(ctx)
         })
         .catch(err => {
           logger.error(`Mapped object orchestration failure: ${err.message}`)
@@ -329,30 +329,26 @@ const constructOpenhimResponse = (
   ctx.body = JSON.stringify(body)
 }
 
-const setStatusCodeAndText = ctx => {
+const setStatusText = ctx => {
   if (ctx.primaryReqFailError) {
     ctx.statusText = 'Failed'
-    ctx.status = 500
   } else if (!ctx.primaryReqFailError && ctx.secondaryFailError) {
     ctx.statusText = 'Completed with error(s)'
-    ctx.status = 200
   } else if (
     !ctx.primaryReqFailError &&
     !ctx.secondaryFailError &&
     (ctx.primaryCompleted || ctx.secondaryCompleted)
   ) {
     ctx.statusText = 'Completed'
-    ctx.status = 200
   } else {
     ctx.statusText = 'Successful'
-    ctx.status = 200
   }
 }
 
 if (process.env.NODE_ENV === 'test') {
   exports.createOrchestration = createOrchestration
   exports.orchestrateMappingResult = orchestrateMappingResult
-  exports.setStatusCodeAndText = setStatusCodeAndText
+  exports.setStatusText = setStatusText
   exports.constructOpenhimResponse = constructOpenhimResponse
   exports.prepareRequestConfig = prepareRequestConfig
 }
