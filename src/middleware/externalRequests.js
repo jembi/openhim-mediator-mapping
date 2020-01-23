@@ -96,115 +96,11 @@ const orchestrateMappingResult = async ctx => {
       const promises = requests.response.map(request => {
         if (request && request.url && request.method && request.id) {
           const body = ctx.body
-          const axiosConfig = {
-            url: request.url,
-            method: request.method,
-            body: body
-          }
+          const axiosConfig = createAxiosConfig(request, body)
 
-          if (
-            request.credentials &&
-            request.credentials.username &&
-            request.credentials.password
-          ) {
-            axiosConfig.auth = {
-              username: request.credentials.username,
-              password: request.credentials.password
-            }
-          }
-
-          if (request.headers) {
-            axiosConfig.headers = request.headers
-          }
-
+          // Empty the request body. It contains the mapped data
           ctx.body = {}
-          const reqTimestamp = new Date()
-          let response, error, responseTimestamp
-
-          return axios(axiosConfig)
-            .then(resp => {
-              response = resp
-              response.body = resp.data
-              responseTimestamp = new Date()
-
-              if (request.primary) {
-                ctx.hasPrimaryRequest = true
-                ctx.body = {}
-                ctx.body[request.id] = response.body
-                ctx.status = response.status
-              } else {
-                if (!ctx.hasPrimaryRequest) {
-                  ctx.body[request.id] = response.body
-                }
-              }
-            })
-            .catch(err => {
-              responseTimestamp = new Date()
-
-              if (err.response) {
-                response = err.response
-                response.body = response.data
-
-                if (response.status >= 500) {
-                  if (request.primary) {
-                    ctx.hasPrimaryRequest = true
-                    ctx.body = {}
-                    ctx.body[request.id] = response.data
-                    ctx.primaryReqFailError = true
-                    ctx.status = response.status
-                  } else {
-                    ctx.secondaryFailError = true
-                    if (!ctx.hasPrimaryRequest) {
-                      ctx.body[request.id] = response.data
-                    }
-                  }
-                } else {
-                  if (request.primary) {
-                    ctx.hasPrimaryRequest = true
-                    ctx.body = {}
-                    ctx.body[request.id] = response.data
-                    ctx.primaryCompleted = true
-                    ctx.status = response.status
-                  } else {
-                    ctx.secondaryCompleted = true
-                    if (!ctx.hasPrimaryRequest) {
-                      ctx.body[request.id] = response.data
-                    }
-                  }
-                }
-              } else {
-                if (request.primary) {
-                  ctx.hasPrimaryRequest = true
-                  ctx.body = {}
-                  ctx.body[request.id] = err.message
-                  ctx.primaryReqFailError = true
-                  ctx.status = 500
-                } else {
-                  ctx.secondaryFailError = true
-                  if (!ctx.hasPrimaryRequest) {
-                    ctx.body[request.id] = err.message
-                  }
-                }
-                error = {message: err.message}
-              }
-            })
-            .finally(() => {
-              if (
-                ctx.request.header &&
-                ctx.request.header['X-OpenHIM-TransactionID']
-              ) {
-                const orch = createOrchestration(
-                  request,
-                  body,
-                  response,
-                  reqTimestamp,
-                  responseTimestamp,
-                  error
-                )
-
-                ctx.orchestrations.push(orch)
-              }
-            })
+          return sendMappedObject(ctx, axiosConfig, request, body)
         }
       })
 
@@ -220,19 +116,146 @@ const orchestrateMappingResult = async ctx => {
       // Respond in openhim mediator format if request came from the openhim
       if (ctx.request.header && ctx.request.header['X-OpenHIM-TransactionID']) {
         ctx.set('Content-Type', 'application/json+openhim')
-
         const date = new Date()
 
-        constructOpenhimResponse(
-          ctx,
-          ctx.response,
-          ctx.orchestrations,
-          ctx.statusText,
-          date
-        )
+        constructOpenhimResponse(ctx, date)
       }
     }
   }
+}
+
+/*
+  Function that handles request errors.
+  It also sets the status code and flags which are used to determine the status Text for the response.
+  The function also sets the koa response
+*/
+const handleRequestError = (ctx, request, err) => {
+  let response, error
+
+  if (err.response) {
+    response = err.response
+
+    // Axios response has the data property not the body
+    response.body = response.data
+
+    if (response.status >= 500) {
+      if (request.primary) {
+        setKoaResponseBodyFromPrimary(ctx, request, response.data)
+
+        ctx.primaryReqFailError = true
+        ctx.status = response.status
+      } else {
+        ctx.secondaryFailError = true
+
+        setKoaResponseBody(ctx, request, response.data)
+      }
+    } else {
+      if (request.primary) {
+        setKoaResponseBodyFromPrimary(ctx, request, response.data)
+
+        ctx.primaryCompleted = true
+        ctx.status = response.status
+      } else {
+        ctx.secondaryCompleted = true
+
+        setKoaResponseBody(ctx, request, response.data)
+      }
+    }
+  } else {
+    if (request.primary) {
+      setKoaResponseBodyFromPrimary(ctx, request, err.message)
+
+      ctx.primaryReqFailError = true
+      ctx.status = 500
+    } else {
+      ctx.secondaryFailError = true
+
+      setKoaResponseBody(ctx, request, err.message)
+    }
+    error = {message: err.message}
+  }
+
+  return {response, error}
+}
+
+// Sets the koa response body from the primary request's response body
+const setKoaResponseBodyFromPrimary = (ctx, request, body) => {
+  ctx.hasPrimaryRequest = true
+  ctx.body = {}
+  ctx.body[request.id] = body
+}
+
+// Sets the koa response body if there is no primary request
+const setKoaResponseBody = (ctx, request, body) => {
+  if (!ctx.hasPrimaryRequest) {
+    ctx.body[request.id] = body
+  }
+}
+
+const createAxiosConfig = (request, body) => {
+  const axiosConfig = {
+    url: request.url,
+    method: request.method,
+    body: body
+  }
+
+  if (
+    request.credentials &&
+    request.credentials.username &&
+    request.credentials.password
+  ) {
+    axiosConfig.auth = {
+      username: request.credentials.username,
+      password: request.credentials.password
+    }
+  }
+
+  if (request.headers) {
+    axiosConfig.headers = request.headers
+  }
+
+  return axiosConfig
+}
+
+const sendMappedObject = (ctx, axiosConfig, request, body) => {
+  const reqTimestamp = new Date()
+  let response, error, responseTimestamp
+
+  return axios(axiosConfig)
+    .then(resp => {
+      response = resp
+      response.body = resp.data
+      responseTimestamp = new Date()
+
+      if (request.primary) {
+        setKoaResponseBodyFromPrimary(ctx, request, response.body)
+
+        ctx.status = response.status
+      } else {
+        setKoaResponseBodyFromPrimary(ctx, request, response.body)
+      }
+    })
+    .catch(err => {
+      responseTimestamp = new Date()
+
+      const result = handleRequestError(ctx, request, err)
+      response = result.response
+      error = result.error
+    })
+    .finally(() => {
+      if (ctx.request.header && ctx.request.header['X-OpenHIM-TransactionID']) {
+        const orch = createOrchestration(
+          request,
+          body,
+          response,
+          reqTimestamp,
+          responseTimestamp,
+          error
+        )
+
+        ctx.orchestrations.push(orch)
+      }
+    })
 }
 
 const createOrchestration = (
@@ -300,13 +323,10 @@ const createOrchestration = (
   return orchestration
 }
 
-const constructOpenhimResponse = (
-  ctx,
-  response,
-  orchestrations,
-  statusText,
-  responseTimestamp
-) => {
+const constructOpenhimResponse = (ctx, responseTimestamp) => {
+  const response = ctx.response
+  const orchestrations = ctx.orchestrations
+  const statusText = ctx.statusText
   const respObject = {}
 
   if (response) {
