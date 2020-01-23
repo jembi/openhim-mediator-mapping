@@ -5,10 +5,17 @@ const fs = require('fs')
 const path = require('path')
 const logger = require('../logger')
 
-const mediatorConfigFile = fs.readFileSync(
-  path.resolve(__dirname, '..', '..', 'mediatorConfig.json')
-)
-const mediatorConfigJson = JSON.parse(mediatorConfigFile)
+let mediatorConfigJson, readError
+
+try {
+  const mediatorConfigFile = fs.readFileSync(
+    path.resolve(__dirname, '..', '..', 'mediatorConfig.json')
+  )
+  mediatorConfigJson = JSON.parse(mediatorConfigFile)
+} catch (err) {
+  readError = err.message
+  logger.error(`Mediator config file could not be retrieved: ${err.message}`)
+}
 
 const performRequests = requests => {
   return requests.map(requestDetails => {
@@ -316,6 +323,12 @@ const constructOpenhimResponse = (
       respObject.timestamp = response.timestamp
     } else if (responseTimestamp) {
       respObject.timestamp = responseTimestamp
+    }
+  }
+
+  if (readError) {
+    mediatorConfigJson = {
+      urn: 'undefined'
     }
   }
 
