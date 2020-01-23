@@ -124,6 +124,7 @@ const orchestrateMappingResult = async ctx => {
                 ctx.hasPrimaryRequest = true
                 ctx.body = {}
                 ctx.body[request.id] = response.body
+                ctx.status = response.status
               } else {
                 if (!ctx.hasPrimaryRequest) {
                   ctx.body[request.id] = response.body
@@ -143,6 +144,7 @@ const orchestrateMappingResult = async ctx => {
                     ctx.body = {}
                     ctx.body[request.id] = response.data
                     ctx.primaryReqFailError = true
+                    ctx.status = response.status
                   } else {
                     ctx.secondaryFailError = true
                     if (!ctx.hasPrimaryRequest) {
@@ -155,6 +157,7 @@ const orchestrateMappingResult = async ctx => {
                     ctx.body = {}
                     ctx.body[request.id] = response.data
                     ctx.primaryCompleted = true
+                    ctx.status = response.status
                   } else {
                     ctx.secondaryCompleted = true
                     if (!ctx.hasPrimaryRequest) {
@@ -168,6 +171,7 @@ const orchestrateMappingResult = async ctx => {
                   ctx.body = {}
                   ctx.body[request.id] = err.message
                   ctx.primaryReqFailError = true
+                  ctx.status = 500
                 } else {
                   ctx.secondaryFailError = true
                   if (!ctx.hasPrimaryRequest) {
