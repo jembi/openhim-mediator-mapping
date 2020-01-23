@@ -232,19 +232,16 @@ const createOrchestration = (
   responseTimestamp,
   error
 ) => {
-  if (!request || !request.url || !request.method)
-    throw new Error('Orchestration creation failed: url/method not supplied')
-
-  /*
-    Request timestamp is a required property for an orchestration
-  */
-  if (!reqTimestamp)
-    throw new Error('Orchestration request timestamp not supplied')
-
-  /*
-    The request id is used as the orchestration's name. Name is a required property
-  */
-  if (!request.id) throw new Error('Orchestration name not supplied')
+  if (
+    !request ||
+    !request.id ||
+    !request.method ||
+    !request.url ||
+    !reqTimestamp
+  )
+    throw new Error(
+      'Orchestration creation failed: required parameter not supplied'
+    )
 
   const urlObject = new URL(request.url)
 
