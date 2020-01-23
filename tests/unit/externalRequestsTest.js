@@ -158,12 +158,12 @@ tap.test('External Requests', {autoend: true}, t => {
         }
       ]
 
-      const expectedResponse = `{
-        "x-mediator-urn": "urn:mediator:generic_mapper",
-        "status": "${statusText}",
-        "response": ${JSON.stringify(response)},
-        "orchestrations": ${JSON.stringify(orchestrations)}
-      }`
+      const expectedResponse = {
+        'x-mediator-urn': 'urn:mediator:generic_mapper',
+        status: statusText,
+        response: response,
+        orchestrations: orchestrations
+      }
 
       constructOpenhimResponse(
         ctx,
@@ -173,7 +173,7 @@ tap.test('External Requests', {autoend: true}, t => {
         timestamp
       )
 
-      t.deepEqual(JSON.parse(expectedResponse), JSON.parse(ctx.body))
+      t.deepEqual(expectedResponse, JSON.parse(ctx.body))
       t.end()
     })
   })

@@ -315,12 +315,14 @@ const constructOpenhimResponse = (
     }
   }
 
-  ctx.body = `{
-    "x-mediator-urn": "${mediatorConfigJson.urn}",
-    "status": "${statusText}",
-    "response": ${JSON.stringify(respObject)},
-    "orchestrations": ${JSON.stringify(orchestrations)}
-  }`
+  const body = {
+    'x-mediator-urn': mediatorConfigJson.urn,
+    status: statusText,
+    response: respObject,
+    orchestrations: orchestrations
+  }
+
+  ctx.body = JSON.stringify(body)
 }
 
 const setTheStatusCodeAndText = ctx => {
