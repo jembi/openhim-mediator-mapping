@@ -15,7 +15,8 @@ tap.test('External Requests', {autoend: true}, t => {
 
       const request = {
         url: null,
-        method: null
+        method: null,
+        id: '1223'
       }
 
       try {
@@ -23,7 +24,7 @@ tap.test('External Requests', {autoend: true}, t => {
       } catch (error) {
         t.equals(
           error.message,
-          'Orchestration creation failed: url/method not supplied'
+          'Orchestration creation failed: required parameter not supplied'
         )
       }
     })
@@ -33,14 +34,18 @@ tap.test('External Requests', {autoend: true}, t => {
 
       const request = {
         url: 'http://localhost',
-        method: 'PUT'
+        method: 'PUT',
+        id: '1232'
       }
       const reqTimestamp = null
 
       try {
         createOrchestration(request, null, null, reqTimestamp, null)
       } catch (error) {
-        t.equals(error.message, 'Orchestration request timestamp not supplied')
+        t.equals(
+          error.message,
+          'Orchestration creation failed: required parameter not supplied'
+        )
       }
     })
 
@@ -57,7 +62,10 @@ tap.test('External Requests', {autoend: true}, t => {
       try {
         createOrchestration(request, null, null, reqTimestamp, null, null)
       } catch (error) {
-        t.equals(error.message, 'Orchestration name not supplied')
+        t.equals(
+          error.message,
+          'Orchestration creation failed: required parameter not supplied'
+        )
       }
     })
 
