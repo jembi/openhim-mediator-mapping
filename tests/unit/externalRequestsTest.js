@@ -57,8 +57,8 @@ tap.test('External Requests Middleware', {autoend: true}, t => {
         const performRequestsStub = externalRequests.__set__(
           'performRequests',
           () => [
-            Promise.resolve({id: 'test1', data: 'testA'}),
-            Promise.resolve({id: 'test2', data: 'testB'})
+            Promise.resolve({test1: 'testA'}),
+            Promise.resolve({test2: 'testB'})
           ]
         )
 
