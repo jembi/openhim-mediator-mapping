@@ -129,7 +129,6 @@ tap.test('External Requests', {autoend: true}, t => {
 
   t.test('constructOpenhimResponse', {autoend: true}, t => {
     t.test('should create the response', t => {
-      const ctx = {}
       const timestamp = Date.now()
       const statusText = 'Successful'
       const headers = {'Content-Type': 'application/json'}
@@ -158,6 +157,12 @@ tap.test('External Requests', {autoend: true}, t => {
         }
       ]
 
+      const ctx = {
+        orchestrations,
+        response,
+        statusText
+      }
+
       const expectedResponse = {
         'x-mediator-urn': 'urn:mediator:generic_mapper',
         status: statusText,
@@ -165,13 +170,7 @@ tap.test('External Requests', {autoend: true}, t => {
         orchestrations: orchestrations
       }
 
-      constructOpenhimResponse(
-        ctx,
-        response,
-        orchestrations,
-        statusText,
-        timestamp
-      )
+      constructOpenhimResponse(ctx, timestamp)
 
       t.deepEqual(expectedResponse, JSON.parse(ctx.body))
       t.end()
