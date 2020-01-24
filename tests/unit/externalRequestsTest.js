@@ -5,7 +5,8 @@ const nock = require('nock')
 const {
   createOrchestration,
   constructOpenhimResponse,
-  orchestrateMappingResult
+  orchestrateMappingResult,
+  setStatusText
 } = require('../../src/middleware/externalRequests')
 
 tap.test('External Requests', {autoend: true}, t => {
@@ -524,5 +525,49 @@ tap.test('External Requests', {autoend: true}, t => {
         t.end()
       }
     )
+  })
+
+  t.test('setStatusText()', {autoend: true}, t => {
+    t.test('should set the status to Failed', t => {
+      const ctx = {
+        primaryReqFailError: true
+      }
+
+      setStatusText(ctx)
+
+      t.equals(ctx.statusText, 'Failed')
+      t.end()
+    })
+
+    t.test('should set the status to Completed with error(s)', t => {
+      const ctx = {
+        secondaryFailError: true
+      }
+
+      setStatusText(ctx)
+
+      t.equals(ctx.statusText, 'Completed with error(s)')
+      t.end()
+    })
+
+    t.test('should set the status to Completed', t => {
+      const ctx = {
+        primaryCompleted: true
+      }
+
+      setStatusText(ctx)
+
+      t.equals(ctx.statusText, 'Completed')
+      t.end()
+    })
+
+    t.test('should set the status to Successful', t => {
+      const ctx = {}
+
+      setStatusText(ctx)
+
+      t.equals(ctx.statusText, 'Successful')
+      t.end()
+    })
   })
 })
