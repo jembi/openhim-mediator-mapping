@@ -6,7 +6,9 @@ const {
   createOrchestration,
   constructOpenhimResponse,
   orchestrateMappingResult,
-  setStatusText
+  setStatusText,
+  setKoaResponseBody,
+  setKoaResponseBodyFromPrimary
 } = require('../../src/middleware/externalRequests')
 
 tap.test('External Requests', {autoend: true}, t => {
@@ -567,6 +569,54 @@ tap.test('External Requests', {autoend: true}, t => {
       setStatusText(ctx)
 
       t.equals(ctx.statusText, 'Successful')
+      t.end()
+    })
+  })
+
+  t.test('setKoaResponseBody()', {autoend: true}, t => {
+    t.test('should set the koa response', t => {
+      const ctx = {
+        body: {}
+      }
+      const body = {message: 'success'}
+      const request = {
+        id: '1233'
+      }
+
+      setKoaResponseBody(ctx, request, body)
+      t.deepEqual(ctx.body[request.id], body)
+      t.end()
+    })
+
+    t.test('should not set the koa response (primary response exists)', t => {
+      const ctx = {
+        body: {},
+        hasPrimaryRequest: true
+      }
+
+      const request = {
+        id: '1233'
+      }
+
+      setKoaResponseBody(ctx, request, null)
+      t.equals(ctx.body[request.id], undefined)
+      t.end()
+    })
+  })
+
+  t.test('setKoaResponseFromPrimary()', {autoend: true}, t => {
+    t.test('should set the koa response', t => {
+      const ctx = {
+        body: {}
+      }
+      const body = {message: 'success'}
+      const request = {
+        id: '1233'
+      }
+
+      setKoaResponseBodyFromPrimary(ctx, request, body)
+      t.deepEqual(ctx.body[request.id], body)
+      t.equals(ctx.hasPrimaryRequest, true)
       t.end()
     })
   })

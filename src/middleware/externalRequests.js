@@ -384,4 +384,6 @@ if (process.env.NODE_ENV === 'test') {
   exports.setStatusText = setStatusText
   exports.constructOpenhimResponse = constructOpenhimResponse
   exports.prepareRequestConfig = prepareRequestConfig
+  exports.setKoaResponseBody = setKoaResponseBody
+  exports.setKoaResponseBodyFromPrimary = setKoaResponseBodyFromPrimary
 }
