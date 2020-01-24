@@ -41,11 +41,7 @@ const prepareLookupRequests = ctx => {
         logger.info(
           `${ctx.state.metaData.name} (${ctx.state.uuid}): Successfully performed request/s`
         )
-        // Reduce the array of objects into a single object.
-        // Each object in the array should have a unique id assigned to it in the meta.json
-        ctx.lookupRequests = data.reduce((obj, item) => {
-          return Object.assign(obj, item)
-        }, {})
+        ctx.lookupRequests = Object.assign({}, ...data)
       })
       .catch(err => {
         throw new Error(`Rejected Promise: ${err}`)
