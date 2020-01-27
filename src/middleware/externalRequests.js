@@ -91,7 +91,9 @@ const orchestrateMappingResult = async ctx => {
       requests.response.length
     ) {
       //Create orchestrations
-      ctx.orchestrations = []
+      if (!ctx.orchestrations) {
+        ctx.orchestrations = []
+      }
 
       const promises = requests.response.map(request => {
         if (request && request.url && request.method && request.id) {
