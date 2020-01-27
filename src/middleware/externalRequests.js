@@ -386,4 +386,5 @@ if (process.env.NODE_ENV === 'test') {
   exports.prepareRequestConfig = prepareRequestConfig
   exports.setKoaResponseBody = setKoaResponseBody
   exports.setKoaResponseBodyFromPrimary = setKoaResponseBodyFromPrimary
+  exports.createAxiosConfig = createAxiosConfig
 }

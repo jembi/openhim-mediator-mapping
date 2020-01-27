@@ -8,7 +8,8 @@ const {
   orchestrateMappingResult,
   setStatusText,
   setKoaResponseBody,
-  setKoaResponseBodyFromPrimary
+  setKoaResponseBodyFromPrimary,
+  createAxiosConfig
 } = require('../../src/middleware/externalRequests')
 
 tap.test('External Requests', {autoend: true}, t => {
@@ -617,6 +618,32 @@ tap.test('External Requests', {autoend: true}, t => {
       setKoaResponseBodyFromPrimary(ctx, request, body)
       t.deepEqual(ctx.body[request.id], body)
       t.equals(ctx.hasPrimaryRequest, true)
+      t.end()
+    })
+  })
+
+  t.test('createAxiosConfig()', {autoend: true}, t => {
+    t.test('should create the axios config', t => {
+      const request = {
+        url: 'http://localhost',
+        method: 'GET',
+        credentials: {
+          username: 'The-messiah',
+          password: 'password'
+        },
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+      const body = {message: 'Successful'}
+
+      const config = createAxiosConfig(request, body)
+
+      t.equals(config.url, request.url)
+      t.equals(config.method, request.method)
+      t.deepEqual(config.auth, request.credentials)
+      t.deepEqual(config.headers, request.headers)
+      t.deepEqual(config.body, body)
       t.end()
     })
   })
