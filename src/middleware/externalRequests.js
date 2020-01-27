@@ -4,6 +4,7 @@ const axios = require('axios')
 const fs = require('fs')
 const path = require('path')
 const logger = require('../logger')
+const {createOrchestration} = require('../orchestrations')
 
 let mediatorConfigJson, readError
 
@@ -252,77 +253,13 @@ const sendMappedObject = (ctx, axiosConfig, request, body) => {
           response,
           reqTimestamp,
           responseTimestamp,
+          request.id,
           error
         )
 
         ctx.orchestrations.push(orch)
       }
     })
-}
-
-const createOrchestration = (
-  request,
-  reqBody,
-  responseObject,
-  reqTimestamp,
-  responseTimestamp,
-  error
-) => {
-  if (
-    !request ||
-    !request.id ||
-    !request.method ||
-    !request.url ||
-    !reqTimestamp
-  )
-    throw new Error(
-      'Orchestration creation failed: required parameter not supplied'
-    )
-
-  const urlObject = new URL(request.url)
-
-  const requestObject = {
-    host: urlObject.hostname,
-    port: urlObject.port,
-    path: urlObject.pathname,
-    method: request.method,
-    timestamp: reqTimestamp
-  }
-
-  const response = {
-    timestamp: responseTimestamp
-  }
-
-  if (urlObject.searchParams) {
-    requestObject.queryString = urlObject.searchParams.toString()
-  }
-  if (request.headers) {
-    requestObject.headers = request.headers
-  }
-  if (reqBody) {
-    requestObject.body = reqBody
-  }
-  if (responseObject && responseObject.status) {
-    response.status = responseObject.status
-  }
-  if (responseObject && responseObject.body) {
-    response.body = responseObject.body
-  }
-  if (responseObject && responseObject.headers) {
-    response.headers = responseObject.headers
-  }
-
-  const orchestration = {
-    request: requestObject,
-    response,
-    name: request.id
-  }
-
-  if (error) {
-    orchestration.error = error
-  }
-
-  return orchestration
 }
 
 const constructOpenhimResponse = (ctx, responseTimestamp) => {
@@ -381,7 +318,6 @@ const setStatusText = ctx => {
 }
 
 if (process.env.NODE_ENV === 'test') {
-  exports.createOrchestration = createOrchestration
   exports.orchestrateMappingResult = orchestrateMappingResult
   exports.setStatusText = setStatusText
   exports.constructOpenhimResponse = constructOpenhimResponse
