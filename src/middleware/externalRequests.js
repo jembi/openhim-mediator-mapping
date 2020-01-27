@@ -1,22 +1,9 @@
 'use strict'
 
 const axios = require('axios')
-const fs = require('fs')
-const path = require('path')
 const logger = require('../logger')
 const {createOrchestration} = require('../orchestrations')
-
-let mediatorConfigJson, readError
-
-try {
-  const mediatorConfigFile = fs.readFileSync(
-    path.resolve(__dirname, '..', '..', 'mediatorConfig.json')
-  )
-  mediatorConfigJson = JSON.parse(mediatorConfigFile)
-} catch (err) {
-  readError = err.message
-  logger.error(`Mediator config file could not be retrieved: ${err.message}`)
-}
+const {constructOpenhimResponse} = require('../openhim')
 
 const performRequests = requests => {
   return requests.map(requestDetails => {
@@ -262,45 +249,6 @@ const sendMappedObject = (ctx, axiosConfig, request, body) => {
     })
 }
 
-const constructOpenhimResponse = (ctx, responseTimestamp) => {
-  const response = ctx.response
-  const orchestrations = ctx.orchestrations
-  const statusText = ctx.statusText
-  const respObject = {}
-
-  if (response) {
-    if (response.headers) {
-      respObject.headers = response.headers
-    }
-    if (response.status) {
-      respObject.status = response.status
-    }
-    if (response.body) {
-      respObject.body = response.body
-    }
-    if (response.timestamp) {
-      respObject.timestamp = response.timestamp
-    } else if (responseTimestamp) {
-      respObject.timestamp = responseTimestamp
-    }
-  }
-
-  if (readError) {
-    mediatorConfigJson = {
-      urn: 'undefined'
-    }
-  }
-
-  const body = {
-    'x-mediator-urn': mediatorConfigJson.urn,
-    status: statusText,
-    response: respObject,
-    orchestrations: orchestrations
-  }
-
-  ctx.body = JSON.stringify(body)
-}
-
 const setStatusText = ctx => {
   if (ctx.primaryReqFailError) {
     ctx.statusText = 'Failed'
@@ -320,7 +268,6 @@ const setStatusText = ctx => {
 if (process.env.NODE_ENV === 'test') {
   exports.orchestrateMappingResult = orchestrateMappingResult
   exports.setStatusText = setStatusText
-  exports.constructOpenhimResponse = constructOpenhimResponse
   exports.prepareRequestConfig = prepareRequestConfig
   exports.setKoaResponseBody = setKoaResponseBody
   exports.setKoaResponseBodyFromPrimary = setKoaResponseBodyFromPrimary

@@ -3,7 +3,6 @@
 const tap = require('tap')
 const nock = require('nock')
 const {
-  constructOpenhimResponse,
   orchestrateMappingResult,
   setStatusText,
   setKoaResponseBody,
@@ -13,56 +12,6 @@ const {
 } = require('../../src/middleware/externalRequests')
 
 tap.test('External Requests', {autoend: true}, t => {
-  t.test('constructOpenhimResponse', {autoend: true}, t => {
-    t.test('should create the response', t => {
-      const timestamp = Date.now()
-      const statusText = 'Successful'
-      const headers = {'Content-Type': 'application/json'}
-      const body = {message: 'success'}
-      const status = 200
-      const response = {
-        headers,
-        status,
-        body,
-        timestamp
-      }
-      const request = {
-        headers,
-        host: 'localhost',
-        method: 'PUT',
-        path: '/patient/',
-        port: '8000',
-        timestamp: Date.now()
-      }
-
-      const orchestrations = [
-        {
-          request,
-          response,
-          name: 'Patient'
-        }
-      ]
-
-      const ctx = {
-        orchestrations,
-        response,
-        statusText
-      }
-
-      const expectedResponse = {
-        'x-mediator-urn': 'urn:mediator:generic_mapper',
-        status: statusText,
-        response: response,
-        orchestrations: orchestrations
-      }
-
-      constructOpenhimResponse(ctx, timestamp)
-
-      t.deepEqual(expectedResponse, JSON.parse(ctx.body))
-      t.end()
-    })
-  })
-
   t.test('orchestrateMappingResult', {autoend: true}, t => {
     t.test('should not do any orchestration if the mapping fails', async t => {
       const ctx = {
