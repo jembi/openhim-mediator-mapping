@@ -9,7 +9,8 @@ const {
   setStatusText,
   setKoaResponseBody,
   setKoaResponseBodyFromPrimary,
-  createAxiosConfig
+  createAxiosConfig,
+  handleRequestError
 } = require('../../src/middleware/externalRequests')
 
 tap.test('External Requests', {autoend: true}, t => {
@@ -646,5 +647,70 @@ tap.test('External Requests', {autoend: true}, t => {
       t.deepEqual(config.body, body)
       t.end()
     })
+  })
+
+  t.test('handleRequestError()', {autoend: true}, t => {
+    t.test('should return the error when there is a connection error', t => {
+      const ctx = {
+        body: {}
+      }
+      const request = {}
+      const err = {
+        message: 'ECONREFUSED'
+      }
+
+      const result = handleRequestError(ctx, request, err)
+
+      t.deepEqual(result.error, err)
+      t.end()
+    })
+
+    t.test(
+      'should set the property "primaryReqFailError" when response status is 500',
+      t => {
+        const ctx = {
+          body: {}
+        }
+        const request = {
+          primary: true
+        }
+        const err = {
+          response: {
+            data: {message: 'Internal Server Error'},
+            status: 500
+          }
+        }
+
+        const result = handleRequestError(ctx, request, err)
+
+        t.deepEqual(result.response.body, err.response.data)
+        t.equals(ctx.primaryReqFailError, true)
+        t.end()
+      }
+    )
+
+    t.test(
+      'should set the property "primaryCompleted" on ctx when response status is not 2xx and 5xx',
+      t => {
+        const ctx = {
+          body: {}
+        }
+        const request = {
+          primary: true
+        }
+        const err = {
+          response: {
+            data: {message: 'Bad request'},
+            status: 400
+          }
+        }
+
+        const result = handleRequestError(ctx, request, err)
+
+        t.deepEqual(result.response.body, err.response.data)
+        t.equals(ctx.primaryCompleted, true)
+        t.end()
+      }
+    )
   })
 })
