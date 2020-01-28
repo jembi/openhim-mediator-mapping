@@ -4,6 +4,25 @@ const axios = require('axios')
 
 const logger = require('../logger')
 
+const validateRequestStatusCode = allowedStatuses => {
+  const stringStatuses = allowedStatuses.map(status => {
+    return String(status)
+  })
+  return status => {
+    if (stringStatuses.includes(String(status))) {
+      return true
+    } else {
+      for (let wildCardStatus of stringStatuses) {
+        const validRange = wildCardStatus.match(/.+?(?=xx)/g)
+        if (validRange && String(status).substring(0, 1) == validRange[0]) {
+          return true
+        }
+      }
+    }
+    return false
+  }
+}
+
 const performRequests = requests => {
   return requests.map(requestDetails => {
     return axios(prepareRequestConfig(requestDetails))
@@ -56,6 +75,14 @@ const prepareRequestConfig = requestDetails => {
   const requestOptions = Object.assign({}, requestDetails.config)
   // This step is separated out as in future the URL contained within the config
   // can be manipulated to add URL parameters taken from the body of an incoming request
+  if (
+    requestDetails.allowedStatuses &&
+    requestDetails.allowedStatuses.length > 0
+  ) {
+    requestOptions.validateStatus = validateRequestStatusCode(
+      requestDetails.allowedStatuses
+    )
+  }
   return requestOptions
 }
 

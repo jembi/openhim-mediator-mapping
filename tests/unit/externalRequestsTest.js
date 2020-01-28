@@ -130,4 +130,25 @@ tap.test('External Requests Middleware', {autoend: true}, t => {
       }
     )
   })
+
+  t.test('validateStatus', {autoend: true}, t => {
+    t.test('should resolve wildcard status', t => {
+      t.plan(4)
+
+      // Example wildcard for 200 range
+      const allowedStatuses = ['2xx', 403]
+
+      const validateStatus = externalRequests.__get__(
+        'validateRequestStatusCode'
+      )
+
+      // The validate status function returns a function that
+      // can be used to apply different rules from within the axios config
+      const statusValidator = validateStatus(allowedStatuses)
+      t.ok(statusValidator(200))
+      t.ok(statusValidator(299))
+      t.ok(statusValidator(403))
+      t.notOk(statusValidator(300))
+    })
+  })
 })
