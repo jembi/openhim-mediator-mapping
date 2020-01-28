@@ -89,13 +89,20 @@ const orchestrateMappingResult = async ctx => {
         ctx.orchestrations = []
       }
 
-      const promises = requests.response.map(request => {
-        if (request && request.url && request.method && request.id) {
-          const body = ctx.body
-          const axiosConfig = createAxiosConfig(request, body)
+      // Empty the koa response body. It contains the mapped data that is to be sent out
+      ctx.body = {}
+      const body = ctx.body
 
-          // Empty the request body. It contains the mapped data
-          ctx.body = {}
+      const promises = requests.response.map(request => {
+        if (
+          request &&
+          request.config &&
+          request.config.url &&
+          request.config.method &&
+          request.id
+        ) {
+          const axiosConfig = prepareRequestConfig(request, body)
+
           return sendMappedObject(ctx, axiosConfig, request, body)
         }
       })

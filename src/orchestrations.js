@@ -15,15 +15,15 @@ exports.createOrchestration = (
     )
 
   let urlObject
-  if (request.url) {
-    urlObject = new URL(request.url)
+  if (request.config.url) {
+    urlObject = new URL(request.config.url)
   }
 
   const requestObject = {
     host: urlObject.hostname ? urlObject.hostname : '',
     port: urlObject.port ? urlObject.port : '',
     path: urlObject.pathname ? urlObject.pathname : '',
-    method: request.method ? request.method : '',
+    method: request.config.method ? request.config.method : '',
     timestamp: reqTimestamp
   }
 

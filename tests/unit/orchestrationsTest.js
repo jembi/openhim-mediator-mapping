@@ -8,8 +8,10 @@ tap.test('createOrchestrations()', {autoend: true}, t => {
     t.plan(1)
 
     const request = {
-      url: 'http://localhost',
-      method: 'PUT',
+      config: {
+        url: 'http://localhost',
+        method: 'PUT'
+      },
       id: '1232'
     }
     const reqTimestamp = null
@@ -29,8 +31,10 @@ tap.test('createOrchestrations()', {autoend: true}, t => {
     t.plan(1)
 
     const request = {
-      url: 'http://localhost',
-      method: 'PUT',
+      config: {
+        url: 'http://localhost',
+        method: 'PUT'
+      },
       id: null
     }
     const reqTimestamp = Date.now()
@@ -49,8 +53,10 @@ tap.test('createOrchestrations()', {autoend: true}, t => {
   t.test('should create orchestration', t => {
     const headers = {'Content-Type': 'application/json'}
     const request = {
-      url: 'http://localhost:8000/patient/?name=brainman',
-      method: 'PUT',
+      config: {
+        url: 'http://localhost:8000/patient/?name=brainman',
+        method: 'PUT'
+      },
       id: 'Patient',
       headers
     }

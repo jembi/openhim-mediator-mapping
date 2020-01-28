@@ -106,14 +106,18 @@ tap.test('External Requests', {autoend: true}, t => {
               requests: {
                 response: [
                   {
-                    url: url,
-                    method: method,
+                    config: {
+                      url: url,
+                      method: method
+                    },
                     id: id,
                     primary: true
                   },
                   {
-                    url: url2,
-                    method: method,
+                    config: {
+                      url: url2,
+                      method: method
+                    },
                     id: id
                   }
                 ]
@@ -157,8 +161,10 @@ tap.test('External Requests', {autoend: true}, t => {
               requests: {
                 response: [
                   {
-                    url: `${url}patient?name=raze`,
-                    method: method,
+                    config: {
+                      url: `${url}patient?name=raze`,
+                      method: method
+                    },
                     id: id,
                     primary: true
                   }
@@ -213,8 +219,10 @@ tap.test('External Requests', {autoend: true}, t => {
               requests: {
                 response: [
                   {
-                    url: `${url}patient?name=raze`,
-                    method: method,
+                    config: {
+                      url: `${url}patient?name=raze`,
+                      method: method
+                    },
                     id: id,
                     primary: true
                   }
@@ -265,8 +273,10 @@ tap.test('External Requests', {autoend: true}, t => {
               requests: {
                 response: [
                   {
-                    url: `${url}patient?name=raze`,
-                    method: method,
+                    config: {
+                      url: `${url}patient?name=raze`,
+                      method: method
+                    },
                     id: id,
                     primary: true
                   }
@@ -318,14 +328,18 @@ tap.test('External Requests', {autoend: true}, t => {
               requests: {
                 response: [
                   {
-                    url: `${url}patient?name=raze`,
-                    method: method,
+                    config: {
+                      url: `${url}patient?name=raze`,
+                      method: method
+                    },
                     id: id,
                     primary: true
                   },
                   {
-                    url: `${url}resource?name=raze`,
-                    method: method,
+                    config: {
+                      url: `${url}resource?name=raze`,
+                      method: method
+                    },
                     id: id
                   }
                 ]
