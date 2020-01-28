@@ -2,7 +2,7 @@
 
 const axios = require('axios')
 const logger = require('../logger')
-const {createOrchestration} = require('../orchestrations')
+const {createOrchestration, setStatusText} = require('../orchestrations')
 const {constructOpenhimResponse} = require('../openhim')
 
 const performRequests = requests => {
@@ -235,20 +235,4 @@ const sendMappedObject = (ctx, axiosConfig, request, body) => {
         ctx.orchestrations.push(orch)
       }
     })
-}
-
-const setStatusText = ctx => {
-  if (ctx.primaryReqFailError) {
-    ctx.statusText = 'Failed'
-  } else if (!ctx.primaryReqFailError && ctx.secondaryFailError) {
-    ctx.statusText = 'Completed with error(s)'
-  } else if (
-    !ctx.primaryReqFailError &&
-    !ctx.secondaryFailError &&
-    (ctx.primaryCompleted || ctx.secondaryCompleted)
-  ) {
-    ctx.statusText = 'Completed'
-  } else {
-    ctx.statusText = 'Successful'
-  }
 }

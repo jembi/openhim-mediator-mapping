@@ -62,3 +62,19 @@ exports.createOrchestration = (
 
   return orchestration
 }
+
+exports.setStatusText = ctx => {
+  if (ctx.primaryReqFailError) {
+    ctx.statusText = 'Failed'
+  } else if (!ctx.primaryReqFailError && ctx.secondaryFailError) {
+    ctx.statusText = 'Completed with error(s)'
+  } else if (
+    !ctx.primaryReqFailError &&
+    !ctx.secondaryFailError &&
+    (ctx.primaryCompleted || ctx.secondaryCompleted)
+  ) {
+    ctx.statusText = 'Completed'
+  } else {
+    ctx.statusText = 'Successful'
+  }
+}

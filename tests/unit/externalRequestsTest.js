@@ -5,7 +5,6 @@ const rewire = require('rewire')
 const nock = require('nock')
 const myModule = rewire('../../src/middleware/externalRequests')
 const orchestrateMappingResult = myModule.__get__('orchestrateMappingResult')
-const setStatusText = myModule.__get__('setStatusText')
 const setKoaResponseBody = myModule.__get__('setKoaResponseBody')
 const setKoaResponseBodyFromPrimary = myModule.__get__(
   'setKoaResponseBodyFromPrimary'
@@ -374,50 +373,6 @@ tap.test('External Requests', {autoend: true}, t => {
         t.end()
       }
     )
-  })
-
-  t.test('setStatusText()', {autoend: true}, t => {
-    t.test('should set the status to Failed', t => {
-      const ctx = {
-        primaryReqFailError: true
-      }
-
-      setStatusText(ctx)
-
-      t.equals(ctx.statusText, 'Failed')
-      t.end()
-    })
-
-    t.test('should set the status to Completed with error(s)', t => {
-      const ctx = {
-        secondaryFailError: true
-      }
-
-      setStatusText(ctx)
-
-      t.equals(ctx.statusText, 'Completed with error(s)')
-      t.end()
-    })
-
-    t.test('should set the status to Completed', t => {
-      const ctx = {
-        primaryCompleted: true
-      }
-
-      setStatusText(ctx)
-
-      t.equals(ctx.statusText, 'Completed')
-      t.end()
-    })
-
-    t.test('should set the status to Successful', t => {
-      const ctx = {}
-
-      setStatusText(ctx)
-
-      t.equals(ctx.statusText, 'Successful')
-      t.end()
-    })
   })
 
   t.test('setKoaResponseBody()', {autoend: true}, t => {

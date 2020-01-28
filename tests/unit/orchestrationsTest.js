@@ -1,7 +1,7 @@
 'use strict'
 
 const tap = require('tap')
-const {createOrchestration} = require('../../src/orchestrations')
+const {createOrchestration, setStatusText} = require('../../src/orchestrations')
 
 tap.test('createOrchestrations()', {autoend: true}, t => {
   t.test("should fail when request's timestamp is falsy", t => {
@@ -109,5 +109,49 @@ tap.test('createOrchestrations()', {autoend: true}, t => {
 
     t.deepEqual(expectedOrch, orchestration)
     t.end()
+  })
+
+  t.test('setStatusText()', {autoend: true}, t => {
+    t.test('should set the status to Failed', t => {
+      const ctx = {
+        primaryReqFailError: true
+      }
+
+      setStatusText(ctx)
+
+      t.equals(ctx.statusText, 'Failed')
+      t.end()
+    })
+
+    t.test('should set the status to Completed with error(s)', t => {
+      const ctx = {
+        secondaryFailError: true
+      }
+
+      setStatusText(ctx)
+
+      t.equals(ctx.statusText, 'Completed with error(s)')
+      t.end()
+    })
+
+    t.test('should set the status to Completed', t => {
+      const ctx = {
+        primaryCompleted: true
+      }
+
+      setStatusText(ctx)
+
+      t.equals(ctx.statusText, 'Completed')
+      t.end()
+    })
+
+    t.test('should set the status to Successful', t => {
+      const ctx = {}
+
+      setStatusText(ctx)
+
+      t.equals(ctx.statusText, 'Successful')
+      t.end()
+    })
   })
 })
