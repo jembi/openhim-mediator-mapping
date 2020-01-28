@@ -38,15 +38,11 @@ tap.test('External Requests Middleware', {autoend: true}, t => {
         'prepareLookupRequests'
       )
 
-      prepareLookupRequests(ctx)
-        .then(() => {
-          t.error('Should not reach here')
-        })
-        .catch(err => {
-          performRequestsStub()
-          t.type(err, Error)
-          t.equal(err.message, 'Rejected Promise: Fail')
-        })
+      prepareLookupRequests(ctx).catch(err => {
+        performRequestsStub()
+        t.type(err, Error)
+        t.equal(err.message, 'Rejected Promise: Fail')
+      })
     })
 
     t.test(
@@ -85,14 +81,10 @@ tap.test('External Requests Middleware', {autoend: true}, t => {
           'prepareLookupRequests'
         )
 
-        prepareLookupRequests(ctx)
-          .then(() => {
-            t.same({test1: 'testA', test2: 'testB'}, ctx.lookupRequests)
-            performRequestsStub()
-          })
-          .catch(() => {
-            t.error('Should not reach here')
-          })
+        prepareLookupRequests(ctx).then(() => {
+          t.same({test1: 'testA', test2: 'testB'}, ctx.lookupRequests)
+          performRequestsStub()
+        })
       }
     )
 
