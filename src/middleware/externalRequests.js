@@ -222,7 +222,7 @@ const sendMappedObject = (ctx, axiosConfig, request, body) => {
     })
     .finally(() => {
       if (ctx.request.header && ctx.request.header['X-OpenHIM-TransactionID']) {
-        const orch = createOrchestration(
+        const orchestration = createOrchestration(
           request,
           body,
           response,
@@ -232,7 +232,7 @@ const sendMappedObject = (ctx, axiosConfig, request, body) => {
           error
         )
 
-        ctx.orchestrations.push(orch)
+        ctx.orchestrations.push(orchestration)
       }
     })
 }
