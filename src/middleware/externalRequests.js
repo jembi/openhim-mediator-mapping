@@ -57,8 +57,8 @@ const prepareLookupRequests = ctx => {
 const prepareRequestConfig = (requestDetails, requestBody) => {
   const body = {}
 
-  if (!requestBody) {
-    body.body = requestBody
+  if (requestBody) {
+    body.data = requestBody
   }
 
   const requestOptions = Object.assign({}, requestDetails.config, body)
@@ -90,8 +90,8 @@ const orchestrateMappingResult = async ctx => {
       }
 
       // Empty the koa response body. It contains the mapped data that is to be sent out
-      ctx.body = {}
       const body = ctx.body
+      ctx.body = {}
 
       const promises = requests.response.map(request => {
         if (
