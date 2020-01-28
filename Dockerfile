@@ -1,13 +1,13 @@
-FROM node:dubnium-alpine
+FROM node:erbium-alpine
 
 WORKDIR /app
 
-COPY package.json package-lock.json ./
+COPY package.json yarn.lock ./
 
-RUN npm install
+RUN yarn
 
 COPY . .
 
-CMD ["npm", "start"]
+CMD ["yarn", "start"]
 
 EXPOSE 3003

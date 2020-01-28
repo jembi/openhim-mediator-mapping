@@ -62,6 +62,15 @@ const setUpRoutes = router => {
   )
 
   routeDirectories.forEach(directory => {
+    if (
+      fs
+        .statSync(path.resolve(__dirname, '..', 'endpoints', directory))
+        .isFile()
+    ) {
+      // If the item with the endpoints directory is a file ignore it.
+      return
+    }
+
     try {
       const metaData = validateAndLoadFile(directory, inputMeta, true)
       const validationMap = validateAndLoadFile(
