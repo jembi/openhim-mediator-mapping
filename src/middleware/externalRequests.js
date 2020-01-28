@@ -195,31 +195,6 @@ const setKoaResponseBody = (ctx, request, body) => {
   }
 }
 
-const createAxiosConfig = (request, body) => {
-  const axiosConfig = {
-    url: request.url,
-    method: request.method,
-    body: body
-  }
-
-  if (
-    request.credentials &&
-    request.credentials.username &&
-    request.credentials.password
-  ) {
-    axiosConfig.auth = {
-      username: request.credentials.username,
-      password: request.credentials.password
-    }
-  }
-
-  if (request.headers) {
-    axiosConfig.headers = request.headers
-  }
-
-  return axiosConfig
-}
-
 const sendMappedObject = (ctx, axiosConfig, request, body) => {
   const reqTimestamp = new Date()
   let response, error, responseTimestamp
