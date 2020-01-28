@@ -4,7 +4,7 @@ const axios = require('axios')
 
 const logger = require('../logger')
 
-const validateStatus = allowedStatuses => {
+const validateRequestStatusCode = allowedStatuses => {
   const stringStatuses = allowedStatuses.map(status => {
     return String(status)
   })
@@ -79,7 +79,7 @@ const prepareRequestConfig = requestDetails => {
     requestDetails.allowedStatuses &&
     requestDetails.allowedStatuses.length > 0
   ) {
-    requestOptions.validateStatus = validateStatus(
+    requestOptions.validateStatus = validateRequestStatusCode(
       requestDetails.allowedStatuses
     )
   }
