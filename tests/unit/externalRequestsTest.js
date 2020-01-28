@@ -1,15 +1,17 @@
 'use strict'
 
 const tap = require('tap')
+const rewire = require('rewire')
 const nock = require('nock')
-const {
-  orchestrateMappingResult,
-  setStatusText,
-  setKoaResponseBody,
-  setKoaResponseBodyFromPrimary,
-  createAxiosConfig,
-  handleRequestError
-} = require('../../src/middleware/externalRequests')
+const myModule = rewire('../../src/middleware/externalRequests')
+const orchestrateMappingResult = myModule.__get__('orchestrateMappingResult')
+const setStatusText = myModule.__get__('setStatusText')
+const setKoaResponseBody = myModule.__get__('setKoaResponseBody')
+const setKoaResponseBodyFromPrimary = myModule.__get__(
+  'setKoaResponseBodyFromPrimary'
+)
+const createAxiosConfig = myModule.__get__('createAxiosConfig')
+const handleRequestError = myModule.__get__('handleRequestError')
 
 tap.test('External Requests', {autoend: true}, t => {
   t.test('orchestrateMappingResult', {autoend: true}, t => {

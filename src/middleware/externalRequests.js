@@ -265,12 +265,12 @@ const setStatusText = ctx => {
   }
 }
 
-if (process.env.NODE_ENV === 'test') {
-  exports.orchestrateMappingResult = orchestrateMappingResult
-  exports.setStatusText = setStatusText
-  exports.prepareRequestConfig = prepareRequestConfig
-  exports.setKoaResponseBody = setKoaResponseBody
-  exports.setKoaResponseBodyFromPrimary = setKoaResponseBodyFromPrimary
-  exports.createAxiosConfig = createAxiosConfig
-  exports.handleRequestError = handleRequestError
-}
+// if (process.env.NODE_ENV === 'test') {
+//   exports.orchestrateMappingResult = orchestrateMappingResult
+//   exports.setStatusText = setStatusText
+//   exports.prepareRequestConfig = prepareRequestConfig
+//   exports.setKoaResponseBody = setKoaResponseBody
+//   exports.setKoaResponseBodyFromPrimary = setKoaResponseBodyFromPrimary
+//   exports.createAxiosConfig = createAxiosConfig
+//   exports.handleRequestError = handleRequestError
+// }
