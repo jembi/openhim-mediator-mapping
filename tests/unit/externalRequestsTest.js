@@ -44,8 +44,8 @@ tap.test('External Requests Middleware', {autoend: true}, t => {
         })
         .catch(err => {
           performRequestsStub()
-          t.throws(err, 'Error should be thrown when a promise rejects')
-          t.same(err.message, 'Rejected Promise: Fail')
+          t.type(err, Error)
+          t.equal(err.message, 'Rejected Promise: Fail')
         })
     })
 
