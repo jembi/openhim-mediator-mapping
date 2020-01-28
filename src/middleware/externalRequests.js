@@ -54,8 +54,14 @@ const prepareLookupRequests = ctx => {
   }
 }
 
-const prepareRequestConfig = requestDetails => {
-  const requestOptions = Object.assign({}, requestDetails.config)
+const prepareRequestConfig = (requestDetails, requestBody) => {
+  const body = {}
+
+  if (!requestBody) {
+    body.body = requestBody
+  }
+
+  const requestOptions = Object.assign({}, requestDetails.config, body)
   // This step is separated out as in future the URL contained within the config
   // can be manipulated to add URL parameters taken from the body of an incoming request
   return requestOptions
