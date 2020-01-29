@@ -24,10 +24,24 @@ const validateRequestStatusCode = allowedStatuses => {
   }
 }
 
-const performRequests = requests => {
+const performRequests = (requests, ctx) => {
+  if (ctx && !ctx.orchestrations) {
+    ctx.orchestrations = []
+  }
+
   return requests.map(requestDetails => {
+    const reqTimestamp = new Date()
+    let responseTimestamp, error, response
+
+    // No body is sent out for now
+    const body = null
+
     return axios(prepareRequestConfig(requestDetails))
       .then(res => {
+        response = res
+        response.body = res.data
+        responseTimestamp = new Date()
+
         // Assign any data received from the response to the assigned id in the context
         return {[requestDetails.id]: res.data}
       })
@@ -48,13 +62,32 @@ const performRequests = requests => {
           throw new Error(`Unhandled Error: ${error.message}`)
         }
       })
+      .finally(() => {
+        // For now these orchestrations are recorded when only when there no failures
+        if (
+          ctx.request.header &&
+          ctx.request.header['x-openhim-transactionid']
+        ) {
+          const orchestration = createOrchestration(
+            requestDetails,
+            body,
+            response,
+            reqTimestamp,
+            responseTimestamp,
+            requestDetails.id,
+            error
+          )
+
+          ctx.orchestrations.push(orchestration)
+        }
+      })
   })
 }
 
 const prepareLookupRequests = ctx => {
   const requests = Object.assign({}, ctx.state.metaData.requests)
   if (requests.lookup && requests.lookup.length > 0) {
-    const responseData = performRequests(requests.lookup)
+    const responseData = performRequests(requests.lookup, ctx)
 
     return Promise.all(responseData)
       .then(data => {
