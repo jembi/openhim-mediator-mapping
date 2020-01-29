@@ -117,8 +117,8 @@ const orchestrateMappingResult = async ctx => {
         })
 
       // Respond in openhim mediator format if request came from the openhim
-      if (ctx.request.header && ctx.request.header['X-OpenHIM-TransactionID']) {
-        ctx.set('Content-Type', 'application/json+openhim')
+      if (ctx.request.header && ctx.request.header['x-openhim-transactionid']) {
+        ctx.response.type = 'application/json+openhim'
         const date = new Date()
 
         constructOpenhimResponse(ctx, date)
@@ -221,7 +221,7 @@ const sendMappedObject = (ctx, axiosConfig, request, body) => {
       error = result.error
     })
     .finally(() => {
-      if (ctx.request.header && ctx.request.header['X-OpenHIM-TransactionID']) {
+      if (ctx.request.header && ctx.request.header['x-openhim-transactionid']) {
         const orchestration = createOrchestration(
           request,
           body,
