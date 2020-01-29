@@ -126,7 +126,7 @@ tap.test('External Requests', {autoend: true}, t => {
           },
           request: {
             header: {
-              'X-OpenHIM-TransactionID': '1232244'
+              'x-openhim-transactionid': '1232244'
             }
           },
           response: {
@@ -174,7 +174,7 @@ tap.test('External Requests', {autoend: true}, t => {
           },
           request: {
             header: {
-              'X-OpenHIM-TransactionID': '1232244'
+              'x-openhim-transactionid': '1232244'
             }
           },
           response: {
@@ -197,7 +197,10 @@ tap.test('External Requests', {autoend: true}, t => {
         await orchestrateMappingResult(ctx)
 
         t.equals(ctx.orchestrations.length, 1)
-        t.deepEqual(ctx.orchestrations[0].response.body, response)
+        t.deepEqual(
+          ctx.orchestrations[0].response.body,
+          JSON.stringify(response)
+        )
 
         // The response statusText should be set to Successful
         t.match(ctx.body, /Successful/)
@@ -367,7 +370,7 @@ tap.test('External Requests', {autoend: true}, t => {
             },
             request: {
               header: {
-                'X-OpenHIM-TransactionID': '1232244'
+                'x-openhim-transactionid': '1232244'
               }
             },
             response: {
@@ -429,7 +432,7 @@ tap.test('External Requests', {autoend: true}, t => {
             },
             request: {
               header: {
-                'X-OpenHIM-TransactionID': '1232244'
+                'x-openhim-transactionid': '1232244'
               }
             },
             response: {

@@ -28,7 +28,12 @@ tap.test('constructOpenhimResponse()', {autoend: true}, t => {
     const orchestrations = [
       {
         request,
-        response,
+        response: {
+          headers,
+          status,
+          body: JSON.stringify(body),
+          timestamp
+        },
         name: 'Patient'
       }
     ]
@@ -42,7 +47,12 @@ tap.test('constructOpenhimResponse()', {autoend: true}, t => {
     const expectedResponse = {
       'x-mediator-urn': 'urn:mediator:generic_mapper',
       status: statusText,
-      response: response,
+      response: {
+        headers,
+        status,
+        body: JSON.stringify(body),
+        timestamp
+      },
       orchestrations: orchestrations
     }
 

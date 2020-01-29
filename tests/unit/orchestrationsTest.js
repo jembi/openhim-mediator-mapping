@@ -83,16 +83,16 @@ tap.test('createOrchestrations()', {autoend: true}, t => {
         method: 'PUT',
         queryString: 'name=brainman',
         headers,
-        body: requestBody
+        body: JSON.stringify(requestBody)
       },
       response: {
         timestamp: responseTimestamp,
         status: 200,
         headers: headers,
-        body: {
+        body: JSON.stringify({
           name: 'brainman',
           surname: 'raze'
-        }
+        })
       },
       name
     }
