@@ -15,15 +15,16 @@ exports.createOrchestration = (
     )
 
   let urlObject
-  if (request.config.url) {
+  if (request && request.config && request.config.url) {
     urlObject = new URL(request.config.url)
   }
 
   const requestObject = {
-    host: urlObject.hostname ? urlObject.hostname : '',
-    port: urlObject.port ? urlObject.port : '',
-    path: urlObject.pathname ? urlObject.pathname : '',
-    method: request.config.method ? request.config.method : '',
+    host: urlObject && urlObject.hostname ? urlObject.hostname : '',
+    port: urlObject && urlObject.port ? urlObject.port : '',
+    path: urlObject && urlObject.pathname ? urlObject.pathname : '',
+    method:
+      request.config && request.config.method ? request.config.method : '',
     timestamp: reqTimestamp
   }
 
@@ -31,20 +32,24 @@ exports.createOrchestration = (
     timestamp: responseTimestamp
   }
 
-  if (urlObject.searchParams) {
+  if (urlObject && urlObject.searchParams) {
     requestObject.queryString = urlObject.searchParams.toString()
   }
   if (request.headers) {
     requestObject.headers = request.headers
   }
   if (reqBody) {
-    requestObject.body = JSON.stringify(reqBody)
+    requestObject.body =
+      typeof reqBody === 'string' ? reqBody : JSON.stringify(reqBody)
   }
   if (responseObject && responseObject.status) {
     response.status = responseObject.status
   }
   if (responseObject && responseObject.body) {
-    response.body = JSON.stringify(responseObject.body)
+    response.body =
+      typeof responseObject.body === 'string'
+        ? responseObject.body
+        : JSON.stringify(responseObject.body)
   }
   if (responseObject && responseObject.headers) {
     response.headers = responseObject.headers
