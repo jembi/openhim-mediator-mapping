@@ -5,6 +5,25 @@ const logger = require('../logger')
 const {createOrchestration, setStatusText} = require('../orchestrations')
 const {constructOpenhimResponse} = require('../openhim')
 
+const validateRequestStatusCode = allowedStatuses => {
+  const stringStatuses = allowedStatuses.map(status => {
+    return String(status)
+  })
+  return status => {
+    if (stringStatuses.includes(String(status))) {
+      return true
+    } else {
+      for (let wildCardStatus of stringStatuses) {
+        const validRange = wildCardStatus.match(/.+?(?=xx)/g)
+        if (validRange && String(status).substring(0, 1) == validRange[0]) {
+          return true
+        }
+      }
+    }
+    return false
+  }
+}
+
 const performRequests = requests => {
   return requests.map(requestDetails => {
     return axios(prepareRequestConfig(requestDetails))
@@ -34,7 +53,7 @@ const performRequests = requests => {
 
 const prepareLookupRequests = ctx => {
   const requests = Object.assign({}, ctx.state.metaData.requests)
-  if (requests && requests.lookup && requests.lookup.length > 0) {
+  if (requests.lookup && requests.lookup.length > 0) {
     const responseData = performRequests(requests.lookup)
 
     return Promise.all(responseData)
@@ -42,16 +61,15 @@ const prepareLookupRequests = ctx => {
         logger.info(
           `${ctx.state.metaData.name} (${ctx.state.uuid}): Successfully performed request/s`
         )
-        ctx.externalRequests = Object.assign({}, ...data)
+        ctx.lookupRequests = Object.assign({}, ...data)
       })
       .catch(err => {
         throw new Error(`Rejected Promise: ${err}`)
       })
-  } else {
-    logger.debug(
-      `${ctx.state.metaData.name} (${ctx.state.uuid}): No request/s to make`
-    )
   }
+  logger.debug(
+    `${ctx.state.metaData.name} (${ctx.state.uuid}): No request/s to make`
+  )
 }
 
 const prepareRequestConfig = (requestDetails, requestBody) => {
@@ -64,6 +82,14 @@ const prepareRequestConfig = (requestDetails, requestBody) => {
   const requestOptions = Object.assign({}, requestDetails.config, body)
   // This step is separated out as in future the URL contained within the config
   // can be manipulated to add URL parameters taken from the body of an incoming request
+  if (
+    requestDetails.allowedStatuses &&
+    requestDetails.allowedStatuses.length > 0
+  ) {
+    requestOptions.validateStatus = validateRequestStatusCode(
+      requestDetails.allowedStatuses
+    )
+  }
   return requestOptions
 }
 

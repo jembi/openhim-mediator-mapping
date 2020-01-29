@@ -30,31 +30,32 @@ const metaFileContent = {
 const inputValidationFileContent = {
   type: 'object',
   properties: {
-    name: {
-      type: 'string'
-    },
-    surname: {
-      type: 'string'
-    },
-    attributes: {
-      type: 'array',
-      items: {
-        type: 'string'
-      }
+    requestBody: {
+      type: 'object',
+      properties: {
+        name: {
+          type: 'string'
+        },
+        surname: {
+          type: 'string'
+        },
+        attributes: {
+          type: 'array',
+          items: {
+            type: 'string'
+          }
+        }
+      },
+      required: ['name']
     }
-  },
-  required: ['name']
+  }
 }
 
 const inputMappingFileContent = {
-  input: {
-    name: 'firstName',
-    surname: 'lastName',
-    attributes: 'character'
-  },
-  constants: {
-    resourceType: 'resourceType'
-  }
+  'constants.resourceType': 'resourceType',
+  'requestBody.name': 'firstName',
+  'requestBody.surname': 'lastName',
+  'requestBody.attributes': 'character'
 }
 
 const inputConstantsFileContent = {

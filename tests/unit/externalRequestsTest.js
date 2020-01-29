@@ -3,13 +3,15 @@
 const tap = require('tap')
 const rewire = require('rewire')
 const nock = require('nock')
-const myModule = rewire('../../src/middleware/externalRequests')
-const orchestrateMappingResult = myModule.__get__('orchestrateMappingResult')
-const setKoaResponseBody = myModule.__get__('setKoaResponseBody')
-const setKoaResponseBodyFromPrimary = myModule.__get__(
+const externalRequests = rewire('../../src/middleware/externalRequests')
+const orchestrateMappingResult = externalRequests.__get__(
+  'orchestrateMappingResult'
+)
+const setKoaResponseBody = externalRequests.__get__('setKoaResponseBody')
+const setKoaResponseBodyFromPrimary = externalRequests.__get__(
   'setKoaResponseBodyFromPrimary'
 )
-const handleRequestError = myModule.__get__('handleRequestError')
+const handleRequestError = externalRequests.__get__('handleRequestError')
 
 tap.test('External Requests', {autoend: true}, t => {
   t.test('orchestrateMappingResult', {autoend: true}, t => {
@@ -257,119 +259,234 @@ tap.test('External Requests', {autoend: true}, t => {
       }
     )
 
-    t.test(
-      "should send requests and set the response body's statusText to Completed",
-      async t => {
-        const url = 'http://localhost:8000/'
-        const method = 'PUT'
-        const id = 'Patient'
+    t.test('prepareLookupRequests', {autoend: true}, t => {
+      t.test('should throw an error if any promise in the array fails', t => {
+        t.plan(2)
+
+        const performRequestsStub = externalRequests.__set__(
+          'performRequests',
+          () => [Promise.resolve('Success'), Promise.reject('Fail')]
+        )
 
         const ctx = {
-          status: 200,
           state: {
+            uuid: 'randomUidForRequest',
             metaData: {
+              name: 'Testing endpoint',
               requests: {
-                response: [
+                lookup: [
                   {
-                    config: {
-                      url: `${url}patient?name=raze`,
-                      method: method
-                    },
-                    id: id,
-                    primary: true
-                  }
-                ]
-              }
-            }
-          },
-          request: {
-            header: {
-              'X-OpenHIM-TransactionID': '1232244'
-            }
-          },
-          response: {
-            headers: {}
-          },
-          body: {
-            surname: 'breez'
-          },
-          set: (key, value) => {
-            ctx.response.headers[key] = value
-          }
-        }
-
-        const response = {name: 'raze', surname: 'breez'}
-
-        nock(url)
-          .put('/patient?name=raze')
-          .reply(400, response)
-
-        await orchestrateMappingResult(ctx)
-
-        t.equals(ctx.orchestrations.length, 1)
-        t.match(ctx.body, /Completed/)
-        t.end()
-      }
-    )
-
-    t.test(
-      "should set the response body's statusText to 'Completed with error(s)' (error on non primary request",
-      async t => {
-        const url = 'http://localhost:8000/'
-        const method = 'PUT'
-        const id = 'Patient'
-
-        const ctx = {
-          status: 200,
-          state: {
-            metaData: {
-              requests: {
-                response: [
-                  {
-                    config: {
-                      url: `${url}patient?name=raze`,
-                      method: method
-                    },
-                    id: id,
-                    primary: true
+                    // first lookup request config - responds with success
                   },
                   {
-                    config: {
-                      url: `${url}resource?name=raze`,
-                      method: method
-                    },
-                    id: id
+                    // second lookup request config - responds with fail
                   }
                 ]
               }
             }
-          },
-          request: {
-            header: {
-              'X-OpenHIM-TransactionID': '1232244'
-            }
-          },
-          response: {
-            headers: {}
-          },
-          body: {
-            surname: 'breez'
-          },
-          set: (key, value) => {
-            ctx.response.headers[key] = value
           }
         }
 
-        const response = {name: 'raze', surname: 'breez'}
+        const prepareLookupRequests = externalRequests.__get__(
+          'prepareLookupRequests'
+        )
 
-        nock(url)
-          .put('/patient?name=raze')
-          .reply(200, response)
+        prepareLookupRequests(ctx).catch(err => {
+          performRequestsStub()
+          t.type(err, Error)
+          t.equal(err.message, 'Rejected Promise: Fail')
+        })
+      })
 
-        await orchestrateMappingResult(ctx)
+      t.test(
+        'should add response data to the ctx when all promises resolve',
+        t => {
+          t.plan(1)
 
-        t.equals(ctx.orchestrations.length, 2)
-        t.match(ctx.body, /Completed with error/)
+          const performRequestsStub = externalRequests.__set__(
+            'performRequests',
+            () => [
+              Promise.resolve({test1: 'testA'}),
+              Promise.resolve({test2: 'testB'})
+            ]
+          )
+
+          const ctx = {
+            state: {
+              uuid: 'randomUidForRequest',
+              metaData: {
+                name: 'Testing endpoint',
+                requests: {
+                  lookup: [
+                    {
+                      // first lookup request config - responds with success
+                    },
+                    {
+                      // second lookup request config - responds with success
+                    }
+                  ]
+                }
+              }
+            }
+          }
+
+          const prepareLookupRequests = externalRequests.__get__(
+            'prepareLookupRequests'
+          )
+
+          prepareLookupRequests(ctx).then(() => {
+            t.same({test1: 'testA', test2: 'testB'}, ctx.lookupRequests)
+            performRequestsStub()
+          })
+        }
+      )
+      t.test(
+        "should send requests and set the response body's statusText to Completed",
+        async t => {
+          const url = 'http://localhost:8000/'
+          const method = 'PUT'
+          const id = 'Patient'
+
+          const ctx = {
+            status: 200,
+            state: {
+              metaData: {
+                requests: {
+                  response: [
+                    {
+                      config: {
+                        url: `${url}patient?name=raze`,
+                        method: method
+                      },
+                      id: id,
+                      primary: true
+                    }
+                  ]
+                }
+              }
+            },
+            request: {
+              header: {
+                'X-OpenHIM-TransactionID': '1232244'
+              }
+            },
+            response: {
+              headers: {}
+            },
+            body: {
+              surname: 'breez'
+            },
+            set: (key, value) => {
+              ctx.response.headers[key] = value
+            }
+          }
+
+          const response = {name: 'raze', surname: 'breez'}
+
+          nock(url)
+            .put('/patient?name=raze')
+            .reply(400, response)
+
+          await orchestrateMappingResult(ctx)
+
+          t.equals(ctx.orchestrations.length, 1)
+          t.match(ctx.body, /Completed/)
+          t.end()
+        }
+      )
+
+      t.test(
+        "should set the response body's statusText to 'Completed with error(s)' (error on non primary request",
+        async t => {
+          const url = 'http://localhost:8000/'
+          const method = 'PUT'
+          const id = 'Patient'
+
+          const ctx = {
+            status: 200,
+            state: {
+              metaData: {
+                requests: {
+                  response: [
+                    {
+                      config: {
+                        url: `${url}patient?name=raze`,
+                        method: method
+                      },
+                      id: id,
+                      primary: true
+                    },
+                    {
+                      config: {
+                        url: `${url}resource?name=raze`,
+                        method: method
+                      },
+                      id: id
+                    }
+                  ]
+                }
+              }
+            },
+            request: {
+              header: {
+                'X-OpenHIM-TransactionID': '1232244'
+              }
+            },
+            response: {
+              headers: {}
+            },
+            body: {
+              surname: 'breez'
+            },
+            set: (key, value) => {
+              ctx.response.headers[key] = value
+            }
+          }
+
+          const response = {name: 'raze', surname: 'breez'}
+
+          nock(url)
+            .put('/patient?name=raze')
+            .reply(200, response)
+
+          await orchestrateMappingResult(ctx)
+
+          t.equals(ctx.orchestrations.length, 2)
+          t.match(ctx.body, /Completed with error/)
+          t.end()
+        }
+      )
+    })
+    t.test(
+      'should not reach the request making function is there is no lookup config',
+      t => {
+        let called = false
+        const performRequestsStub = externalRequests.__set__({
+          performRequests: () => {
+            called = true
+          }
+        })
+
+        const ctx = {
+          state: {
+            uuid: 'randomUidForRequest',
+            metaData: {
+              name: 'Testing endpoint',
+              requests: {
+                // no lookup config
+              }
+            }
+          }
+        }
+
+        const prepareLookupRequests = externalRequests.__get__(
+          'prepareLookupRequests'
+        )
+
+        prepareLookupRequests(ctx)
+
+        performRequestsStub()
+        t.equals(called, false, 'performRequestsStub should not be called')
         t.end()
       }
     )
@@ -486,5 +603,25 @@ tap.test('External Requests', {autoend: true}, t => {
         t.end()
       }
     )
+  })
+  t.test('validateStatus', {autoend: true}, t => {
+    t.test('should resolve wildcard status', t => {
+      t.plan(4)
+
+      // Example wildcard for 200 range
+      const allowedStatuses = ['2xx', 403]
+
+      const validateStatus = externalRequests.__get__(
+        'validateRequestStatusCode'
+      )
+
+      // The validate status function returns a function that
+      // can be used to apply different rules from within the axios config
+      const statusValidator = validateStatus(allowedStatuses)
+      t.ok(statusValidator(200))
+      t.ok(statusValidator(299))
+      t.ok(statusValidator(403))
+      t.notOk(statusValidator(300))
+    })
   })
 })

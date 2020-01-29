@@ -77,7 +77,7 @@ tap.test('Parsing Integration Tests', {autoend: true}, t => {
 
           t.equals(
             res.text,
-            '{"error":"IntegrationTest (openhim-unique-tx-id): Validation failed: data should have required property \'name\'"}'
+            '{"error":"IntegrationTest (openhim-unique-tx-id): Validation failed: data.requestBody should have required property \'name\'"}'
           )
           t.end()
         })

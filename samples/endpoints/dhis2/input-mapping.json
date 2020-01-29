@@ -1,0 +1,12 @@
+{
+  "constants.resourceType": "resourceType",
+  "constants.type": "type",
+  "lookupRequests.dhis-orgs[].organisationUnits.displayName": "entry[].resource.name",
+  "lookupRequests.dhis-orgs[].organisationUnits.id": "entry[].resource.identifier[].value",
+  "constants.entry.resourceType": {
+    "key": "entry[].resource.resourceType",
+    "transform": {
+      "function": "oneToAllElements"
+    }
+  }
+}
