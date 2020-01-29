@@ -38,13 +38,13 @@ exports.createOrchestration = (
     requestObject.headers = request.headers
   }
   if (reqBody) {
-    requestObject.body = reqBody
+    requestObject.body = JSON.stringify(reqBody)
   }
   if (responseObject && responseObject.status) {
     response.status = responseObject.status
   }
   if (responseObject && responseObject.body) {
-    response.body = responseObject.body
+    response.body = JSON.stringify(responseObject.body)
   }
   if (responseObject && responseObject.headers) {
     response.headers = responseObject.headers
