@@ -7,7 +7,7 @@
 
 module.exports = {
   someSidebar: {
-    "Getting Started": ['setup', 'endpoints'],
+    'Getting Started': ['setup', 'endpoints'],
     Features: ['validation', 'orchestration', 'transformation'],
     Samples: ['samples/dhis2-lookup', 'samples/bahmni-fhir-transform']
   }

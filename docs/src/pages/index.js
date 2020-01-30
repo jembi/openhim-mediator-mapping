@@ -8,30 +8,30 @@ import styles from './styles.module.css';
 
 const features = [
   {
-    title: <>Validation</>,
+    title: <span>Validation</span>,
     imageUrl: 'img/undraw_docusaurus_mountain.svg',
     description: (
-      <>
+      <span>
         Ensure that your data meets the specified criteria to adhere to your data quality standards
-      </>
+      </span>
     ),
   },
   {
-    title: <>Orchestration</>,
+    title: <span>Orchestration</span>,
     imageUrl: 'img/undraw_docusaurus_tree.svg',
     description: (
-      <>
+      <span>
         Perform various lookups to external services to fetch data required in the final response
-      </>
+      </span>
     ),
   },
   {
-    title: <>Transformation</>,
+    title: <span>Transformation</span>,
     imageUrl: 'img/undraw_docusaurus_react.svg',
     description: (
-      <>
+      <span>
         Define a new data structure to respond with based on the data gathered within your request
-      </>
+      </span>
     ),
   },
 ];
