@@ -126,14 +126,8 @@ const prepareRequestConfig = (requestDetails, requestBody) => {
   return requestOptions
 }
 
-exports.requestsMiddleware = () => async (ctx, next) => {
-  await prepareLookupRequests(ctx)
-  await next()
-  await orchestrateMappingResult(ctx)
-}
-
 // For now only json data is processed
-const orchestrateMappingResult = async ctx => {
+const prepareResponseRequests = async ctx => {
   const requests = ctx.state.metaData.requests
 
   // Send request downstream only when mapping has been successful
@@ -302,4 +296,10 @@ const sendMappedObject = (ctx, axiosConfig, request, body) => {
         ctx.orchestrations.push(orchestration)
       }
     })
+}
+
+exports.requestsMiddleware = () => async (ctx, next) => {
+  await prepareLookupRequests(ctx)
+  await next()
+  await prepareResponseRequests(ctx)
 }

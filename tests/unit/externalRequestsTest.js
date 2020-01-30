@@ -4,8 +4,8 @@ const tap = require('tap')
 const rewire = require('rewire')
 const nock = require('nock')
 const externalRequests = rewire('../../src/middleware/externalRequests')
-const orchestrateMappingResult = externalRequests.__get__(
-  'orchestrateMappingResult'
+const prepareResponseRequests = externalRequests.__get__(
+  'prepareResponseRequests'
 )
 const setKoaResponseBody = externalRequests.__get__('setKoaResponseBody')
 const setKoaResponseBodyFromPrimary = externalRequests.__get__(
@@ -14,7 +14,7 @@ const setKoaResponseBodyFromPrimary = externalRequests.__get__(
 const handleRequestError = externalRequests.__get__('handleRequestError')
 
 tap.test('External Requests', {autoend: true}, t => {
-  t.test('orchestrateMappingResult', {autoend: true}, t => {
+  t.test('prepareResponseRequests', {autoend: true}, t => {
     t.test('should not do any orchestration if the mapping fails', async t => {
       const ctx = {
         state: {
@@ -24,7 +24,7 @@ tap.test('External Requests', {autoend: true}, t => {
         }
       }
 
-      await orchestrateMappingResult(ctx)
+      await prepareResponseRequests(ctx)
 
       t.equals(ctx.orchestrations, undefined)
       t.end()
@@ -41,7 +41,7 @@ tap.test('External Requests', {autoend: true}, t => {
             }
           }
         }
-        await orchestrateMappingResult(ctx)
+        await prepareResponseRequests(ctx)
 
         t.equals(ctx.orchestrations)
         t.end()
@@ -63,7 +63,7 @@ tap.test('External Requests', {autoend: true}, t => {
           request: {}
         }
 
-        await orchestrateMappingResult(ctx)
+        await prepareResponseRequests(ctx)
 
         t.equals(ctx.orchestrations, undefined)
         t.end()
@@ -84,7 +84,7 @@ tap.test('External Requests', {autoend: true}, t => {
           },
           request: {}
         }
-        await orchestrateMappingResult(ctx)
+        await prepareResponseRequests(ctx)
 
         t.equals(ctx.orchestrations.length, 0)
         t.end()
@@ -138,7 +138,7 @@ tap.test('External Requests', {autoend: true}, t => {
           }
         }
 
-        await orchestrateMappingResult(ctx)
+        await prepareResponseRequests(ctx)
 
         t.equals(ctx.orchestrations.length, 2)
         t.match(ctx.orchestrations[0].error.message, /ECONNREFUSED/)
@@ -193,7 +193,7 @@ tap.test('External Requests', {autoend: true}, t => {
           .put('/patient?name=raze')
           .reply(200, response)
 
-        await orchestrateMappingResult(ctx)
+        await prepareResponseRequests(ctx)
 
         t.equals(ctx.orchestrations.length, 1)
         t.deepEqual(
@@ -252,7 +252,7 @@ tap.test('External Requests', {autoend: true}, t => {
           .put('/patient?name=raze')
           .reply(200, response)
 
-        await orchestrateMappingResult(ctx)
+        await prepareResponseRequests(ctx)
 
         t.equals(ctx.orchestrations.length, 0)
 
@@ -390,7 +390,7 @@ tap.test('External Requests', {autoend: true}, t => {
             .put('/patient?name=raze')
             .reply(400, response)
 
-          await orchestrateMappingResult(ctx)
+          await prepareResponseRequests(ctx)
 
           t.equals(ctx.orchestrations.length, 1)
           t.match(ctx.body, /Completed/)
@@ -452,7 +452,7 @@ tap.test('External Requests', {autoend: true}, t => {
             .put('/patient?name=raze')
             .reply(200, response)
 
-          await orchestrateMappingResult(ctx)
+          await prepareResponseRequests(ctx)
 
           t.equals(ctx.orchestrations.length, 2)
           t.match(ctx.body, /Completed with error/)
