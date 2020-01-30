@@ -252,7 +252,7 @@ const handleRequestError = (ctx, request, err) => {
 const setKoaResponseBodyFromPrimary = (ctx, request, body) => {
   ctx.hasPrimaryRequest = true
   ctx.body = {}
-  ctx.body[request.id] = body
+  ctx.body = body
 }
 
 // Sets the koa response body if there is no primary request
@@ -277,7 +277,7 @@ const sendMappedObject = (ctx, axiosConfig, request, body) => {
 
         ctx.status = response.status
       } else {
-        setKoaResponseBodyFromPrimary(ctx, request, response.body)
+        setKoaResponseBody(ctx, request, response.body)
       }
     })
     .catch(err => {

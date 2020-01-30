@@ -257,7 +257,7 @@ tap.test('External Requests', {autoend: true}, t => {
 
         t.equals(ctx.orchestrations.length, 0)
 
-        t.deepEqual(ctx.body, {Patient: response})
+        t.deepEqual(ctx.body, response)
         t.end()
       }
     )
@@ -537,7 +537,7 @@ tap.test('External Requests', {autoend: true}, t => {
       }
 
       setKoaResponseBodyFromPrimary(ctx, request, body)
-      t.deepEqual(ctx.body[request.id], body)
+      t.deepEqual(ctx.body, body)
       t.equals(ctx.hasPrimaryRequest, true)
       t.end()
     })
