@@ -63,7 +63,7 @@ const performRequests = (requests, ctx) => {
         }
       })
       .finally(() => {
-        // For now these orchestrations are recorded when only when there no failures
+        // For now these orchestrations are recorded when there are no failures
         if (
           ctx.request.header &&
           ctx.request.header['x-openhim-transactionid']

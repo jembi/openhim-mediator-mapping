@@ -22,7 +22,7 @@ tap.test('createOrchestrations()', {autoend: true}, t => {
     } catch (error) {
       t.equals(
         error.message,
-        'Orchestration creation failed: required parameter not supplied'
+        'Orchestration creation failed: required parameter not supplied - reqTimestamp | orchestrationName'
       )
     }
   })
@@ -45,7 +45,7 @@ tap.test('createOrchestrations()', {autoend: true}, t => {
     } catch (error) {
       t.equals(
         error.message,
-        'Orchestration creation failed: required parameter not supplied'
+        'Orchestration creation failed: required parameter not supplied - reqTimestamp | orchestrationName'
       )
     }
   })

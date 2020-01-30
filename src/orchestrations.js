@@ -11,7 +11,7 @@ exports.createOrchestration = (
 ) => {
   if (!reqTimestamp || !orchestrationName)
     throw new Error(
-      'Orchestration creation failed: required parameter not supplied'
+      'Orchestration creation failed: required parameter not supplied - reqTimestamp | orchestrationName'
     )
 
   let urlObject
