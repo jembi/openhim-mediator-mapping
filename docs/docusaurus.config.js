@@ -12,24 +12,24 @@ module.exports = {
       title: 'OpenHIM Mapping Mediator',
       logo: {
         alt: 'My Site Logo',
-        src: 'img/logo.svg',
+        src: 'img/logo.svg'
       },
       links: [
         {to: 'docs/setup', label: 'Docs', position: 'left'},
         {
           href: 'https://github.com/jembi/openhim-mediator-mapping',
           label: 'GitHub',
-          position: 'right',
-        },
-      ],
+          position: 'right'
+        }
+      ]
     },
     footer: {
       style: 'dark',
       links: [],
-      copyright: `Copyright © ${new Date().getFullYear()} Jembi Health Systems.`,
+      copyright: `Copyright © ${new Date().getFullYear()} Jembi Health Systems.`
     },
     prism: {
-      theme: require('prism-react-renderer/themes/nightOwl'),
+      theme: require('prism-react-renderer/themes/nightOwl')
     }
   },
   presets: [
@@ -39,12 +39,12 @@ module.exports = {
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
           editUrl:
-            'https://github.com/jembi/openhim-mediator-mapping/edit/master/docs/',
+            'https://github.com/jembi/openhim-mediator-mapping/edit/master/docs/'
         },
         theme: {
-          customCss: require.resolve('./src/css/custom.css'),
-        },
-      },
-    ],
-  ],
-};
+          customCss: require.resolve('./src/css/custom.css')
+        }
+      }
+    ]
+  ]
+}
