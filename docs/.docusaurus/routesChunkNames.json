@@ -1,0 +1,37 @@
+{
+  "/": {
+    "component": "component---site-src-pages-index-jsc-4-f-f99"
+  },
+  "/docs/:route": {
+    "component": "component---theme-doc-page-1-be-9be",
+    "docsMetadata": "docsMetadata---docs-route-20-a-f24"
+  },
+  "/docs/endpoints": {
+    "component": "component---theme-doc-item-178-a40",
+    "content": "content---docs-endpointsace-fa5"
+  },
+  "/docs/orchestration": {
+    "component": "component---theme-doc-item-178-a40",
+    "content": "content---docs-orchestrationcc-9-204"
+  },
+  "/docs/samples/bahmni-fhir-transform": {
+    "component": "component---theme-doc-item-178-a40",
+    "content": "content---docs-samples-bahmni-fhir-transform-0-cb-5a6"
+  },
+  "/docs/samples/dhis2-lookup": {
+    "component": "component---theme-doc-item-178-a40",
+    "content": "content---docs-samples-dhis-2-lookup-09-f-e2d"
+  },
+  "/docs/setup": {
+    "component": "component---theme-doc-item-178-a40",
+    "content": "content---docs-setup-384-edd"
+  },
+  "/docs/transformation": {
+    "component": "component---theme-doc-item-178-a40",
+    "content": "content---docs-transformation-59-a-4af"
+  },
+  "/docs/validation": {
+    "component": "component---theme-doc-item-178-a40",
+    "content": "content---docs-validationa-9-b-337"
+  }
+}

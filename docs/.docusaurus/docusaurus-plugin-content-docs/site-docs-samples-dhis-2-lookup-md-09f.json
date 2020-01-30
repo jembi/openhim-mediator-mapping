@@ -1,0 +1,18 @@
+{
+  "id": "samples/dhis2-lookup",
+  "title": "DHIS2 Facility Lookup",
+  "description": "import Tabs from '@theme/Tabs';",
+  "source": "@site/docs/samples/dhis2-lookup.md",
+  "permalink": "/docs/samples/dhis2-lookup",
+  "editUrl": "https://github.com/jembi/openhim-mediator-mapping/edit/master/docs/docs/samples/dhis2-lookup.md",
+  "sidebar_label": "DHIS2 Facility Lookup",
+  "sidebar": "someSidebar",
+  "previous": {
+    "title": "Transformation",
+    "permalink": "/docs/transformation"
+  },
+  "next": {
+    "title": "Bahmni to FHIR transformation",
+    "permalink": "/docs/samples/bahmni-fhir-transform"
+  }
+}

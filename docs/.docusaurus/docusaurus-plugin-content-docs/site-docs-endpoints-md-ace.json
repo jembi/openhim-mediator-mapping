@@ -1,0 +1,18 @@
+{
+  "id": "endpoints",
+  "title": "Endpoints",
+  "description": "## Configuration files",
+  "source": "@site/docs/endpoints.md",
+  "permalink": "/docs/endpoints",
+  "editUrl": "https://github.com/jembi/openhim-mediator-mapping/edit/master/docs/docs/endpoints.md",
+  "sidebar_label": "Endpoints",
+  "sidebar": "someSidebar",
+  "previous": {
+    "title": "Setup",
+    "permalink": "/docs/setup"
+  },
+  "next": {
+    "title": "Validation",
+    "permalink": "/docs/validation"
+  }
+}

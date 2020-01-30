@@ -1,0 +1,18 @@
+{
+  "id": "orchestration",
+  "title": "Orchestration",
+  "description": "You can write content using [GitHub-flavored Markdown syntax](https://github.github.com/gfm/).",
+  "source": "@site/docs/orchestration.md",
+  "permalink": "/docs/orchestration",
+  "editUrl": "https://github.com/jembi/openhim-mediator-mapping/edit/master/docs/docs/orchestration.md",
+  "sidebar_label": "Orchestration",
+  "sidebar": "someSidebar",
+  "previous": {
+    "title": "Validation",
+    "permalink": "/docs/validation"
+  },
+  "next": {
+    "title": "Transformation",
+    "permalink": "/docs/transformation"
+  }
+}
