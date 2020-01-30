@@ -148,6 +148,14 @@ const orchestrateMappingResult = async ctx => {
         ctx.orchestrations = []
       }
 
+      /*
+        Set the response request to be the primary
+        if there is only one response request
+      */
+      if (requests.response.length === 1) {
+        requests.response[0].primary = true
+      }
+
       // Empty the koa response body. It contains the mapped data that is to be sent out
       const body = ctx.body
       ctx.body = {}
