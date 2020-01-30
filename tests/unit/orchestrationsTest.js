@@ -77,7 +77,7 @@ tap.test('createOrchestrations()', {autoend: true}, t => {
     const expectedOrch = {
       request: {
         host: 'localhost',
-        port: '8000',
+        port: 8000,
         path: '/patient/',
         timestamp: reqTimestamp,
         method: 'PUT',

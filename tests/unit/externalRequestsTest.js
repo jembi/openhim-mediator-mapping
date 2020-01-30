@@ -152,7 +152,6 @@ tap.test('External Requests', {autoend: true}, t => {
       async t => {
         const url = 'http://localhost:8000/'
         const method = 'PUT'
-        const id = 'Patient'
 
         const ctx = {
           status: 200,
@@ -165,7 +164,7 @@ tap.test('External Requests', {autoend: true}, t => {
                       url: `${url}patient?name=raze`,
                       method: method
                     },
-                    id: id,
+                    id: 'Patient',
                     primary: true
                   }
                 ]
@@ -343,6 +342,7 @@ tap.test('External Requests', {autoend: true}, t => {
           })
         }
       )
+
       t.test(
         "should send requests and set the response body's statusText to Completed",
         async t => {
@@ -399,7 +399,7 @@ tap.test('External Requests', {autoend: true}, t => {
       )
 
       t.test(
-        "should set the response body's statusText to 'Completed with error(s)' (error on non primary request",
+        "should set the response body's statusText to 'Completed with error(s)' when there is an error on a non-primary request",
         async t => {
           const url = 'http://localhost:8000/'
           const method = 'PUT'
@@ -550,7 +550,7 @@ tap.test('External Requests', {autoend: true}, t => {
       }
       const request = {}
       const err = {
-        message: 'ECONREFUSED'
+        message: 'ECONNREFUSED'
       }
 
       const result = handleRequestError(ctx, request, err)
