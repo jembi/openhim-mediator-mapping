@@ -69,17 +69,27 @@ exports.createOrchestration = (
 }
 
 exports.setStatusText = ctx => {
-  if (ctx.primaryReqFailError) {
-    ctx.statusText = 'Failed'
-  } else if (!ctx.primaryReqFailError && ctx.secondaryFailError) {
-    ctx.statusText = 'Completed with error(s)'
-  } else if (
-    !ctx.primaryReqFailError &&
-    !ctx.secondaryFailError &&
-    (ctx.primaryCompleted || ctx.secondaryCompleted)
+  if (
+    ctx.routerResponseStatuses &&
+    ctx.routerResponseStatuses.includes('primaryReqFailError')
   ) {
-    ctx.statusText = 'Completed'
-  } else {
-    ctx.statusText = 'Successful'
+    return (ctx.statusText = 'Failed')
   }
+
+  if (
+    ctx.routerResponseStatuses &&
+    ctx.routerResponseStatuses.includes('secondaryFailError')
+  ) {
+    return (ctx.statusText = 'Completed with error(s)')
+  }
+
+  if (
+    ctx.routerResponseStatuses &&
+    (ctx.routerResponseStatuses.includes('primaryCompleted') ||
+      ctx.routerResponseStatuses.includes('secondaryCompleted'))
+  ) {
+    return (ctx.statusText = 'Completed')
+  }
+
+  return (ctx.statusText = 'Successful')
 }

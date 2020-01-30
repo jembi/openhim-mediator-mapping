@@ -114,7 +114,7 @@ tap.test('createOrchestrations()', {autoend: true}, t => {
   t.test('setStatusText()', {autoend: true}, t => {
     t.test('should set the status to Failed', t => {
       const ctx = {
-        primaryReqFailError: true
+        routerResponseStatuses: ['primaryReqFailError']
       }
 
       setStatusText(ctx)
@@ -125,7 +125,7 @@ tap.test('createOrchestrations()', {autoend: true}, t => {
 
     t.test('should set the status to Completed with error(s)', t => {
       const ctx = {
-        secondaryFailError: true
+        routerResponseStatuses: ['secondaryFailError']
       }
 
       setStatusText(ctx)
@@ -136,7 +136,7 @@ tap.test('createOrchestrations()', {autoend: true}, t => {
 
     t.test('should set the status to Completed', t => {
       const ctx = {
-        primaryCompleted: true
+        routerResponseStatuses: ['primaryCompleted']
       }
 
       setStatusText(ctx)

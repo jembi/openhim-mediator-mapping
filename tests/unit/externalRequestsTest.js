@@ -460,6 +460,7 @@ tap.test('External Requests', {autoend: true}, t => {
         }
       )
     })
+
     t.test(
       'should not reach the request making function is there is no lookup config',
       t => {
@@ -578,7 +579,10 @@ tap.test('External Requests', {autoend: true}, t => {
         const result = handleRequestError(ctx, request, err)
 
         t.deepEqual(result.response.body, err.response.data)
-        t.equals(ctx.primaryReqFailError, true)
+        t.equals(
+          ctx.routerResponseStatuses.includes('primaryReqFailError'),
+          true
+        )
         t.end()
       }
     )
@@ -602,7 +606,7 @@ tap.test('External Requests', {autoend: true}, t => {
         const result = handleRequestError(ctx, request, err)
 
         t.deepEqual(result.response.body, err.response.data)
-        t.equals(ctx.primaryCompleted, true)
+        t.equals(ctx.routerResponseStatuses.includes('primaryCompleted'), true)
         t.end()
       }
     )

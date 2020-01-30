@@ -196,6 +196,10 @@ const prepareResponseRequests = async ctx => {
 const handleRequestError = (ctx, request, err) => {
   let response, error
 
+  if (!ctx.routerResponseStatuses) {
+    ctx.routerResponseStatuses = []
+  }
+
   if (err.response) {
     response = err.response
 
@@ -206,10 +210,10 @@ const handleRequestError = (ctx, request, err) => {
       if (request.primary) {
         setKoaResponseBodyFromPrimary(ctx, request, response.data)
 
-        ctx.primaryReqFailError = true
+        ctx.routerResponseStatuses.push('primaryReqFailError')
         ctx.status = response.status
       } else {
-        ctx.secondaryFailError = true
+        ctx.routerResponseStatuses.push('secondaryFailError')
 
         setKoaResponseBody(ctx, request, response.data)
       }
@@ -217,10 +221,10 @@ const handleRequestError = (ctx, request, err) => {
       if (request.primary) {
         setKoaResponseBodyFromPrimary(ctx, request, response.data)
 
-        ctx.primaryCompleted = true
+        ctx.routerResponseStatuses.push('primaryCompleted')
         ctx.status = response.status
       } else {
-        ctx.secondaryCompleted = true
+        ctx.routerResponseStatuses.push('secondaryCompleted')
 
         setKoaResponseBody(ctx, request, response.data)
       }
@@ -229,10 +233,10 @@ const handleRequestError = (ctx, request, err) => {
     if (request.primary) {
       setKoaResponseBodyFromPrimary(ctx, request, err.message)
 
-      ctx.primaryReqFailError = true
+      ctx.routerResponseStatuses.push('primaryReqFailError')
       ctx.status = 500
     } else {
-      ctx.secondaryFailError = true
+      ctx.routerResponseStatuses.push('secondaryFailError')
 
       setKoaResponseBody(ctx, request, err.message)
     }
