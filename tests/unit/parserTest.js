@@ -69,7 +69,8 @@ tap.test('Parser', {autoend: true}, t => {
         set: (key, value) => {
           ctx.header = {}
           ctx.header[key] = value
-        }
+        },
+        request: {}
       }
       const outputFormat = 'XML'
       const expectedHeader = {
