@@ -1,7 +1,0 @@
-{
-  "resourceType": "bundle",
-  "type": "transaction",
-  "entry": {
-    "resourceType": "Location"
-  }
-}
