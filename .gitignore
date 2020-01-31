@@ -1,2 +1,9 @@
 node_modules
 .nyc_output
+
+# production
+/docs/build
+
+# generated files
+/docs/.docusaurus
+/docs/.cache-loader
