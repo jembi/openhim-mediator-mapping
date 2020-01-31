@@ -7,14 +7,25 @@ const config = require('../config').getConfig()
 
 const performValidation = (ctx, schema) => {
   if (!schema) {
-    throw new Error(
+    logger.warn(
       `${ctx.state.metaData.name} (${ctx.state.uuid}): No validation rules supplied`
     )
+    return
   }
 
-  if (!ctx || !ctx.request || !ctx.request.body) {
+  const dataToValidate = {}
+
+  if (ctx && ctx.request && ctx.request.body) {
+    dataToValidate.requestBody = ctx.request.body
+  }
+
+  if (ctx.lookupRequests) {
+    dataToValidate.lookupRequests = ctx.lookupRequests
+  }
+
+  if (!dataToValidate.requestBody && !dataToValidate.lookupRequests) {
     throw new Error(
-      `${ctx.state.metaData.name} (${ctx.state.uuid}): Invalid request body`
+      `${ctx.state.metaData.name} (${ctx.state.uuid}): No data to validate`
     )
   }
 
@@ -23,7 +34,7 @@ const performValidation = (ctx, schema) => {
     coerceTypes: config.validation.coerceTypes
   })
 
-  const valid = ajv.validate(schema, ctx.request.body)
+  const valid = ajv.validate(schema, dataToValidate)
 
   if (!valid) {
     throw new Error(

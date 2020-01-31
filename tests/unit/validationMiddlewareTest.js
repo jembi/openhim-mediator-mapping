@@ -22,10 +22,12 @@ tap.test('Validation Middleware', {autoend: true}, t => {
       }
       const schema = null
 
-      t.throws(
-        () => performValidation(ctx, schema),
-        /No validation rules supplied/
-      )
+      try {
+        performValidation(ctx, schema)
+      } catch (e) {
+        t.error('Should not reach here')
+      }
+
       t.end()
     })
 
@@ -41,7 +43,7 @@ tap.test('Validation Middleware', {autoend: true}, t => {
       }
       const schema = {}
 
-      t.throws(() => performValidation(ctx, schema), /Invalid request body/)
+      t.throws(() => performValidation(ctx, schema), /No data to validate/)
       t.end()
     })
 
@@ -62,10 +64,15 @@ tap.test('Validation Middleware', {autoend: true}, t => {
       const schema = {
         type: 'object',
         properties: {
-          name: {type: 'string'},
-          surname: {type: 'string'}
-        },
-        required: ['name']
+          requestBody: {
+            type: 'object',
+            properties: {
+              name: {type: 'string'},
+              surname: {type: 'string'}
+            },
+            required: ['name']
+          }
+        }
       }
 
       t.throws(() => performValidation(ctx, schema), /Validation failed/)
@@ -84,10 +91,15 @@ tap.test('Validation Middleware', {autoend: true}, t => {
       const schema = {
         type: 'object',
         properties: {
-          name: {type: 'string'},
-          surname: {type: 'string'}
-        },
-        required: ['name']
+          requestBody: {
+            type: 'object',
+            properties: {
+              name: {type: 'string'},
+              surname: {type: 'string'}
+            },
+            required: ['name']
+          }
+        }
       }
 
       t.doesNotThrow(() => performValidation(ctx, schema))
@@ -113,10 +125,15 @@ tap.test('Validation Middleware', {autoend: true}, t => {
       const schema = {
         type: 'object',
         properties: {
-          name: {type: 'string'},
-          surname: {type: 'string', nullable: true}
-        },
-        required: ['name']
+          requestBody: {
+            type: 'object',
+            properties: {
+              name: {type: 'string'},
+              surname: {type: 'string', nullable: true}
+            },
+            required: ['name']
+          }
+        }
       }
 
       t.doesNotThrow(() => validatorUpdatedEnv.performValidation(ctx, schema))

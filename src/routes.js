@@ -10,6 +10,7 @@ const {
   inputConstants
 } = require('./constants')
 const logger = require('./logger')
+const {requestsMiddleware} = require('./middleware/externalRequests')
 const {initiateContextMiddleware} = require('./middleware/initiate')
 const {parseBodyMiddleware} = require('./middleware/parser')
 const {mapBodyMiddleware} = require('./middleware/mapper')
@@ -61,6 +62,15 @@ const setUpRoutes = router => {
   )
 
   routeDirectories.forEach(directory => {
+    if (
+      fs
+        .statSync(path.resolve(__dirname, '..', 'endpoints', directory))
+        .isFile()
+    ) {
+      // If the item with the endpoints directory is a file ignore it.
+      return
+    }
+
     try {
       const metaData = validateAndLoadFile(directory, inputMeta, true)
       const validationMap = validateAndLoadFile(
@@ -74,6 +84,7 @@ const setUpRoutes = router => {
       router.post(
         metaData.endpoint.pattern,
         initiateContextMiddleware(metaData),
+        requestsMiddleware(),
         parseBodyMiddleware(),
         validateBodyMiddleware(validationMap),
         mapBodyMiddleware(mappingSchema, constants)
