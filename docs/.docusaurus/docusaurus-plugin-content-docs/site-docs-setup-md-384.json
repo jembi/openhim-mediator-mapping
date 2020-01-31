@@ -1,0 +1,14 @@
+{
+  "id": "setup",
+  "title": "Setup",
+  "description": "**This project is a proof of concept and not recommended as Production ready code!**",
+  "source": "@site/docs/setup.md",
+  "permalink": "/docs/setup",
+  "editUrl": "https://github.com/jembi/openhim-mediator-mapping/edit/master/docs/docs/setup.md",
+  "sidebar_label": "Setup",
+  "sidebar": "someSidebar",
+  "next": {
+    "title": "Endpoints",
+    "permalink": "/docs/endpoints"
+  }
+}

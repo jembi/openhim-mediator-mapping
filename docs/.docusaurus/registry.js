@@ -1,0 +1,12 @@
+export default {
+  'component---site-src-pages-index-jsc-4-f-f99': [() => import(/* webpackChunkName: 'component---site-src-pages-index-jsc-4-f-f99' */ "@site/src/pages/index.js"), "@site/src/pages/index.js", require.resolveWeak("@site/src/pages/index.js")],
+  'component---theme-doc-item-178-a40': [() => import(/* webpackChunkName: 'component---theme-doc-item-178-a40' */ "@theme/DocItem"), "@theme/DocItem", require.resolveWeak("@theme/DocItem")],
+  'component---theme-doc-page-1-be-9be': [() => import(/* webpackChunkName: 'component---theme-doc-page-1-be-9be' */ "@theme/DocPage"), "@theme/DocPage", require.resolveWeak("@theme/DocPage")],
+  'content---docs-endpointsace-fa5': [() => import(/* webpackChunkName: 'content---docs-endpointsace-fa5' */ "@site/docs/endpoints.md"), "@site/docs/endpoints.md", require.resolveWeak("@site/docs/endpoints.md")],
+  'content---docs-orchestrationcc-9-204': [() => import(/* webpackChunkName: 'content---docs-orchestrationcc-9-204' */ "@site/docs/orchestration.md"), "@site/docs/orchestration.md", require.resolveWeak("@site/docs/orchestration.md")],
+  'content---docs-samples-bahmni-fhir-transform-0-cb-5a6': [() => import(/* webpackChunkName: 'content---docs-samples-bahmni-fhir-transform-0-cb-5a6' */ "@site/docs/samples/bahmni-fhir-transform.md"), "@site/docs/samples/bahmni-fhir-transform.md", require.resolveWeak("@site/docs/samples/bahmni-fhir-transform.md")],
+  'content---docs-samples-dhis-2-lookup-09-f-e2d': [() => import(/* webpackChunkName: 'content---docs-samples-dhis-2-lookup-09-f-e2d' */ "@site/docs/samples/dhis2-lookup.md"), "@site/docs/samples/dhis2-lookup.md", require.resolveWeak("@site/docs/samples/dhis2-lookup.md")],
+  'content---docs-setup-384-edd': [() => import(/* webpackChunkName: 'content---docs-setup-384-edd' */ "@site/docs/setup.md"), "@site/docs/setup.md", require.resolveWeak("@site/docs/setup.md")],
+  'content---docs-transformation-59-a-4af': [() => import(/* webpackChunkName: 'content---docs-transformation-59-a-4af' */ "@site/docs/transformation.md"), "@site/docs/transformation.md", require.resolveWeak("@site/docs/transformation.md")],
+  'content---docs-validationa-9-b-337': [() => import(/* webpackChunkName: 'content---docs-validationa-9-b-337' */ "@site/docs/validation.md"), "@site/docs/validation.md", require.resolveWeak("@site/docs/validation.md")],
+  'docsMetadata---docs-route-20-a-f24': [() => import(/* webpackChunkName: 'docsMetadata---docs-route-20-a-f24' */ "~docs/docs-route-ff2.json"), "~docs/docs-route-ff2.json", require.resolveWeak("~docs/docs-route-ff2.json")],};
