@@ -55,7 +55,10 @@ exports.constructOpenhimResponse = (ctx, responseTimestamp) => {
       respObject.status = response.status
     }
     if (response.body) {
-      respObject.body = JSON.stringify(response.body)
+      respObject.body =
+        typeof response.body === 'string'
+          ? response.body
+          : JSON.stringify(response.body)
     }
     if (response.timestamp) {
       respObject.timestamp = response.timestamp

@@ -24,10 +24,24 @@ const validateRequestStatusCode = allowedStatuses => {
   }
 }
 
-const performRequests = requests => {
+const performRequests = (requests, ctx) => {
+  if (ctx && !ctx.orchestrations) {
+    ctx.orchestrations = []
+  }
+
   return requests.map(requestDetails => {
+    const reqTimestamp = new Date()
+    let responseTimestamp, error, response
+
+    // No body is sent out for now
+    const body = null
+
     return axios(prepareRequestConfig(requestDetails))
       .then(res => {
+        response = res
+        response.body = res.data
+        responseTimestamp = new Date()
+
         // Assign any data received from the response to the assigned id in the context
         return {[requestDetails.id]: res.data}
       })
@@ -48,13 +62,32 @@ const performRequests = requests => {
           throw new Error(`Unhandled Error: ${error.message}`)
         }
       })
+      .finally(() => {
+        // For now these orchestrations are recorded when there are no failures
+        if (
+          ctx.request.header &&
+          ctx.request.header['x-openhim-transactionid']
+        ) {
+          const orchestration = createOrchestration(
+            requestDetails,
+            body,
+            response,
+            reqTimestamp,
+            responseTimestamp,
+            requestDetails.id,
+            error
+          )
+
+          ctx.orchestrations.push(orchestration)
+        }
+      })
   })
 }
 
 const prepareLookupRequests = ctx => {
   const requests = Object.assign({}, ctx.state.metaData.requests)
   if (requests.lookup && requests.lookup.length > 0) {
-    const responseData = performRequests(requests.lookup)
+    const responseData = performRequests(requests.lookup, ctx)
 
     return Promise.all(responseData)
       .then(data => {
@@ -93,14 +126,8 @@ const prepareRequestConfig = (requestDetails, requestBody) => {
   return requestOptions
 }
 
-exports.requestsMiddleware = () => async (ctx, next) => {
-  await prepareLookupRequests(ctx)
-  await next()
-  await orchestrateMappingResult(ctx)
-}
-
 // For now only json data is processed
-const orchestrateMappingResult = async ctx => {
+const prepareResponseRequests = async ctx => {
   const requests = ctx.state.metaData.requests
 
   // Send request downstream only when mapping has been successful
@@ -113,6 +140,14 @@ const orchestrateMappingResult = async ctx => {
       //Create orchestrations
       if (!ctx.orchestrations) {
         ctx.orchestrations = []
+      }
+
+      /*
+        Set the response request to be the primary
+        if there is only one response request
+      */
+      if (requests.response.length === 1) {
+        requests.response[0].primary = true
       }
 
       // Empty the koa response body. It contains the mapped data that is to be sent out
@@ -161,6 +196,10 @@ const orchestrateMappingResult = async ctx => {
 const handleRequestError = (ctx, request, err) => {
   let response, error
 
+  if (!ctx.routerResponseStatuses) {
+    ctx.routerResponseStatuses = []
+  }
+
   if (err.response) {
     response = err.response
 
@@ -171,10 +210,10 @@ const handleRequestError = (ctx, request, err) => {
       if (request.primary) {
         setKoaResponseBodyFromPrimary(ctx, request, response.data)
 
-        ctx.primaryReqFailError = true
+        ctx.routerResponseStatuses.push('primaryReqFailError')
         ctx.status = response.status
       } else {
-        ctx.secondaryFailError = true
+        ctx.routerResponseStatuses.push('secondaryFailError')
 
         setKoaResponseBody(ctx, request, response.data)
       }
@@ -182,10 +221,10 @@ const handleRequestError = (ctx, request, err) => {
       if (request.primary) {
         setKoaResponseBodyFromPrimary(ctx, request, response.data)
 
-        ctx.primaryCompleted = true
+        ctx.routerResponseStatuses.push('primaryCompleted')
         ctx.status = response.status
       } else {
-        ctx.secondaryCompleted = true
+        ctx.routerResponseStatuses.push('secondaryCompleted')
 
         setKoaResponseBody(ctx, request, response.data)
       }
@@ -194,10 +233,10 @@ const handleRequestError = (ctx, request, err) => {
     if (request.primary) {
       setKoaResponseBodyFromPrimary(ctx, request, err.message)
 
-      ctx.primaryReqFailError = true
+      ctx.routerResponseStatuses.push('primaryReqFailError')
       ctx.status = 500
     } else {
-      ctx.secondaryFailError = true
+      ctx.routerResponseStatuses.push('secondaryFailError')
 
       setKoaResponseBody(ctx, request, err.message)
     }
@@ -211,7 +250,7 @@ const handleRequestError = (ctx, request, err) => {
 const setKoaResponseBodyFromPrimary = (ctx, request, body) => {
   ctx.hasPrimaryRequest = true
   ctx.body = {}
-  ctx.body[request.id] = body
+  ctx.body = body
 }
 
 // Sets the koa response body if there is no primary request
@@ -236,7 +275,7 @@ const sendMappedObject = (ctx, axiosConfig, request, body) => {
 
         ctx.status = response.status
       } else {
-        setKoaResponseBodyFromPrimary(ctx, request, response.body)
+        setKoaResponseBody(ctx, request, response.body)
       }
     })
     .catch(err => {
@@ -261,4 +300,10 @@ const sendMappedObject = (ctx, axiosConfig, request, body) => {
         ctx.orchestrations.push(orchestration)
       }
     })
+}
+
+exports.requestsMiddleware = () => async (ctx, next) => {
+  await prepareLookupRequests(ctx)
+  await next()
+  await prepareResponseRequests(ctx)
 }

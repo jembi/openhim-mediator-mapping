@@ -4,8 +4,8 @@ const tap = require('tap')
 const rewire = require('rewire')
 const nock = require('nock')
 const externalRequests = rewire('../../src/middleware/externalRequests')
-const orchestrateMappingResult = externalRequests.__get__(
-  'orchestrateMappingResult'
+const prepareResponseRequests = externalRequests.__get__(
+  'prepareResponseRequests'
 )
 const setKoaResponseBody = externalRequests.__get__('setKoaResponseBody')
 const setKoaResponseBodyFromPrimary = externalRequests.__get__(
@@ -14,7 +14,7 @@ const setKoaResponseBodyFromPrimary = externalRequests.__get__(
 const handleRequestError = externalRequests.__get__('handleRequestError')
 
 tap.test('External Requests', {autoend: true}, t => {
-  t.test('orchestrateMappingResult', {autoend: true}, t => {
+  t.test('prepareResponseRequests', {autoend: true}, t => {
     t.test('should not do any orchestration if the mapping fails', async t => {
       const ctx = {
         state: {
@@ -24,7 +24,7 @@ tap.test('External Requests', {autoend: true}, t => {
         }
       }
 
-      await orchestrateMappingResult(ctx)
+      await prepareResponseRequests(ctx)
 
       t.equals(ctx.orchestrations, undefined)
       t.end()
@@ -41,7 +41,7 @@ tap.test('External Requests', {autoend: true}, t => {
             }
           }
         }
-        await orchestrateMappingResult(ctx)
+        await prepareResponseRequests(ctx)
 
         t.equals(ctx.orchestrations)
         t.end()
@@ -63,7 +63,7 @@ tap.test('External Requests', {autoend: true}, t => {
           request: {}
         }
 
-        await orchestrateMappingResult(ctx)
+        await prepareResponseRequests(ctx)
 
         t.equals(ctx.orchestrations, undefined)
         t.end()
@@ -84,7 +84,7 @@ tap.test('External Requests', {autoend: true}, t => {
           },
           request: {}
         }
-        await orchestrateMappingResult(ctx)
+        await prepareResponseRequests(ctx)
 
         t.equals(ctx.orchestrations.length, 0)
         t.end()
@@ -138,7 +138,7 @@ tap.test('External Requests', {autoend: true}, t => {
           }
         }
 
-        await orchestrateMappingResult(ctx)
+        await prepareResponseRequests(ctx)
 
         t.equals(ctx.orchestrations.length, 2)
         t.match(ctx.orchestrations[0].error.message, /ECONNREFUSED/)
@@ -152,7 +152,6 @@ tap.test('External Requests', {autoend: true}, t => {
       async t => {
         const url = 'http://localhost:8000/'
         const method = 'PUT'
-        const id = 'Patient'
 
         const ctx = {
           status: 200,
@@ -165,7 +164,7 @@ tap.test('External Requests', {autoend: true}, t => {
                       url: `${url}patient?name=raze`,
                       method: method
                     },
-                    id: id,
+                    id: 'Patient',
                     primary: true
                   }
                 ]
@@ -194,7 +193,7 @@ tap.test('External Requests', {autoend: true}, t => {
           .put('/patient?name=raze')
           .reply(200, response)
 
-        await orchestrateMappingResult(ctx)
+        await prepareResponseRequests(ctx)
 
         t.equals(ctx.orchestrations.length, 1)
         t.deepEqual(
@@ -253,11 +252,11 @@ tap.test('External Requests', {autoend: true}, t => {
           .put('/patient?name=raze')
           .reply(200, response)
 
-        await orchestrateMappingResult(ctx)
+        await prepareResponseRequests(ctx)
 
         t.equals(ctx.orchestrations.length, 0)
 
-        t.deepEqual(ctx.body, {Patient: response})
+        t.deepEqual(ctx.body, response)
         t.end()
       }
     )
@@ -343,6 +342,7 @@ tap.test('External Requests', {autoend: true}, t => {
           })
         }
       )
+
       t.test(
         "should send requests and set the response body's statusText to Completed",
         async t => {
@@ -390,7 +390,7 @@ tap.test('External Requests', {autoend: true}, t => {
             .put('/patient?name=raze')
             .reply(400, response)
 
-          await orchestrateMappingResult(ctx)
+          await prepareResponseRequests(ctx)
 
           t.equals(ctx.orchestrations.length, 1)
           t.match(ctx.body, /Completed/)
@@ -399,7 +399,7 @@ tap.test('External Requests', {autoend: true}, t => {
       )
 
       t.test(
-        "should set the response body's statusText to 'Completed with error(s)' (error on non primary request",
+        "should set the response body's statusText to 'Completed with error(s)' when there is an error on a non-primary request",
         async t => {
           const url = 'http://localhost:8000/'
           const method = 'PUT'
@@ -452,7 +452,7 @@ tap.test('External Requests', {autoend: true}, t => {
             .put('/patient?name=raze')
             .reply(200, response)
 
-          await orchestrateMappingResult(ctx)
+          await prepareResponseRequests(ctx)
 
           t.equals(ctx.orchestrations.length, 2)
           t.match(ctx.body, /Completed with error/)
@@ -460,6 +460,7 @@ tap.test('External Requests', {autoend: true}, t => {
         }
       )
     })
+
     t.test(
       'should not reach the request making function is there is no lookup config',
       t => {
@@ -537,7 +538,7 @@ tap.test('External Requests', {autoend: true}, t => {
       }
 
       setKoaResponseBodyFromPrimary(ctx, request, body)
-      t.deepEqual(ctx.body[request.id], body)
+      t.deepEqual(ctx.body, body)
       t.equals(ctx.hasPrimaryRequest, true)
       t.end()
     })
@@ -550,7 +551,7 @@ tap.test('External Requests', {autoend: true}, t => {
       }
       const request = {}
       const err = {
-        message: 'ECONREFUSED'
+        message: 'ECONNREFUSED'
       }
 
       const result = handleRequestError(ctx, request, err)
@@ -578,7 +579,10 @@ tap.test('External Requests', {autoend: true}, t => {
         const result = handleRequestError(ctx, request, err)
 
         t.deepEqual(result.response.body, err.response.data)
-        t.equals(ctx.primaryReqFailError, true)
+        t.equals(
+          ctx.routerResponseStatuses.includes('primaryReqFailError'),
+          true
+        )
         t.end()
       }
     )
@@ -602,7 +606,7 @@ tap.test('External Requests', {autoend: true}, t => {
         const result = handleRequestError(ctx, request, err)
 
         t.deepEqual(result.response.body, err.response.data)
-        t.equals(ctx.primaryCompleted, true)
+        t.equals(ctx.routerResponseStatuses.includes('primaryCompleted'), true)
         t.end()
       }
     )

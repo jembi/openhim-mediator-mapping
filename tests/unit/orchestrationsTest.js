@@ -22,7 +22,7 @@ tap.test('createOrchestrations()', {autoend: true}, t => {
     } catch (error) {
       t.equals(
         error.message,
-        'Orchestration creation failed: required parameter not supplied'
+        'Orchestration creation failed: required parameter not supplied - reqTimestamp | orchestrationName'
       )
     }
   })
@@ -45,7 +45,7 @@ tap.test('createOrchestrations()', {autoend: true}, t => {
     } catch (error) {
       t.equals(
         error.message,
-        'Orchestration creation failed: required parameter not supplied'
+        'Orchestration creation failed: required parameter not supplied - reqTimestamp | orchestrationName'
       )
     }
   })
@@ -77,7 +77,7 @@ tap.test('createOrchestrations()', {autoend: true}, t => {
     const expectedOrch = {
       request: {
         host: 'localhost',
-        port: '8000',
+        port: 8000,
         path: '/patient/',
         timestamp: reqTimestamp,
         method: 'PUT',
@@ -114,7 +114,7 @@ tap.test('createOrchestrations()', {autoend: true}, t => {
   t.test('setStatusText()', {autoend: true}, t => {
     t.test('should set the status to Failed', t => {
       const ctx = {
-        primaryReqFailError: true
+        routerResponseStatuses: ['primaryReqFailError']
       }
 
       setStatusText(ctx)
@@ -125,7 +125,7 @@ tap.test('createOrchestrations()', {autoend: true}, t => {
 
     t.test('should set the status to Completed with error(s)', t => {
       const ctx = {
-        secondaryFailError: true
+        routerResponseStatuses: ['secondaryFailError']
       }
 
       setStatusText(ctx)
@@ -136,7 +136,7 @@ tap.test('createOrchestrations()', {autoend: true}, t => {
 
     t.test('should set the status to Completed', t => {
       const ctx = {
-        primaryCompleted: true
+        routerResponseStatuses: ['primaryCompleted']
       }
 
       setStatusText(ctx)

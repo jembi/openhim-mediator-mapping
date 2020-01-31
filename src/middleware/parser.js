@@ -2,6 +2,7 @@
 
 const xml2js = require('xml2js')
 const KoaBodyParser = require('@viweei/koa-body-parser')
+const {createOrchestration} = require('../orchestrations')
 
 const logger = require('../logger')
 const {ALLOWED_CONTENT_TYPES} = require('../constants')
@@ -12,8 +13,37 @@ const xmlBuilder = new xml2js.Builder()
 const parseOutgoingBody = (ctx, outputFormat) => {
   if (outputFormat === 'XML') {
     try {
+      const parserStartTime = new Date()
+      const body = ctx.body
+
       ctx.body = xmlBuilder.buildObject(ctx.body)
       ctx.set('Content-Type', 'application/xml')
+
+      if (ctx.request.header && ctx.request.header['x-openhim-transactionid']) {
+        const orchestrationName = 'Outgoing Parser'
+        const parserEndTime = new Date()
+        const response = {
+          body: ctx.body
+        }
+        const request = {}
+        const error = null
+
+        if (!ctx.orchestrations) {
+          ctx.orchestrations = []
+        }
+
+        const orchestration = createOrchestration(
+          request,
+          body,
+          response,
+          parserStartTime,
+          parserEndTime,
+          orchestrationName,
+          error
+        )
+
+        ctx.orchestrations.push(orchestration)
+      }
     } catch (error) {
       throw new Error(
         `${ctx.state.metaData.name} (${ctx.state.uuid}): Parsing outgoing body failed: ${error.message}`
@@ -54,10 +84,42 @@ const parseIncomingBody = async (ctx, inputFormat) => {
     )
 
     try {
+      const parserStartTime = new Date()
+
       await KoaBodyParser(options)(ctx, () => {
         // pass in a empty function in place of the next() callback used in the middleware
         // next() is handled outside of the internal middleware
         // Using next() inside this middleware inject the next middleware logic inside this one
+        if (
+          ctx.request.header &&
+          ctx.request.header['x-openhim-transactionid']
+        ) {
+          if (inputFormat === 'XML') {
+            const orchestrationName = 'Incoming Parser'
+            const parserEndTime = new Date()
+            const response = {
+              body: ctx.request.body
+            }
+            const request = {}
+            const error = null
+
+            if (!ctx.orchestrations) {
+              ctx.orchestrations = []
+            }
+
+            const orchestration = createOrchestration(
+              request,
+              ctx.request.raw_body,
+              response,
+              parserStartTime,
+              parserEndTime,
+              orchestrationName,
+              error
+            )
+
+            ctx.orchestrations.push(orchestration)
+          }
+        }
       })
     } catch (error) {
       throw Error(
