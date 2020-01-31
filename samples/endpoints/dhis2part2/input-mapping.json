@@ -1,14 +1,14 @@
 {
   "constants.resourceType": "resourceType",
   "constants.type": "type",
-  "requestBody.lols.test.consolidated.displayName": "entry[].resource.name",
+  "requestBody.consolidated.displayName": "entry[].resource.name",
   "constants.entry.identifier": {
     "key": "entry[].resource.identifier",
     "transform": {
       "function": "oneToAllElements"
     }
   },
-  "requestBody.lols.test.consolidated.id": "entry[].resource.identifier[].value",
+  "requestBody.consolidated.id": "entry[].resource.identifier[].value",
   "constants.entry.resourceType": {
     "key": "entry[].resource.resourceType",
     "transform": {

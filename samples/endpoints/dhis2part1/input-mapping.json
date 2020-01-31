@@ -1,18 +1,18 @@
 {
   "lookupRequests.dhisOrg1.organisationUnits[]": {
-    "key": "lols.test.consolidated[]",
+    "key": "consolidated[]",
     "transform": {
       "function": "appendArray"
     }
   },
   "lookupRequests.dhisOrg2.organisationUnits[]": {
-    "key": "lols.test.consolidated[]",
+    "key": "consolidated[]",
     "transform": {
       "function": "appendArray"
     }
   },
   "lookupRequests.dhisOrg3.organisationUnits[]": {
-    "key": "lols.test.consolidated[]",
+    "key": "consolidated[]",
     "transform": {
       "function": "appendArray"
     }
