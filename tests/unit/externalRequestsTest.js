@@ -12,6 +12,9 @@ const setKoaResponseBodyFromPrimary = externalRequests.__get__(
   'setKoaResponseBodyFromPrimary'
 )
 const handleRequestError = externalRequests.__get__('handleRequestError')
+const addRequestQueryParameters = externalRequests.__get__(
+  'addRequestQueryParameters'
+)
 
 tap.test('External Requests', {autoend: true}, t => {
   t.test('prepareResponseRequests', {autoend: true}, t => {
@@ -629,6 +632,29 @@ tap.test('External Requests', {autoend: true}, t => {
       t.ok(statusValidator(299))
       t.ok(statusValidator(403))
       t.notOk(statusValidator(300))
+    })
+  })
+
+  t.test('addRequestQueryParameters', {autoend: true}, t => {
+    t.test('should create request query parameters', t => {
+      const ctx = {
+        externalRequestsQueryParams: {
+          id: '1233',
+          place: '1 flow street'
+        }
+      }
+      const request = {
+        params: {
+          id: '',
+          place: ''
+        }
+      }
+
+      const params = addRequestQueryParameters(ctx, request)
+
+      t.equals(params.id, ctx.externalRequestsQueryParams.id)
+      t.equals(params.place, ctx.externalRequestsQueryParams.place)
+      t.end()
     })
   })
 })
