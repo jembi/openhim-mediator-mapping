@@ -4,7 +4,12 @@ const tap = require('tap')
 const http = require('http')
 const supertest = require('supertest')
 
-const {createTestEndpoint, removeTestEndpoint} = require('../testUtils')
+const {
+  createTestEndpoint,
+  removeTestEndpoint,
+  startExternalTestServer,
+  closeExternalTestServer
+} = require('../testUtils')
 
 let app, server, request
 
@@ -63,6 +68,8 @@ tap.test('Parsing Integration Tests', {autoend: true}, t => {
         <email>jet@openhim.org</email>
         </xml>`
 
+      startExternalTestServer()
+
       request
         .post('/integrationTest')
         .send(payload)
@@ -75,6 +82,8 @@ tap.test('Parsing Integration Tests', {autoend: true}, t => {
             t.fail(err)
           }
 
+          closeExternalTestServer()
+
           t.equals(
             res.text,
             '{"error":"IntegrationTest (openhim-unique-tx-id): Validation failed: data.requestBody should have required property \'name\'"}'
@@ -84,8 +93,13 @@ tap.test('Parsing Integration Tests', {autoend: true}, t => {
     }
   )
 
-  t.test('should successfully map xml object to json', t => {
-    const payload = `<xml>
+  t.test(
+    'should successfully map xml object to json and send external requests',
+    t => {
+      const id = '1233'
+      const place = '1 bas bas'
+      const code = '23424422'
+      const payload = `<xml>
         <name>Jet</name>
         <surname>Li</surname>
         <email>jet@openhim.org</email>
@@ -93,28 +107,27 @@ tap.test('Parsing Integration Tests', {autoend: true}, t => {
         <gender>Male</gender>
         <attributes>Polite</attributes>
         <attributes>Courageous</attributes>
+        <params><id>${id}</id><place>${place}</place></params>
         </xml>`
 
-    const expectedResponseBody = {
-      resourceType: 'Dj',
-      firstName: 'Jet',
-      lastName: 'Li',
-      character: ['Polite', 'Courageous']
+      startExternalTestServer()
+
+      request
+        .post(`/integrationTest?code=${code}`)
+        .send(payload)
+        .expect(200)
+        .set('Content-Type', 'application/xml')
+        .set('Accept', 'application/json')
+        .end((err, res) => {
+          if (err) {
+            t.fail(err)
+          }
+          closeExternalTestServer()
+
+          // The external server responds with a body that consists the query parameters sent in the request
+          t.deepEqual(res.body, {place, code})
+          t.end()
+        })
     }
-
-    request
-      .post('/integrationTest')
-      .send(payload)
-      .expect(200)
-      .set('Content-Type', 'application/xml')
-      .set('Accept', 'application/json')
-      .end((err, res) => {
-        if (err) {
-          t.fail(err)
-        }
-
-        t.deepEqual(res.body, expectedResponseBody)
-        t.end()
-      })
-  })
+  )
 })

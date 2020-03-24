@@ -3,6 +3,8 @@
 const fs = require('fs')
 const util = require('util')
 const path = require('path')
+const http = require('http')
+const url = require('url')
 const {
   inputMeta,
   inputValidation,
@@ -16,6 +18,7 @@ const inputValidationFilePath = path.resolve(pathToDirectory, inputValidation)
 const inputMappingFilePath = path.resolve(pathToDirectory, inputMapping)
 const inputConstantsFilePath = path.resolve(pathToDirectory, inputConstants)
 
+const port = '3444'
 const metaFileContent = {
   name: 'IntegrationTest',
   endpoint: {
@@ -24,6 +27,33 @@ const metaFileContent = {
   transformation: {
     input: 'XML',
     output: 'JSON'
+  },
+  requests: {
+    lookup: [
+      {
+        id: 'lookup',
+        config: {
+          method: 'get',
+          url: `http://localhost:${port}`,
+          params: {
+            id: ''
+          }
+        }
+      }
+    ],
+    response: [
+      {
+        id: 'response',
+        config: {
+          method: 'get',
+          url: `http://localhost:${port}`,
+          params: {
+            place: '',
+            code: ''
+          }
+        }
+      }
+    ]
   }
 }
 
@@ -47,6 +77,20 @@ const inputValidationFileContent = {
         }
       },
       required: ['name']
+    },
+    lookupRequests: {
+      type: 'object',
+      properties: {
+        lookup: {
+          type: 'object',
+          properties: {
+            id: {
+              type: 'string'
+            }
+          },
+          required: ['id']
+        }
+      }
     }
   }
 }
@@ -55,7 +99,8 @@ const inputMappingFileContent = {
   'constants.resourceType': 'resourceType',
   'requestBody.name': 'firstName',
   'requestBody.surname': 'lastName',
-  'requestBody.attributes': 'character'
+  'requestBody.attributes': 'character',
+  'lookupRequests.lookup.id': 'id'
 }
 
 const inputConstantsFileContent = {
@@ -101,5 +146,32 @@ exports.removeTestEndpoint = () => {
     fs.rmdir(pathToDirectory, err => {
       if (err) throw err
     })
+  }
+}
+
+let server
+
+// server for external requests tests. Returns body containing the query parameters in the request
+exports.startExternalTestServer = () => {
+  server = http.createServer((req, res) => {
+    const query = url.parse(req.url, true).query
+
+    if (query && query.id) {
+      res.writeHead(200, {'Content-Type': 'application/json'})
+      res.end(JSON.stringify({id: query.id}))
+    } else if (query && query.place && query.code) {
+      res.writeHead(200, {'Content-Type': 'application/json'})
+      res.end(JSON.stringify({place: query.place, code: query.code}))
+    } else {
+      res.writeHead(200, {'Content-Type': 'text/plain'})
+      res.end('')
+    }
+  })
+  server.listen(port)
+}
+
+exports.closeExternalTestServer = () => {
+  if (server) {
+    server.close()
   }
 }
