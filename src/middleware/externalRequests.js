@@ -36,7 +36,12 @@ const performRequests = (requests, ctx) => {
     // No body is sent out for now
     const body = null
 
-    return axios(prepareRequestConfig(requestDetails))
+    const requestParameters = addRequestQueryParameters(
+      ctx,
+      requestDetails.config
+    )
+
+    return axios(prepareRequestConfig(requestDetails, null, requestParameters))
       .then(res => {
         response = res
         response.body = res.data
@@ -105,11 +110,19 @@ const prepareLookupRequests = ctx => {
   )
 }
 
-const prepareRequestConfig = (requestDetails, requestBody) => {
+const prepareRequestConfig = (
+  requestDetails,
+  requestBody,
+  requestQueryParams
+) => {
   const body = {}
 
   if (requestBody) {
     body.data = requestBody
+  }
+
+  if (requestQueryParams) {
+    body.params = requestQueryParams
   }
 
   const requestOptions = Object.assign({}, requestDetails.config, body)
@@ -162,7 +175,9 @@ const prepareResponseRequests = async ctx => {
           request.config.method &&
           request.id
         ) {
-          const axiosConfig = prepareRequestConfig(request, body)
+          const params = addRequestQueryParameters(ctx, request.config)
+
+          const axiosConfig = prepareRequestConfig(request, body, params)
 
           return sendMappedObject(ctx, axiosConfig, request, body)
         }
@@ -300,6 +315,19 @@ const sendMappedObject = (ctx, axiosConfig, request, body) => {
         ctx.orchestrations.push(orchestration)
       }
     })
+}
+
+const addRequestQueryParameters = (ctx, request) => {
+  const requestQueryParams = {}
+
+  if (ctx.externalRequestsQueryParams && request.params) {
+    Object.keys(request.params).forEach(param => {
+      requestQueryParams[`${param}`] =
+        ctx.externalRequestsQueryParams[`${param}`]
+    })
+  }
+
+  return requestQueryParams
 }
 
 exports.requestsMiddleware = () => async (ctx, next) => {
