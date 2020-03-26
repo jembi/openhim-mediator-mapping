@@ -80,7 +80,8 @@ const performRequests = (requests, ctx) => {
             reqTimestamp,
             responseTimestamp,
             requestDetails.id,
-            error
+            error,
+            requestParameters
           )
 
           ctx.orchestrations.push(orchestration)
@@ -179,7 +180,7 @@ const prepareResponseRequests = async ctx => {
 
           const axiosConfig = prepareRequestConfig(request, body, params)
 
-          return sendMappedObject(ctx, axiosConfig, request, body)
+          return sendMappedObject(ctx, axiosConfig, request, body, params)
         }
       })
 
@@ -275,7 +276,13 @@ const setKoaResponseBody = (ctx, request, body) => {
   }
 }
 
-const sendMappedObject = (ctx, axiosConfig, request, body) => {
+const sendMappedObject = (
+  ctx,
+  axiosConfig,
+  request,
+  body,
+  requestParameters
+) => {
   const reqTimestamp = new Date()
   let response, error, responseTimestamp
 
@@ -309,7 +316,8 @@ const sendMappedObject = (ctx, axiosConfig, request, body) => {
           reqTimestamp,
           responseTimestamp,
           request.id,
-          error
+          error,
+          requestParameters
         )
 
         ctx.orchestrations.push(orchestration)
@@ -320,10 +328,29 @@ const sendMappedObject = (ctx, axiosConfig, request, body) => {
 const addRequestQueryParameters = (ctx, request) => {
   const requestQueryParams = {}
 
-  if (ctx.externalRequestsQueryParams && request.params) {
+  if (request.params) {
     Object.keys(request.params).forEach(param => {
-      requestQueryParams[`${param}`] =
-        ctx.externalRequestsQueryParams[`${param}`]
+      const parameterStringArray = request.params[`${param}`].split('.')
+
+      let parameterValue
+
+      if (parameterStringArray[0] === 'payload') {
+        for (let i = 1; i < parameterStringArray.length; i++) {
+          parameterValue = parameterValue
+            ? parameterValue[`${parameterStringArray[i]}`]
+            : ctx.request.body[`${parameterStringArray[i]}`]
+        }
+      } else if (parameterStringArray[0] === 'query' && ctx.request.query) {
+        for (let i = 1; i < parameterStringArray.length; i++) {
+          parameterValue = parameterValue
+            ? parameterValue[`${parameterStringArray[i]}`]
+            : ctx.request.query[`${parameterStringArray[i]}`]
+        }
+      }
+
+      if (parameterValue) {
+        requestQueryParams[`${param}`] = parameterValue
+      }
     })
   }
 
