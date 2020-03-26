@@ -36,7 +36,7 @@ const metaFileContent = {
           method: 'get',
           url: `http://localhost:${port}`,
           params: {
-            id: ''
+            id: 'payload.id'
           }
         }
       }
@@ -48,8 +48,8 @@ const metaFileContent = {
           method: 'get',
           url: `http://localhost:${port}`,
           params: {
-            place: '',
-            code: ''
+            place: 'payload.place.address',
+            code: 'query.code'
           }
         }
       }

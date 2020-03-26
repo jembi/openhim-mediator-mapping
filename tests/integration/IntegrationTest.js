@@ -107,7 +107,8 @@ tap.test('Parsing Integration Tests', {autoend: true}, t => {
         <gender>Male</gender>
         <attributes>Polite</attributes>
         <attributes>Courageous</attributes>
-        <params><id>${id}</id><place>${place}</place></params>
+        <id>${id}</id>
+        <place><address>${place}</address></place>
         </xml>`
 
       startExternalTestServer()

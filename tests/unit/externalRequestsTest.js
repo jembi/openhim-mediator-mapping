@@ -638,22 +638,31 @@ tap.test('External Requests', {autoend: true}, t => {
   t.test('addRequestQueryParameters', {autoend: true}, t => {
     t.test('should create request query parameters', t => {
       const ctx = {
-        externalRequestsQueryParams: {
-          id: '1233',
-          place: '1 flow street'
+        request: {
+          query: {
+            code: '1233'
+          },
+          body: {
+            id: '1233',
+            place: {
+              address: '1 flow street'
+            }
+          }
         }
       }
       const request = {
         params: {
-          id: '',
-          place: ''
+          id: 'payload.id',
+          place: 'payload.place.address',
+          code: 'query.code'
         }
       }
 
       const params = addRequestQueryParameters(ctx, request)
 
-      t.equals(params.id, ctx.externalRequestsQueryParams.id)
-      t.equals(params.place, ctx.externalRequestsQueryParams.place)
+      t.equals(params.id, ctx.request.body.id)
+      t.equals(params.place, ctx.request.body.place.address)
+      t.equals(params.code, ctx.request.query.code)
       t.end()
     })
   })
