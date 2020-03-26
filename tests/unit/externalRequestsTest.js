@@ -646,7 +646,19 @@ tap.test('External Requests', {autoend: true}, t => {
             id: '1233',
             place: {
               address: '1 flow street'
-            }
+            },
+            status: [
+              {},
+              {
+                rich: {
+                  status: [
+                    {
+                      sp: 'rich rich'
+                    }
+                  ]
+                }
+              }
+            ]
           }
         }
       }
@@ -654,6 +666,7 @@ tap.test('External Requests', {autoend: true}, t => {
         params: {
           id: 'payload.id',
           place: 'payload.place.address',
+          status: 'payload.status.[1].rich.status.[0].sp',
           code: 'query.code'
         }
       }
@@ -663,6 +676,7 @@ tap.test('External Requests', {autoend: true}, t => {
       t.equals(params.id, ctx.request.body.id)
       t.equals(params.place, ctx.request.body.place.address)
       t.equals(params.code, ctx.request.query.code)
+      t.equals(params.status, ctx.request.body.status[1].rich.status[0].sp)
       t.end()
     })
   })
