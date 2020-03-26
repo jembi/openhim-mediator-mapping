@@ -1,5 +1,7 @@
 'use strict'
 
+const querystring = require('querystring')
+
 exports.createOrchestration = (
   request,
   reqBody,
@@ -7,7 +9,8 @@ exports.createOrchestration = (
   reqTimestamp,
   responseTimestamp,
   orchestrationName,
-  error
+  error,
+  requestParameters
 ) => {
   if (!reqTimestamp || !orchestrationName)
     throw new Error(
@@ -34,6 +37,10 @@ exports.createOrchestration = (
 
   if (urlObject && urlObject.searchParams) {
     requestObject.queryString = urlObject.searchParams.toString()
+  }
+  if (requestParameters) {
+    requestObject.queryString =
+      requestObject.queryString + querystring.stringify(requestParameters)
   }
   if (request.headers) {
     requestObject.headers = request.headers
