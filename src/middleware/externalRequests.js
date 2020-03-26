@@ -330,21 +330,36 @@ const addRequestQueryParameters = (ctx, request) => {
 
   if (request.params) {
     Object.keys(request.params).forEach(param => {
-      const parameterStringArray = request.params[`${param}`].split('.')
+      const parameterLocationStringArray = request.params[`${param}`].split('.')
 
       let parameterValue
 
-      if (parameterStringArray[0] === 'payload') {
-        for (let i = 1; i < parameterStringArray.length; i++) {
-          parameterValue = parameterValue
-            ? parameterValue[`${parameterStringArray[i]}`]
-            : ctx.request.body[`${parameterStringArray[i]}`]
+      if (parameterLocationStringArray[0] === 'payload') {
+        for (let i = 1; i < parameterLocationStringArray.length; i++) {
+          const element = parameterLocationStringArray[i]
+          if (element) {
+            const splitElement = element.split('')
+
+            if (splitElement.shift() === '[' && splitElement.pop() === ']') {
+              const index = parseInt(splitElement.toString(), 10)
+              parameterValue = parameterValue
+                ? parameterValue[index]
+                : ctx.request.body[index]
+            } else {
+              parameterValue = parameterValue
+                ? parameterValue[`${element}`]
+                : ctx.request.body[`${element}`]
+            }
+          }
         }
-      } else if (parameterStringArray[0] === 'query' && ctx.request.query) {
-        for (let i = 1; i < parameterStringArray.length; i++) {
+      } else if (
+        parameterLocationStringArray[0] === 'query' &&
+        ctx.request.query
+      ) {
+        for (let i = 1; i < parameterLocationStringArray.length; i++) {
           parameterValue = parameterValue
-            ? parameterValue[`${parameterStringArray[i]}`]
-            : ctx.request.query[`${parameterStringArray[i]}`]
+            ? parameterValue[`${parameterLocationStringArray[i]}`]
+            : ctx.request.query[`${parameterLocationStringArray[i]}`]
         }
       }
 
