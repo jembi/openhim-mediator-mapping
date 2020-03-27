@@ -330,13 +330,14 @@ const addRequestQueryParameters = (ctx, request) => {
 
   if (request.params) {
     Object.keys(request.params).forEach(param => {
-      const parameterLocationStringArray = request.params[`${param}`].split('.')
-
+      const parameterPathStringArray = request.params[`${param}`].path.split(
+        '.'
+      )
       let parameterValue
 
-      if (parameterLocationStringArray[0] === 'payload') {
-        for (let i = 1; i < parameterLocationStringArray.length; i++) {
-          const element = parameterLocationStringArray[i]
+      if (parameterPathStringArray[0] === 'payload') {
+        for (let i = 1; i < parameterPathStringArray.length; i++) {
+          const element = parameterPathStringArray[i]
           if (element) {
             const splitElement = element.split('')
 
@@ -352,19 +353,22 @@ const addRequestQueryParameters = (ctx, request) => {
             }
           }
         }
-      } else if (
-        parameterLocationStringArray[0] === 'query' &&
-        ctx.request.query
-      ) {
-        for (let i = 1; i < parameterLocationStringArray.length; i++) {
+      } else if (parameterPathStringArray[0] === 'query' && ctx.request.query) {
+        for (let i = 1; i < parameterPathStringArray.length; i++) {
           parameterValue = parameterValue
-            ? parameterValue[`${parameterLocationStringArray[i]}`]
-            : ctx.request.query[`${parameterLocationStringArray[i]}`]
+            ? parameterValue[`${parameterPathStringArray[i]}`]
+            : ctx.request.query[`${parameterPathStringArray[i]}`]
         }
       }
 
       if (parameterValue) {
-        requestQueryParams[`${param}`] = parameterValue
+        const prefix = request.params[`${param}`].prefix
+          ? request.params[`${param}`].prefix
+          : ''
+        const postfix = request.params[`${param}`].prefix
+          ? request.params[`${param}`].postfix
+          : ''
+        requestQueryParams[`${param}`] = prefix + parameterValue + postfix
       }
     })
   }

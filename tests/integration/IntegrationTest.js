@@ -126,7 +126,7 @@ tap.test('Parsing Integration Tests', {autoend: true}, t => {
           closeExternalTestServer()
 
           // The external server responds with a body that consists the query parameters sent in the request
-          t.deepEqual(res.body, {place, code})
+          t.deepEqual(res.body, {place, code: `code:${code}:code`})
           t.end()
         })
     }

@@ -640,7 +640,8 @@ tap.test('External Requests', {autoend: true}, t => {
       const ctx = {
         request: {
           query: {
-            code: '1233'
+            code: '1233',
+            name: 'brad'
           },
           body: {
             id: '1233',
@@ -662,12 +663,32 @@ tap.test('External Requests', {autoend: true}, t => {
           }
         }
       }
+      const postfix = ':thesecond'
+      const prefix = 'sir:'
       const request = {
         params: {
-          id: 'payload.id',
-          place: 'payload.place.address',
-          status: 'payload.status.[1].rich.status.[0].sp',
-          code: 'query.code'
+          id: {
+            path: 'payload.id'
+          },
+          place: {
+            path: 'payload.place.address'
+          },
+          status: {
+            path: 'payload.status.[1].rich.status.[0].sp'
+          },
+          code: {
+            path: 'query.code'
+          },
+          name: {
+            path: 'query.name',
+            postfix,
+            prefix
+          },
+          surname: {
+            path: 'query.surname',
+            postfix,
+            prefix
+          }
         }
       }
 
@@ -677,6 +698,7 @@ tap.test('External Requests', {autoend: true}, t => {
       t.equals(params.place, ctx.request.body.place.address)
       t.equals(params.code, ctx.request.query.code)
       t.equals(params.status, ctx.request.body.status[1].rich.status[0].sp)
+      t.equals(params.name, `${prefix + ctx.request.query.name + postfix}`)
       t.end()
     })
   })
