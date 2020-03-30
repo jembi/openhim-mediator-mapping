@@ -674,7 +674,7 @@ tap.test('External Requests', {autoend: true}, t => {
             path: 'payload.place.address'
           },
           status: {
-            path: 'payload.status.[1].rich.status.[0].sp'
+            path: 'payload.status[1].rich.status[0].sp'
           },
           code: {
             path: 'query.code'

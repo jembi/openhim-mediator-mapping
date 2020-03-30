@@ -341,11 +341,27 @@ const addRequestQueryParameters = (ctx, request) => {
           if (element) {
             const splitElement = element.split('')
 
-            if (splitElement.shift() === '[' && splitElement.pop() === ']') {
-              const index = parseInt(splitElement.toString(), 10)
+            if (splitElement.pop() === ']' && splitElement.includes('[')) {
+              let openBracketIndex
+
+              splitElement.forEach((v, i) => {
+                if (v === '[') {
+                  openBracketIndex = i
+                }
+              })
+
+              const index = parseInt(
+                splitElement.slice(openBracketIndex + 1).join(''),
+                10
+              ).toString()
+
               parameterValue = parameterValue
-                ? parameterValue[index]
-                : ctx.request.body[index]
+                ? parameterValue[
+                    `${splitElement.slice(0, openBracketIndex).join('')}`
+                  ][index]
+                : ctx.request.body[
+                    `${splitElement.slice(0, openBracketIndex).join('')}`
+                  ][index]
             } else {
               parameterValue = parameterValue
                 ? parameterValue[`${element}`]
