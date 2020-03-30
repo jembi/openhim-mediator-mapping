@@ -365,7 +365,7 @@ const addRequestQueryParameters = (ctx, request) => {
         const prefix = request.params[`${param}`].prefix
           ? request.params[`${param}`].prefix
           : ''
-        const postfix = request.params[`${param}`].prefix
+        const postfix = request.params[`${param}`].postfix
           ? request.params[`${param}`].postfix
           : ''
         requestQueryParams[`${param}`] = prefix + parameterValue + postfix
