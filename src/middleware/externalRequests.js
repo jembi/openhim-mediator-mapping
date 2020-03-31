@@ -60,7 +60,7 @@ const performRequests = (requests, ctx) => {
           )
         } else if (error.request) {
           throw new Error(
-            `No response from lookup '${requestDetails.id}'. ${error.request}`
+            `No response from lookup '${requestDetails.id}'. ${error.message}`
           )
         } else {
           // Something happened in setting up the request that triggered an Error
