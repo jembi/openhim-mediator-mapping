@@ -5,6 +5,16 @@ const Ajv = require('ajv')
 const logger = require('../logger')
 const config = require('../config').getConfig()
 
+const ajv = new Ajv({
+  nullable: config.validation.nullable,
+  coerceTypes: config.validation.coerceTypes,
+  allErrors: true,
+  jsonPointers: true
+})
+
+// Ajv options allErrors and jsonPointers are required
+require('ajv-errors')(ajv /*, {singleError: true} */);
+
 const performValidation = (ctx, schema) => {
   if (!schema) {
     logger.warn(
@@ -28,11 +38,6 @@ const performValidation = (ctx, schema) => {
       `${ctx.state.metaData.name} (${ctx.state.uuid}): No data to validate`
     )
   }
-
-  const ajv = new Ajv({
-    nullable: config.validation.nullable,
-    coerceTypes: config.validation.coerceTypes
-  })
 
   const valid = ajv.validate(schema, dataToValidate)
 
