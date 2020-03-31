@@ -13,7 +13,7 @@ const ajv = new Ajv({
 })
 
 // Ajv options allErrors and jsonPointers are required
-require('ajv-errors')(ajv /*, {singleError: true} */);
+require('ajv-errors')(ajv /*, {singleError: true} */)
 
 const performValidation = (ctx, schema) => {
   if (!schema) {
