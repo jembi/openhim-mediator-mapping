@@ -4,6 +4,9 @@ title: Endpoints
 sidebar_label: Endpoints
 ---
 
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
 ## Configuration files
 
 The configuration files must be stored in a directory in the root of the project named endpoints. This endpoints directory should be further broken down into sub-directories each containing a minimum of four specific files: `meta.json`, `input-mapping.json`, `input-validation.json`, and `constants.json`. `output.json` is optional at this point. The endpoints directory should be in the following structure:
@@ -37,6 +40,7 @@ The `meta.json` file contains the details involved for route setup. The followin
 - Mapping route path
 - Expected **input** message type
 - Desired **output** message type
+- External requests
 
 #### Mapping Route Path
 
@@ -50,11 +54,250 @@ Specify the expected input message type for this specific endpoint to allow the 
 
 Specify the desired output message type for this specific endpoint to allow the OpenHIM Mapping Mediator to successfully parse the outgoing message. Current accepted formats are `JSON` and `XML`
 
+#### External Requests
+
+This feature allows for data lookups from external services and the sending of the mapped data to external services. The data to look up and the services where the result of the mapping should be sent are specified in the `meta.json`. The data looked up is aggregated with the input data before the validation is done. Below is a sample of a `meta.json`
+
+```json
+{
+  "name": "Test",
+  "endpoint": {
+    "pattern": "/test"
+  },
+  "transformation": {
+    "input": "XML",
+    "output": "JSON"
+  },
+  "requests": {
+    "lookup": [
+      {
+        "id": "1223",
+        "config": {
+          "method": "get",
+          "url": "http://localhost:3444/encounters/",
+          "params": {
+            "id": {
+              "path": "payload.id",
+              "prefix": "",
+              "postfix": ""
+            },
+            "address":{
+              "path": "query.location",
+              "prefix": "",
+              "postfix": ""
+            }
+          }
+        }
+      }
+    ],
+    "response": [
+      {
+        "id": "4433",
+        "config": {
+          "method": "post",
+          "url": "http://localhost:3456/encounters?msn=23",
+          "params": {
+            "place":{
+              "path": "payload.location[0].code",
+              "prefix": "",
+              "postfix": ""
+            },
+            "code": {
+              "path": "query.unit",
+              "postfix": "",
+              "prefix": ""
+            }
+          }
+        }
+      }
+    ]
+  }
+}
+```
+
+There are two types of external requests, the `lookup` and the `response`. Query parameters for the external request can be dynamically populated
+
+<Tabs
+  defaultValue="lookup"
+  values={
+    [
+      { label: 'Lookup', value: 'lookup' },
+      { label: 'Response', value: 'response' },
+      { label: 'Query population', value: 'query' },
+    ]
+  }>
+  <TabItem value="lookup">
+
+  You can fetch data that you want to map. The retrieved data will be aggregated with the input data supplied in the request body. The following shows the aggregation
+
+  ```json
+  Lookup request:
+
+  {
+    "requests": {
+      "lookup": [
+        {
+          "id": "location",
+          "config": {
+            "method": "get",
+            "url": "http://localhost:3444/location/1",
+            "params": {
+              "id": {
+                "path": "payload.id"
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+
+
+  The aggregated input that will be validated and then mapped will look like below
+
+
+  {
+    lookupRequests: {
+      location: <Result from lookup>
+    },
+    responseBody: {}
+  }
+  ```
+
+  </TabItem>
+
+  <TabItem value="response">
+
+  The result of the mapping can be orchestrated to external services. The result that will be sent back to the user is the response from the external services. If the mapped data is being orchestrated to multiple services the response sent back is an aggregation of the responses from the multiple services unless one of the external requests is set to be the `primary`.
+
+  The examples below show the expected responses when there is a primary request and when there is not.
+
+  ```json
+  Primary request specified:
+
+  {
+    "requests": {
+      "response": [
+        {
+          "id": "dhis",
+          "config": {
+            "method": "get",
+            "url": "http://localhost:3444/encounters/1",
+            "params": {
+              "id": {
+                "path": "payload.id",
+                "prefix": "",
+                "postfix": ""
+            }
+          }
+        },
+        {
+          "id": "redcap",
+          "config": {
+            "method": "get",
+            "url": "http://localhost:3444/encounters/1",
+            "params": {
+              "id": {
+                "path": "payload.id",
+                "prefix": "",
+                "postfix": ""
+              }
+            },
+            "primary": false
+          }
+        }
+      ]
+    }
+  }
+  ```
+
+  ```js
+  Expected response:
+
+  {
+    body: {
+      dhis: 'Response from dhis',
+      redcap: 'Response from redcap'
+    }
+  }
+  ```
+
+  If one request has the property primary set to true or when there is only one request, the expected response is what is shown below
+
+  ```js
+  {
+    body: 'Response body'
+  }
+  ```
+
+  </TabItem>
+  <TabItems value="query">
+
+  The query parameters for the external requests can be populated from the incoming request's body and query object. The query parameters to be added can be specified in the `meta.json` as shown below in config params object
+
+  ```json
+  {
+    "requests": {
+      "lookup": [
+        {
+          "id": "iscec",
+          "config": {
+            "method": "get",
+            "url": "http://localhost:3444/encounters/1",
+            "params": {
+              "id": {
+                "path": "payload.id",
+                "prefix": "prefix",
+                "postfix": "postfix"
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+  ```
+
+  The `id` is the name of the query parameter. The `path` is the location of the value of the parameter in the incoming request body or query object. For values retrieved from the request body the `path` is specified by prefixing the path with the key word `payload` and for retrieving from the query the keyword is `query`. Below are examples of paths
+
+  ```json
+  {
+    "config": {
+      "params": {
+        "id": {
+          "path": "payload.ids[0].nationalId"
+        },
+        "name": {
+          "path": "query.name"
+        }
+      }
+    }
+  }
+  ```
+
+  The properties `postfix` and `prefix` are optional. An example use case is given below
+
+  For a query parameter that has the following format `code:<Facility code>:section:52`, if we are retrieving the `Facility code` from the payload or query we can specify this as shown below
+
+  ```json
+  {
+    "params": {
+      "filter": {
+        "path": "payload.facility_code",
+        "prefix": "code:",
+        "postfix": ":section:52"
+      }
+    }
+  }
+  ```
+
+  If say the facility code in the payload is **1223**, the specification above will enable us to have a query parameter - **?filter=code:1223:section:52**
+  </TabItems>
+</Tabs>
+
 ### 2. Input Validation Schema
 
-To ensure good data quality, the Mapping mediator implements a validation middleware layer. This middleware layer will validate the user's input before mapping the output object. Applying the validation middleware is recommended but optional. The level of validation is completely configurable by the user. Any fields that don't require validation can be left out of the validation schema.
-
-For the validation, the module [AJV](https://www.npmjs.com/package/ajv) is used. The validation schema has to be defined in a file named `input-validation.json` within your created subdirectory within `/endpoints`. By default, the values of the user's input properties can be set to `nullable`. To prevent any `null` values passing validation supply the following environment variable **VALIDATION_ACCEPT_NULL_VALUES=false** on app start up. Below is an example of the validation schema.
+The data to be mapped can be validated before the mapping occurs. A validation schema has to be created in the `input-validation.json` file. Below is a sample of a validation schema
 
 ```json
 {
@@ -62,28 +305,16 @@ For the validation, the module [AJV](https://www.npmjs.com/package/ajv) is used.
   "properties": {
     "name": {"type": "string"},
     "surname": {"type": "string", "nullable": true},
-    "emails": {"type": "array", "items": {"type": "string", "format": "email"}},
-    "date": {"type": "string", "format": "date-time"},
-    "id": {"type": "string", "format": "uuid"},
-    "jobs": {
-      "type": "object",
-      "properties": {"marketing": {"type": "string"}},
-      "required": ["marketing"]
-    }
   },
-  "required": ["name", "id", "emails"]
+  "required": ["name"]
 }
 ```
 
-Data types such as `date`, `email`, `uuid`, etc. all inherit the type `string`. To specify the type, use the keyword `format` as seen above.
-
-> The [formats](https://github.com/epoberezkin/ajv/blob/master/KEYWORDS.md#format) that are supported are: **date**, **date-time**, **uri**, **email**, **hostname**, **ipv6** and **regex**. More validation rules are available [here](https://www.npmjs.com/package/ajv#validation-keywords)
+For more details on this check out [validation](./validation.md)
 
 ### 3. Input Mapping Schema
 
 The mapping schema in the `input-mapping.json` JSON document defines how the incoming data will be retrieved and used to build up a new object in the desired outcome.
-
-The basic structure of this schema is `key:value` based. This means that the `key` of the object defines where to look for a value from the incoming document, and the `value` of that `key` defines where to populate/build the new property on the outgoing document.
 
 The root structure of this input mapping schema consists of two properties as defined below
 
@@ -94,23 +325,57 @@ The root structure of this input mapping schema consists of two properties as de
 }
 ```
 
-The root `input` property is used to define the mapping of the incoming document and populate/build the outgoing object. The `constants` property is used to make reference to the `constants.json` schema for using static values that do not come from the incoming document.
+The structure for both the properties are the same and are defined as below. Below is an example of the mapping
 
-The structure for both these properties are the same and are defined as below.
+<Tabs
+  defaultValue="input"
+  values={
+    [
+      { label: 'Input', value: 'input' },
+      { label: 'Mapping Schema', value: 'mapping' },
+      { label: 'Output', value: 'output' },
+    ]
+  }
+>
+<TabItem value="input">
 
-```javascript
+```js
 {
-  "input": {
-    "rootProperty": "rootProperty", // map incoming root property to an outgoing root property
-    "rootObject.object1.object2.property": "rootObject.property", // map incoming nested property to an outgoing nested property
-    "array[]": "array", // map incoming root array to an outgoing array.
-    "rootArray[1]": "rootArray[1]", // map incoming root array at index 1 to an outgoing array at index 1 (useful when using an output.json template to override a specific index value).
-    "rootArray[].property": "rootArray[].property", // map all incoming array nested property to an outgoing array nested property. Note: not specifying an index for the array will push in the new value, instead of overriding it at the specified index
-    "rootArray[1].property": "rootArray[1].property", // map incoming array nested property at index 1 to an outgoing array nested property at index 1 (useful when using an output.json template to override a specific index value).
-    "rootObject.array[].property": "rootObject.object1.array[].property", // map incoming property that is an array of objects to an outgoing object with a nested object containing an array of objects
+  requestBody: {
+    status: 'Active'
+  },
+  lookupRequests: {
+    location: 'Unknown'
   }
 }
 ```
+
+</TabItem>
+<TabItem value="mapping">
+
+```json
+{
+  "input": {
+    "requestBody.status": "status",
+    "lookupRequests.location": "location"
+  }
+}
+```
+
+</TabItem>
+<TabItem value="output">
+
+```js
+{
+  status: 'Active',
+  location: 'Unknown'
+}
+```
+
+</TabItem>
+</Tabs>
+
+For more details check out [transformation](./transformation)
 
 ### 4. Constants
 
