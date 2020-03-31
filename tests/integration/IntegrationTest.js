@@ -26,6 +26,7 @@ tap.test('Parsing Integration Tests', {autoend: true}, t => {
       request = supertest(server)
       t.end()
     })
+    startExternalTestServer()
   })
 
   tap.tearDown(() => {
@@ -33,6 +34,7 @@ tap.test('Parsing Integration Tests', {autoend: true}, t => {
 
     // Remove the test endpoint folder
     removeTestEndpoint()
+    closeExternalTestServer()
   })
 
   t.test(
@@ -68,8 +70,6 @@ tap.test('Parsing Integration Tests', {autoend: true}, t => {
         <email>jet@openhim.org</email>
         </xml>`
 
-      startExternalTestServer()
-
       request
         .post('/integrationTest')
         .send(payload)
@@ -81,8 +81,6 @@ tap.test('Parsing Integration Tests', {autoend: true}, t => {
           if (err) {
             t.fail(err)
           }
-
-          closeExternalTestServer()
 
           t.equals(
             res.text,
@@ -111,8 +109,6 @@ tap.test('Parsing Integration Tests', {autoend: true}, t => {
         <place><address>${place}</address></place>
         </xml>`
 
-      startExternalTestServer()
-
       request
         .post(`/integrationTest?code=${code}`)
         .send(payload)
@@ -123,7 +119,6 @@ tap.test('Parsing Integration Tests', {autoend: true}, t => {
           if (err) {
             t.fail(err)
           }
-          closeExternalTestServer()
 
           // The external server responds with a body that consists the query parameters sent in the request
           t.deepEqual(res.body, {place, code: `code:${code}:code`})
