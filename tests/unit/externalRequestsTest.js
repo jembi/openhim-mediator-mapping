@@ -12,6 +12,9 @@ const setKoaResponseBodyFromPrimary = externalRequests.__get__(
   'setKoaResponseBodyFromPrimary'
 )
 const handleRequestError = externalRequests.__get__('handleRequestError')
+const addRequestQueryParameters = externalRequests.__get__(
+  'addRequestQueryParameters'
+)
 
 tap.test('External Requests', {autoend: true}, t => {
   t.test('prepareResponseRequests', {autoend: true}, t => {
@@ -629,6 +632,74 @@ tap.test('External Requests', {autoend: true}, t => {
       t.ok(statusValidator(299))
       t.ok(statusValidator(403))
       t.notOk(statusValidator(300))
+    })
+  })
+
+  t.test('addRequestQueryParameters', {autoend: true}, t => {
+    t.test('should create request query parameters', t => {
+      const ctx = {
+        request: {
+          query: {
+            code: '1233',
+            name: 'brad'
+          },
+          body: {
+            id: '1233',
+            place: {
+              address: '1 flow street'
+            },
+            status: [
+              {},
+              {
+                rich: {
+                  status: [
+                    {
+                      sp: 'rich rich'
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      }
+      const postfix = ':thesecond'
+      const prefix = 'sir:'
+      const request = {
+        params: {
+          id: {
+            path: 'payload.id'
+          },
+          place: {
+            path: 'payload.place.address'
+          },
+          status: {
+            path: 'payload.status[1].rich.status[0].sp'
+          },
+          code: {
+            path: 'query.code'
+          },
+          name: {
+            path: 'query.name',
+            postfix,
+            prefix
+          },
+          surname: {
+            path: 'query.surname',
+            postfix,
+            prefix
+          }
+        }
+      }
+
+      const params = addRequestQueryParameters(ctx, request)
+
+      t.equals(params.id, ctx.request.body.id)
+      t.equals(params.place, ctx.request.body.place.address)
+      t.equals(params.code, ctx.request.query.code)
+      t.equals(params.status, ctx.request.body.status[1].rich.status[0].sp)
+      t.equals(params.name, `${prefix + ctx.request.query.name + postfix}`)
+      t.end()
     })
   })
 })

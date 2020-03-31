@@ -4,6 +4,7 @@ const axios = require('axios')
 const logger = require('../logger')
 const {createOrchestration, setStatusText} = require('../orchestrations')
 const {constructOpenhimResponse} = require('../openhim')
+const {extractValueFromObject} = require('../util')
 
 const validateRequestStatusCode = allowedStatuses => {
   const stringStatuses = allowedStatuses.map(status => {
@@ -36,7 +37,12 @@ const performRequests = (requests, ctx) => {
     // No body is sent out for now
     const body = null
 
-    return axios(prepareRequestConfig(requestDetails))
+    const requestParameters = addRequestQueryParameters(
+      ctx,
+      requestDetails.config
+    )
+
+    return axios(prepareRequestConfig(requestDetails, null, requestParameters))
       .then(res => {
         response = res
         response.body = res.data
@@ -55,7 +61,7 @@ const performRequests = (requests, ctx) => {
           )
         } else if (error.request) {
           throw new Error(
-            `No response from lookup '${requestDetails.id}'. ${error.request}`
+            `No response from lookup '${requestDetails.id}'. ${error.message}`
           )
         } else {
           // Something happened in setting up the request that triggered an Error
@@ -75,7 +81,8 @@ const performRequests = (requests, ctx) => {
             reqTimestamp,
             responseTimestamp,
             requestDetails.id,
-            error
+            error,
+            requestParameters
           )
 
           ctx.orchestrations.push(orchestration)
@@ -105,11 +112,19 @@ const prepareLookupRequests = ctx => {
   )
 }
 
-const prepareRequestConfig = (requestDetails, requestBody) => {
+const prepareRequestConfig = (
+  requestDetails,
+  requestBody,
+  requestQueryParams
+) => {
   const body = {}
 
   if (requestBody) {
     body.data = requestBody
+  }
+
+  if (requestQueryParams) {
+    body.params = requestQueryParams
   }
 
   const requestOptions = Object.assign({}, requestDetails.config, body)
@@ -162,9 +177,11 @@ const prepareResponseRequests = async ctx => {
           request.config.method &&
           request.id
         ) {
-          const axiosConfig = prepareRequestConfig(request, body)
+          const params = addRequestQueryParameters(ctx, request.config)
 
-          return sendMappedObject(ctx, axiosConfig, request, body)
+          const axiosConfig = prepareRequestConfig(request, body, params)
+
+          return sendMappedObject(ctx, axiosConfig, request, body, params)
         }
       })
 
@@ -260,7 +277,13 @@ const setKoaResponseBody = (ctx, request, body) => {
   }
 }
 
-const sendMappedObject = (ctx, axiosConfig, request, body) => {
+const sendMappedObject = (
+  ctx,
+  axiosConfig,
+  request,
+  body,
+  requestParameters
+) => {
   const reqTimestamp = new Date()
   let response, error, responseTimestamp
 
@@ -294,12 +317,49 @@ const sendMappedObject = (ctx, axiosConfig, request, body) => {
           reqTimestamp,
           responseTimestamp,
           request.id,
-          error
+          error,
+          requestParameters
         )
 
         ctx.orchestrations.push(orchestration)
       }
     })
+}
+
+const addRequestQueryParameters = (ctx, request) => {
+  const requestQueryParams = {}
+
+  if (request.params) {
+    Object.keys(request.params).forEach(param => {
+      let parameterValue
+      const queryParam = request.params[`${param}`]
+      const fullPath = queryParam.path
+
+      // remove first index as this defines the type of param to extract
+      const extractType = fullPath.split('.')[0]
+
+      // remove the extractType property from path
+      const path = fullPath.replace(`${extractType}.`, '')
+
+      if (extractType === 'payload') {
+        parameterValue = extractValueFromObject(ctx.request.body, path)
+      } else if (extractType === 'query' && ctx.request.query) {
+        parameterValue = extractValueFromObject(ctx.request.query, path)
+      }
+
+      if (parameterValue) {
+        const prefix = request.params[`${param}`].prefix
+          ? request.params[`${param}`].prefix
+          : ''
+        const postfix = request.params[`${param}`].postfix
+          ? request.params[`${param}`].postfix
+          : ''
+        requestQueryParams[`${param}`] = `${prefix}${parameterValue}${postfix}`
+      }
+    })
+  }
+
+  return requestQueryParams
 }
 
 exports.requestsMiddleware = () => async (ctx, next) => {

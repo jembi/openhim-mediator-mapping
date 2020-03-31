@@ -90,6 +90,7 @@ const parseIncomingBody = async (ctx, inputFormat) => {
         // pass in a empty function in place of the next() callback used in the middleware
         // next() is handled outside of the internal middleware
         // Using next() inside this middleware inject the next middleware logic inside this one
+
         if (
           ctx.request.header &&
           ctx.request.header['x-openhim-transactionid']

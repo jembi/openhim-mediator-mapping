@@ -84,8 +84,8 @@ const setUpRoutes = router => {
       router.post(
         metaData.endpoint.pattern,
         initiateContextMiddleware(metaData),
-        requestsMiddleware(),
         parseBodyMiddleware(),
+        requestsMiddleware(),
         validateBodyMiddleware(validationMap),
         mapBodyMiddleware(mappingSchema, constants)
       )
