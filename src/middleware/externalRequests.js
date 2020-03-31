@@ -4,6 +4,7 @@ const axios = require('axios')
 const logger = require('../logger')
 const {createOrchestration, setStatusText} = require('../orchestrations')
 const {constructOpenhimResponse} = require('../openhim')
+const {extractValueFromObject} = require('../util')
 
 const validateRequestStatusCode = allowedStatuses => {
   const stringStatuses = allowedStatuses.map(status => {
@@ -330,51 +331,20 @@ const addRequestQueryParameters = (ctx, request) => {
 
   if (request.params) {
     Object.keys(request.params).forEach(param => {
-      const parameterPathStringArray = request.params[`${param}`].path.split(
-        '.'
-      )
       let parameterValue
+      const queryParam = request.params[`${param}`]
+      const fullPath = queryParam.path
 
-      if (parameterPathStringArray[0] === 'payload') {
-        for (let i = 1; i < parameterPathStringArray.length; i++) {
-          const element = parameterPathStringArray[i]
-          if (element) {
-            const splitElement = element.split('')
+      // remove first index as this defines the type of param to extract
+      const extractType = fullPath.split('.')[0]
 
-            if (splitElement.pop() === ']' && splitElement.includes('[')) {
-              let openBracketIndex
+      // remove the extractType property from path
+      const path = fullPath.replace(`${extractType}.`, '')
 
-              splitElement.forEach((v, i) => {
-                if (v === '[') {
-                  openBracketIndex = i
-                }
-              })
-
-              const index = parseInt(
-                splitElement.slice(openBracketIndex + 1).join(''),
-                10
-              ).toString()
-
-              parameterValue = parameterValue
-                ? parameterValue[
-                    `${splitElement.slice(0, openBracketIndex).join('')}`
-                  ][index]
-                : ctx.request.body[
-                    `${splitElement.slice(0, openBracketIndex).join('')}`
-                  ][index]
-            } else {
-              parameterValue = parameterValue
-                ? parameterValue[`${element}`]
-                : ctx.request.body[`${element}`]
-            }
-          }
-        }
-      } else if (parameterPathStringArray[0] === 'query' && ctx.request.query) {
-        for (let i = 1; i < parameterPathStringArray.length; i++) {
-          parameterValue = parameterValue
-            ? parameterValue[`${parameterPathStringArray[i]}`]
-            : ctx.request.query[`${parameterPathStringArray[i]}`]
-        }
+      if (extractType === 'payload') {
+        parameterValue = extractValueFromObject(ctx.request.body, path)
+      } else if (extractType === 'query' && ctx.request.query) {
+        parameterValue = extractValueFromObject(ctx.request.query, path)
       }
 
       if (parameterValue) {
@@ -384,7 +354,7 @@ const addRequestQueryParameters = (ctx, request) => {
         const postfix = request.params[`${param}`].postfix
           ? request.params[`${param}`].postfix
           : ''
-        requestQueryParams[`${param}`] = prefix + parameterValue + postfix
+        requestQueryParams[`${param}`] = `${prefix}${parameterValue}${postfix}`
       }
     })
   }
