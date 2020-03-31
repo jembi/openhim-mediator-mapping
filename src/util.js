@@ -29,7 +29,6 @@ exports.extractValueFromObject = (obj, path, def) => {
     path.split('.').forEach(function(item) {
       // Split to an array with bracket notation
       item.split(/\[([^}]+)\]/g).forEach(function(key) {
-
         // Push to the new array
         if (key.length > 0) {
           output.push(key)
