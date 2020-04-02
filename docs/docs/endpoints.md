@@ -168,7 +168,7 @@ There are two types of external requests, the `lookup` and the `response`. Query
 
   <TabItem value="response">
 
-  The result of the mapping can be orchestrated to external services. The result that will be sent back to the user is the response from the external services. If the mapped data is being orchestrated to multiple services the response sent back is an aggregation of the responses from the multiple services unless one of the external requests is set to be the `primary`.
+  The result of the mapping can be orchestrated to external services. The result that will be sent back to the user is the response from the external services. If the mapped data is being orchestrated to multiple services, the response sent back is an aggregation of the responses from the multiple services unless one of the external requests is set to be the `primary`.
 
   The examples below show the expected responses when there is a primary request and when there is not.
 
