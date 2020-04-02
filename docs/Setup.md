@@ -328,7 +328,7 @@ For a query parameter that has the following format `code:<Facility code>:sectio
 }
 ```
 
-The specification above will enable us to have a query parameter - `?filter=code:<facility_code from payload>:section:52`
+The specification above will enable us to have the query parameter - `?filter=code:<facility_code from payload>:section:52`
 
 ### 2. Input Validation Schema
 
