@@ -295,7 +295,7 @@ The query parameters for the external requests can be populated from the incomin
 }
 ```
 
-The `id` is the name of the query parameter. The `path` is the location of the value of the parameter in the incoming request body or query object. For values retrieved from the request body the `path` is specified by prefixing the path with the key word `payload` and for retrieving from the query the keyword is `query`. Below are examples of paths
+The `id` is the name of the query parameter. The `path` is the location of the value of the parameter in the incoming request body or query object. For values retrieved from the request body, the `path` is specified by prefixing the path with the keyword `payload` and for retrieving from the query, the keyword is `query`. Below are some examples of paths.
 
 ```json
 {
