@@ -206,7 +206,7 @@ The aggregated input that will be validated and then mapped will look like below
 
 ##### Response
 
-The result of the mapping can be orchestrated to external services. The result that will be sent back to the user is the response from the external services. If the mapped data is being orchestrated to multiple services the response sent back is an aggregation of the responses from the multiple services unless one of the external requests is set to be the `primary`.
+The mapping result can be orchestrated to external services. The result that will be sent back to the user is the response from the external service. If the mapped data is being orchestrated to multiple services, the response sent back is an aggregation of the responses from those services. Unless one of the external requests is set to be the `primary`. In this case, only the response marked `primary` will be returned o the user.
 
 The examples below show the expected responses when there is a primary request and when there is not.
 
