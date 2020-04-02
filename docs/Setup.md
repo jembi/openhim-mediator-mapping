@@ -270,7 +270,7 @@ If one request has the property primary set to true or when there is only one re
 
 ##### Query parameter population
 
-The query parameters for the external requests can be populated from the incoming request's body and query object. The query parameters to be added can be specified in the `meta.json` as shown below in config params object
+The query parameters for the external requests can be populated from the incoming request body and query object. The query parameters to be added can be specified in the `meta.json` file as shown below in the config params object.
 
 ```json
 {
