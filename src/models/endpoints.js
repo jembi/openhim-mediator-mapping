@@ -20,4 +20,4 @@ const endpointSchema = new mongoose.Schema({
   lastUpdated: {type: Date, required: true}
 })
 
-exports.endpoint = mongoose.model('endpoint', endpointSchema)
+module.exports = mongoose.model('endpoint', endpointSchema)
