@@ -314,7 +314,7 @@ The `id` is the name of the query parameter. The `path` is the location of the v
 
 The properties `postfix` and `prefix` are optional. An example use case is given below
 
-For a query parameter that has the following format `code:<Facility code>:section:52`, if we are retrieving the `Facility code` from the payload or query we can specify this as shown below
+For a query parameter that has the following format `code:<Facility code>:section:52`, we can specify whether we are retrieving the `Facility code` from the `payload` or `query` as shown below.
 
 ```json
 {
