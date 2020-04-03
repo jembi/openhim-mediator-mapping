@@ -45,3 +45,7 @@ exports.CreateEndpointRoute = router => {
     }
   })
 }
+
+exports.readEndpoints = (queryParams, desiredFields) => {
+  return EndpointModel.find(queryParams, desiredFields)
+}
