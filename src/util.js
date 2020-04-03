@@ -1,5 +1,7 @@
 'use strict'
 
+const logger = require('./logger')
+
 exports.parseStringToBoolean = (value, defaultValue) => {
   if (!value) return defaultValue
 
@@ -54,4 +56,11 @@ exports.extractValueFromObject = (obj, path, def) => {
   }
 
   return current
+}
+
+exports.handleServerError = (ctx, operationFailureMsg, error) => {
+  ctx.status = 500
+  const err = `${operationFailureMsg}${error.message}`
+  ctx.body = {error: err}
+  logger.error(err)
 }
