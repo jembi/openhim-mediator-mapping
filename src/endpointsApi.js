@@ -2,9 +2,11 @@
 
 const logger = require('./logger')
 const EndpointModel = require('./models/endpoints')
+const {handleServerError} = require('./utils')
+const KoaBodyParser = require('@viweei/koa-body-parser')
 
-exports.CreateEndpointRoute = router => {
-  router.post('/endpoint/:pattern', async (ctx, next) => {
+exports.CreateEndpointRoutes = router => {
+  router.post('/endpoint/:pattern', KoaBodyParser(), async (ctx, next) => {
     const failureMsg = 'Endpoint creation/update failed: '
 
     if (
@@ -19,9 +21,8 @@ exports.CreateEndpointRoute = router => {
       return next()
     }
 
-    let pattern
     try {
-      pattern = ctx.params.pattern
+      const pattern = ctx.params.pattern
 
       EndpointModel.findOneAndUpdate(
         {endpoint: {pattern: pattern}},
@@ -37,11 +38,24 @@ exports.CreateEndpointRoute = router => {
         }
       )
     } catch (error) {
-      ctx.status = 500
-      const err = `${failureMsg}${error.message}`
-      ctx.body = {error: err}
-      logger.error(err)
+      handleServerError(ctx, failureMsg, error)
       next()
+    }
+  })
+
+  router.delete('/endpoint/:pattern', async (ctx, next) => {
+    const failureMsg = `Endpoint deletion failed: `
+
+    try {
+      const pattern = ctx.params.pattern
+      EndpointModel.deleteOne({endpoint: {pattern: pattern}}, err => {
+        if (err) throw err
+        ctx.status = 200
+        ctx.body = {message: `Endpoint with '${pattern}' deleted`}
+        next()
+      })
+    } catch (error) {
+      handleServerError(ctx, failureMsg, error)
     }
   })
 }
