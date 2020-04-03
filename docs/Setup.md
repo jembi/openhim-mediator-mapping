@@ -91,6 +91,7 @@ The `meta.json` file contains the details involved for route setup. The followin
 - Mapping route path
 - Expected **input** message type
 - Desired **output** message type
+- External requests
 
 #### Mapping Route Path
 
@@ -103,6 +104,230 @@ Specify the expected input message type for this specific endpoint to allow the 
 #### Desired Output
 
 Specify the desired output message type for this specific endpoint to allow the OpenHIM Mapping Mediator to successfully parse the outgoing message. Current accepted formats are `JSON` and `XML`
+
+#### External Requests
+
+This feature allows for data lookups from external services and the sending of the mapped data to external services. The data to look up and the services where the result of the mapping should be sent are specified in the `meta.json`. The data looked up is aggregated with the input data before the validation is done. Below is a sample of a `meta.json`
+
+```json
+{
+  "name": "Test",
+  "endpoint": {
+    "pattern": "/test"
+  },
+  "transformation": {
+    "input": "XML",
+    "output": "JSON"
+  },
+  "requests": {
+    "lookup": [
+      {
+        "id": "1223",
+        "config": {
+          "method": "get",
+          "url": "http://localhost:3444/encounters/",
+          "params": {
+            "id": {
+              "path": "payload.id",
+              "prefix": "",
+              "postfix": ""
+            },
+            "address":{
+              "path": "query.location",
+              "prefix": "",
+              "postfix": ""
+            }
+          }
+        }
+      }
+    ],
+    "response": [
+      {
+        "id": "4433",
+        "config": {
+          "method": "post",
+          "url": "http://localhost:3456/encounters?msn=23",
+          "params": {
+            "place":{
+              "path": "payload.location[0].code",
+              "prefix": "",
+              "postfix": ""
+            },
+            "code": {
+              "path": "query.unit",
+              "postfix": "",
+              "prefix": ""
+            }
+          }
+        }
+      }
+    ]
+  }
+}
+```
+
+##### Lookups
+
+You can fetch data that you want to map. The retrieved data will be aggregated with the input data supplied in the request body. The following shows the aggregation
+
+```json
+Lookup request:
+
+{
+  "requests": {
+    "lookup": [
+      {
+        "id": "location",
+        "config": {
+          "method": "get",
+          "url": "http://localhost:3444/location/1",
+          "params": {
+            "id": {
+              "path": "payload.id"
+            }
+          }
+        }
+      }
+    ]
+  }
+}
+```
+
+```js
+The aggregated input that will be validated and then mapped will look like below
+{
+  lookupRequests: {
+    location: '<Result from lookup>'
+  },
+  responseBody: {}
+}
+```
+
+##### Response
+
+The mapping result can be orchestrated to external services. The result that will be sent back to the user is the response from the external service. If the mapped data is being orchestrated to multiple services, the response sent back is an aggregation of the responses from those services. Unless one of the external requests is set to be the `primary`. In this case, only the response marked `primary` will be returned to the user.
+
+The examples below show the expected responses when there is a primary request and when there is not.
+
+```json
+Primary request specified:
+
+{
+  "requests": {
+    "response": [
+      {
+        "id": "dhis",
+        "config": {
+          "method": "get",
+          "url": "http://localhost:3444/encounters/1",
+          "params": {
+            "id": {
+              "path": "payload.id",
+              "prefix": "",
+              "postfix": ""
+          }
+        }
+      },
+      {
+        "id": "redcap",
+        "config": {
+          "method": "get",
+          "url": "http://localhost:3444/encounters/1",
+          "params": {
+            "id": {
+              "path": "payload.id",
+              "prefix": "",
+              "postfix": ""
+            }
+          },
+          "primary": false
+        }
+      }
+    ]
+  }
+}
+```
+
+```js
+Expected response:
+
+{
+  body: {
+    dhis: 'Response from dhis',
+    redcap: 'Response from redcap'
+  }
+}
+```
+
+If one request has the property primary set to true or when there is only one request, the expected response is what is shown below
+
+```js
+{
+  body: 'Response body'
+}
+```
+
+##### Query parameter population
+
+The query parameters for the external requests can be populated from the incoming request body and query object. The query parameters to be added can be specified in the `meta.json` file as shown below in the config params object.
+
+```json
+{
+  "requests": {
+    "lookup": [
+      {
+        "id": "iscec",
+        "config": {
+          "method": "get",
+          "url": "http://localhost:3444/encounters/1",
+          "params": {
+            "id": {
+              "path": "payload.id",
+              "prefix": "prefix",
+              "postfix": "postfix"
+            }
+          }
+        }
+      }
+    ]
+  }
+}
+```
+
+The `id` is the name of the query parameter. The `path` is the location of the value of the parameter in the incoming request body or query object. For values retrieved from the request body, the `path` is specified by prefixing the path with the keyword `payload` and for retrieving from the query, the keyword is `query`. Below are some examples of paths.
+
+```json
+{
+  "config": {
+    "params": {
+      "id": {
+        "path": "payload.ids[0].nationalId"
+      },
+      "name": {
+        "path": "query.name"
+      }
+    }
+  }
+}
+```
+
+The properties `postfix` and `prefix` are optional. An example use case is given below
+
+For a query parameter that has the following format `code:<Facility code>:section:52`, we can specify whether we are retrieving the `Facility code` from the `payload` or `query` as shown below.
+
+```json
+{
+  "params": {
+    "filter": {
+      "path": "payload.facility_code",
+      "prefix": "code:",
+      "postfix": ":section:52"
+    }
+  }
+}
+```
+
+The specification above will enable us to have the query parameter - `?filter=code:<facility_code from payload>:section:52`
 
 ### 2. Input Validation Schema
 

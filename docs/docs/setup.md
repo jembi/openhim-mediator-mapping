@@ -38,7 +38,7 @@ From the project directory run:
 ```sh
 docker build -t mapper .
 
-docker run --network {network-name} -v /endpoints:/endpoints -p 3003:3003 --name mapper mapper
+docker run --network {network-name} -v /endpoints:/app/endpoints -p 3003:3003 --name mapper mapper
 ```
 
 The network flag is optional. If connecting to a specific docker network find the network name by running:
@@ -79,7 +79,7 @@ The supported environment variables are listed as follows:
 
   > The OpenHIM requires this default API password to be changed on first login.
 
-- TRUST_SELF_SIGNED - Default: **false**
+- TRUST_SELF_SIGNED - Default: **true**
 
   > Only set this variable to `true` if you are using it in a non-production environment
 
@@ -103,7 +103,7 @@ The supported environment variables are listed as follows:
 
   > Always put child nodes in an array if true; otherwise an array is created only if there is more than one
 
-- VALIDATION_ACCEPT_NULL_VALUES - Default: **true**
+- VALIDATION_ACCEPT_NULL_VALUES - Default: **false**
 
   > This is used to configure the validation middleware to accept `null` values
 
