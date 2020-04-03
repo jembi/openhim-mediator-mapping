@@ -38,7 +38,7 @@ From the project directory run:
 ```sh
 docker build -t mapper .
 
-docker run --network {network-name} -v /endpoints:/endpoints -p 3003:3003 --name mapper mapper
+docker run --network {network-name} -v /endpoints:/app/endpoints -p 3003:3003 --name mapper mapper
 ```
 
 The network flag is optional. If connecting to a specific docker network find the network name by running:
