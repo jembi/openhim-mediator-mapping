@@ -10,13 +10,15 @@
     "lint:fix": "eslint --fix .",
     "start": "node src/index.js",
     "start:dev": "nodemon src/index.js",
-    "test": "NODE_ENV='test' MONGO_URL='mongodb://localhost:27017/test' tap tests/*/*Test.js && npm run lint"
+    "test": "NODE_ENV='test' MONGO_URL='mongodb://localhost:27017/test' tap tests/*/*Test.js && npm run lint",
+    "coverage": "tap --coverage-report=text-lcov > coverage.lcov && codecov"
   },
   "dependencies": {
     "@viweei/koa-body-parser": "^1.0.2",
     "ajv": "^6.10.2",
     "ajv-errors": "^1.0.1",
     "axios": "^0.19.1",
+    "codecov": "^3.6.5",
     "koa": "^2.11.0",
     "koa-router": "^7.4.0",
     "mongoose": "^5.9.7",
