@@ -45,12 +45,3 @@ exports.CreateEndpointRoute = router => {
     }
   })
 }
-
-exports.readEndpoints = (queryParams, desiredFields) => {
-  try {
-    return EndpointModel.find(queryParams, desiredFields)
-  } catch (err) {
-    logger.error(`Failed to read endpoints: ${err.message}`)
-    throw err
-  }
-}
