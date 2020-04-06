@@ -1,13 +1,24 @@
 const mongoose = require('mongoose')
 
-const config = require('./config').getConfig()
 const logger = require('./logger')
 
-exports.open = async () => {
+exports.open = async mongoUrl => {
   try {
-    await mongoose.connect(config.mongoUrl, {useNewUrlParser: true})
-    logger.info(`Connected to mongo on ${config.mongoUrl}`)
+    await mongoose.connect(mongoUrl, {useNewUrlParser: true})
+    logger.info(`Connected to mongo on ${mongoUrl}`)
   } catch (err) {
     logger.error(`Failed to connect to mongo. Caused by: ${err.message}`, err)
+  }
+}
+
+exports.close = async () => {
+  try {
+    await mongoose.connection.close()
+    logger.info(`Closed DB connection.`)
+  } catch (err) {
+    logger.error(
+      `Failed to close DB connection. Caused by: ${err.message}`,
+      err
+    )
   }
 }

@@ -17,7 +17,7 @@ routes.createRoutes(router)
 app.use(router.routes()).use(router.allowedMethods())
 
 if (!module.parent) {
-  db.open()
+  db.open(config.mongoUrl)
 
   app.listen(config.port, () => {
     logger.info(`Server listening on port ${config.port}...`)
