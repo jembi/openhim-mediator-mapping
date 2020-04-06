@@ -30,11 +30,14 @@ tap.test('Parsing Integration Tests', {autoend: true}, t => {
   })
 
   tap.tearDown(() => {
-    server.close()
+    // Remove the test endpoint from MongoDB
+    removeTestEndpoint(error => {
+      if (error) {
+        console.error(`Failed to remove Test Endpoints. Caused by: ${error}`)
+      }
 
-    // Remove the test endpoint folder
-    removeTestEndpoint()
-    closeExternalTestServer()
+      closeExternalTestServer()
+    })
   })
 
   t.test(

@@ -1,25 +1,13 @@
 'use strict'
 
-const fs = require('fs')
-const util = require('util')
-const path = require('path')
 const http = require('http')
 const url = require('url')
-const {
-  inputMeta,
-  inputValidation,
-  inputMapping,
-  inputConstants
-} = require('../src/constants')
-
-const pathToDirectory = path.resolve('endpoints', 'integrationTest')
-const metaFilePath = path.resolve(pathToDirectory, inputMeta)
-const inputValidationFilePath = path.resolve(pathToDirectory, inputValidation)
-const inputMappingFilePath = path.resolve(pathToDirectory, inputMapping)
-const inputConstantsFilePath = path.resolve(pathToDirectory, inputConstants)
+const db = require('../src/db')
+const config = require('../src/config').getConfig()
+const EndpointModel = require('../src/models/endpoints')
 
 const port = '3444'
-const metaFileContent = {
+const testEndpointContent = {
   name: 'IntegrationTest',
   endpoint: {
     pattern: '/integrationTest'
@@ -62,99 +50,82 @@ const metaFileContent = {
         }
       }
     ]
-  }
-}
-
-const inputValidationFileContent = {
-  type: 'object',
-  properties: {
-    requestBody: {
-      type: 'object',
-      properties: {
-        name: {
-          type: 'string'
-        },
-        surname: {
-          type: 'string'
-        },
-        attributes: {
-          type: 'array',
-          items: {
+  },
+  constants: {
+    resourceType: 'Dj'
+  },
+  inputMapping: {
+    'constants.resourceType': 'resourceType',
+    'requestBody.name': 'firstName',
+    'requestBody.surname': 'lastName',
+    'requestBody.attributes': 'character',
+    'lookupRequests.lookup.id': 'id'
+  },
+  inputValidation: {
+    type: 'object',
+    properties: {
+      requestBody: {
+        type: 'object',
+        properties: {
+          name: {
             type: 'string'
-          }
-        }
-      },
-      required: ['name']
-    },
-    lookupRequests: {
-      type: 'object',
-      properties: {
-        lookup: {
-          type: 'object',
-          properties: {
-            id: {
+          },
+          surname: {
+            type: 'string'
+          },
+          attributes: {
+            type: 'array',
+            items: {
               type: 'string'
             }
-          },
-          required: ['id']
+          }
+        },
+        required: ['name']
+      },
+      lookupRequests: {
+        type: 'object',
+        properties: {
+          lookup: {
+            type: 'object',
+            properties: {
+              id: {
+                type: 'string'
+              }
+            },
+            required: ['id']
+          }
         }
       }
     }
-  }
+  },
+  lastUpdated: new Date()
 }
 
-const inputMappingFileContent = {
-  'constants.resourceType': 'resourceType',
-  'requestBody.name': 'firstName',
-  'requestBody.surname': 'lastName',
-  'requestBody.attributes': 'character',
-  'lookupRequests.lookup.id': 'id'
-}
-
-const inputConstantsFileContent = {
-  resourceType: 'Dj'
-}
-
-const files = [
-  {path: metaFilePath, content: metaFileContent},
-  {path: inputValidationFilePath, content: inputValidationFileContent},
-  {path: inputMappingFilePath, content: inputMappingFileContent},
-  {path: inputConstantsFilePath, content: inputConstantsFileContent}
-]
+db.open(config.mongoUrl)
 
 exports.createTestEndpoint = callback => {
-  if (!fs.existsSync(pathToDirectory)) {
-    fs.mkdir(pathToDirectory, err => {
-      if (err) return callback(err)
-    })
-  }
+  const endpoint = new EndpointModel(testEndpointContent)
 
-  const writeFilePromise = util.promisify(fs.writeFile)
-  const promises = []
-
-  files.forEach(file => {
-    if (!fs.existsSync(file.path)) {
-      promises.push(writeFilePromise(file.path, JSON.stringify(file.content)))
+  endpoint.save({checkKeys: false}, err => {
+    if (err) {
+      console.error(`Failed to CREATE Integration Endpoint: ${err.message}`)
+      return callback(err)
     }
-  })
-
-  Promise.all(promises).then(() => {
-    callback(null, true)
+    console.log('Created Integration Endpoint')
+    callback()
   })
 }
 
-exports.removeTestEndpoint = () => {
-  files.forEach(file => {
-    if (fs.existsSync(file.path)) {
-      fs.unlinkSync(file.path)
+exports.removeTestEndpoint = callback => {
+  // Clean out any docs created for the integration test
+  EndpointModel.deleteMany({name: 'IntegrationTest'}, err => {
+    if (err) {
+      console.error(`Failed to DELETE Integration Endpoints: ${err.message}`)
+      throw err
     }
+    console.debug('Deleted Integration Endpoint')
+    callback()
   })
-
-  if (fs.existsSync(pathToDirectory)) {
-    fs.rmdir(pathToDirectory, err => {
-      if (err) throw err
-    })
-  }
 }
 
 let server
@@ -180,6 +151,7 @@ exports.startExternalTestServer = () => {
 
 exports.closeExternalTestServer = () => {
   if (server) {
+    db.close()
     server.close()
   }
 }
