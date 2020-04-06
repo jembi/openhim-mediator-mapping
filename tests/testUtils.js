@@ -4,7 +4,6 @@ const http = require('http')
 const url = require('url')
 const db = require('../src/db')
 const config = require('../src/config').getConfig()
-const EndpointModel = require('../src/models/endpoints')
 
 const port = '3444'
 const testEndpointContent = {
@@ -104,28 +103,12 @@ const testEndpointContent = {
 db.open(config.mongoUrl)
 
 exports.createTestEndpoint = callback => {
-  const endpoint = new EndpointModel(testEndpointContent)
-
-  endpoint.save({checkKeys: false}, err => {
-    if (err) {
-      console.error(`Failed to CREATE Integration Endpoint: ${err.message}`)
-      return callback(err)
-    }
-    console.log('Created Integration Endpoint')
-    callback()
-  })
+  db.createEndpoint(testEndpointContent, callback)
 }
 
 exports.removeTestEndpoint = callback => {
   // Clean out any docs created for the integration test
-  EndpointModel.deleteMany({name: 'IntegrationTest'}, err => {
-    if (err) {
-      console.error(`Failed to DELETE Integration Endpoints: ${err.message}`)
-      throw err
-    }
-    console.debug('Deleted Integration Endpoint')
-    callback()
-  })
+  db.deleteEndpoints({name: 'IntegrationTest'}, callback)
 }
 
 let server

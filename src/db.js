@@ -32,3 +32,26 @@ exports.readEndpoints = (queryParams, desiredFields) => {
     throw err
   }
 }
+
+exports.createEndpoint = (endpointConfig, callback) => {
+  const endpoint = new EndpointModel(endpointConfig)
+  endpoint.save({checkKeys: false}, err => {
+    if (err) {
+      console.error(`Failed to CREATE Endpoint: ${err.message}`)
+      return callback(err)
+    }
+    console.log(`Created Endpoint: ${endpointConfig.name}`)
+    callback()
+  })
+}
+
+exports.deleteEndpoints = (queryParams, callback) => {
+  EndpointModel.deleteMany(queryParams, err => {
+    if (err) {
+      console.error(`Failed to DELETE Endpoints: ${err.message}`)
+      throw err
+    }
+    console.debug('Deleted Endpoint')
+    callback()
+  })
+}
