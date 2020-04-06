@@ -1,7 +1,5 @@
 'use strict'
 
-const logger = require('./logger')
-
 exports.parseStringToBoolean = (value, defaultValue) => {
   if (!value) return defaultValue
 
@@ -58,9 +56,25 @@ exports.extractValueFromObject = (obj, path, def) => {
   return current
 }
 
-exports.handleServerError = (ctx, operationFailureMsg, error) => {
+exports.handleServerError = (ctx, operationFailureMsg, error, logger) => {
   ctx.status = 500
   const err = `${operationFailureMsg}${error.message}`
   ctx.body = {error: err}
   logger.error(err)
+}
+
+exports.validateEndpoint = body => {
+  const validationError = 'Endpoint validation error: '
+
+  if (!body || !body.name) return `${validationError}name missing`
+  if (!body || !body.endpoint || !body.endpoint.pattern) {
+    return `${validationError}pattern missing`
+  }
+  if (!body || !body.transformation || !body.transformation.input) {
+    return `${validationError}transformation input type missing`
+  }
+  if (!body || !body.transformation || !body.transformation.output) {
+    return `${validationError}transformation output type missing`
+  }
+  return null
 }
