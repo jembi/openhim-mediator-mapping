@@ -9,4 +9,5 @@ matrix:
     - node_js: 'node'
 script:
   - npm test
-  - npm run lint
+after_success:
+  - npm run coverage
