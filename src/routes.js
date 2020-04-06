@@ -6,7 +6,7 @@ const {initiateContextMiddleware} = require('./middleware/initiate')
 const {parseBodyMiddleware} = require('./middleware/parser')
 const {mapBodyMiddleware} = require('./middleware/mapper')
 const {validateBodyMiddleware} = require('./middleware/validator')
-const {readEndpoints} = require('./endpointsApi')
+const {readEndpoints} = require('./db')
 
 exports.createRoutes = router => {
   setUpRoutes(router)

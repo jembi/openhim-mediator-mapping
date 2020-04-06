@@ -1,6 +1,7 @@
 const mongoose = require('mongoose')
 
 const logger = require('./logger')
+const EndpointModel = require('./models/endpoints')
 
 exports.open = async mongoUrl => {
   try {
@@ -20,5 +21,14 @@ exports.close = async () => {
       `Failed to close DB connection. Caused by: ${err.message}`,
       err
     )
+  }
+}
+
+exports.readEndpoints = (queryParams, desiredFields) => {
+  try {
+    return EndpointModel.find(queryParams, desiredFields)
+  } catch (err) {
+    logger.error(`Failed to read endpoints: ${err.message}`)
+    throw err
   }
 }
