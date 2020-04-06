@@ -16,4 +16,4 @@ const logger = pino({
   enabled: configOptions.enableLogging
 })
 
-module.exports = exports = logger
+module.exports = logger
