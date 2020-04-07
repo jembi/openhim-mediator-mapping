@@ -1,10 +1,22 @@
 const mongoose = require('mongoose')
 
 const endpointSchema = new mongoose.Schema({
-  name: {type: String, required: true},
+  name: {
+    type: String,
+    required: true,
+    index: {
+      unique: true
+    }
+  },
   description: String,
   endpoint: {
-    pattern: {type: String, required: true}
+    pattern: {
+      type: String,
+      required: true,
+      index: {
+        unique: true
+      }
+    }
   },
   transformation: {
     input: {type: String, required: true},
