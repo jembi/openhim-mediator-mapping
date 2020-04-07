@@ -28,9 +28,13 @@ exports.updateEndpoint = (endpointId, body) => {
 
 exports.deleteEndpoint = endpointId => {
   return new Promise((resolve, reject) => {
-    EndpointModel.deleteOne({_id: endpointId}, err => {
+    EndpointModel.deleteOne({_id: endpointId}, (err, result) => {
       if (err) return reject(err)
-      resolve({message: `Endpoint with id '${endpointId}' deleted`})
+
+      if (result && result.deletedCount) {
+        return resolve({message: `Endpoint with id '${endpointId}' deleted`})
+      }
+      resolve(null)
     })
   })
 }

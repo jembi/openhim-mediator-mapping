@@ -10,7 +10,7 @@ const {
   updateEndpoint
 } = require('./mongoose-methods/endpoints')
 
-const createEndpoint = router => {
+const createEndpointRoute = router => {
   router.post('/endpoints', async (ctx, next) => {
     const failureMsg = 'Endpoint creation/update failed: '
 
@@ -58,7 +58,7 @@ const createEndpoint = router => {
   })
 }
 
-const createUpdateEndpoint = router => {
+const updateEndpointRoute = router => {
   router.put('/endpoints/:endpointId', async (ctx, next) => {
     const failureMsg = 'Updating of endpoint failed: '
 
@@ -82,11 +82,18 @@ const createUpdateEndpoint = router => {
 
       await updateEndpoint(endpointId, body)
         .then(result => {
-          ctx.status = 200
-          ctx.body = result
-          logger.info(
-            `Endpoint with pattern ${result.endpoint.pattern} updated`
-          )
+          if (result) {
+            ctx.status = 200
+            ctx.body = result
+            logger.info(
+              `Endpoint with pattern ${result.endpoint.pattern} updated`
+            )
+          } else {
+            ctx.status = 404
+            const error = `Endpoint with id ${endpointId} does not exist`
+            ctx.body = {error: error}
+            logger.error(`${failureMsg}${error}`)
+          }
           next()
         })
         .catch(err => {
@@ -100,16 +107,23 @@ const createUpdateEndpoint = router => {
   })
 }
 
-const createDeleteEndpoint = router => {
+const deleteEndpointRoute = router => {
   router.delete('/endpoints/:endpointId', async (ctx, next) => {
     const failureMsg = `Endpoint deletion failed: `
     const endpointId = ctx.params.endpointId
 
     await deleteEndpoint(endpointId)
-      .then(() => {
-        ctx.status = 200
-        const message = `Endpoint with id '${endpointId}' deleted`
-        ctx.body = {message: message}
+      .then(result => {
+        if (result) {
+          ctx.status = 200
+          ctx.body = result
+          logger.info(`Endpoint with id '${endpointId}' deleted`)
+        } else {
+          ctx.status = 404
+          const error = `Endpoint with id '${endpointId}' does not exist`
+          ctx.body = {error: error}
+          logger.error(`${failureMsg}${error}`)
+        }
         next()
       })
       .catch(err => {
@@ -120,7 +134,7 @@ const createDeleteEndpoint = router => {
 }
 
 exports.createEndpointRoutes = router => {
-  createEndpoint(router)
-  createUpdateEndpoint(router)
-  createDeleteEndpoint(router)
+  createEndpointRoute(router)
+  updateEndpointRoute(router)
+  deleteEndpointRoute(router)
 }
