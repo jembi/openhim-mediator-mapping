@@ -1,35 +1,15 @@
 'use strict'
 
-const logger = require('./logger')
-const EndpointModel = require('./models/endpoints')
-const {handleServerError, validateEndpoint} = require('./util')
 const KoaBodyParser = require('@viweei/koa-body-parser')
+const logger = require('./logger')
+const {handleServerError, validateEndpoint} = require('./util')
+const {
+  deleteEndpoint,
+  saveEndpoint,
+  updateEndpoint
+} = require('./mongoose-methods/endpoints')
 
-const saveEndPoint = body => {
-  return new Promise((resolve, reject) => {
-    const endpoint = new EndpointModel(body)
-    endpoint.save(err => {
-      if (err) reject(err)
-      resolve(endpoint)
-    })
-  })
-}
-
-const updateEndPoint = (endpointId, body) => {
-  return new Promise((resolve, reject) => {
-    EndpointModel.findOneAndUpdate(
-      {_id: endpointId},
-      body,
-      {new: true, runValidators: true},
-      (err, result) => {
-        if (err) reject(err)
-        resolve(result)
-      }
-    )
-  })
-}
-
-const createCreateEndpoint = router => {
+const createEndpoint = router => {
   router.post('/endpoints', async (ctx, next) => {
     const failureMsg = 'Endpoint creation/update failed: '
 
@@ -59,7 +39,7 @@ const createCreateEndpoint = router => {
         return next()
       }
 
-      await saveEndPoint(body)
+      await saveEndpoint(body)
         .then(result => {
           ctx.status = 201
           ctx.body = result
@@ -101,7 +81,7 @@ const createUpdateEndpoint = router => {
         lastUpdated: Date.now()
       })
 
-      await updateEndPoint(endpointId, body)
+      await updateEndpoint(endpointId, body)
         .then(result => {
           ctx.status = 200
           ctx.body = result
@@ -122,28 +102,24 @@ const createUpdateEndpoint = router => {
 const createDeleteEndpoint = router => {
   router.delete('/endpoints/:endpointId', async (ctx, next) => {
     const failureMsg = `Endpoint deletion failed: `
+    const endpointId = ctx.params.endpointId
 
-    try {
-      const endpointId = ctx.params.endpointId
-      await EndpointModel.deleteOne({_id: endpointId}, err => {
-        if (err) {
-          handleServerError(ctx, failureMsg, err, logger)
-          return next()
-        }
+    await deleteEndpoint(endpointId)
+      .then(() => {
         ctx.status = 200
         const message = `Endpoint with id '${endpointId}' deleted`
         ctx.body = {message: message}
         next()
       })
-    } catch (error) {
-      handleServerError(ctx, failureMsg, error, logger)
-      next()
-    }
+      .catch(err => {
+        handleServerError(ctx, failureMsg, err, logger)
+        return next()
+      })
   })
 }
 
 exports.createEndpointRoutes = router => {
-  createCreateEndpoint(router)
+  createEndpoint(router)
   createUpdateEndpoint(router)
   createDeleteEndpoint(router)
 }
