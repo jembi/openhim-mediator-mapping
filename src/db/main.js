@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 
-const config = require('./config').getConfig()
-const logger = require('./logger')
+const config = require('../config').getConfig()
+const logger = require('../logger')
 
 exports.open = async () => {
   try {

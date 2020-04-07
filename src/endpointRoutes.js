@@ -8,7 +8,7 @@ const {
   deleteEndpoint,
   saveEndpoint,
   updateEndpoint
-} = require('./mongoose-methods/endpoints')
+} = require('./db/services/endpoints')
 
 const createEndpointRoute = router => {
   router.post('/endpoints', async (ctx, next) => {

@@ -8,7 +8,7 @@ const logger = require('./logger')
 const config = require('./config').getConfig()
 const routes = require('./routes')
 const {createEndpointRoutes} = require('./endpointRoutes')
-const db = require('./db')
+const db = require('./db/main')
 
 const app = new koa()
 const router = new koaRouter()
