@@ -2,7 +2,7 @@
 
 const EndpointModel = require('../models/endpoints')
 
-exports.saveEndpoint = body => {
+exports.createEndpoint = body => {
   const endpoint = new EndpointModel(body)
   return endpoint.save()
 }

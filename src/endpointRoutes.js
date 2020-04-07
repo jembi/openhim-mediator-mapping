@@ -6,7 +6,7 @@ const logger = require('./logger')
 const {handleServerError, validateEndpoint} = require('./util')
 const {
   deleteEndpoint,
-  saveEndpoint,
+  createEndpoint,
   updateEndpoint
 } = require('./db/services/endpoints')
 
@@ -38,7 +38,7 @@ const createEndpointRoute = router => {
         return next()
       }
 
-      await saveEndpoint(body)
+      await createEndpoint(body)
         .then(result => {
           ctx.status = 201
           ctx.body = result
