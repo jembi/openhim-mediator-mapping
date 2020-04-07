@@ -72,7 +72,7 @@ exports.validateEndpoint = body => {
     return `${validationError}pattern missing`
   }
   if (!body.transformation) {
-    return `${validationError}transformation input type missing`
+    return `${validationError}transformation object missing`
   }
   if (!body.transformation.input) {
     return `${validationError}transformation input type missing`
