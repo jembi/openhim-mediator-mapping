@@ -7,6 +7,7 @@ const {handleServerError, validateEndpoint} = require('./util')
 const {
   deleteEndpoint,
   createEndpoint,
+  readEndpoint,
   updateEndpoint
 } = require('./db/services/endpoints')
 
@@ -55,6 +56,32 @@ const createEndpointRoute = router => {
       handleServerError(ctx, failureMsg, error, logger)
       next()
     }
+  })
+}
+
+const readEndpointRoute = router => {
+  router.get('/endpoints/:endpointId', async (ctx, next) => {
+    const failureMsg = 'Retrieving of endpoint failed: '
+    const endpointId = ctx.params.endpointId
+
+    await readEndpoint(endpointId)
+      .then(endpoint => {
+        if (endpoint) {
+          ctx.status = 200
+          ctx.body = endpoint
+          logger.info(`Endpoint with pattern ${endpoint.endpoint.pattern}`)
+        } else {
+          const error = `Endpoint with id ${endpointId} does not exist`
+          ctx.status = 404
+          ctx.body = {error: error}
+          logger.error(`${failureMsg}${error}`)
+        }
+        next()
+      })
+      .catch(err => {
+        handleServerError(ctx, failureMsg, err, logger)
+        next()
+      })
   })
 }
 
@@ -135,6 +162,7 @@ const deleteEndpointRoute = router => {
 
 exports.createEndpointRoutes = router => {
   createEndpointRoute(router)
+  readEndpointRoute(router)
   updateEndpointRoute(router)
   deleteEndpointRoute(router)
 }
