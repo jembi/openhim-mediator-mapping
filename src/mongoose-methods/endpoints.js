@@ -5,9 +5,9 @@ const EndpointModel = require('../models/endpoints')
 exports.saveEndpoint = body => {
   return new Promise((resolve, reject) => {
     const endpoint = new EndpointModel(body)
-    endpoint.save(err => {
+    endpoint.save((err, newEndpoint => {
       if (err) return reject(err)
-      resolve(endpoint)
+      resolve(newEndpoint)
     })
   })
 }
