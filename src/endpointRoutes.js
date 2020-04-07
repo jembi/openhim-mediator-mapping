@@ -8,6 +8,7 @@ const {
   deleteEndpoint,
   createEndpoint,
   readEndpoint,
+  readEndpoints,
   updateEndpoint
 } = require('./db/services/endpoints')
 
@@ -76,6 +77,24 @@ const readEndpointRoute = router => {
           ctx.body = {error: error}
           logger.error(`${failureMsg}${error}`)
         }
+        next()
+      })
+      .catch(err => {
+        handleServerError(ctx, failureMsg, err, logger)
+        next()
+      })
+  })
+}
+
+const readEndpointsRoute = router => {
+  router.get('/endpoints', async (ctx, next) => {
+    const failureMsg = 'Retrieving of endpoints failed: '
+
+    await readEndpoints()
+      .then(endpoints => {
+        ctx.status = 200
+        ctx.body = endpoints
+        logger.info(`Endpoints retrieved`)
         next()
       })
       .catch(err => {
@@ -163,6 +182,7 @@ const deleteEndpointRoute = router => {
 exports.createEndpointRoutes = router => {
   createEndpointRoute(router)
   readEndpointRoute(router)
+  readEndpointsRoute(router)
   updateEndpointRoute(router)
   deleteEndpointRoute(router)
 }
