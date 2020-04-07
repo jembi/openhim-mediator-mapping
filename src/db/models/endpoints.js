@@ -13,6 +13,7 @@ const endpointSchema = new mongoose.Schema({
   endpoint: {
     pattern: {
       type: String,
+      match: /^\/[\d\w-._~]+$/,
       required: true,
       index: {
         unique: true
