@@ -66,14 +66,18 @@ exports.handleServerError = (ctx, operationFailureMsg, error, logger) => {
 exports.validateEndpoint = body => {
   const validationError = 'Endpoint validation error: '
 
-  if (!body || !body.name) return `${validationError}name missing`
-  if (!body || !body.endpoint || !body.endpoint.pattern) {
+  if (!body) return `${validationError}invalid endpoint object`
+  if (!body.name) return `${validationError}name missing`
+  if (!body.endpoint || !body.endpoint.pattern) {
     return `${validationError}pattern missing`
   }
-  if (!body || !body.transformation || !body.transformation.input) {
+  if (!body.transformation) {
     return `${validationError}transformation input type missing`
   }
-  if (!body || !body.transformation || !body.transformation.output) {
+  if (!body.transformation.input) {
+    return `${validationError}transformation input type missing`
+  }
+  if (!body.transformation.output) {
     return `${validationError}transformation output type missing`
   }
   return null
