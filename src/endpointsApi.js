@@ -1,6 +1,7 @@
 'use strict'
 
 const KoaBodyParser = require('@viweei/koa-body-parser')
+
 const logger = require('./logger')
 const {handleServerError, validateEndpoint} = require('./util')
 const {
@@ -27,9 +28,7 @@ const createEndpoint = router => {
         logger.error(err)
         return next()
       }
-      const body = Object.assign({}, ctx.request.body, {
-        lastUpdated: Date.now()
-      })
+      const body = Object.assign({lastUpdated: Date.now()}, ctx.request.body)
       const inValid = validateEndpoint(body)
 
       if (inValid) {
@@ -79,9 +78,7 @@ const createUpdateEndpoint = router => {
         return next()
       }
 
-      const body = Object.assign({}, ctx.request.body, {
-        lastUpdated: Date.now()
-      })
+      const body = Object.assign({lastUpdated: Date.now()}, ctx.request.body)
 
       await updateEndpoint(endpointId, body)
         .then(result => {
