@@ -114,7 +114,7 @@ const deleteEndpointRoute = router => {
 
     await deleteEndpoint(endpointId)
       .then(result => {
-        if (result) {
+        if (result && result.deletedCount) {
           ctx.status = 200
           ctx.body = result
           logger.info(`Endpoint with id '${endpointId}' deleted`)
