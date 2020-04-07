@@ -9,6 +9,7 @@ exports.open = async mongoUrl => {
     logger.info(`Connected to mongo on ${mongoUrl}`)
   } catch (err) {
     logger.error(`Failed to connect to mongo. Caused by: ${err.message}`, err)
+    throw err
   }
 }
 
@@ -21,6 +22,7 @@ exports.close = async () => {
       `Failed to close DB connection. Caused by: ${err.message}`,
       err
     )
+    throw err
   }
 }
 
