@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const {ALLOWED_CONTENT_TYPES} = require('../../constants')
 
 const endpointSchema = new mongoose.Schema({
   name: {
@@ -19,8 +20,8 @@ const endpointSchema = new mongoose.Schema({
     }
   },
   transformation: {
-    input: {type: String, required: true},
-    output: {type: String, required: true}
+    input: {type: String, enum: ALLOWED_CONTENT_TYPES, required: true},
+    output: {type: String, enum: ALLOWED_CONTENT_TYPES, required: true}
   },
   requests: {
     lookup: [],
