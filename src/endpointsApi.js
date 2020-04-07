@@ -34,7 +34,7 @@ const createEndpoint = router => {
 
       if (inValid) {
         ctx.status = 400
-        ctx.error = {error: inValid}
+        ctx.body = {error: inValid}
         logger.error(inValid)
         return next()
       }
@@ -43,7 +43,9 @@ const createEndpoint = router => {
         .then(result => {
           ctx.status = 201
           ctx.body = result
-          logger.info(`Endpoint with id ${result.id} created`)
+          logger.info(
+            `Endpoint with pattern ${result.endpoint.pattern} created`
+          )
           return next()
         })
         .catch(err => {
@@ -85,7 +87,9 @@ const createUpdateEndpoint = router => {
         .then(result => {
           ctx.status = 200
           ctx.body = result
-          logger.info(`Endpoint with id ${endpointId} updated`)
+          logger.info(
+            `Endpoint with pattern ${result.endpoint.pattern} updated`
+          )
           next()
         })
         .catch(err => {
