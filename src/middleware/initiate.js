@@ -6,7 +6,13 @@ const logger = require('../logger')
 const {extractValueFromObject} = require('../util')
 
 const extractStateValues = (ctx, extract) => {
-  if (!extract || !extract.system || !extract.requestBody || !extract.responseBody || !extract.query) {
+  if (
+    !extract ||
+    !extract.system ||
+    !extract.requestBody ||
+    !extract.responseBody ||
+    !extract.query
+  ) {
     throw new Error('No state extract definitions supplied for this endpoint')
   }
 
@@ -14,13 +20,16 @@ const extractStateValues = (ctx, extract) => {
   let updatedState = {}
 
   if (extract.system) {
-
+    // TODO
   }
 
   if (extract.requestBody) {
     let requestBodyState = {}
-    Object.keys(extract.requestBody).forEach((prop) => {
-      const requestBodyValue = extractValueFromObject(allData.requestBody, extract.requestBody[prop])
+    Object.keys(extract.requestBody).forEach(prop => {
+      const requestBodyValue = extractValueFromObject(
+        allData.requestBody,
+        extract.requestBody[prop]
+      )
       requestBodyState[prop] = requestBodyValue
     })
     updatedState.requestBody = requestBodyState
@@ -28,15 +37,18 @@ const extractStateValues = (ctx, extract) => {
 
   if (extract.responseBody) {
     let responseBodyState = {}
-    Object.keys(extract.responseBody).forEach((prop) => {
-      const responseBodyValue = extractValueFromObject(allData.responseBody, extract.responseBody[prop])
+    Object.keys(extract.responseBody).forEach(prop => {
+      const responseBodyValue = extractValueFromObject(
+        allData.responseBody,
+        extract.responseBody[prop]
+      )
       responseBodyState[prop] = responseBodyValue
     })
     updatedState.responseBody = responseBodyState
   }
 
   if (extract.query) {
-
+    // TODO
   }
 
   return updatedState
