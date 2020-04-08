@@ -57,7 +57,7 @@ exports.extractValueFromObject = (obj, path, def) => {
 }
 
 exports.handleServerError = (ctx, operationFailureMsg, error, logger) => {
-  ctx.status = 500
+  ctx.status = ctx.statusCode ? ctx.statusCode : 500
   const err = `${operationFailureMsg}${error.message}`
   ctx.body = {error: err}
   logger.error(err)

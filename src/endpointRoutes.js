@@ -40,6 +40,7 @@ const createEndpointRoute = router => {
           return next()
         })
         .catch(err => {
+          ctx.statusCode = 400
           handleServerError(ctx, failureMsg, err, logger)
           return next()
         })
@@ -89,6 +90,7 @@ const updateEndpointRoute = router => {
           next()
         })
         .catch(err => {
+          ctx.statusCode = 400
           handleServerError(ctx, failureMsg, err, logger)
           next()
         })
@@ -119,6 +121,7 @@ const deleteEndpointRoute = router => {
         next()
       })
       .catch(err => {
+        ctx.statusCode = 400
         handleServerError(ctx, failureMsg, err, logger)
         return next()
       })
