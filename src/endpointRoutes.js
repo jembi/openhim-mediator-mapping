@@ -133,7 +133,7 @@ const deleteEndpointRoute = router => {
   })
 }
 
-exports.createEndpointRoutes = router => {
+exports.createAPIRoutes = router => {
   createEndpointRoute(router)
   updateEndpointRoute(router)
   deleteEndpointRoute(router)
