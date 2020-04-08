@@ -8,41 +8,38 @@ const {
 } = require('./middleware/initiate')
 const {mapBodyMiddleware} = require('./middleware/mapper')
 const {parseBodyMiddleware} = require('./middleware/parser')
-const {readEndpoints} = require('./db/services/endpoints')
 const {requestsMiddleware} = require('./middleware/externalRequests')
 const {validateBodyMiddleware} = require('./middleware/validator')
 const {MIDDLEWARE_PATH_REGEX} = require('./constants')
 const {readEndpoints, setupChangeListener} = require('./db/services/endpoints')
 
-exports.createRoutes = router => {
-  setUpRoutes(router)
-}
-
-const setUpRoutes = async router => {
-  await readEndpoints()
-    .then(endpointConfigs => {
-      endpointConfigs.forEach(routeConfig => {
-        const metaData = routeConfig
-        const validationMap = routeConfig.inputValidation
-        const mappingSchema = routeConfig.inputMapping
-        const constants = routeConfig.constants
-
-        router.post(
-          metaData.endpoint.pattern,
-          initiateContextMiddleware(metaData),
-          parseBodyMiddleware(),
-          requestsMiddleware(),
-          validateBodyMiddleware(validationMap),
-          mapBodyMiddleware(mappingSchema, constants)
-        )
-
-        logger.info(
-          `Route added: "${routeConfig.name}" at endpoint "${metaData.endpoint.pattern}"`
-        )
-      })
+const initiateEndpointCache = async () => {
+  await readEndpoints({})
+    .then(endpoints => {
+      EndpointCache.push(...endpoints)
     })
     .catch(error => {
-      logger.error(`Route setup failed: ${error.message}`)
+      logger.error(
+        `Failed to initiate endpoint cache. Caused by: ${error.message}`
+      )
       throw error
     })
+}
+
+const middlewareRoute = async router => {
+  initiateEndpointCache()
+  setupChangeListener()
+
+  router.post(
+    MIDDLEWARE_PATH_REGEX,
+    initiateContextMiddleware(),
+    parseBodyMiddleware(),
+    requestsMiddleware(),
+    validateBodyMiddleware(),
+    mapBodyMiddleware()
+  )
+}
+
+exports.createMiddlewareRoute = router => {
+  middlewareRoute(router)
 }

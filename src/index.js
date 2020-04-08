@@ -7,15 +7,15 @@ const config = require('./config').getConfig()
 const db = require('./db/main')
 const logger = require('./logger')
 const openhim = require('./openhim')
-const routes = require('./routes')
 
 const {createEndpointRoutes} = require('./endpointRoutes')
+const {createMiddlewareRoute} = require('./routes')
 
 const app = new koa()
 const router = new koaRouter()
 
 createEndpointRoutes(router)
-routes.createRoutes(router)
+createMiddlewareRoute(router)
 
 app.use(router.routes()).use(router.allowedMethods())
 
