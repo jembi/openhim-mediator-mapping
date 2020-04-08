@@ -2,7 +2,10 @@
 
 const mongoose = require('mongoose')
 
-const {ALLOWED_CONTENT_TYPES} = require('../../constants')
+const {
+  ALLOWED_CONTENT_TYPES,
+  MIDDLEWARE_PATH_REGEX
+} = require('../../constants')
 
 const endpointSchema = new mongoose.Schema({
   name: {
@@ -16,7 +19,7 @@ const endpointSchema = new mongoose.Schema({
   endpoint: {
     pattern: {
       type: String,
-      match: /^\/[\d\w-._~]+$/,
+      match: MIDDLEWARE_PATH_REGEX,
       required: true,
       index: {
         unique: true
