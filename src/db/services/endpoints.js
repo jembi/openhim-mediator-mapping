@@ -11,8 +11,8 @@ exports.readEndpoint = endpointId => {
   return EndpointModel.findById(endpointId)
 }
 
-exports.readEndpoints = () => {
-  return EndpointModel.find({})
+exports.readEndpoints = queryParams => {
+  return EndpointModel.find(queryParams)
 }
 
 exports.updateEndpoint = (endpointId, body) => {

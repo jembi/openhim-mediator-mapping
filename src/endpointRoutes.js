@@ -73,7 +73,9 @@ const readEndpointsRoute = router => {
   router.get('/endpoints', async (ctx, next) => {
     const failureMsg = 'Retrieving of endpoints failed: '
 
-    await readEndpoints()
+    const queryParams = ctx.request.query
+
+    await readEndpoints(queryParams)
       .then(endpoints => {
         ctx.status = 200
         ctx.body = endpoints
