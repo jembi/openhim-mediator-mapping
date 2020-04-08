@@ -15,8 +15,8 @@ const ajv = new Ajv({
 // Ajv options allErrors and jsonPointers are required
 require('ajv-errors')(ajv /*, {singleError: true} */)
 
-const performValidation = (ctx, schema) => {
-  if (!schema) {
+const performValidation = ctx => {
+  if (!ctx.state.metaData.inputValidation) {
     logger.warn(
       `${ctx.state.metaData.name} (${ctx.state.uuid}): No validation rules supplied`
     )
@@ -39,7 +39,7 @@ const performValidation = (ctx, schema) => {
     )
   }
 
-  const valid = ajv.validate(schema, dataToValidate)
+  const valid = ajv.validate(ctx.state.metaData.inputValidation, dataToValidate)
 
   if (!valid) {
     throw new Error(
@@ -48,13 +48,14 @@ const performValidation = (ctx, schema) => {
       }): Validation failed: ${ajv.errorsText()}`
     )
   }
-}
 
-exports.validateBodyMiddleware = schema => async (ctx, next) => {
-  performValidation(ctx, schema)
   logger.info(
     `${ctx.state.metaData.name} (${ctx.state.uuid}): Successfully validated user input`
   )
+}
+
+exports.validateBodyMiddleware = () => async (ctx, next) => {
+  performValidation(ctx)
   await next()
 }
 
