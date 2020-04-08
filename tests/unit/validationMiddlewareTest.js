@@ -1,6 +1,7 @@
 'use strict'
 
 const tap = require('tap')
+
 const {performValidation} = require('../../src/middleware/validator')
 
 tap.test('Validation Middleware', {autoend: true}, t => {

@@ -1,6 +1,7 @@
 'use strict'
 
 const tap = require('tap')
+
 const {createMappedObject} = require('../../src/middleware/mapper')
 
 tap.test('Mapper', {autoend: true}, t => {

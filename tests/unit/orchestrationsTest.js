@@ -1,6 +1,7 @@
 'use strict'
 
 const tap = require('tap')
+
 const {createOrchestration, setStatusText} = require('../../src/orchestrations')
 
 tap.test('createOrchestrations()', {autoend: true}, t => {

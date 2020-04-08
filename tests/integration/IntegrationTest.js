@@ -1,14 +1,14 @@
 'use strict'
 
-const tap = require('tap')
 const http = require('http')
 const supertest = require('supertest')
+const tap = require('tap')
 
 const {
+  closeExternalTestServer,
   createTestEndpoint,
   removeTestEndpoint,
-  startExternalTestServer,
-  closeExternalTestServer
+  startExternalTestServer
 } = require('../testUtils')
 
 let app, server, request

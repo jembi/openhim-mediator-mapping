@@ -2,9 +2,10 @@
 
 const http = require('http')
 const url = require('url')
+
+const config = require('../src/config').getConfig()
 const db = require('../src/db/main')
 const endpointService = require('../src/db/services/endpoints')
-const config = require('../src/config').getConfig()
 
 const port = '3444'
 const testEndpointContent = {

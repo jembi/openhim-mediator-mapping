@@ -1,12 +1,13 @@
 'use strict'
 
 const logger = require('./logger')
-const {requestsMiddleware} = require('./middleware/externalRequests')
+
 const {initiateContextMiddleware} = require('./middleware/initiate')
-const {parseBodyMiddleware} = require('./middleware/parser')
 const {mapBodyMiddleware} = require('./middleware/mapper')
-const {validateBodyMiddleware} = require('./middleware/validator')
+const {parseBodyMiddleware} = require('./middleware/parser')
 const {readEndpoints} = require('./db/services/endpoints')
+const {requestsMiddleware} = require('./middleware/externalRequests')
+const {validateBodyMiddleware} = require('./middleware/validator')
 
 exports.createRoutes = router => {
   setUpRoutes(router)

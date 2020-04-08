@@ -2,8 +2,8 @@
 
 const Ajv = require('ajv')
 
-const logger = require('../logger')
 const config = require('../config').getConfig()
+const logger = require('../logger')
 
 const ajv = new Ajv({
   nullable: config.validation.nullable,

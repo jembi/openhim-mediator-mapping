@@ -1,9 +1,11 @@
 'use strict'
 
 const axios = require('axios')
+
 const logger = require('../logger')
-const {createOrchestration, setStatusText} = require('../orchestrations')
+
 const {constructOpenhimResponse} = require('../openhim')
+const {createOrchestration, setStatusText} = require('../orchestrations')
 const {extractValueFromObject} = require('../util')
 
 const validateRequestStatusCode = allowedStatuses => {

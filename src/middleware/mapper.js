@@ -1,9 +1,10 @@
 'use strict'
 
 const objectMapper = require('object-mapper')
-const {createOrchestration} = require('../orchestrations')
 
 const logger = require('../logger')
+
+const {createOrchestration} = require('../orchestrations')
 
 const createMappedObject = (ctx, mappingSchema, inputConstants) => {
   if (!mappingSchema) {

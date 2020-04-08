@@ -3,12 +3,13 @@
 const koa = require('koa')
 const koaRouter = require('koa-router')
 
-const openhim = require('./openhim')
-const logger = require('./logger')
 const config = require('./config').getConfig()
-const routes = require('./routes')
-const {createEndpointRoutes} = require('./endpointRoutes')
 const db = require('./db/main')
+const logger = require('./logger')
+const openhim = require('./openhim')
+const routes = require('./routes')
+
+const {createEndpointRoutes} = require('./endpointRoutes')
 
 const app = new koa()
 const router = new koaRouter()

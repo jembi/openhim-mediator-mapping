@@ -3,12 +3,13 @@
 const KoaBodyParser = require('@viweei/koa-body-parser')
 
 const logger = require('./logger')
-const {handleServerError, validateEndpoint} = require('./util')
+
 const {
-  deleteEndpoint,
   createEndpoint,
+  deleteEndpoint,
   updateEndpoint
 } = require('./db/services/endpoints')
+const {handleServerError, validateEndpoint} = require('./util')
 
 const createEndpointRoute = router => {
   router.post('/endpoints', async (ctx, next) => {
