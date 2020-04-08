@@ -1,4 +1,7 @@
+'use strict'
+
 const mongoose = require('mongoose')
+
 const {ALLOWED_CONTENT_TYPES} = require('../../constants')
 
 const endpointSchema = new mongoose.Schema({
