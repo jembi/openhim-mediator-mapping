@@ -3,7 +3,7 @@
 const KoaBodyParser = require('@viweei/koa-body-parser')
 
 const logger = require('./logger')
-const {handleServerError, validateEndpoint} = require('./util')
+const {handleServerError} = require('./util')
 const {
   deleteEndpoint,
   createEndpoint,
@@ -29,14 +29,6 @@ const createEndpointRoute = router => {
         return next()
       }
       const body = Object.assign({lastUpdated: Date.now()}, ctx.request.body)
-      const inValid = validateEndpoint(body)
-
-      if (inValid) {
-        ctx.status = 400
-        ctx.body = {error: inValid}
-        logger.error(inValid)
-        return next()
-      }
 
       await createEndpoint(body)
         .then(result => {
