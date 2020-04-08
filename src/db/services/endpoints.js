@@ -7,6 +7,10 @@ exports.createEndpoint = body => {
   return endpoint.save({checkKeys: false})
 }
 
+exports.readEndpoints = (queryParams, desiredFields) => {
+  return EndpointModel.find(queryParams, desiredFields)
+}
+
 exports.updateEndpoint = (endpointId, body) => {
   return EndpointModel.findOneAndUpdate({_id: endpointId}, body, {
     new: true,
