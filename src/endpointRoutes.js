@@ -50,7 +50,9 @@ const readEndpointRoute = router => {
         if (endpoint) {
           ctx.status = 200
           ctx.body = endpoint
-          logger.info(`Endpoint with pattern ${endpoint.endpoint.pattern}`)
+          logger.info(
+            `Endpoint "${endpoint.endpoint.pattern}" with pattern ${endpoint.endpoint.pattern} has been retrieved`
+          )
         } else {
           const error = `Endpoint with id ${endpointId} does not exist`
           ctx.status = 404
@@ -59,8 +61,9 @@ const readEndpointRoute = router => {
         }
         next()
       })
-      .catch(err => {
-        handleServerError(ctx, failureMsg, err, logger)
+      .catch(error => {
+        ctx.statusCode = 400
+        handleServerError(ctx, failureMsg, error, logger)
         next()
       })
   })
@@ -74,11 +77,11 @@ const readEndpointsRoute = router => {
       .then(endpoints => {
         ctx.status = 200
         ctx.body = endpoints
-        logger.info(`Endpoints retrieved`)
+        logger.info(`Endpoints have been successfully retrieved`)
         next()
       })
-      .catch(err => {
-        handleServerError(ctx, failureMsg, err, logger)
+      .catch(error => {
+        handleServerError(ctx, failureMsg, error, logger)
         next()
       })
   })
