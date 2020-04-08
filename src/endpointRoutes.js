@@ -15,17 +15,6 @@ const createEndpointRoute = router => {
     const failureMsg = 'Endpoint creation/update failed: '
 
     try {
-      if (
-        !ctx.request ||
-        !ctx.request.body ||
-        !Object.keys(ctx.request.body).length
-      ) {
-        ctx.status = 400
-        const error = `${failureMsg}Invalid endpoint object`
-        ctx.body = {error: error}
-        logger.error(error)
-        return next()
-      }
       const body = Object.assign({lastUpdated: Date.now()}, ctx.request.body)
 
       await createEndpoint(body)
