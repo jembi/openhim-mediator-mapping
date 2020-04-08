@@ -2,12 +2,17 @@
 
 const logger = require('./logger')
 
-const {initiateContextMiddleware} = require('./middleware/initiate')
+const {
+  EndpointCache,
+  initiateContextMiddleware
+} = require('./middleware/initiate')
 const {mapBodyMiddleware} = require('./middleware/mapper')
 const {parseBodyMiddleware} = require('./middleware/parser')
 const {readEndpoints} = require('./db/services/endpoints')
 const {requestsMiddleware} = require('./middleware/externalRequests')
 const {validateBodyMiddleware} = require('./middleware/validator')
+const {MIDDLEWARE_PATH_REGEX} = require('./constants')
+const {readEndpoints, setupChangeListener} = require('./db/services/endpoints')
 
 exports.createRoutes = router => {
   setUpRoutes(router)
