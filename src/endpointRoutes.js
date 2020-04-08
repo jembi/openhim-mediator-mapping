@@ -11,12 +11,10 @@ const {
 } = require('./db/services/endpoints')
 
 const createEndpointRoute = router => {
-  router.post('/endpoints', async (ctx, next) => {
+  router.post('/endpoints', KoaBodyParser(), async (ctx, next) => {
     const failureMsg = 'Endpoint creation/update failed: '
 
     try {
-      await KoaBodyParser()(ctx, () => {})
-
       if (
         !ctx.request ||
         !ctx.request.body ||
@@ -35,7 +33,7 @@ const createEndpointRoute = router => {
           ctx.status = 201
           ctx.body = result
           logger.info(
-            `Endpoint with pattern ${result.endpoint.pattern} created`
+            `Endpoint "${result.endpoint.name}" has been successfully created on endpoint ${result.endpoint.pattern}`
           )
           return next()
         })
@@ -52,11 +50,10 @@ const createEndpointRoute = router => {
 }
 
 const updateEndpointRoute = router => {
-  router.put('/endpoints/:endpointId', async (ctx, next) => {
+  router.put('/endpoints/:endpointId', KoaBodyParser(), async (ctx, next) => {
     const failureMsg = 'Updating of endpoint failed: '
 
     try {
-      await KoaBodyParser()(ctx, () => {})
       const endpointId = ctx.params.endpointId
 
       if (
@@ -79,7 +76,7 @@ const updateEndpointRoute = router => {
             ctx.status = 200
             ctx.body = result
             logger.info(
-              `Endpoint with pattern ${result.endpoint.pattern} updated`
+              `Endpoint "${result.endpoint.name}" has been successfully updated`
             )
           } else {
             ctx.status = 404
