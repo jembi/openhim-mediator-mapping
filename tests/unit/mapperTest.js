@@ -23,18 +23,22 @@ tap.test('Mapper', {autoend: true}, t => {
     })
 
     t.test('should create an object based on mapping', t => {
+      const body = {
+        inputOne: 1,
+        inputTwo: 2,
+        inputThree: 3
+      }
       const ctx = {
         request: {
-          body: {
-            inputOne: 1,
-            inputTwo: 2,
-            inputThree: 3
-          }
+          body
         },
         state: {
           uuid: 'randomUidForRequest',
           metaData: {
             name: 'Testing endpoint'
+          },
+          allData: {
+            requestBody: body
           }
         }
       }

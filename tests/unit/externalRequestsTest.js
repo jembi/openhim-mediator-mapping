@@ -331,7 +331,8 @@ tap.test('External Requests', {autoend: true}, t => {
                     }
                   ]
                 }
-              }
+              },
+              allData: {}
             }
           }
 
@@ -340,7 +341,10 @@ tap.test('External Requests', {autoend: true}, t => {
           )
 
           prepareLookupRequests(ctx).then(() => {
-            t.same({test1: 'testA', test2: 'testB'}, ctx.lookupRequests)
+            t.same(
+              {test1: 'testA', test2: 'testB'},
+              ctx.state.allData.lookupRequests
+            )
             performRequestsStub()
           })
         }

@@ -10,7 +10,7 @@
     "lint:fix": "eslint --fix .",
     "start": "node src/index.js",
     "start:dev": "nodemon src/index.js",
-    "test": "NODE_ENV='test' tap tests/*/*Test.js && npm run lint",
+    "test": "NODE_ENV='test' tap tests/unit/*Test.js tests/*/*/*Test.js && npm run lint",
     "coverage": "tap --coverage-report=text-lcov > coverage.lcov && codecov"
   },
   "dependencies": {
