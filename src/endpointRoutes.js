@@ -23,9 +23,9 @@ const createEndpointRoute = router => {
         !Object.keys(ctx.request.body).length
       ) {
         ctx.status = 400
-        const err = `${failureMsg}Invalid endpoint object`
-        ctx.body = {error: err}
-        logger.error(err)
+        const error = `${failureMsg}Invalid endpoint object`
+        ctx.body = {error: error}
+        logger.error(error)
         return next()
       }
       const body = Object.assign({lastUpdated: Date.now()}, ctx.request.body)
@@ -39,9 +39,9 @@ const createEndpointRoute = router => {
           )
           return next()
         })
-        .catch(err => {
+        .catch(error => {
           ctx.statusCode = 400
-          handleServerError(ctx, failureMsg, err, logger)
+          handleServerError(ctx, failureMsg, error, logger)
           return next()
         })
     } catch (error) {
@@ -65,9 +65,9 @@ const updateEndpointRoute = router => {
         !Object.keys(ctx.request.body).length
       ) {
         ctx.status = 400
-        const err = `${failureMsg}Invalid endpoint object`
-        ctx.body = {error: err}
-        logger.error(err)
+        const error = `${failureMsg}Invalid endpoint object`
+        ctx.body = {error: error}
+        logger.error(error)
         return next()
       }
 
@@ -89,9 +89,9 @@ const updateEndpointRoute = router => {
           }
           next()
         })
-        .catch(err => {
+        .catch(error => {
           ctx.statusCode = 400
-          handleServerError(ctx, failureMsg, err, logger)
+          handleServerError(ctx, failureMsg, error, logger)
           next()
         })
     } catch (error) {
@@ -109,9 +109,10 @@ const deleteEndpointRoute = router => {
     await deleteEndpoint(endpointId)
       .then(result => {
         if (result && result.deletedCount) {
+          const message = `Endpoint with id '${endpointId}' deleted`
           ctx.status = 200
-          ctx.body = result
-          logger.info(`Endpoint with id '${endpointId}' deleted`)
+          ctx.body = {message: message}
+          logger.info(message)
         } else {
           ctx.status = 404
           const error = `Endpoint with id '${endpointId}' does not exist`
@@ -120,9 +121,9 @@ const deleteEndpointRoute = router => {
         }
         next()
       })
-      .catch(err => {
+      .catch(error => {
         ctx.statusCode = 400
-        handleServerError(ctx, failureMsg, err, logger)
+        handleServerError(ctx, failureMsg, error, logger)
         return next()
       })
   })
