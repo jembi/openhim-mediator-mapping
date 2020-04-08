@@ -7,7 +7,8 @@ const logger = require('../logger')
 
 const createMappedObject = (ctx, mappingSchema, inputConstants) => {
   if (!mappingSchema) {
-    throw new Error(
+    mappingSchema = {}
+    logger.warn(
       `${ctx.state.metaData.name} (${ctx.state.uuid}): No mapping schema supplied`
     )
   }
