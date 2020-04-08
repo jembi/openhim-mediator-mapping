@@ -12,8 +12,8 @@ const {
 const logger = require('./logger')
 const {requestsMiddleware} = require('./middleware/externalRequests')
 const {initiateContextMiddleware} = require('./middleware/initiate')
-const {parseBodyMiddleware} = require('./middleware/parser')
 const {mapBodyMiddleware} = require('./middleware/mapper')
+const {parseBodyMiddleware} = require('./middleware/parser')
 const {validateBodyMiddleware} = require('./middleware/validator')
 
 exports.createRoutes = router => {
@@ -83,11 +83,11 @@ const setUpRoutes = router => {
 
       router.post(
         metaData.endpoint.pattern,
-        initiateContextMiddleware(metaData),
+        initiateContextMiddleware(metaData, constants),
         parseBodyMiddleware(),
         requestsMiddleware(),
         validateBodyMiddleware(validationMap),
-        mapBodyMiddleware(mappingSchema, constants)
+        mapBodyMiddleware(mappingSchema)
       )
 
       logger.info(

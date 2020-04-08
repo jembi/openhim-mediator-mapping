@@ -91,6 +91,9 @@ const parseIncomingBody = async (ctx, inputFormat) => {
         // next() is handled outside of the internal middleware
         // Using next() inside this middleware inject the next middleware logic inside this one
 
+        // set the incoming payload as useable data point
+        ctx.state.allData.requestBody = ctx.request.body
+
         if (
           ctx.request.header &&
           ctx.request.header['x-openhim-transactionid']

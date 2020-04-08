@@ -5,18 +5,14 @@ const {createOrchestration} = require('../orchestrations')
 
 const logger = require('../logger')
 
-const createMappedObject = (ctx, mappingSchema, inputConstants) => {
+const createMappedObject = (ctx, mappingSchema) => {
   if (!mappingSchema) {
     throw new Error(
       `${ctx.state.metaData.name} (${ctx.state.uuid}): No mapping schema supplied`
     )
   }
 
-  const dataToBeMapped = {
-    requestBody: ctx.request.body,
-    lookupRequests: ctx.lookupRequests,
-    constants: inputConstants
-  }
+  const dataToBeMapped = ctx.state.allData
 
   const output = {}
   const mappingStartTimestamp = new Date()
@@ -28,6 +24,9 @@ const createMappedObject = (ctx, mappingSchema, inputConstants) => {
       `${ctx.state.metaData.name} (${ctx.state.uuid}): Object mapping failed: ${error.message}`
     )
   }
+
+  // set the outgoing payload as useable data point
+  ctx.state.allData.responseBody = output
 
   ctx.body = output
   ctx.status = 200
