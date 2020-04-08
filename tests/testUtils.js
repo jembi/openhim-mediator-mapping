@@ -2,7 +2,8 @@
 
 const http = require('http')
 const url = require('url')
-const db = require('../src/db')
+const db = require('../src/db/main')
+const endpointService = require('../src/db/services/endpoints')
 const config = require('../src/config').getConfig()
 
 const port = '3444'
@@ -102,13 +103,13 @@ const testEndpointContent = {
 
 db.open(config.mongoUrl)
 
-exports.createTestEndpoint = callback => {
-  db.createEndpoint(testEndpointContent, callback)
+exports.createTestEndpoint = () => {
+  return endpointService.createEndpoint(testEndpointContent)
 }
 
-exports.removeTestEndpoint = callback => {
+exports.removeTestEndpoint = () => {
   // Clean out any docs created for the integration test
-  db.deleteEndpoints({name: 'IntegrationTest'}, callback)
+  return endpointService.deleteEndpoints({name: 'IntegrationTest'})
 }
 
 let server

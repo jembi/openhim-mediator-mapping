@@ -1,7 +1,7 @@
 'use strict'
 
 const tap = require('tap')
-const db = require('../../src/db')
+const db = require('../../src/db/main')
 const mongoose = require('mongoose')
 const sinon = require('sinon')
 

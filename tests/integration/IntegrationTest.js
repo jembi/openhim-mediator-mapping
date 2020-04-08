@@ -16,28 +16,28 @@ let app, server, request
 tap.test('Parsing Integration Tests', {autoend: true}, t => {
   t.test('Setup endpoints', t => {
     // Create an endpoint for the tests
-    createTestEndpoint(error => {
-      if (error) {
-        throw Error(error)
-      }
-
-      app = require('../../src/index')
-      server = http.createServer(app.callback())
-      request = supertest(server)
-      t.end()
-    })
+    createTestEndpoint()
+      .then(() => {
+        app = require('../../src/index')
+        server = http.createServer(app.callback())
+        request = supertest(server)
+        t.end()
+      })
+      .catch(error => {
+        console.error(`Failed to create Test Endpoint ${error.message}`)
+      })
     startExternalTestServer()
   })
 
   tap.tearDown(() => {
     // Remove the test endpoint from MongoDB
-    removeTestEndpoint(error => {
-      if (error) {
-        console.error(`Failed to remove Test Endpoints. Caused by: ${error}`)
-      }
-
-      closeExternalTestServer()
-    })
+    removeTestEndpoint()
+      .then(() => {
+        closeExternalTestServer()
+      })
+      .catch(error => {
+        console.error(`Failed to delete Test Endpoints. Caused by: ${error}`)
+      })
   })
 
   t.test(

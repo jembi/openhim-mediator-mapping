@@ -4,7 +4,7 @@ const EndpointModel = require('../models/endpoints')
 
 exports.createEndpoint = body => {
   const endpoint = new EndpointModel(body)
-  return endpoint.save()
+  return endpoint.save({checkKeys: false})
 }
 
 exports.updateEndpoint = (endpointId, body) => {
@@ -16,4 +16,8 @@ exports.updateEndpoint = (endpointId, body) => {
 
 exports.deleteEndpoint = endpointId => {
   return EndpointModel.deleteOne({_id: endpointId})
+}
+
+exports.deleteEndpoints = queryParams => {
+  return EndpointModel.deleteMany(queryParams)
 }
