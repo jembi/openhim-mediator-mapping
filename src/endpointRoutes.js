@@ -51,7 +51,7 @@ const readEndpointRoute = router => {
           ctx.status = 200
           ctx.body = endpoint
           logger.info(
-            `Endpoint "${endpoint.endpoint.pattern}" with pattern ${endpoint.endpoint.pattern} has been retrieved`
+            `Endpoint "${endpoint.endpoint.name}" with pattern ${endpoint.endpoint.pattern} has been retrieved`
           )
         } else {
           const error = `Endpoint with id ${endpointId} does not exist`
