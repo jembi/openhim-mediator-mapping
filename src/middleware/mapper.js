@@ -70,7 +70,3 @@ exports.mapBodyMiddleware = (mappingSchema, inputConstants) => async (
   createMappedObject(ctx, mappingSchema, inputConstants)
   await next()
 }
-
-if (process.env.NODE_ENV == 'test') {
-  exports.createMappedObject = createMappedObject
-}
