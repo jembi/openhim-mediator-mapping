@@ -79,7 +79,7 @@ const readEndpointsRoute = router => {
       .then(endpoints => {
         ctx.status = 200
         ctx.body = endpoints
-        logger.info(`Endpoints have been successfully retrieved`)
+        logger.debug(`Retrieved ${endpoints.length} Endpoints matching query param: ${JSON.stringify(queryParams)}`)
         next()
       })
       .catch(error => {
