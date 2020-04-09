@@ -25,7 +25,6 @@ const extractStateValues = (ctx, extract) => {
 
   if (extract.system && Object.keys(extract.system).length > 0) {
     let systemState = {}
-    // TODO
     if (extract.system.timestamps) {
       ctx.state.allData.timestamps.endpointEnd = DateTime.utc().toISO()
       ctx.state.allData.timestamps.endpointDuration = DateTime.fromISO(
