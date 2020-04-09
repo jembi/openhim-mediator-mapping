@@ -10,7 +10,6 @@ tap.test('Database interactions', {autoend: true}, t => {
   t.test('Connect to DB', {autoend: true}, t => {
     t.afterEach(async () => {
       await mongoose.disconnect()
-      console.debug('Closed all connections to DB')
     })
 
     t.test('should fail to connect to db', {autoend: true}, async t => {
