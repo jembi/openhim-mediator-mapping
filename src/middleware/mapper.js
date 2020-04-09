@@ -8,6 +8,8 @@ const {createOrchestration} = require('../orchestrations')
 
 const createMappedObject = ctx => {
   if (!ctx.state.metaData.inputMapping) {
+    // Ensure input mapping is an object
+    ctx.state.metaData.inputMapping = {}
     logger.warn(
       `${ctx.state.metaData.name} (${ctx.state.uuid}): No mapping schema supplied`
     )
