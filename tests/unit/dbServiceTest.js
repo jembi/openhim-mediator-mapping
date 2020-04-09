@@ -1,8 +1,8 @@
 'use strict'
 
-const db = require('../../src/db/main')
-// const sinon = require('sinon')
 const tap = require('tap')
+
+const db = require('../../src/db/main')
 
 const {
   createEndpoint,
