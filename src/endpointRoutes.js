@@ -12,7 +12,7 @@ const {
 
 const createEndpointRoute = router => {
   router.post('/endpoints', KoaBodyParser(), async (ctx, next) => {
-    const failureMsg = 'Endpoint creation/update failed: '
+    const failureMsg = 'Create endpoint failed:'
 
     try {
       const body = Object.assign({lastUpdated: Date.now()}, ctx.request.body)
