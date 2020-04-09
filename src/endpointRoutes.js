@@ -22,7 +22,7 @@ const createEndpointRoute = router => {
           ctx.status = 201
           ctx.body = result
           logger.info(
-            `Endpoint "${result.endpoint.name}" has been successfully created on endpoint ${result.endpoint.pattern}`
+            `Endpoint "${result.endpoint.name}" created on ${result.endpoint.pattern}`
           )
           return next()
         })
