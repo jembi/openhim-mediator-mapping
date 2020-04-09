@@ -17,6 +17,12 @@ tap.test('Validation Middleware', {autoend: true}, t => {
           uuid: 'randomUidForRequest',
           metaData: {
             name: 'Testing endpoint'
+          },
+          allData: {
+            state: {},
+            timestamps: {
+              lookupRequests: {}
+            }
           }
         }
       }
@@ -38,6 +44,12 @@ tap.test('Validation Middleware', {autoend: true}, t => {
           uuid: 'randomUidForRequest',
           metaData: {
             name: 'Testing endpoint'
+          },
+          allData: {
+            state: {},
+            timestamps: {
+              lookupRequests: {}
+            }
           }
         }
       }
@@ -58,6 +70,12 @@ tap.test('Validation Middleware', {autoend: true}, t => {
           uuid: 'randomUidForRequest',
           metaData: {
             name: 'Testing endpoint'
+          },
+          allData: {
+            state: {},
+            timestamps: {
+              lookupRequests: {}
+            }
           }
         }
       }
@@ -85,6 +103,11 @@ tap.test('Validation Middleware', {autoend: true}, t => {
           body: {
             name: 'drake',
             surname: 'durden'
+          }
+        },
+        state: {
+          allData: {
+            lookupRequests: {}
           }
         }
       }
@@ -119,6 +142,11 @@ tap.test('Validation Middleware', {autoend: true}, t => {
           body: {
             name: 'drake',
             surname: null
+          }
+        },
+        state: {
+          allData: {
+            lookupRequests: {}
           }
         }
       }

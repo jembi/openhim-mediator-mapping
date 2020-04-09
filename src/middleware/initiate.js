@@ -1,6 +1,7 @@
 'use strict'
 
 const uuid = require('uuid')
+const {DateTime} = require('luxon')
 
 const logger = require('../logger')
 const {extractValueFromObject} = require('../util')
@@ -8,22 +9,37 @@ const {extractValueFromObject} = require('../util')
 const extractStateValues = (ctx, extract) => {
   if (
     !extract ||
-    !extract.system ||
-    !extract.requestBody ||
-    !extract.responseBody ||
-    !extract.query
+    (!extract.system &&
+      !extract.requestBody &&
+      !extract.responseBody &&
+      !extract.query &&
+      !extract.lookupRequests)
   ) {
-    throw new Error('No state extract definitions supplied for this endpoint')
+    return logger.info(
+      `${ctx.state.metaData.name} (${ctx.state.uuid}): State extract definitions not supplied for this endpoint`
+    )
   }
 
   const allData = ctx.state.allData
   let updatedState = {}
 
-  if (extract.system) {
+  if (extract.system && Object.keys(extract.system).length > 0) {
+    let systemState = {}
     // TODO
+    if (extract.system.timestamps) {
+      ctx.state.allData.timestamps.endpointEnd = DateTime.utc().toISO()
+      ctx.state.allData.timestamps.endpointDuration = DateTime.fromISO(
+        ctx.state.allData.timestamps.endpointEnd
+      )
+        .diff(DateTime.fromISO(ctx.state.allData.timestamps.endpointStart))
+        .toObject()
+      Object.assign(systemState, ctx.state.allData.timestamps)
+    }
+
+    updatedState.system = systemState
   }
 
-  if (extract.requestBody) {
+  if (extract.requestBody && Object.keys(extract.requestBody).length > 0) {
     let requestBodyState = {}
     Object.keys(extract.requestBody).forEach(prop => {
       const requestBodyValue = extractValueFromObject(
@@ -35,7 +51,7 @@ const extractStateValues = (ctx, extract) => {
     updatedState.requestBody = requestBodyState
   }
 
-  if (extract.responseBody) {
+  if (extract.responseBody && Object.keys(extract.responseBody).length > 0) {
     let responseBodyState = {}
     Object.keys(extract.responseBody).forEach(prop => {
       const responseBodyValue = extractValueFromObject(
@@ -47,8 +63,31 @@ const extractStateValues = (ctx, extract) => {
     updatedState.responseBody = responseBodyState
   }
 
-  if (extract.query) {
-    // TODO
+  if (extract.query && Object.keys(extract.query).length > 0) {
+    let queryState = {}
+    Object.keys(extract.query).forEach(prop => {
+      const queryValue = extractValueFromObject(
+        allData.query,
+        extract.query[prop]
+      )
+      queryState[prop] = queryValue
+    })
+    updatedState.query = queryState
+  }
+
+  if (
+    extract.lookupRequests &&
+    Object.keys(extract.lookupRequests).length > 0
+  ) {
+    let lookupRequestsState = {}
+    Object.keys(extract.lookupRequests).forEach(prop => {
+      const lookupValue = extractValueFromObject(
+        allData.lookupRequests,
+        extract.lookupRequests[prop]
+      )
+      lookupRequestsState[prop] = lookupValue
+    })
+    updatedState.lookupRequests = lookupRequestsState
   }
 
   return updatedState
@@ -69,8 +108,6 @@ const updateEndpointState = async (ctx, metaData) => {
 
   console.log(updatedState)
 
-  // function to set specified state values
-
   // send update to mongo
 }
 
@@ -78,21 +115,27 @@ exports.initiateContextMiddleware = (metaData, constants) => async (
   ctx,
   next
 ) => {
-  // set request UUID from incoming OpenHIM header if present, else create a random UUID
-  ctx.state.uuid = ctx.headers['x-openhim-transactionid']
-    ? ctx.headers['x-openhim-transactionid']
-    : uuid.v4()
-  ctx.state.metaData = metaData
+  const endpointStart = DateTime.utc().toISO() // set the initial start time for entry into the endpoint
+  const requestUUID = uuid.v4()
+
+  logger.info(`${metaData.name} (${requestUUID}): Initiating new request`)
 
   // initiate the property for containing all useable data points
   ctx.state.allData = {
     constants,
-    state: metaData.state.data
+    state: metaData.state.data,
+    timestamps: {
+      endpointStart,
+      endpointEnd: null,
+      lookupRequests: {}
+    }
   }
+  // set request UUID from incoming OpenHIM header if present, else create a random UUID
+  ctx.state.uuid = ctx.headers['x-openhim-transactionid']
+    ? ctx.headers['x-openhim-transactionid']
+    : requestUUID
+  ctx.state.metaData = metaData
 
-  logger.info(
-    `${ctx.state.metaData.name} (${ctx.state.uuid}): Initiating new request`
-  )
   await next()
 
   try {

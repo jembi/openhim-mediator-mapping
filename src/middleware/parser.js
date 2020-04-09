@@ -91,8 +91,9 @@ const parseIncomingBody = async (ctx, inputFormat) => {
         // next() is handled outside of the internal middleware
         // Using next() inside this middleware inject the next middleware logic inside this one
 
-        // set the incoming payload as useable data point
+        // set the incoming payload/query params as useable data point
         ctx.state.allData.requestBody = ctx.request.body
+        ctx.state.allData.query = ctx.request.query
 
         if (
           ctx.request.header &&

@@ -1,6 +1,8 @@
 'use strict'
 
 const axios = require('axios')
+const {DateTime} = require('luxon')
+
 const logger = require('../logger')
 const {createOrchestration, setStatusText} = require('../orchestrations')
 const {constructOpenhimResponse} = require('../openhim')
@@ -31,8 +33,13 @@ const performRequests = (requests, ctx) => {
   }
 
   return requests.map(requestDetails => {
-    const reqTimestamp = new Date()
+    const reqTimestamp = DateTime.utc().toISO()
     let responseTimestamp, error, response
+
+    // capture the lookup request start time
+    ctx.state.allData.timestamps.lookupRequests[requestDetails.id] = {
+      requestStart: reqTimestamp
+    }
 
     // No body is sent out for now
     const body = null
@@ -46,7 +53,22 @@ const performRequests = (requests, ctx) => {
       .then(res => {
         response = res
         response.body = res.data
-        responseTimestamp = new Date()
+        responseTimestamp = DateTime.utc().toISO()
+
+        // capture the lookup request end time
+        ctx.state.allData.timestamps.lookupRequests[
+          requestDetails.id
+        ].requestEnd = responseTimestamp
+        ctx.state.allData.timestamps.lookupRequests[
+          requestDetails.id
+        ].requestDuration = DateTime.fromISO(responseTimestamp)
+          .diff(
+            DateTime.fromISO(
+              ctx.state.allData.timestamps.lookupRequests[requestDetails.id]
+                .requestStart
+            )
+          )
+          .toObject()
 
         // Assign any data received from the response to the assigned id in the context
         return {[requestDetails.id]: res.data}
@@ -285,14 +307,33 @@ const sendMappedObject = (
   body,
   requestParameters
 ) => {
-  const reqTimestamp = new Date()
+  const reqTimestamp = DateTime.utc().toISO()
   let response, error, responseTimestamp
+
+  // capture the lookup request start time
+  ctx.state.allData.timestamps.lookupRequests[request.id] = {
+    requestStart: reqTimestamp
+  }
 
   return axios(axiosConfig)
     .then(resp => {
       response = resp
       response.body = resp.data
-      responseTimestamp = new Date()
+      responseTimestamp = DateTime.utc().toISO()
+
+      // capture the lookup request end time
+      ctx.state.allData.timestamps.lookupRequests[
+        request.id
+      ].requestEnd = responseTimestamp
+      ctx.state.allData.timestamps.lookupRequests[
+        request.id
+      ].requestDuration = DateTime.fromISO(responseTimestamp)
+        .diff(
+          DateTime.fromISO(
+            ctx.state.allData.timestamps.lookupRequests[request.id].requestStart
+          )
+        )
+        .toObject()
 
       if (request.primary) {
         setKoaResponseBodyFromPrimary(ctx, request, response.body)
@@ -303,7 +344,7 @@ const sendMappedObject = (
       }
     })
     .catch(err => {
-      responseTimestamp = new Date()
+      responseTimestamp = DateTime.utc().toISO()
 
       const result = handleRequestError(ctx, request, err)
       response = result.response
@@ -342,10 +383,17 @@ const addRequestQueryParameters = (ctx, request) => {
       // remove the extractType property from path
       const path = fullPath.replace(`${extractType}.`, '')
 
-      if (extractType === 'payload') {
-        parameterValue = extractValueFromObject(ctx.request.body, path)
-      } else if (extractType === 'query' && ctx.request.query) {
-        parameterValue = extractValueFromObject(ctx.request.query, path)
+      switch (extractType) {
+        case 'payload':
+          parameterValue = extractValueFromObject(ctx.request.body, path)
+          break
+        case 'query':
+          parameterValue = extractValueFromObject(ctx.request.query, path)
+          break
+        case 'state':
+          parameterValue = extractValueFromObject(ctx.state.allData.state, path)
+          break
+        // other data points to be included here: lookupRequest, responseBody, constants
       }
 
       if (parameterValue) {

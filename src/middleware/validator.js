@@ -29,7 +29,7 @@ const performValidation = (ctx, schema) => {
     dataToValidate.requestBody = ctx.request.body
   }
 
-  if (ctx.lookupRequests) {
+  if (ctx.state.allData.lookupRequests) {
     dataToValidate.lookupRequests = ctx.state.allData.lookupRequests
   }
 
