@@ -5,11 +5,10 @@ const uuid = require('uuid')
 const logger = require('../logger')
 
 const {constructOpenhimResponse} = require('../openhim')
-
-let endpoints = []
+const {endpointCache} = require('../db/services/endpoints/cache')
 
 const getEndpoint = urlPath => {
-  for (let endpoint of endpoints) {
+  for (let endpoint of endpointCache) {
     if (endpoint.endpoint.pattern === urlPath) {
       return endpoint
     }
@@ -42,5 +41,3 @@ exports.initiateContextMiddleware = () => async (ctx, next) => {
   )
   await next()
 }
-
-exports.EndpointCache = endpoints

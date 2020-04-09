@@ -4,6 +4,11 @@ const mongoose = require('mongoose')
 
 const logger = require('../logger')
 
+const {
+  removeEventListeners,
+  setupEventListeners
+} = require('./services/endpoints/cache')
+
 exports.open = async mongoUrl => {
   try {
     await mongoose.connect(mongoUrl, {
