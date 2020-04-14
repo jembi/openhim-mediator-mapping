@@ -37,7 +37,10 @@ const endpointSchema = new mongoose.Schema(
     },
     constants: {},
     inputMapping: {},
-    inputValidation: {}
+    inputValidation: {},
+    state: {
+      extract: {}
+    }
   },
   {
     timestamps: true // set the created_at/updated_at timestamps on the record
