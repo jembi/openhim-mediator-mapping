@@ -4,7 +4,7 @@ const EndpointModel = require('../models/endpoints')
 
 exports.createEndpoint = body => {
   const endpoint = new EndpointModel(body)
-  return endpoint.save()
+  return endpoint.save({checkKeys: false})
 }
 
 exports.readEndpoint = endpointId => {
