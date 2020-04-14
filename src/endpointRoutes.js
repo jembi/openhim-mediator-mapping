@@ -17,9 +17,7 @@ const createEndpointRoute = router => {
     const failureMsg = 'Create endpoint failed:'
 
     try {
-      const body = Object.assign({lastUpdated: Date.now()}, ctx.request.body)
-
-      await createEndpoint(body)
+      await createEndpoint(ctx.request.body)
         .then(result => {
           ctx.status = 201
           ctx.body = result
