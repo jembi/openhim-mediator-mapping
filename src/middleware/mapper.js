@@ -1,13 +1,16 @@
 'use strict'
 
 const objectMapper = require('object-mapper')
-const {createOrchestration} = require('../orchestrations')
 
 const logger = require('../logger')
 
-const createMappedObject = (ctx, mappingSchema, inputConstants) => {
-  if (!mappingSchema) {
-    throw new Error(
+const {createOrchestration} = require('../orchestrations')
+
+const createMappedObject = ctx => {
+  if (!ctx.state.metaData.inputMapping) {
+    // Ensure input mapping is an object
+    ctx.state.metaData.inputMapping = {}
+    logger.warn(
       `${ctx.state.metaData.name} (${ctx.state.uuid}): No mapping schema supplied`
     )
   }
@@ -15,14 +18,17 @@ const createMappedObject = (ctx, mappingSchema, inputConstants) => {
   const dataToBeMapped = {
     requestBody: ctx.request.body,
     lookupRequests: ctx.lookupRequests,
-    constants: inputConstants
+    constants: ctx.state.metaData.constants
   }
 
   const output = {}
   const mappingStartTimestamp = new Date()
 
   try {
-    Object.assign(output, objectMapper(dataToBeMapped, mappingSchema))
+    Object.assign(
+      output,
+      objectMapper(dataToBeMapped, ctx.state.metaData.inputMapping)
+    )
   } catch (error) {
     throw Error(
       `${ctx.state.metaData.name} (${ctx.state.uuid}): Object mapping failed: ${error.message}`
@@ -63,11 +69,8 @@ const createMappedObject = (ctx, mappingSchema, inputConstants) => {
   }
 }
 
-exports.mapBodyMiddleware = (mappingSchema, inputConstants) => async (
-  ctx,
-  next
-) => {
-  createMappedObject(ctx, mappingSchema, inputConstants)
+exports.mapBodyMiddleware = () => async (ctx, next) => {
+  createMappedObject(ctx)
   await next()
 }
 

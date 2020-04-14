@@ -1,6 +1,7 @@
 'use strict'
 
 const tap = require('tap')
+
 const {createMappedObject} = require('../../src/middleware/mapper')
 
 tap.test('Mapper', {autoend: true}, t => {
@@ -34,15 +35,14 @@ tap.test('Mapper', {autoend: true}, t => {
         state: {
           uuid: 'randomUidForRequest',
           metaData: {
-            name: 'Testing endpoint'
+            name: 'Testing endpoint',
+            inputMapping: {
+              'requestBody.inputOne': 'outputOne',
+              'requestBody.inputTwo': 'outputTwo',
+              'requestBody.inputThree': 'outputThree'
+            }
           }
         }
-      }
-
-      const mappingSchema = {
-        'requestBody.inputOne': 'outputOne',
-        'requestBody.inputTwo': 'outputTwo',
-        'requestBody.inputThree': 'outputThree'
       }
 
       const expected = {
@@ -51,7 +51,7 @@ tap.test('Mapper', {autoend: true}, t => {
         outputThree: 3
       }
 
-      createMappedObject(ctx, mappingSchema)
+      createMappedObject(ctx)
 
       t.deepEqual(ctx.body, expected)
       t.end()

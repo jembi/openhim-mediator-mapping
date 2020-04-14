@@ -1,6 +1,7 @@
 'use strict'
 
 const tap = require('tap')
+
 const {constructOpenhimResponse} = require('../../src/openhim')
 
 tap.test('constructOpenhimResponse()', {autoend: true}, t => {

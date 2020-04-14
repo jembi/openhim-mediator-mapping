@@ -1,18 +1,7 @@
 'use strict'
 
-const inputMeta = 'meta.json'
-const inputValidation = 'input-validation.json'
-const inputMapping = 'input-mapping.json'
-const inputConstants = 'constants.json'
-
-exports.expectedEndpointsDirectories = [
-  inputMeta,
-  inputValidation,
-  inputMapping,
-  inputConstants
-]
-exports.inputMeta = inputMeta
-exports.inputValidation = inputValidation
-exports.inputMapping = inputMapping
-exports.inputConstants = inputConstants
 exports.ALLOWED_CONTENT_TYPES = ['JSON', 'XML']
+
+// This regex only permits strings with URI safe characters.
+// It also prevents the path starting with the string 'endpoints' as this is a reserved api path
+exports.MIDDLEWARE_PATH_REGEX = /^(?!\/endpoints)\/[\d\w-._~]+$/

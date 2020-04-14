@@ -3,10 +3,12 @@
 const KoaBodyParser = require('@viweei/koa-body-parser')
 
 const logger = require('./logger')
+
 const {handleServerError} = require('./util')
+
 const {
-  deleteEndpoint,
   createEndpoint,
+  deleteEndpoint,
   readEndpoint,
   readEndpoints,
   updateEndpoint
@@ -22,7 +24,7 @@ const createEndpointRoute = router => {
           ctx.status = 201
           ctx.body = result
           logger.info(
-            `Endpoint "${result.endpoint.name}" created on ${result.endpoint.pattern}`
+            `Endpoint "${result.name}" created on ${result.endpoint.pattern}`
           )
           return next()
         })
@@ -51,7 +53,7 @@ const readEndpointRoute = router => {
             ctx.status = 200
             ctx.body = endpoint
             logger.info(
-              `Endpoint "${endpoint.endpoint.name}" with pattern ${endpoint.endpoint.pattern} has been retrieved`
+              `Endpoint "${endpoint.name}" with pattern ${endpoint.endpoint.pattern} has been retrieved`
             )
           } else {
             const error = `Endpoint with id ${endpointId} does not exist`
@@ -129,7 +131,7 @@ const updateEndpointRoute = router => {
             ctx.status = 200
             ctx.body = result
             logger.info(
-              `Endpoint "${result.endpoint.name}" has been successfully updated`
+              `Endpoint "${result.name}" has been successfully updated`
             )
           } else {
             ctx.status = 404

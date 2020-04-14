@@ -1,10 +1,11 @@
+'use strict'
+
 const pino = require('pino')
 
-const config = require('./config')
-const configOptions = config.getConfig()
+const config = require('./config').getConfig()
 
 const logger = pino({
-  level: configOptions.logLevel,
+  level: config.logLevel,
   prettyPrint: {
     colorize: true,
     translateTime: 'sys:UTC:yyyy-mm-dd"T"HH:MM:ss:l"Z"',
@@ -13,7 +14,7 @@ const logger = pino({
   serializers: {
     err: pino.stdSerializers.err
   },
-  enabled: configOptions.enableLogging
+  enabled: config.enableLogging
 })
 
 module.exports = logger
