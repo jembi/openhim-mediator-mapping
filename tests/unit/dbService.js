@@ -78,6 +78,108 @@ tap.test('Database interactions', {autoend: true}, t => {
         })
     })
 
+    t.test(
+      'should fail to create Endpoint if an Endpoint with that name already exists',
+      {autoend: true},
+      async t => {
+        t.plan(3)
+        const testEndpointConfig = {
+          name: 'test',
+          endpoint: {
+            pattern: '/test1'
+          },
+          transformation: {
+            input: 'JSON',
+            output: 'JSON'
+          },
+          lastUpdated: Date.now()
+        }
+
+        await createEndpoint(testEndpointConfig)
+          .then(data => {
+            t.ok(data.id)
+            t.equals(data.name, 'test')
+          })
+          .catch(error => {
+            t.fail(`Should not reach here. ${error.message}`)
+          })
+
+        const sameNameTestEndpointConfig = {
+          name: 'test',
+          endpoint: {
+            pattern: '/test2'
+          },
+          transformation: {
+            input: 'JSON',
+            output: 'JSON'
+          },
+          lastUpdated: Date.now()
+        }
+
+        await createEndpoint(sameNameTestEndpointConfig)
+          .then(data => {
+            t.fail(`Should not reach here. ${data}`)
+          })
+          .catch(error => {
+            t.equals(
+              error.message,
+              'E11000 duplicate key error collection: unitTest.endpoints index: name_1 dup key: { name: "test" }'
+            )
+          })
+      }
+    )
+
+    t.test(
+      'should fail to create Endpoint if an Endpoint with that pattern already exists',
+      {autoend: true},
+      async t => {
+        t.plan(3)
+        const testEndpointConfig = {
+          name: 'test 1',
+          endpoint: {
+            pattern: '/test'
+          },
+          transformation: {
+            input: 'JSON',
+            output: 'JSON'
+          },
+          lastUpdated: Date.now()
+        }
+
+        await createEndpoint(testEndpointConfig)
+          .then(data => {
+            t.ok(data.id)
+            t.equals(data.name, 'test 1')
+          })
+          .catch(error => {
+            t.fail(`Should not reach here. ${error.message}`)
+          })
+
+        const samePatternTestEndpointConfig = {
+          name: 'test 2',
+          endpoint: {
+            pattern: '/test'
+          },
+          transformation: {
+            input: 'JSON',
+            output: 'JSON'
+          },
+          lastUpdated: Date.now()
+        }
+
+        await createEndpoint(samePatternTestEndpointConfig)
+          .then(data => {
+            t.fail(`Should not reach here. ${data}`)
+          })
+          .catch(error => {
+            t.equals(
+              error.message,
+              'E11000 duplicate key error collection: unitTest.endpoints index: endpoint.pattern_1 dup key: { endpoint.pattern: "/test" }'
+            )
+          })
+      }
+    )
+
     t.test('should read Endpoints', {autoend: true}, async t => {
       t.plan(3)
 
