@@ -1,10 +1,7 @@
 'use strict'
 
 const axios = require('axios')
-<<<<<<< HEAD
 const {DateTime} = require('luxon')
-=======
->>>>>>> c414f44dc51f50e036f0c0cfa6b5200c3f70638e
 
 const logger = require('../logger')
 
