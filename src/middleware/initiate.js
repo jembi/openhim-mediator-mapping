@@ -92,20 +92,18 @@ const extractStateValues = (ctx, extract) => {
   return updatedState
 }
 
-const updateEndpointState = async (ctx, metaData) => {
-  if (!metaData || Object.keys(metaData).length === 0) {
+const updateEndpointState = async (ctx, endpoint) => {
+  if (!endpoint || Object.keys(endpoint).length === 0) {
     throw new Error('No metaData supplied for updating state for this endpoint')
   }
 
-  if (!metaData.state || Object.keys(metaData).length === 0) {
+  if (!endpoint.state || Object.keys(endpoint).length === 0) {
     return logger.info(
-      `${ctx.state.metaData.name} (${ctx.state.uuid}): No state configuration for this endpoint`
+      `${endpoint.name} (${ctx.state.uuid}): No state configuration for this endpoint`
     )
   }
 
-  const updatedState = extractStateValues(ctx, metaData.state.extract)
-
-  console.log(updatedState)
+  const updatedState = extractStateValues(ctx, endpoint.state.extract)
 
   // send update to mongo
 }
@@ -126,9 +124,9 @@ exports.initiateContextMiddleware = () => async (ctx, next) => {
   const endpointStart = DateTime.utc().toISO() // set the initial start time for entry into the endpoint
   const requestUUID = uuid.v4()
 
-  const endpoint = getEndpointByPath(ctx.url)
+  const endpoint = getEndpointByPath(ctx.request.path)
   if (!endpoint) {
-    logger.error(`Unknown Endpoint: ${ctx.url}`)
+    logger.error(`Unknown Endpoint: ${ctx.request.path}`)
 
     if (ctx.request.header && ctx.request.header['x-openhim-transactionid']) {
       ctx.response.type = 'application/json+openhim'
@@ -143,8 +141,8 @@ exports.initiateContextMiddleware = () => async (ctx, next) => {
 
   // initiate the property for containing all useable data points
   ctx.state.allData = {
-    constants,
-    state: endpoint.state.data,
+    constants: endpoint.constants,
+    state: endpoint.state ? endpoint.state.data : null,
     timestamps: {
       endpointStart,
       endpointEnd: null,
@@ -162,7 +160,7 @@ exports.initiateContextMiddleware = () => async (ctx, next) => {
 
   try {
     // update any specified state for this endpoint request
-    updateEndpointState(ctx, metaData)
+    updateEndpointState(ctx, endpoint)
   } catch (error) {
     logger.error(error)
     // do something else??
