@@ -1,6 +1,7 @@
 'use strict'
 
 const tap = require('tap')
+
 const {performValidation} = require('../../src/middleware/validator')
 
 tap.test('Validation Middleware', {autoend: true}, t => {
@@ -16,14 +17,14 @@ tap.test('Validation Middleware', {autoend: true}, t => {
         state: {
           uuid: 'randomUidForRequest',
           metaData: {
-            name: 'Testing endpoint'
+            name: 'Testing endpoint',
+            inputValidation: null
           }
         }
       }
-      const schema = null
 
       try {
-        performValidation(ctx, schema)
+        performValidation(ctx)
       } catch (e) {
         t.error('Should not reach here')
       }
@@ -37,13 +38,13 @@ tap.test('Validation Middleware', {autoend: true}, t => {
         state: {
           uuid: 'randomUidForRequest',
           metaData: {
-            name: 'Testing endpoint'
+            name: 'Testing endpoint',
+            inputValidation: {}
           }
         }
       }
-      const schema = {}
 
-      t.throws(() => performValidation(ctx, schema), /No data to validate/)
+      t.throws(() => performValidation(ctx), /No data to validate/)
       t.end()
     })
 
@@ -57,25 +58,25 @@ tap.test('Validation Middleware', {autoend: true}, t => {
         state: {
           uuid: 'randomUidForRequest',
           metaData: {
-            name: 'Testing endpoint'
-          }
-        }
-      }
-      const schema = {
-        type: 'object',
-        properties: {
-          requestBody: {
-            type: 'object',
-            properties: {
-              name: {type: 'string'},
-              surname: {type: 'string'}
-            },
-            required: ['name']
+            name: 'Testing endpoint',
+            inputValidation: {
+              type: 'object',
+              properties: {
+                requestBody: {
+                  type: 'object',
+                  properties: {
+                    name: {type: 'string'},
+                    surname: {type: 'string'}
+                  },
+                  required: ['name']
+                }
+              }
+            }
           }
         }
       }
 
-      t.throws(() => performValidation(ctx, schema), /Validation failed/)
+      t.throws(() => performValidation(ctx), /Validation failed/)
       t.end()
     })
 
@@ -86,23 +87,25 @@ tap.test('Validation Middleware', {autoend: true}, t => {
             name: 'drake',
             surname: 'durden'
           }
-        }
-      }
-      const schema = {
-        type: 'object',
-        properties: {
-          requestBody: {
+        },
+        state: {
+          metaData: {
             type: 'object',
             properties: {
-              name: {type: 'string'},
-              surname: {type: 'string'}
-            },
-            required: ['name']
+              requestBody: {
+                type: 'object',
+                properties: {
+                  name: {type: 'string'},
+                  surname: {type: 'string'}
+                },
+                required: ['name']
+              }
+            }
           }
         }
       }
 
-      t.doesNotThrow(() => performValidation(ctx, schema))
+      t.doesNotThrow(() => performValidation(ctx))
       t.end()
     })
 
@@ -120,23 +123,28 @@ tap.test('Validation Middleware', {autoend: true}, t => {
             name: 'drake',
             surname: null
           }
-        }
-      }
-      const schema = {
-        type: 'object',
-        properties: {
-          requestBody: {
-            type: 'object',
-            properties: {
-              name: {type: 'string'},
-              surname: {type: 'string', nullable: true}
-            },
-            required: ['name']
+        },
+        state: {
+          metaData: {
+            name: '',
+            inputValidation: {
+              type: 'object',
+              properties: {
+                requestBody: {
+                  type: 'object',
+                  properties: {
+                    name: {type: 'string'},
+                    surname: {type: 'string', nullable: true}
+                  },
+                  required: ['name']
+                }
+              }
+            }
           }
         }
       }
 
-      t.doesNotThrow(() => validatorUpdatedEnv.performValidation(ctx, schema))
+      t.doesNotThrow(() => validatorUpdatedEnv.performValidation(ctx))
       t.end()
     })
   })

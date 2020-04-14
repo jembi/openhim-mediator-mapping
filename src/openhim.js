@@ -2,9 +2,11 @@
 
 const fs = require('fs')
 const path = require('path')
+
 const logger = require('./logger')
 const config = require('./config')
-const {registerMediator, activateHeartbeat} = require('openhim-mediator-utils')
+
+const {activateHeartbeat, registerMediator} = require('openhim-mediator-utils')
 
 let mediatorConfigJson, readError
 

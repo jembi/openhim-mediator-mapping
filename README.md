@@ -12,4 +12,6 @@ Please see our [docs](./docs/Setup.md) for setup more details.
 ## Prerequisite
 
 To store endpoint data:
-* MongoDB >= 3.6 as we need dotted key support (e.g. { 'key.path': 'xyz' })
+
+- MongoDB >= 3.6 as we need dotted key support (e.g. `{ 'key.path': 'xyz' }`)
+- Your MongoDB set up needs to be a replica set

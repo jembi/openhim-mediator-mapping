@@ -3,23 +3,24 @@
 const koa = require('koa')
 const koaRouter = require('koa-router')
 
-const openhim = require('./openhim')
-const logger = require('./logger')
 const config = require('./config').getConfig()
-const routes = require('./routes')
-const {createAPIRoutes} = require('./endpointRoutes')
 const db = require('./db')
+const logger = require('./logger')
+const openhim = require('./openhim')
+
+const {createAPIRoutes} = require('./endpointRoutes')
+const {createMiddlewareRoute} = require('./routes')
 
 const app = new koa()
 const router = new koaRouter()
 
 createAPIRoutes(router)
-routes.createRoutes(router)
+createMiddlewareRoute(router)
 
 app.use(router.routes()).use(router.allowedMethods())
 
 if (!module.parent) {
-  db.open()
+  db.open(config.mongoUrl)
 
   app.listen(config.port, () => {
     logger.info(`Server listening on port ${config.port}...`)

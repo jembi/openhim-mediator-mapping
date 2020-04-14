@@ -43,6 +43,7 @@ exports.getConfig = function() {
           process.env.VALIDATION_COERCE_TYPES,
           process.env.VALIDATION_COERCE_TYPES
         ) || false
-    })
+    }),
+    dynamicEndpoints: parseStringToBoolean(process.env.DYNAMIC_ENDPOINTS, true)
   })
 }

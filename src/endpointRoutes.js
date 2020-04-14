@@ -3,10 +3,12 @@
 const KoaBodyParser = require('@viweei/koa-body-parser')
 
 const logger = require('./logger')
+
 const {handleServerError} = require('./util')
+
 const {
-  deleteEndpoint,
   createEndpoint,
+  deleteEndpoint,
   readEndpoint,
   readEndpoints,
   updateEndpoint

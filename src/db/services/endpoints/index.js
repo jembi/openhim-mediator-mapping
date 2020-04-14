@@ -1,6 +1,6 @@
 'use strict'
 
-const EndpointModel = require('../models/endpoints')
+const EndpointModel = require('../../models/endpoints')
 
 exports.createEndpoint = body => {
   const endpoint = new EndpointModel(body)
@@ -24,4 +24,8 @@ exports.updateEndpoint = (endpointId, body) => {
 
 exports.deleteEndpoint = endpointId => {
   return EndpointModel.deleteOne({_id: endpointId})
+}
+
+exports.deleteEndpoints = queryParams => {
+  return EndpointModel.deleteMany(queryParams)
 }

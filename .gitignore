@@ -9,5 +9,3 @@ coverage.lcov
 # generated files
 /docs/.docusaurus
 /docs/.cache-loader
-
-endpoints/*/

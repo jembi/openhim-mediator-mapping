@@ -39,15 +39,14 @@ tap.test('Mapper', {autoend: true}, t => {
           state: {
             uuid: 'randomUidForRequest',
             metaData: {
-              name: 'Testing endpoint'
+              name: 'Testing endpoint',
+              inputMapping: {
+                'requestBody.inputOne': 'outputOne',
+                'requestBody.inputTwo': 'outputTwo',
+                'requestBody.inputThree': 'outputThree'
+              }
             }
           }
-        }
-
-        const mappingSchema = {
-          'requestBody.inputOne': 'outputOne',
-          'requestBody.inputTwo': 'outputTwo',
-          'requestBody.inputThree': 'outputThree'
         }
 
         const expected = {
@@ -56,7 +55,7 @@ tap.test('Mapper', {autoend: true}, t => {
           outputThree: 3
         }
 
-        createMappedObject(ctx, mappingSchema)
+        createMappedObject(ctx)
 
         t.deepEqual(ctx.body, expected)
         t.end()
@@ -80,22 +79,20 @@ tap.test('Mapper', {autoend: true}, t => {
           state: {
             uuid: 'randomUidForRequest',
             metaData: {
-              name: 'Testing endpoint'
+              name: 'Testing endpoint',
+              inputMapping: {
+                'requestBody.inputZero': 'outputZero',
+                'lookupRequests.inputOne': 'outputOne',
+                'lookupRequests.inputTwo': 'outputTwo',
+                'lookupRequests.inputThree': 'outputThree',
+                'constants.inputFour': 'outputFour'
+              },
+              constants: {
+                inputFour: 4,
+                inputFive: 5
+              }
             }
           }
-        }
-
-        const inputConstants = {
-          inputFour: 4,
-          inputFive: 5
-        }
-
-        const mappingSchema = {
-          'requestBody.inputZero': 'outputZero',
-          'lookupRequests.inputOne': 'outputOne',
-          'lookupRequests.inputTwo': 'outputTwo',
-          'lookupRequests.inputThree': 'outputThree',
-          'constants.inputFour': 'outputFour'
         }
 
         const expected = {
@@ -106,7 +103,7 @@ tap.test('Mapper', {autoend: true}, t => {
           outputFour: 4
         }
 
-        createMappedObject(ctx, mappingSchema, inputConstants)
+        createMappedObject(ctx)
 
         t.deepEqual(ctx.body, expected)
         t.equals(ctx.status, 200)
@@ -130,20 +127,18 @@ tap.test('Mapper', {autoend: true}, t => {
         state: {
           uuid: 'randomUidForRequest',
           metaData: {
-            name: 'Testing endpoint'
+            name: 'Testing endpoint',
+            inputMapping: {
+              'requestBody.inputZero': 'outputZero',
+              'lookupRequests.inputOne': 'outputOne',
+              'constants.inputFour': 'outputFour'
+            },
+            constants: {
+              inputFour: 4,
+              inputFive: 5
+            }
           }
         }
-      }
-
-      const inputConstants = {
-        inputFour: 4,
-        inputFive: 5
-      }
-
-      const mappingSchema = {
-        'requestBody.inputZero': 'outputZero',
-        'lookupRequests.inputOne': 'outputOne',
-        'constants.inputFour': 'outputFour'
       }
 
       const expected = {
@@ -152,7 +147,7 @@ tap.test('Mapper', {autoend: true}, t => {
         outputFour: 4
       }
 
-      createMappedObject(ctx, mappingSchema, inputConstants)
+      createMappedObject(ctx)
 
       t.equals(ctx.orchestrations.length, 1)
       t.equals(ctx.orchestrations[0].name, 'Mapping')
