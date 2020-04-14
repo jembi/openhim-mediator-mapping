@@ -57,28 +57,8 @@ exports.extractValueFromObject = (obj, path, def) => {
 }
 
 exports.handleServerError = (ctx, operationFailureMsg, error, logger) => {
-  ctx.status = 500
+  ctx.status = ctx.statusCode ? ctx.statusCode : 500
   const err = `${operationFailureMsg}${error.message}`
   ctx.body = {error: err}
   logger.error(err)
-}
-
-exports.validateEndpoint = body => {
-  const validationError = 'Endpoint validation error: '
-
-  if (!body) return `${validationError}invalid endpoint object`
-  if (!body.name) return `${validationError}name missing`
-  if (!body.endpoint || !body.endpoint.pattern) {
-    return `${validationError}pattern missing`
-  }
-  if (!body.transformation) {
-    return `${validationError}transformation object missing`
-  }
-  if (!body.transformation.input) {
-    return `${validationError}transformation input type missing`
-  }
-  if (!body.transformation.output) {
-    return `${validationError}transformation output type missing`
-  }
-  return null
 }

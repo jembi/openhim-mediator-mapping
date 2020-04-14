@@ -2,7 +2,7 @@
 
 const tap = require('tap')
 
-const db = require('../../src/db/main')
+const db = require('../../src/db')
 
 const {
   createEndpoint,
@@ -39,9 +39,8 @@ tap.test('Database interactions', {autoend: true}, t => {
           },
           transformation: {
             input: 'JSON',
-            output: 'JSON'
-          },
-          lastUpdated: null
+            output: null
+          }
         }
         await createEndpoint(testEndpointConfig)
           .then(data => {
@@ -50,7 +49,7 @@ tap.test('Database interactions', {autoend: true}, t => {
           .catch(error => {
             t.equals(
               error.message,
-              'endpoint validation failed: lastUpdated: Path `lastUpdated` is required.'
+              'endpoint validation failed: transformation.output: Path `transformation.output` is required.'
             )
           })
       }

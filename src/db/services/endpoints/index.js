@@ -7,7 +7,11 @@ exports.createEndpoint = body => {
   return endpoint.save({checkKeys: false})
 }
 
-const readEndpoints = queryParams => {
+exports.readEndpoint = endpointId => {
+  return EndpointModel.findById(endpointId)
+}
+
+exports.readEndpoints = queryParams => {
   return EndpointModel.find(queryParams)
 }
 
@@ -25,5 +29,3 @@ exports.deleteEndpoint = endpointId => {
 exports.deleteEndpoints = queryParams => {
   return EndpointModel.deleteMany(queryParams)
 }
-
-exports.readEndpoints = readEndpoints

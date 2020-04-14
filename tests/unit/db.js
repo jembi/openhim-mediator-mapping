@@ -4,7 +4,7 @@ const mongoose = require('mongoose')
 const sinon = require('sinon')
 const tap = require('tap')
 
-const db = require('../../src/db/main')
+const db = require('../../src/db')
 
 tap.test('Database interactions', {autoend: true}, t => {
   t.test('Connect to DB', {autoend: true}, t => {
