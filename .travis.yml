@@ -8,8 +8,12 @@ matrix:
   allow_failures:
     - node_js: 'node'
 services:
-      - mongodb
+  - docker
 script:
+  - |
+      (
+        docker run --name mongo-repl-test -p 27017:27017 -d mongo:4.2
+      )
   - npm test
 after_success:
   - npm run coverage
