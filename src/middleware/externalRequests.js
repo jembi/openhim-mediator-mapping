@@ -1,11 +1,15 @@
 'use strict'
 
 const axios = require('axios')
+<<<<<<< HEAD
 const {DateTime} = require('luxon')
+=======
+>>>>>>> c414f44dc51f50e036f0c0cfa6b5200c3f70638e
 
 const logger = require('../logger')
-const {createOrchestration, setStatusText} = require('../orchestrations')
+
 const {constructOpenhimResponse} = require('../openhim')
+const {createOrchestration, setStatusText} = require('../orchestrations')
 const {extractValueFromObject} = require('../util')
 
 const validateRequestStatusCode = allowedStatuses => {

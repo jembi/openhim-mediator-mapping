@@ -1,9 +1,11 @@
 'use strict'
 
-const tap = require('tap')
-const rewire = require('rewire')
 const nock = require('nock')
+const rewire = require('rewire')
+const tap = require('tap')
+
 const externalRequests = rewire('../../src/middleware/externalRequests')
+
 const prepareResponseRequests = externalRequests.__get__(
   'prepareResponseRequests'
 )

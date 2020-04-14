@@ -110,30 +110,53 @@ const updateEndpointState = async (ctx, metaData) => {
   // send update to mongo
 }
 
-exports.initiateContextMiddleware = (metaData, constants) => async (
-  ctx,
-  next
-) => {
+const {constructOpenhimResponse} = require('../openhim')
+const {endpointCache} = require('../db/services/endpoints/cache')
+
+const getEndpointByPath = urlPath => {
+  for (let endpoint of endpointCache) {
+    if (endpoint.endpoint.pattern === urlPath) {
+      return endpoint
+    }
+  }
+  return null
+}
+
+exports.initiateContextMiddleware = () => async (ctx, next) => {
   const endpointStart = DateTime.utc().toISO() // set the initial start time for entry into the endpoint
   const requestUUID = uuid.v4()
 
-  logger.info(`${metaData.name} (${requestUUID}): Initiating new request`)
+  const endpoint = getEndpointByPath(ctx.url)
+  if (!endpoint) {
+    logger.error(`Unknown Endpoint: ${ctx.url}`)
+
+    if (ctx.request.header && ctx.request.header['x-openhim-transactionid']) {
+      ctx.response.type = 'application/json+openhim'
+      ctx.status = 404
+      ctx.response.body = `Unknown Endpoint: ${ctx.url}`
+      constructOpenhimResponse(ctx, Date.now())
+    }
+    return
+  }
+
+  logger.info(`${endpoint.name} (${requestUUID}): Initiating new request`)
 
   // initiate the property for containing all useable data points
   ctx.state.allData = {
     constants,
-    state: metaData.state.data,
+    state: endpoint.state.data,
     timestamps: {
       endpointStart,
       endpointEnd: null,
       lookupRequests: {}
     }
   }
+
   // set request UUID from incoming OpenHIM header if present, else create a random UUID
   ctx.state.uuid = ctx.headers['x-openhim-transactionid']
     ? ctx.headers['x-openhim-transactionid']
     : requestUUID
-  ctx.state.metaData = metaData
+  ctx.state.metaData = endpoint
 
   await next()
 

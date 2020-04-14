@@ -2,11 +2,12 @@
 
 const xml2js = require('xml2js')
 const KoaBodyParser = require('@viweei/koa-body-parser')
-const {createOrchestration} = require('../orchestrations')
 
-const logger = require('../logger')
-const {ALLOWED_CONTENT_TYPES} = require('../constants')
 const config = require('../config').getConfig()
+const logger = require('../logger')
+
+const {ALLOWED_CONTENT_TYPES} = require('../constants')
+const {createOrchestration} = require('../orchestrations')
 
 const xmlBuilder = new xml2js.Builder()
 

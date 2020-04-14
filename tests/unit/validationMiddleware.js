@@ -1,6 +1,7 @@
 'use strict'
 
 const tap = require('tap')
+
 const {performValidation} = require('../../src/middleware/validator')
 
 tap.test('Validation Middleware', {autoend: true}, t => {
@@ -16,6 +17,7 @@ tap.test('Validation Middleware', {autoend: true}, t => {
         state: {
           uuid: 'randomUidForRequest',
           metaData: {
+<<<<<<< HEAD:tests/unit/validationMiddlewareTest.js
             name: 'Testing endpoint'
           },
           allData: {
@@ -23,13 +25,16 @@ tap.test('Validation Middleware', {autoend: true}, t => {
             timestamps: {
               lookupRequests: {}
             }
+=======
+            name: 'Testing endpoint',
+            inputValidation: null
+>>>>>>> c414f44dc51f50e036f0c0cfa6b5200c3f70638e:tests/unit/validationMiddleware.js
           }
         }
       }
-      const schema = null
 
       try {
-        performValidation(ctx, schema)
+        performValidation(ctx)
       } catch (e) {
         t.error('Should not reach here')
       }
@@ -43,6 +48,7 @@ tap.test('Validation Middleware', {autoend: true}, t => {
         state: {
           uuid: 'randomUidForRequest',
           metaData: {
+<<<<<<< HEAD:tests/unit/validationMiddlewareTest.js
             name: 'Testing endpoint'
           },
           allData: {
@@ -50,12 +56,15 @@ tap.test('Validation Middleware', {autoend: true}, t => {
             timestamps: {
               lookupRequests: {}
             }
+=======
+            name: 'Testing endpoint',
+            inputValidation: {}
+>>>>>>> c414f44dc51f50e036f0c0cfa6b5200c3f70638e:tests/unit/validationMiddleware.js
           }
         }
       }
-      const schema = {}
 
-      t.throws(() => performValidation(ctx, schema), /No data to validate/)
+      t.throws(() => performValidation(ctx), /No data to validate/)
       t.end()
     })
 
@@ -69,6 +78,7 @@ tap.test('Validation Middleware', {autoend: true}, t => {
         state: {
           uuid: 'randomUidForRequest',
           metaData: {
+<<<<<<< HEAD:tests/unit/validationMiddlewareTest.js
             name: 'Testing endpoint'
           },
           allData: {
@@ -89,11 +99,27 @@ tap.test('Validation Middleware', {autoend: true}, t => {
               surname: {type: 'string'}
             },
             required: ['name']
+=======
+            name: 'Testing endpoint',
+            inputValidation: {
+              type: 'object',
+              properties: {
+                requestBody: {
+                  type: 'object',
+                  properties: {
+                    name: {type: 'string'},
+                    surname: {type: 'string'}
+                  },
+                  required: ['name']
+                }
+              }
+            }
+>>>>>>> c414f44dc51f50e036f0c0cfa6b5200c3f70638e:tests/unit/validationMiddleware.js
           }
         }
       }
 
-      t.throws(() => performValidation(ctx, schema), /Validation failed/)
+      t.throws(() => performValidation(ctx), /Validation failed/)
       t.end()
     })
 
@@ -106,6 +132,7 @@ tap.test('Validation Middleware', {autoend: true}, t => {
           }
         },
         state: {
+<<<<<<< HEAD:tests/unit/validationMiddlewareTest.js
           allData: {
             lookupRequests: {}
           }
@@ -115,17 +142,25 @@ tap.test('Validation Middleware', {autoend: true}, t => {
         type: 'object',
         properties: {
           requestBody: {
+=======
+          metaData: {
+>>>>>>> c414f44dc51f50e036f0c0cfa6b5200c3f70638e:tests/unit/validationMiddleware.js
             type: 'object',
             properties: {
-              name: {type: 'string'},
-              surname: {type: 'string'}
-            },
-            required: ['name']
+              requestBody: {
+                type: 'object',
+                properties: {
+                  name: {type: 'string'},
+                  surname: {type: 'string'}
+                },
+                required: ['name']
+              }
+            }
           }
         }
       }
 
-      t.doesNotThrow(() => performValidation(ctx, schema))
+      t.doesNotThrow(() => performValidation(ctx))
       t.end()
     })
 
@@ -145,6 +180,7 @@ tap.test('Validation Middleware', {autoend: true}, t => {
           }
         },
         state: {
+<<<<<<< HEAD:tests/unit/validationMiddlewareTest.js
           allData: {
             lookupRequests: {}
           }
@@ -160,11 +196,28 @@ tap.test('Validation Middleware', {autoend: true}, t => {
               surname: {type: 'string', nullable: true}
             },
             required: ['name']
+=======
+          metaData: {
+            name: '',
+            inputValidation: {
+              type: 'object',
+              properties: {
+                requestBody: {
+                  type: 'object',
+                  properties: {
+                    name: {type: 'string'},
+                    surname: {type: 'string', nullable: true}
+                  },
+                  required: ['name']
+                }
+              }
+            }
+>>>>>>> c414f44dc51f50e036f0c0cfa6b5200c3f70638e:tests/unit/validationMiddleware.js
           }
         }
       }
 
-      t.doesNotThrow(() => validatorUpdatedEnv.performValidation(ctx, schema))
+      t.doesNotThrow(() => validatorUpdatedEnv.performValidation(ctx))
       t.end()
     })
   })

@@ -10,7 +10,9 @@
     "lint:fix": "eslint --fix .",
     "start": "node src/index.js",
     "start:dev": "nodemon src/index.js",
-    "test": "NODE_ENV='test' tap tests/unit/*Test.js tests/*/*/*Test.js && npm run lint",
+    "test": "NODE_ENV='test' MONGO_URL='mongodb://localhost:27017/test' DYNAMIC_ENDPOINTS=false tap tests/**/*.js && npm run lint",
+    "test:integration": "NODE_ENV='test' MONGO_URL='mongodb://localhost:27017/test' DYNAMIC_ENDPOINTS=false tap tests/integration/*.js && npm run lint",
+    "test:unit": "NODE_ENV='test' MONGO_URL='mongodb://localhost:27017/test' DYNAMIC_ENDPOINTS=false tap tests/unit/*.js && npm run lint",
     "coverage": "tap --coverage-report=text-lcov > coverage.lcov && codecov"
   },
   "dependencies": {
@@ -39,6 +41,7 @@
     "eslint-plugin-promise": "^4.2.1",
     "nock": "^11.7.2",
     "nodemon": "^2.0.2",
+    "sinon": "^9.0.1",
     "prettier": "^1.19.1",
     "rewire": "^4.0.1",
     "supertest": "^4.0.2",
