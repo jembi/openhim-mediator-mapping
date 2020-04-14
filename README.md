@@ -15,3 +15,189 @@ To store endpoint data:
 
 - MongoDB >= 3.6 as we need dotted key support (e.g. `{ 'key.path': 'xyz' }`)
 - Your MongoDB set up needs to be a replica set
+
+## Setup Mongo Replica Set
+
+### Yarn Mapping Mediator
+
+This set up guide will make use of Docker to run the Mongo cluster and yarn to run the Mapping Mediator. The containers will connect with each other over a Docker Network.
+
+The easiest way to setup the mongo containers is to run these commands in a `docker-compose` script. To do this copy the code below into a file named `docker-compose.yml`
+
+```yaml
+version: '3.3'
+
+networks:
+  mapper-cluster-network:
+
+services:
+  mapper-mongo-1:
+    image: mongo:4.2
+    container_name: mapper-mongo-1
+    post:
+      - "27017:27017"
+    networks:
+      - mapper-cluster-network
+    command:
+      - --replSet
+      - mapper-mongo-set
+
+  mapper-mongo-2:
+    image: mongo:4.2
+    container_name: mapper-mongo-2
+    post:
+      - "27018:27017"
+    networks:
+      - mapper-cluster-network
+    command:
+      - --replSet
+      - mapper-mongo-set
+
+  mapper-mongo-3:
+    image: mongo:4.2
+    container_name: mapper-mongo-3
+    post:
+      - "27019:27017"
+    networks:
+      - mapper-cluster-network
+    command:
+      - --replSet
+      - mapper-mongo-set
+```
+
+Run the script with the following command:
+
+```sh
+docker-compose up -d
+```
+
+Once the containers have started up exec into one of the containers with the following command, `docker exec -it mapper-mongo-1 mongo`
+
+Inside the shell enter the following:
+
+```sh
+config = {
+      "_id" : "mapper-mongo-set",
+      "members" : [
+    {
+      "_id" : 0,
+      "priority": 1,
+      "host" : "172.17.0.1:27017"
+    },
+    {
+      "_id" : 1,
+      "priority": 0.5,
+      "host" : "172.17.0.1:27018"
+    },
+    {
+      "_id" : 2,
+      "priority": 0.5,
+      "host" : "172.17.0.1:27019"
+    }
+    ]
+  }
+
+rs.initiate(config)
+```
+
+With your replica set running, you can start up your Mapping Mediator. Include the following environment variable config to connect your Mapping Mediator to the MongoDB replica set:
+
+- MONGO_URL='mongodb://localhost:27017,localhost:27018,localhost:27019/mapping-mediator?replicaSet=mapper-mongo-set'
+
+### Docker Mapping Mediator
+
+This set up guide will make use of Docker to run the Mongo cluster and the Mapping Mediator. The containers will connect with each other over a Docker Network.
+
+The easiest way to setup the mongo containers is to run these commands in a `docker-compose` script. To do this copy the code below into a file named `docker-compose.yml`
+
+```yaml
+version: '3.3'
+
+networks:
+  mapper-cluster-network:
+
+services:
+  mapper-mongo-1:
+    image: mongo:4.2
+    container_name: mapper-mongo-1
+    networks:
+      - mapper-cluster-network
+    command:
+      - --replSet
+      - mapper-mongo-set
+
+  mapper-mongo-2:
+    image: mongo:4.2
+    container_name: mapper-mongo-2
+    networks:
+      - mapper-cluster-network
+    command:
+      - --replSet
+      - mapper-mongo-set
+
+  mapper-mongo-3:
+    image: mongo:4.2
+    container_name: mapper-mongo-3
+    networks:
+      - mapper-cluster-network
+    command:
+      - --replSet
+      - mapper-mongo-set
+```
+
+Run the script with the following command:
+
+```sh
+docker-compose up -d
+```
+
+Once the containers have started up exec into one of the containers with the following command, `docker exec -it mapper-mongo-1 mongo`
+
+Inside the shell enter the following:
+
+```sh
+config = {
+      "_id" : "mapper-mongo-set",
+      "members" : [
+    {
+      "_id" : 0,
+      "priority": 1,
+      "host" : "mapper-mongo-1:27017"
+    },
+    {
+      "_id" : 1,
+      "priority": 0.5,
+      "host" : "mapper-mongo-2:27017"
+    },
+    {
+      "_id" : 2,
+      "priority": 0.5,
+      "host" : "mapper-mongo-3:27017"
+    }
+    ]
+  }
+
+rs.initiate(config)
+```
+
+Next step is to get the name of the Docker network that your cluster communicates on. We defined part of that name in the `docker-compose` script but the network name is prefixed by the name of the directory that contains your script. List the Docker networks to find the network named `{directory-name}_mapper-cluster-network` with the following command:
+
+```sh
+docker network ls
+```
+
+With your replica set running you can start up your Mapping Mediator with the following command (substitute in you Docker network name at the network flag):
+
+```sh
+docker run -it -p 3003:3003 -e MONGO_URL='mongodb://mapper-mongo-1:27017,mapper-mongo-2:27017,mapper-mongo:27017/mapping-mediator?replicaSet=mapper-mongo-set' --network {directory-name}_mapper-cluster-network jembi/mapping-mediator:latest
+```
+
+The following parameters relate to the Mongo Replica set:
+
+- `-e MONGO_URL='mongodb://mapper-mongo-1:27017,mapper-mongo-2:27017,mapper-mongo-3:27017/mapping-mediator?replicaSet=mapper-mongo-set'`
+
+  The Mongo URL lists all members of the replica set as well as the name of the replica set
+
+- `--network mapper-cluster-network`
+
+  The Mapping Mediator Container needs to connect to the same Docker network on which the Mongo replica set communicates
