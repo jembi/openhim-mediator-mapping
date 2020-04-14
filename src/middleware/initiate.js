@@ -7,7 +7,7 @@ const logger = require('../logger')
 const {constructOpenhimResponse} = require('../openhim')
 const {endpointCache} = require('../db/services/endpoints/cache')
 
-const getEndpoint = urlPath => {
+const getEndpointByPath = urlPath => {
   for (let endpoint of endpointCache) {
     if (endpoint.endpoint.pattern === urlPath) {
       return endpoint
@@ -17,7 +17,7 @@ const getEndpoint = urlPath => {
 }
 
 exports.initiateContextMiddleware = () => async (ctx, next) => {
-  const endpoint = getEndpoint(ctx.url)
+  const endpoint = getEndpointByPath(ctx.url)
   if (!endpoint) {
     logger.error(`Unknown Endpoint: ${ctx.url}`)
 
