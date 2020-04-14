@@ -14,17 +14,15 @@ const {
 
 const createEndpointRoute = router => {
   router.post('/endpoints', KoaBodyParser(), async (ctx, next) => {
-    const failureMsg = 'Endpoint creation/update failed: '
+    const failureMsg = 'Create endpoint failed:'
 
     try {
-      const body = Object.assign({lastUpdated: Date.now()}, ctx.request.body)
-
-      await createEndpoint(body)
+      await createEndpoint(ctx.request.body)
         .then(result => {
           ctx.status = 201
           ctx.body = result
           logger.info(
-            `Endpoint "${result.endpoint.name}" has been successfully created on endpoint ${result.endpoint.pattern}`
+            `Endpoint "${result.endpoint.name}" created on ${result.endpoint.pattern}`
           )
           return next()
         })
