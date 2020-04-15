@@ -86,6 +86,36 @@ tap.test('Validation Middleware', {autoend: true}, t => {
       t.end()
     })
 
+    t.test('should validate lookupRequests data', t => {
+      const ctx = {
+        request: {},
+        lookupRequests: {
+          name: 'Typer',
+          surname: 'Durden'
+        },
+        state: {
+          metaData: {
+            inputValidation: {
+              type: 'object',
+              properties: {
+                lookupRequests: {
+                  type: 'object',
+                  properties: {
+                    name: {type: 'string'},
+                    surname: {type: 'string'}
+                  },
+                  required: ['name']
+                }
+              }
+            }
+          }
+        }
+      }
+
+      t.doesNotThrow(() => performValidation(ctx))
+      t.end()
+    })
+
     t.test('should validate', t => {
       const ctx = {
         request: {
