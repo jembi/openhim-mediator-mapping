@@ -2,6 +2,7 @@
 
 const rewire = require('rewire')
 const tap = require('tap')
+const {parseBodyMiddleware} = require('../../src/middleware/parser')
 
 const parser = rewire('../../src/middleware/parser')
 
@@ -106,6 +107,36 @@ tap.test('Parser', {autoend: true}, t => {
     })
   })
 
+  t.test('should throw a parsing error', async t => {
+    t.plan(1)
+    const ctx = {
+      state: {
+        uuid: 'randomUidForRequest',
+        metaData: {
+          name: 'Testing endpoint'
+        }
+      },
+      request: null,
+      get: name => {
+        const contentHeader = 'application/xml'
+        if (name) {
+          return contentHeader
+        }
+      }
+    }
+    const inputFormat = 'XML'
+
+    await parseIncomingBody(ctx, inputFormat)
+      .then(() => t.fail('Should not reach here'))
+      .catch(error => {
+        t.equals(
+          error.message,
+          `Testing endpoint (randomUidForRequest): Parsing incoming body failed: Cannot read property 'body' of null`
+        )
+      })
+    t.end()
+  })
+
   t.test('parseOutgoingBody', {autoend: true}, t => {
     t.test('should throw an error when parsing fails', t => {
       const ctx = {
@@ -208,4 +239,27 @@ tap.test('Parser', {autoend: true}, t => {
       }
     )
   })
+
+  t.test(
+    'should throw due to invalid input type and add error message to ctx',
+    async t => {
+      const ctx = {
+        state: {
+          metaData: {
+            transformation: {
+              input: 'invalid',
+              output: 'JSON'
+            }
+          }
+        }
+      }
+
+      await parseBodyMiddleware()(ctx)
+      t.equals(ctx.status, 400)
+      t.same(ctx.body, {
+        error:
+          'undefined (undefined): transformation method "INVALID" not yet supported'
+      })
+    }
+  )
 })
