@@ -15,12 +15,15 @@ tap.test('Mapper', {autoend: true}, t => {
           metaData: {
             name: 'Testing endpoint'
           }
+        },
+        request: {
+          body: {}
         }
       }
 
       createMappedObject(ctx)
 
-      t.equals(ctx.state.metaData.inputMapping, {})
+      t.deepEqual(ctx.state.metaData.inputMapping, {})
       t.end()
     })
 
