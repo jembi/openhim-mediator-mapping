@@ -8,7 +8,7 @@ const createMappedObject = mapper.__get__('createMappedObject')
 
 tap.test('Mapper', {autoend: true}, t => {
   t.test('createMappedObject()', {autoend: true}, t => {
-    t.test('should throw when mapping schema is not supplied', t => {
+    t.test('should set the inputMapping if its undefined', t => {
       const ctx = {
         state: {
           uuid: 'randomUidForRequest',
@@ -18,10 +18,9 @@ tap.test('Mapper', {autoend: true}, t => {
         }
       }
 
-      t.throws(
-        () => createMappedObject(ctx),
-        'Testing endpoint (randomUidForRequest): No mapping schema supplied'
-      )
+      createMappedObject(ctx)
+
+      t.equals(ctx.state.metaData.inputMapping, {})
       t.end()
     })
 
