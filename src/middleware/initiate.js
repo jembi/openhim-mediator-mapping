@@ -110,11 +110,18 @@ const updateEndpointState = async (ctx, endpoint) => {
 
   // send update to mongo
   await createState(updatedState)
-    .then((result) => {
-      return logger.info(`${endpoint.name} (${ctx.state.uuid}): Captured request state`)
+    .then(() => {
+      return logger.info(
+        `${endpoint.name} (${ctx.state.uuid}): Captured request state`
+      )
     })
     .catch(error => {
-      return handleServerError(ctx, "Failed to save request state: ", error, logger)
+      return handleServerError(
+        ctx,
+        'Failed to save request state: ',
+        error,
+        logger
+      )
     })
 }
 
@@ -174,7 +181,12 @@ exports.initiateContextMiddleware = () => async (ctx, next) => {
     // update any specified state for this endpoint request
     updateEndpointState(ctx, endpoint)
   } catch (error) {
-    return handleServerError(ctx, "Failed to update endpoint state: ", error, logger)
+    return handleServerError(
+      ctx,
+      'Failed to update endpoint state: ',
+      error,
+      logger
+    )
   }
 }
 

@@ -2,7 +2,7 @@
 
 const tap = require('tap')
 
-const {updateEndpointState} = require('../../../src/middleware/initiate')
+const {updateEndpointState} = require('../../src/middleware/initiate')
 
 const initialMetaData = {
   name: 'Sample Endpoint',

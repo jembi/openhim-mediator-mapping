@@ -8,5 +8,9 @@ exports.createState = state => {
 }
 
 exports.readStateByEndpointId = endpointId => {
-  return StateModel.findOne({ _endpointReference: endpointId }, {}, { sort: { 'createdAt' : -1 }})
+  return StateModel.findOne(
+    {_endpointReference: endpointId},
+    {},
+    {sort: {createdAt: -1}}
+  )
 }

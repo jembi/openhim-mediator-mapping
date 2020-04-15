@@ -17,18 +17,14 @@ tap.test('Validation Middleware', {autoend: true}, t => {
         state: {
           uuid: 'randomUidForRequest',
           metaData: {
-<<<<<<< HEAD:tests/unit/validationMiddlewareTest.js
-            name: 'Testing endpoint'
+            name: 'Testing endpoint',
+            inputValidation: null
           },
           allData: {
             state: {},
             timestamps: {
               lookupRequests: {}
             }
-=======
-            name: 'Testing endpoint',
-            inputValidation: null
->>>>>>> c414f44dc51f50e036f0c0cfa6b5200c3f70638e:tests/unit/validationMiddleware.js
           }
         }
       }
@@ -48,18 +44,14 @@ tap.test('Validation Middleware', {autoend: true}, t => {
         state: {
           uuid: 'randomUidForRequest',
           metaData: {
-<<<<<<< HEAD:tests/unit/validationMiddlewareTest.js
-            name: 'Testing endpoint'
+            name: 'Testing endpoint',
+            inputValidation: {}
           },
           allData: {
             state: {},
             timestamps: {
               lookupRequests: {}
             }
-=======
-            name: 'Testing endpoint',
-            inputValidation: {}
->>>>>>> c414f44dc51f50e036f0c0cfa6b5200c3f70638e:tests/unit/validationMiddleware.js
           }
         }
       }
@@ -78,28 +70,6 @@ tap.test('Validation Middleware', {autoend: true}, t => {
         state: {
           uuid: 'randomUidForRequest',
           metaData: {
-<<<<<<< HEAD:tests/unit/validationMiddlewareTest.js
-            name: 'Testing endpoint'
-          },
-          allData: {
-            state: {},
-            timestamps: {
-              lookupRequests: {}
-            }
-          }
-        }
-      }
-      const schema = {
-        type: 'object',
-        properties: {
-          requestBody: {
-            type: 'object',
-            properties: {
-              name: {type: 'string'},
-              surname: {type: 'string'}
-            },
-            required: ['name']
-=======
             name: 'Testing endpoint',
             inputValidation: {
               type: 'object',
@@ -114,7 +84,12 @@ tap.test('Validation Middleware', {autoend: true}, t => {
                 }
               }
             }
->>>>>>> c414f44dc51f50e036f0c0cfa6b5200c3f70638e:tests/unit/validationMiddleware.js
+          },
+          allData: {
+            state: {},
+            timestamps: {
+              lookupRequests: {}
+            }
           }
         }
       }
@@ -132,30 +107,24 @@ tap.test('Validation Middleware', {autoend: true}, t => {
           }
         },
         state: {
-<<<<<<< HEAD:tests/unit/validationMiddlewareTest.js
-          allData: {
-            lookupRequests: {}
-          }
-        }
-      }
-      const schema = {
-        type: 'object',
-        properties: {
-          requestBody: {
-=======
           metaData: {
->>>>>>> c414f44dc51f50e036f0c0cfa6b5200c3f70638e:tests/unit/validationMiddleware.js
-            type: 'object',
-            properties: {
-              requestBody: {
-                type: 'object',
-                properties: {
-                  name: {type: 'string'},
-                  surname: {type: 'string'}
-                },
-                required: ['name']
+            name: 'Testing endpoint',
+            inputValidation: {
+              type: 'object',
+              properties: {
+                requestBody: {
+                  type: 'object',
+                  properties: {
+                    name: {type: 'string'},
+                    surname: {type: 'string'}
+                  },
+                  required: ['name']
+                }
               }
             }
+          },
+          allData: {
+            lookupRequests: {}
           }
         }
       }
@@ -180,23 +149,6 @@ tap.test('Validation Middleware', {autoend: true}, t => {
           }
         },
         state: {
-<<<<<<< HEAD:tests/unit/validationMiddlewareTest.js
-          allData: {
-            lookupRequests: {}
-          }
-        }
-      }
-      const schema = {
-        type: 'object',
-        properties: {
-          requestBody: {
-            type: 'object',
-            properties: {
-              name: {type: 'string'},
-              surname: {type: 'string', nullable: true}
-            },
-            required: ['name']
-=======
           metaData: {
             name: '',
             inputValidation: {
@@ -212,7 +164,9 @@ tap.test('Validation Middleware', {autoend: true}, t => {
                 }
               }
             }
->>>>>>> c414f44dc51f50e036f0c0cfa6b5200c3f70638e:tests/unit/validationMiddleware.js
+          },
+          allData: {
+            lookupRequests: {}
           }
         }
       }
