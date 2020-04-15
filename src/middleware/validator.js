@@ -25,7 +25,7 @@ const performValidation = ctx => {
 
   const dataToValidate = {}
 
-  if (ctx && ctx.request && ctx.request.body) {
+  if (ctx.request && ctx.request.body) {
     dataToValidate.requestBody = ctx.request.body
   }
 
