@@ -8,7 +8,7 @@ const performValidation = validator.__get__('performValidation')
 
 tap.test('Validation Middleware', {autoend: true}, t => {
   t.test('performValidation()', {autoend: true}, t => {
-    t.test('should throw when validation schema is falsy', t => {
+    t.test('should allow no validation schema', t => {
       const ctx = {
         request: {
           body: {
