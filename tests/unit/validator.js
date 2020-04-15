@@ -12,8 +12,8 @@ tap.test('Validation Middleware', {autoend: true}, t => {
       const ctx = {
         request: {
           body: {
-            name: 'tyler',
-            surname: 'durden'
+            name: 'Tyler',
+            surname: 'Durden'
           }
         },
         state: {
@@ -86,8 +86,8 @@ tap.test('Validation Middleware', {autoend: true}, t => {
       const ctx = {
         request: {
           body: {
-            name: 'drake',
-            surname: 'durden'
+            name: 'Drake',
+            surname: 'Durden'
           }
         },
         state: {
@@ -124,7 +124,7 @@ tap.test('Validation Middleware', {autoend: true}, t => {
       const ctx = {
         request: {
           body: {
-            name: 'drake',
+            name: 'Drake',
             surname: null
           }
         },
