@@ -34,21 +34,25 @@ tap.test('Validation Middleware', {autoend: true}, t => {
       t.end()
     })
 
-    t.test('should throw when request body is not supplied', t => {
-      const ctx = {
-        request: {},
-        state: {
-          uuid: 'randomUidForRequest',
-          metaData: {
-            name: 'Testing endpoint',
-            inputValidation: {}
+    t.test(
+      'should throw when both request.body and lookupRequests are not supplied',
+      t => {
+        const ctx = {
+          request: {},
+          lookupRequests: null,
+          state: {
+            uuid: 'randomUidForRequest',
+            metaData: {
+              name: 'Testing endpoint',
+              inputValidation: {}
+            }
           }
         }
-      }
 
-      t.throws(() => performValidation(ctx), /No data to validate/)
-      t.end()
-    })
+        t.throws(() => performValidation(ctx), /No data to validate/)
+        t.end()
+      }
+    )
 
     t.test('should throw when request is body not valid', t => {
       const ctx = {
