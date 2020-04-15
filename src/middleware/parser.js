@@ -157,8 +157,3 @@ exports.parseBodyMiddleware = () => async (ctx, next) => {
     return parseOutgoingBody(ctx, outputContentType)
   }
 }
-
-if (process.env.NODE_ENV === 'test') {
-  exports.parseIncomingBody = parseIncomingBody
-  exports.parseOutgoingBody = parseOutgoingBody
-}
