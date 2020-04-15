@@ -2,6 +2,7 @@
 
 const rewire = require('rewire')
 const tap = require('tap')
+
 const {validateBodyMiddleware} = require('../../src/middleware/validator')
 
 const validator = rewire('../../src/middleware/validator')
