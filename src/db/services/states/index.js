@@ -7,6 +7,10 @@ exports.createState = state => {
   return stateObject.save({checkKeys: false})
 }
 
+exports.readStates = () => {
+  return StateModel.find()
+}
+
 exports.readStateByEndpointId = endpointId => {
   return StateModel.findOne(
     {_endpointReference: endpointId},

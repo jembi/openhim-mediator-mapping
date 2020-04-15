@@ -16,13 +16,16 @@
     "coverage": "tap --coverage-report=text-lcov > coverage.lcov && codecov"
   },
   "dependencies": {
+    "@koa/cors": "^3.0.0",
     "@viweei/koa-body-parser": "^1.0.2",
     "ajv": "^6.10.2",
     "ajv-errors": "^1.0.1",
     "axios": "^0.19.1",
     "codecov": "^3.6.5",
     "koa": "^2.11.0",
+    "koa-route": "^3.2.0",
     "koa-router": "^7.4.0",
+    "koa-websocket": "^6.0.0",
     "luxon": "^1.23.0",
     "mongoose": "^5.9.7",
     "object-mapper": "jembi/node-object-mapper",
