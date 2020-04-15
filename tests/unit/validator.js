@@ -2,6 +2,7 @@
 
 const rewire = require('rewire')
 const tap = require('tap')
+const {validateBodyMiddleware} = require('../../src/middleware/validator')
 
 const validator = rewire('../../src/middleware/validator')
 const performValidation = validator.__get__('performValidation')
@@ -117,6 +118,8 @@ tap.test('Validation Middleware', {autoend: true}, t => {
     })
 
     t.test('should validate', t => {
+      t.plan(2)
+
       const ctx = {
         request: {
           body: {
@@ -126,22 +129,28 @@ tap.test('Validation Middleware', {autoend: true}, t => {
         },
         state: {
           metaData: {
-            type: 'object',
-            properties: {
-              requestBody: {
-                type: 'object',
-                properties: {
-                  name: {type: 'string'},
-                  surname: {type: 'string'}
-                },
-                required: ['name']
+            inputValidation: {
+              type: 'object',
+              properties: {
+                requestBody: {
+                  type: 'object',
+                  properties: {
+                    name: {type: 'string'},
+                    surname: {type: 'string'}
+                  },
+                  required: ['name']
+                }
               }
             }
           }
         }
       }
 
-      t.doesNotThrow(() => performValidation(ctx))
+      t.doesNotThrow(() =>
+        validateBodyMiddleware()(ctx, () => {
+          t.pass()
+        })
+      )
       t.end()
     })
 
