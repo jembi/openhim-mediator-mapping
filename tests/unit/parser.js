@@ -100,7 +100,6 @@ tap.test('Parser', {autoend: true}, t => {
       const inputFormat = 'XML'
 
       await parseIncomingBody(ctx, inputFormat)
-      console.log('the ocher: ', ctx.orchestrations[0].request.body)
 
       t.equals(ctx.orchestrations.length, 1)
       t.equals(ctx.orchestrations[0].name, 'Incoming Parser')
