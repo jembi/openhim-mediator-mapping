@@ -52,7 +52,3 @@ exports.validateBodyMiddleware = () => async (ctx, next) => {
   performValidation(ctx)
   await next()
 }
-
-if (process.env.NODE_ENV == 'test') {
-  exports.performValidation = performValidation
-}

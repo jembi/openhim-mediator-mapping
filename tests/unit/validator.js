@@ -1,8 +1,10 @@
 'use strict'
 
+const rewire = require('rewire')
 const tap = require('tap')
 
-const {performValidation} = require('../../src/middleware/validator')
+const validator = rewire('../../src/middleware/validator')
+const performValidation = validator.__get__('performValidation')
 
 tap.test('Validation Middleware', {autoend: true}, t => {
   t.test('performValidation()', {autoend: true}, t => {
@@ -110,12 +112,14 @@ tap.test('Validation Middleware', {autoend: true}, t => {
     })
 
     t.test('should validate when a property has a value of null', t => {
-      // clear the module with the out-dated config
-      delete require.cache[require.resolve('../../src/middleware/validator')]
-      // set environment variable to allow null values
+      // // clear the module with the out-dated config
+      delete require.cache[require.resolve('rewire')]
+      // // set environment variable to allow null values
       process.env.VALIDATION_ACCEPT_NULL_VALUES = 'true'
-      // require module to get updated config
-      const validatorUpdatedEnv = require('../../src/middleware/validator')
+      // // require module to get updated config
+      const rewire = require('rewire')
+      const validator = rewire('../../src/middleware/validator')
+      const performValidation = validator.__get__('performValidation')
 
       const ctx = {
         request: {
@@ -144,7 +148,7 @@ tap.test('Validation Middleware', {autoend: true}, t => {
         }
       }
 
-      t.doesNotThrow(() => validatorUpdatedEnv.performValidation(ctx))
+      t.doesNotThrow(() => performValidation(ctx))
       t.end()
     })
   })
