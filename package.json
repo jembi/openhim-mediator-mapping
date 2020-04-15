@@ -41,9 +41,9 @@
     "eslint-plugin-promise": "^4.2.1",
     "nock": "^11.7.2",
     "nodemon": "^2.0.2",
-    "sinon": "^9.0.1",
     "prettier": "^1.19.1",
     "rewire": "^4.0.1",
+    "sinon": "^9.0.1",
     "supertest": "^4.0.2",
     "tap": "^14.10.7"
   }

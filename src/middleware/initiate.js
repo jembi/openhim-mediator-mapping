@@ -4,7 +4,8 @@ const uuid = require('uuid')
 const {DateTime} = require('luxon')
 
 const logger = require('../logger')
-const {extractValueFromObject} = require('../util')
+const {createState} = require('../db/services/states')
+const {extractValueFromObject, handleServerError} = require('../util')
 
 const extractStateValues = (ctx, extract) => {
   if (
@@ -105,7 +106,16 @@ const updateEndpointState = async (ctx, endpoint) => {
 
   const updatedState = extractStateValues(ctx, endpoint.state.extract)
 
+  updatedState._endpointReference = endpoint._id
+
   // send update to mongo
+  await createState(updatedState)
+    .then((result) => {
+      return logger.info(`${endpoint.name} (${ctx.state.uuid}): Captured request state`)
+    })
+    .catch(error => {
+      return handleServerError(ctx, "Failed to save request state: ", error, logger)
+    })
 }
 
 const {constructOpenhimResponse} = require('../openhim')
@@ -162,8 +172,7 @@ exports.initiateContextMiddleware = () => async (ctx, next) => {
     // update any specified state for this endpoint request
     updateEndpointState(ctx, endpoint)
   } catch (error) {
-    logger.error(error)
-    // do something else??
+    return handleServerError(ctx, "Failed to update endpoint state: ", error, logger)
   }
 }
 
