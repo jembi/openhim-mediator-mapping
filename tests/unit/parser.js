@@ -58,15 +58,9 @@ tap.test('Parser', {autoend: true}, t => {
         try {
           await parseIncomingBody(ctx, inputFormat)
         } catch (error) {
-          t.equal(
-            error.message
-              .match(
-                /Supplied input format does not match incoming content-type:/
-              )
-              .includes(
-                'Supplied input format does not match incoming content-type:'
-              ),
-            true
+          t.equals(
+            error.message,
+            `Supplied input format does not match incoming content-type: Expected json format, but received unsupported`
           )
         }
       }
