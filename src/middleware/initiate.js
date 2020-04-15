@@ -4,7 +4,7 @@ const uuid = require('uuid')
 const {DateTime} = require('luxon')
 
 const logger = require('../logger')
-const {createState} = require('../db/services/states')
+const {createState, readStateByEndpointId} = require('../db/services/states')
 const {extractValueFromObject, handleServerError} = require('../util')
 
 const extractStateValues = (ctx, extract) => {
@@ -135,6 +135,8 @@ exports.initiateContextMiddleware = () => async (ctx, next) => {
   const requestUUID = uuid.v4()
 
   const endpoint = getEndpointByPath(ctx.request.path)
+  const endpointState = await readStateByEndpointId(endpoint._id)
+
   if (!endpoint) {
     logger.error(`Unknown Endpoint: ${ctx.request.path}`)
 
@@ -152,7 +154,7 @@ exports.initiateContextMiddleware = () => async (ctx, next) => {
   // initiate the property for containing all useable data points
   ctx.state.allData = {
     constants: endpoint.constants,
-    state: endpoint.state ? endpoint.state.data : null,
+    state: endpointState,
     timestamps: {
       endpointStart,
       endpointEnd: null,

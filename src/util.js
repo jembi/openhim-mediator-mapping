@@ -39,6 +39,10 @@ exports.extractValueFromObject = (obj, path, defaultValue) => {
     return output
   }
 
+  if (!obj) {
+    return null
+  }
+
   path = stringToPath(path)
 
   // Cache the current object

@@ -211,11 +211,11 @@ const prepareResponseRequests = async ctx => {
 
       await Promise.all(promises)
         .then(() => {
-          logger.info('Mapped object successfully orchestrated')
+          logger.info(`${ctx.state.metaData.name} (${ctx.state.uuid}): Mapped object successfully orchestrated`)
           setStatusText(ctx)
         })
         .catch(err => {
-          logger.error(`Mapped object orchestration failure: ${err.message}`)
+          logger.error(`${ctx.state.metaData.name} (${ctx.state.uuid}): Mapped object orchestration failure: ${err.message}`)
         })
 
       // Respond in openhim mediator format if request came from the openhim
