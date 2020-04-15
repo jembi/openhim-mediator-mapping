@@ -144,10 +144,7 @@ tap.test('Mapper', {autoend: true}, t => {
         try {
           createMappedObject(ctx)
         } catch (error) {
-          t.equals(
-            error.message,
-            'Testing endpoint (randomUidForRequest): Object mapping failed: No function exists for key: inValidFunction'
-          )
+          t.equals(error.message, 'No function exists for key: inValidFunction')
         }
         t.end()
       }

@@ -30,9 +30,10 @@ const createMappedObject = ctx => {
       objectMapper(dataToBeMapped, ctx.state.metaData.inputMapping)
     )
   } catch (error) {
-    throw Error(
+    logger.error(
       `${ctx.state.metaData.name} (${ctx.state.uuid}): Object mapping failed: ${error.message}`
     )
+    throw error
   }
 
   ctx.body = output
