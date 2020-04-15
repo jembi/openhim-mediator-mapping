@@ -1,63 +1,210 @@
 'use strict'
 
+const rewire = require('rewire')
 const tap = require('tap')
 
-const {createMappedObject} = require('../../src/middleware/mapper')
+const mapper = rewire('../../src/middleware/mapper')
+const createMappedObject = mapper.__get__('createMappedObject')
 
 tap.test('Mapper', {autoend: true}, t => {
   t.test('createMappedObject()', {autoend: true}, t => {
-    t.test('should throw when mapping schema is not supplied', t => {
+    t.test('should set the inputMapping if its undefined', t => {
       const ctx = {
         state: {
           uuid: 'randomUidForRequest',
           metaData: {
             name: 'Testing endpoint'
-          }
+          },
+          allData: {}
+        },
+        request: {
+          body: {}
         }
       }
 
-      t.throws(
-        () => createMappedObject(ctx),
-        'Testing endpoint (randomUidForRequest): No mapping schema supplied'
-      )
+      createMappedObject(ctx)
+
+      t.deepEqual(ctx.state.metaData.inputMapping, {})
       t.end()
     })
 
-    t.test('should create an object based on mapping', t => {
+    t.test(
+      'should create an object based on mapping (from request body)',
+      t => {
+        const body = {
+          inputOne: 1,
+          inputTwo: 2,
+          inputThree: 3
+        }
+        const ctx = {
+          request: {
+            body
+          },
+          state: {
+            uuid: 'randomUidForRequest',
+            metaData: {
+              name: 'Testing endpoint',
+              inputMapping: {
+                'requestBody.inputOne': 'outputOne',
+                'requestBody.inputTwo': 'outputTwo',
+                'requestBody.inputThree': 'outputThree'
+              }
+            },
+            allData: {
+              requestBody: body
+            }
+          }
+        }
+
+        const expected = {
+          outputOne: 1,
+          outputTwo: 2,
+          outputThree: 3
+        }
+
+        createMappedObject(ctx)
+
+        t.deepEqual(ctx.body, expected)
+        t.end()
+      }
+    )
+
+    t.test(
+      'should create an object based on mapping (from request body, lookup requests and constants) ',
+      t => {
+        const body = {
+          inputZero: 0
+        }
+        const ctx = {
+          request: {
+            body
+          },
+          state: {
+            uuid: 'randomUidForRequest',
+            metaData: {
+              name: 'Testing endpoint',
+              inputMapping: {
+                'requestBody.inputZero': 'outputZero',
+                'lookupRequests.inputOne': 'outputOne',
+                'lookupRequests.inputTwo': 'outputTwo',
+                'lookupRequests.inputThree': 'outputThree',
+                'constants.inputFour': 'outputFour'
+              }
+            },
+            allData: {
+              requestBody: body,
+              lookupRequests: {
+                inputOne: 1,
+                inputTwo: 2,
+                inputThree: 3
+              },
+              constants: {
+                inputFour: 4,
+                inputFive: 5
+              }
+            }
+          }
+        }
+
+        const expected = {
+          outputZero: 0,
+          outputOne: 1,
+          outputTwo: 2,
+          outputThree: 3,
+          outputFour: 4
+        }
+
+        createMappedObject(ctx)
+
+        t.deepEqual(ctx.body, expected)
+        t.equals(ctx.status, 200)
+        t.end()
+      }
+    )
+
+    t.test(
+      'should fail to map data when invalid mapping function referenced',
+      t => {
+        t.plan(1)
+        const ctx = {
+          request: {
+            body: {
+              inputOne: 1,
+              inputTwo: 2,
+              inputThree: 3
+            }
+          },
+          state: {
+            uuid: 'randomUidForRequest',
+            metaData: {
+              name: 'Testing endpoint',
+              inputMapping: {
+                data: {
+                  key: 'key',
+                  transform: {
+                    function: 'inValidFunction'
+                  }
+                }
+              }
+            },
+            allData: {}
+          }
+        }
+
+        try {
+          createMappedObject(ctx)
+        } catch (error) {
+          t.equals(error.message, 'No function exists for key: inValidFunction')
+        }
+        t.end()
+      }
+    )
+
+    t.test('should map and create mapping orchestration', t => {
       const body = {
-        inputOne: 1,
-        inputTwo: 2,
-        inputThree: 3
+        inputZero: 0
       }
       const ctx = {
         request: {
-          body
+          body,
+          header: {
+            'x-openhim-transactionid': '1233'
+          }
         },
         state: {
           uuid: 'randomUidForRequest',
           metaData: {
             name: 'Testing endpoint',
             inputMapping: {
-              'requestBody.inputOne': 'outputOne',
-              'requestBody.inputTwo': 'outputTwo',
-              'requestBody.inputThree': 'outputThree'
+              'requestBody.inputZero': 'outputZero',
+              'lookupRequests.inputOne': 'outputOne',
+              'constants.inputFour': 'outputFour'
             }
           },
           allData: {
-            requestBody: body
+            requestBody: body,
+            lookupRequests: {
+              inputOne: 1
+            },
+            constants: {
+              inputFour: 4,
+              inputFive: 5
+            }
           }
         }
       }
 
       const expected = {
+        outputZero: 0,
         outputOne: 1,
-        outputTwo: 2,
-        outputThree: 3
+        outputFour: 4
       }
 
       createMappedObject(ctx)
 
-      t.deepEqual(ctx.body, expected)
+      t.equals(ctx.orchestrations.length, 1)
+      t.equals(ctx.orchestrations[0].name, 'Mapping')
+      t.deepEqual(ctx.orchestrations[0].response.body, JSON.stringify(expected))
       t.end()
     })
   })

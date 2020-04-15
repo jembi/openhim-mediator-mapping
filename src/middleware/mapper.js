@@ -25,9 +25,10 @@ const createMappedObject = ctx => {
       objectMapper(dataToBeMapped, ctx.state.metaData.inputMapping)
     )
   } catch (error) {
-    throw Error(
+    logger.error(
       `${ctx.state.metaData.name} (${ctx.state.uuid}): Object mapping failed: ${error.message}`
     )
+    throw error
   }
 
   // set the outgoing payload as useable data point
@@ -70,8 +71,4 @@ const createMappedObject = ctx => {
 exports.mapBodyMiddleware = () => async (ctx, next) => {
   createMappedObject(ctx)
   await next()
-}
-
-if (process.env.NODE_ENV == 'test') {
-  exports.createMappedObject = createMappedObject
 }
