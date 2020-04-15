@@ -111,6 +111,46 @@ tap.test('Mapper', {autoend: true}, t => {
       }
     )
 
+    t.test(
+      'should fail to map data when invalid mapping function referenced',
+      t => {
+        t.plan(1)
+        const ctx = {
+          request: {
+            body: {
+              inputOne: 1,
+              inputTwo: 2,
+              inputThree: 3
+            }
+          },
+          state: {
+            uuid: 'randomUidForRequest',
+            metaData: {
+              name: 'Testing endpoint',
+              inputMapping: {
+                data: {
+                  key: 'key',
+                  transform: {
+                    function: 'inValidFunction'
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        try {
+          createMappedObject(ctx)
+        } catch (error) {
+          t.equals(
+            error.message,
+            'Testing endpoint (randomUidForRequest): Object mapping failed: No function exists for key: inValidFunction'
+          )
+        }
+        t.end()
+      }
+    )
+
     t.test('should map and create mapping orchestration', t => {
       const ctx = {
         request: {
