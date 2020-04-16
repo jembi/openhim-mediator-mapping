@@ -63,9 +63,7 @@ const parseIncomingBody = async (ctx, inputFormat) => {
     // check content-type matches inputForm specified
     if (!ctx.get('Content-Type').includes(inputFormat.toLowerCase())) {
       throw new Error(
-        `${ctx.state.metaData.name} (${
-          ctx.state.uuid
-        }): Supplied input format does not match incoming content-type: Expected ${inputFormat.toLowerCase()} format, but received ${
+        `Supplied input format does not match incoming content-type: Expected ${inputFormat.toLowerCase()} format, but received ${
           ctx.get('Content-Type').split('/')[1]
         }`
       )
@@ -160,9 +158,4 @@ exports.parseBodyMiddleware = () => async (ctx, next) => {
     ctx.body = {error: error.message}
     return parseOutgoingBody(ctx, outputContentType)
   }
-}
-
-if (process.env.NODE_ENV === 'test') {
-  exports.parseIncomingBody = parseIncomingBody
-  exports.parseOutgoingBody = parseOutgoingBody
 }

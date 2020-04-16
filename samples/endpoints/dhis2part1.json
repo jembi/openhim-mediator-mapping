@@ -1,0 +1,120 @@
+{
+  "name": "DHIS2 Location data to FHIR Part 1",
+  "description": "This config will pull three sets of facility data from the DHIS2 Sandbox. These data sets will be combined and then forwarded on to the next mapper step via a recursive request.",
+  "endpoint": {
+    "pattern": "/dhis2part1"
+  },
+  "transformation": {
+    "input": "JSON",
+    "output": "JSON"
+  },
+  "requests": {
+    "lookup": [
+      {
+        "id": "dhisOrg1",
+        "config": {
+          "method": "get",
+          "url": "https://play.dhis2.org/2.30/api/organisationUnits.json?page=1",
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Basic YWRtaW46ZGlzdHJpY3Q="
+          }
+        }
+      },
+      {
+        "id": "dhisOrg2",
+        "config": {
+          "method": "get",
+          "url": "https://play.dhis2.org/2.30/api/organisationUnits.json?page=2",
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Basic YWRtaW46ZGlzdHJpY3Q="
+          }
+        }
+      },
+      {
+        "id": "dhisOrg3",
+        "config": {
+          "method": "get",
+          "url": "https://play.dhis2.org/2.30/api/organisationUnits.json?page=3",
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Basic YWRtaW46ZGlzdHJpY3Q="
+          }
+        }
+      }
+    ],
+    "response": [
+      {
+        "id": "dhis2Part2",
+        "config": {
+          "method": "post",
+          "url": "http://localhost:3003/dhis2part2",
+          "headers": {
+            "Content-Type": "application/json"
+          }
+        }
+      }
+    ]
+  },
+  "constants": {
+    "resourceType": "Bundle",
+    "type": "transaction",
+    "entry": {
+      "resourceType": "Location",
+      "request": {
+        "method": "POST",
+        "url": "Location"
+      }
+    }
+  },
+  "inputMapping": {
+    "lookupRequests.dhisOrg1.organisationUnits[]": {
+      "key": "consolidated[]",
+      "transform": {
+        "function": "appendArray"
+      }
+    },
+    "lookupRequests.dhisOrg2.organisationUnits[]": {
+      "key": "consolidated[]",
+      "transform": {
+        "function": "appendArray"
+      }
+    },
+    "lookupRequests.dhisOrg3.organisationUnits[]": {
+      "key": "consolidated[]",
+      "transform": {
+        "function": "appendArray"
+      }
+    }
+  },
+  "inputValidation": {
+    "type": "object",
+    "properties": {
+      "lookupRequests": {
+        "type": "object",
+        "properties": {
+          "dhis-orgs": {
+            "type": "object",
+            "properties": {
+              "organisationUnits": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "displayName": {
+                      "type": "string"
+                    },
+                    "id": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
