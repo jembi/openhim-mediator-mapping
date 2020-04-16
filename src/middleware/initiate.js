@@ -7,87 +7,56 @@ const logger = require('../logger')
 const {createState, readStateByEndpointId} = require('../db/services/states')
 const {extractValueFromObject, handleServerError} = require('../util')
 
-const extractStateValues = (ctx, extract) => {
-  if (
-    !extract ||
-    (!extract.system &&
-      !extract.requestBody &&
-      !extract.responseBody &&
-      !extract.query &&
-      !extract.lookupRequests)
-  ) {
-    return logger.info(
-      `${ctx.state.metaData.name} (${ctx.state.uuid}): State extract definitions not supplied for this endpoint`
-    )
-  }
+const extractByType = (type, extract, allData) => {
+  let state = {}
+  Object.keys(extract[type]).forEach(prop => {
+    const value = extractValueFromObject(allData[type], extract[type][prop])
+    state[prop] = value
+  })
+  return state
+}
 
+const extractStateValues = (ctx, extract) => {
   const allData = ctx.state.allData
   let updatedState = {}
 
-  if (extract.system && Object.keys(extract.system).length > 0) {
-    let systemState = {}
-    if (extract.system.timestamps) {
-      ctx.state.allData.timestamps.endpointEnd = DateTime.utc().toISO()
-      ctx.state.allData.timestamps.endpointDuration = DateTime.fromISO(
-        ctx.state.allData.timestamps.endpointEnd
-      )
-        .diff(DateTime.fromISO(ctx.state.allData.timestamps.endpointStart))
-        .toObject()
-      Object.assign(systemState, ctx.state.allData.timestamps)
-    }
+  // always add timestamps to the endpoint state
+  ctx.state.allData.timestamps.endpointEnd = DateTime.utc().toISO()
+  ctx.state.allData.timestamps.endpointDuration = DateTime.fromISO(
+    ctx.state.allData.timestamps.endpointEnd
+  )
+    .diff(DateTime.fromISO(ctx.state.allData.timestamps.endpointStart))
+    .toObject()
+  updatedState.system = {
+    timestamps: ctx.state.allData.timestamps
+  }
 
-    updatedState.system = systemState
+  if (!extract) {
+    // return the default state if no user supplied state defined
+    return updatedState
   }
 
   if (extract.requestBody && Object.keys(extract.requestBody).length > 0) {
-    let requestBodyState = {}
-    Object.keys(extract.requestBody).forEach(prop => {
-      const requestBodyValue = extractValueFromObject(
-        allData.requestBody,
-        extract.requestBody[prop]
-      )
-      requestBodyState[prop] = requestBodyValue
-    })
-    updatedState.requestBody = requestBodyState
+    updatedState.requestBody = extractByType('requestBody', extract, allData)
   }
 
   if (extract.responseBody && Object.keys(extract.responseBody).length > 0) {
-    let responseBodyState = {}
-    Object.keys(extract.responseBody).forEach(prop => {
-      const responseBodyValue = extractValueFromObject(
-        allData.responseBody,
-        extract.responseBody[prop]
-      )
-      responseBodyState[prop] = responseBodyValue
-    })
-    updatedState.responseBody = responseBodyState
+    updatedState.responseBody = extractByType('responseBody', extract, allData)
   }
 
   if (extract.query && Object.keys(extract.query).length > 0) {
-    let queryState = {}
-    Object.keys(extract.query).forEach(prop => {
-      const queryValue = extractValueFromObject(
-        allData.query,
-        extract.query[prop]
-      )
-      queryState[prop] = queryValue
-    })
-    updatedState.query = queryState
+    updatedState.query = extractByType('query', extract, allData)
   }
 
   if (
     extract.lookupRequests &&
     Object.keys(extract.lookupRequests).length > 0
   ) {
-    let lookupRequestsState = {}
-    Object.keys(extract.lookupRequests).forEach(prop => {
-      const lookupValue = extractValueFromObject(
-        allData.lookupRequests,
-        extract.lookupRequests[prop]
-      )
-      lookupRequestsState[prop] = lookupValue
-    })
-    updatedState.lookupRequests = lookupRequestsState
+    updatedState.lookupRequests = extractByType(
+      'lookupRequests',
+      extract,
+      allData
+    )
   }
 
   return updatedState

@@ -102,7 +102,10 @@ tap.test('Initiate Middleware', {autoend: true}, t => {
         const ctx = {
           state: {
             metaData,
-            uuid: '7asd596a5s0d5s0das0d7a5sd08'
+            uuid: '7asd596a5s0d5s0das0d7a5sd08',
+            allData: {
+              timestamps: {}
+            }
           }
         }
 
