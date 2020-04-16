@@ -4,7 +4,6 @@ const StatesModel = require('../../models/states')
 const logger = require('../../../logger')
 
 let eventEmitter
-let endpointCache = []
 
 exports.setupStatesEventListeners = (ws) => {
   eventEmitter = StatesModel.watch()
@@ -26,9 +25,6 @@ exports.removeStatesEventListeners = () => {
 }
 
 const addChangeListener = async (ws, change) => {
-  // logger.debug(
-  //   `EndpointId: ${change.documentKey._id} - Registered Change Event: ${change.operationType}`
-  // )
   ws.send(JSON.stringify(change))
 }
 
@@ -39,6 +35,3 @@ const addCloseListener = () => {
 const addErrorListener = error => {
   logger.fatal(`MongoDB Error detected: ${error.message}`)
 }
-
-// exports.populateEndpointCache = populateEndpointCache
-exports.endpointCache = endpointCache
