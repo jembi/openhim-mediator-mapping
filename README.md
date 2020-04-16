@@ -100,6 +100,8 @@ config = {
 rs.initiate(config)
 ```
 
+> **NOTE:** The IP used here is the local docker bridge IP. This IP is generally consistent, however different docker configurations could result in differences. You can confirm your IP with this terminal command: `ifconfig docker0`
+
 With your replica set running, you can start up your Mapping Mediator. Include the following environment variable config to connect your Mapping Mediator to the MongoDB replica set:
 
 - MONGO_URL='mongodb://localhost:27017,localhost:27018,localhost:27019/mapping-mediator?replicaSet=mapper-mongo-set'
