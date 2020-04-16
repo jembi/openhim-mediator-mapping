@@ -53,21 +53,23 @@ const performRequests = (requests, ctx) => {
         // Assign any data received from the response to the assigned id in the context
         return {[requestDetails.id]: res.data}
       })
-      .catch(error => {
+      .catch(err => {
+        error = err
         logger.error(
-          `Failed Request Config ${JSON.stringify(error.config, null, 2)}`
+          `Failed Request Config ${JSON.stringify(err.config, null, 2)}`
         )
-        if (error.response) {
+
+        if (err.response) {
           throw new Error(
-            `Incorrect status code ${error.response.status}. ${error.response.data.message}`
+            `Incorrect status code ${err.response.status}. ${err.response.data.message}`
           )
-        } else if (error.request) {
+        } else if (err.request) {
           throw new Error(
-            `No response from lookup '${requestDetails.id}'. ${error.message}`
+            `No response from lookup '${requestDetails.id}'. ${err.message}`
           )
         } else {
           // Something happened in setting up the request that triggered an Error
-          throw new Error(`Unhandled Error: ${error.message}`)
+          throw new Error(`Unhandled Error: ${err.message}`)
         }
       })
       .finally(() => {
