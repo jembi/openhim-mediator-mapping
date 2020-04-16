@@ -17,8 +17,249 @@ const handleRequestError = externalRequests.__get__('handleRequestError')
 const addRequestQueryParameters = externalRequests.__get__(
   'addRequestQueryParameters'
 )
+const validateRequestStatusCode = externalRequests.__get__(
+  'validateRequestStatusCode'
+)
+const performRequests = externalRequests.__get__('performRequests')
+const prepareLookupRequests = externalRequests.__get__('prepareLookupRequests')
+const prepareRequestConfig = externalRequests.__get__('prepareRequestConfig')
 
 tap.test('External Requests', {autoend: true}, t => {
+  t.test('validateRequestStatusCode', {autoend: true}, t => {
+    t.test('should return false if the status is not allowed', t => {
+      const allowedStatuses = [200, 202]
+      const status = 500
+
+      const valid = validateRequestStatusCode(allowedStatuses)(status)
+      t.equals(valid, false)
+      t.end()
+    })
+
+    t.test('should return true if status is allowed', t => {
+      const allowedStatuses = [200, 202]
+      const status = 200
+
+      const valid = validateRequestStatusCode(allowedStatuses)(status)
+      t.equals(valid, true)
+      t.end()
+    })
+
+    t.test('should return true if status is allowed (wildcard status)', t => {
+      const allowedStatuses = ['2xx', 400]
+      const status = 202
+
+      const valid = validateRequestStatusCode(allowedStatuses)(status)
+      t.equals(valid, true)
+      t.end()
+    })
+  })
+
+  t.test('performRequests', {autoend: true}, t => {
+    t.test('should create orchestration object', t => {
+      const ctx = {}
+      const requests = []
+
+      performRequests(requests, ctx)
+      t.equals(!ctx.orchestrations, false)
+      t.end()
+    })
+
+    t.test('should create orchestrations array', t => {
+      const ctx = {}
+      const requests = []
+
+      performRequests(requests, ctx)
+      t.equals(!ctx.orchestrations, false)
+      t.end()
+    })
+
+    t.test(
+      'should throw error and create orchestration when one lookup fails( request to server that is down)',
+      async t => {
+        const url = 'http://localhost:8000/'
+        const url2 = 'http://localhost:9000/'
+        const method = 'PUT'
+        const id = '1233243'
+
+        const requests = [
+          {
+            config: {
+              url: url,
+              method: method
+            },
+            id: id
+          },
+          {
+            config: {
+              url: url2,
+              method: method
+            },
+            id: id
+          }
+        ]
+
+        const ctx = {
+          state: {
+            metaData: {
+              requests: {}
+            }
+          },
+          request: {
+            header: {
+              'x-openhim-transactionid': '1232244'
+            }
+          }
+        }
+
+        try {
+          await Promise.all(performRequests(requests, ctx))
+        } catch (error) {
+          t.equals(ctx.orchestrations.length, 1)
+          t.match(error.message, /ECONNREFUSED/)
+          t.end()
+        }
+      }
+    )
+
+    t.test('should do lookups and create orchestrations', async t => {
+      const url = 'http://localhost:4000/'
+
+      nock(url)
+        .get('/patient')
+        .reply(200, 'Body')
+
+      const method = 'GET'
+      const id = '123'
+
+      const requests = [
+        {
+          config: {
+            url: `${url}patient`,
+            method: method
+          },
+          id: id
+        }
+      ]
+
+      const ctx = {
+        state: {
+          metaData: {
+            requests: {}
+          }
+        },
+        request: {
+          header: {
+            'x-openhim-transactionid': '1232244'
+          }
+        }
+      }
+
+      await Promise.all(performRequests(requests, ctx)).then(res => {
+        t.deepEqual(res[0], {'123': 'Body'})
+        t.equals(ctx.orchestrations.length, 1)
+        t.end()
+      })
+    })
+  })
+
+  t.test('prepareLookupRequests', {autoend: true}, t => {
+    t.test(
+      'should not do any lookups when requests metadata object is empty',
+      t => {
+        const ctx = {
+          state: {
+            metaData: {}
+          }
+        }
+        prepareLookupRequests(ctx)
+
+        t.equals(!ctx.orchestrations, true)
+        t.end()
+      }
+    )
+    t.test('should throw error when lookup request fails', async t => {
+      const url = 'http://localhost:4000/'
+
+      const method = 'GET'
+
+      const ctx = {
+        request: {
+          header: {
+            'x-openhim-transactionid': '123'
+          }
+        },
+        state: {
+          metaData: {
+            requests: {
+              lookup: [
+                {
+                  config: {
+                    url: `${url}patient`,
+                    method: method
+                  },
+                  id: 'safari'
+                }
+              ]
+            }
+          }
+        }
+      }
+      try {
+        await prepareLookupRequests(ctx)
+      } catch (err) {
+        t.match(err.message, /No response from lookup/)
+        t.end()
+      }
+    })
+
+    t.test('should do the lookup and create orchestration', async t => {
+      const url = 'http://localhost:4000/'
+
+      nock(url)
+        .get('/patient')
+        .times(2)
+        .reply(200, 'Body')
+
+      const method = 'GET'
+
+      const ctx = {
+        request: {
+          header: {
+            'x-openhim-transactionid': '123'
+          }
+        },
+        state: {
+          metaData: {
+            requests: {
+              lookup: [
+                {
+                  config: {
+                    url: `${url}patient`,
+                    method: method
+                  },
+                  id: 'safari'
+                },
+                {
+                  config: {
+                    url: `${url}patient`,
+                    method: method
+                  },
+                  id: 'chrome'
+                }
+              ]
+            }
+          }
+        }
+      }
+      await prepareLookupRequests(ctx)
+
+      t.equals(ctx.orchestrations.length, 2)
+      t.equals(!ctx.lookupRequests, false)
+      t.deepEqual(ctx.lookupRequests, {chrome: 'Body', safari: 'Body'})
+      t.end()
+    })
+  })
+
   t.test('prepareResponseRequests', {autoend: true}, t => {
     t.test('should not do any orchestration if the mapping fails', async t => {
       const ctx = {
@@ -499,6 +740,49 @@ tap.test('External Requests', {autoend: true}, t => {
         t.end()
       }
     )
+  })
+
+  t.test('prepareRequestConfig', {autoend: true}, t => {
+    t.test('should create request config with no data and query params', t => {
+      const requestDetails = {
+        config: {
+          url: `localhost:8080`,
+          method: 'GET'
+        }
+      }
+      const requestBody = null
+      const queryParams = null
+
+      const requestConfig = prepareRequestConfig(
+        requestDetails,
+        requestBody,
+        queryParams
+      )
+      t.equals(!requestConfig.data, true)
+      t.equals(!requestConfig.params, true)
+      t.end()
+    })
+
+    t.test('should add data and query params to request config object', t => {
+      const requestDetails = {
+        config: {
+          url: `localhost:8080`,
+          method: 'GET'
+        }
+      }
+      const requestBody = 'Body'
+      const queryParams = {
+        id: 'sanders'
+      }
+
+      const requestConfig = prepareRequestConfig(
+        requestDetails,
+        requestBody,
+        queryParams
+      )
+      t.equals(requestConfig.data, requestBody)
+      t.end()
+    })
   })
 
   t.test('setKoaResponseBody()', {autoend: true}, t => {
