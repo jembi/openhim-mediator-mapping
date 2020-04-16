@@ -142,7 +142,6 @@ exports.initiateContextMiddleware = () => async (ctx, next) => {
   const requestUUID = uuid.v4()
 
   const endpoint = getEndpointByPath(ctx.request.path)
-  const endpointState = await readStateByEndpointId(endpoint._id)
 
   if (!endpoint) {
     logger.error(`Unknown Endpoint: ${ctx.request.path}`)
@@ -155,6 +154,8 @@ exports.initiateContextMiddleware = () => async (ctx, next) => {
     }
     return
   }
+
+  const endpointState = await readStateByEndpointId(endpoint._id)
 
   logger.info(`${endpoint.name} (${requestUUID}): Initiating new request`)
 
