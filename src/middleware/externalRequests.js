@@ -399,10 +399,16 @@ const addRequestQueryParameters = (ctx, request) => {
           parameterValue = extractValueFromObject(ctx.state.allData.state, path)
           break
         case 'lookupRequests':
-          parameterValue = extractValueFromObject(ctx.state.allData.lookupRequests, path)
+          parameterValue = extractValueFromObject(
+            ctx.state.allData.lookupRequests,
+            path
+          )
           break
         case 'responseBody':
-          parameterValue = extractValueFromObject(ctx.state.allData.responseBody, path)
+          parameterValue = extractValueFromObject(
+            ctx.state.allData.responseBody,
+            path
+          )
           break
       }
 
