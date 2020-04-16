@@ -18,7 +18,7 @@ To store endpoint data:
 
 ## Setup Mongo Replica Set
 
-### Yarn Mapping Mediator
+### Yarn Set Up
 
 This set up guide will make use of Docker to run the Mongo cluster and yarn to run the Mapping Mediator. The containers will connect with each other over a Docker Network.
 
@@ -77,25 +77,25 @@ Inside the shell enter the following:
 
 ```sh
 config = {
-      "_id" : "mapper-mongo-set",
-      "members" : [
+  "_id": "mapper-mongo-set",
+  "members": [
     {
-      "_id" : 0,
+      "_id": 0,
       "priority": 1,
-      "host" : "172.17.0.1:27017"
+      "host": "172.17.0.1:27017"
     },
     {
-      "_id" : 1,
+      "_id": 1,
       "priority": 0.5,
-      "host" : "172.17.0.1:27018"
+      "host": "172.17.0.1:27018"
     },
     {
-      "_id" : 2,
+      "_id": 2,
       "priority": 0.5,
-      "host" : "172.17.0.1:27019"
+      "host": "172.17.0.1:27019"
     }
-    ]
-  }
+  ]
+}
 
 rs.initiate(config)
 ```
@@ -104,7 +104,7 @@ With your replica set running, you can start up your Mapping Mediator. Include t
 
 - MONGO_URL='mongodb://localhost:27017,localhost:27018,localhost:27019/mapping-mediator?replicaSet=mapper-mongo-set'
 
-### Docker Mapping Mediator
+### Docker Set Up
 
 This set up guide will make use of Docker to run the Mongo cluster and the Mapping Mediator. The containers will connect with each other over a Docker Network.
 
@@ -157,25 +157,25 @@ Inside the shell enter the following:
 
 ```sh
 config = {
-      "_id" : "mapper-mongo-set",
-      "members" : [
+  "_id": "mapper-mongo-set",
+  "members": [
     {
-      "_id" : 0,
+      "_id": 0,
       "priority": 1,
-      "host" : "mapper-mongo-1:27017"
+      "host": "mapper-mongo-1:27017"
     },
     {
-      "_id" : 1,
+      "_id": 1,
       "priority": 0.5,
-      "host" : "mapper-mongo-2:27017"
+      "host": "mapper-mongo-2:27017"
     },
     {
-      "_id" : 2,
+      "_id": 2,
       "priority": 0.5,
-      "host" : "mapper-mongo-3:27017"
+      "host": "mapper-mongo-3:27017"
     }
-    ]
-  }
+  ]
+}
 
 rs.initiate(config)
 ```
@@ -186,10 +186,10 @@ Next step is to get the name of the Docker network that your cluster communicate
 docker network ls
 ```
 
-With your replica set running you can start up your Mapping Mediator with the following command (substitute in you Docker network name at the network flag):
+With your replica set running you can start up your Mapping Mediator with the following command (substitute in your Docker network name at the network flag):
 
 ```sh
-docker run -it -p 3003:3003 -e MONGO_URL='mongodb://mapper-mongo-1:27017,mapper-mongo-2:27017,mapper-mongo:27017/mapping-mediator?replicaSet=mapper-mongo-set' --network {directory-name}_mapper-cluster-network jembi/mapping-mediator:latest
+docker run -it -p 3003:3003 -e MONGO_URL='mongodb://mapper-mongo-1:27017,mapper-mongo-2:27017,mapper-mongo:27017/mapping-mediator?replicaSet=mapper-mongo-set' --network {directory-name}_mapper-cluster-network jembi/openhim-mapping-mediator:latest
 ```
 
 The following parameters relate to the Mongo Replica set:
