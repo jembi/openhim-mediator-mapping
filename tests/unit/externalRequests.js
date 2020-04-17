@@ -176,7 +176,7 @@ tap.test('External Requests', {autoend: true}, t => {
         }
         prepareLookupRequests(ctx)
 
-        t.equals(!ctx.orchestrations, true)
+        t.notOk(ctx.orchestrations)
         t.end()
       }
     )
