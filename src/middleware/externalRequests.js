@@ -34,7 +34,7 @@ const performRequests = (requests, ctx) => {
 
   return requests.map(requestDetails => {
     const reqTimestamp = new Date()
-    let responseTimestamp, error, response
+    let responseTimestamp, orchestrationError, response
 
     // No body is sent out for now
     const body = null
@@ -54,7 +54,7 @@ const performRequests = (requests, ctx) => {
         return {[requestDetails.id]: res.data}
       })
       .catch(err => {
-        error = err
+        orchestrationError = err
         logger.error(
           `Failed Request Config ${JSON.stringify(err.config, null, 2)}`
         )
@@ -85,7 +85,7 @@ const performRequests = (requests, ctx) => {
             reqTimestamp,
             responseTimestamp,
             requestDetails.id,
-            error,
+            orchestrationError,
             requestParameters
           )
 
