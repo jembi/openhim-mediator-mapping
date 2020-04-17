@@ -25,7 +25,7 @@ const performValidation = ctx => {
 
   const dataToValidate = {}
 
-  if (ctx && ctx.request && ctx.request.body) {
+  if (ctx.request && ctx.request.body) {
     dataToValidate.requestBody = ctx.request.body
   }
 
@@ -34,19 +34,13 @@ const performValidation = ctx => {
   }
 
   if (!dataToValidate.requestBody && !dataToValidate.lookupRequests) {
-    throw new Error(
-      `${ctx.state.metaData.name} (${ctx.state.uuid}): No data to validate`
-    )
+    throw new Error(`No data to validate`)
   }
 
   const valid = ajv.validate(ctx.state.metaData.inputValidation, dataToValidate)
 
   if (!valid) {
-    throw new Error(
-      `${ctx.state.metaData.name} (${
-        ctx.state.uuid
-      }): Validation failed: ${ajv.errorsText()}`
-    )
+    throw new Error(`Validation failed: ${ajv.errorsText()}`)
   }
 
   logger.info(
@@ -57,8 +51,4 @@ const performValidation = ctx => {
 exports.validateBodyMiddleware = () => async (ctx, next) => {
   performValidation(ctx)
   await next()
-}
-
-if (process.env.NODE_ENV == 'test') {
-  exports.performValidation = performValidation
 }
