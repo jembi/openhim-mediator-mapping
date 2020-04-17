@@ -14,7 +14,8 @@ tap.test('Mapper', {autoend: true}, t => {
           uuid: 'randomUidForRequest',
           metaData: {
             name: 'Testing endpoint'
-          }
+          },
+          allData: {}
         },
         request: {
           body: {}
@@ -30,13 +31,14 @@ tap.test('Mapper', {autoend: true}, t => {
     t.test(
       'should create an object based on mapping (from request body)',
       t => {
+        const body = {
+          inputOne: 1,
+          inputTwo: 2,
+          inputThree: 3
+        }
         const ctx = {
           request: {
-            body: {
-              inputOne: 1,
-              inputTwo: 2,
-              inputThree: 3
-            }
+            body
           },
           state: {
             uuid: 'randomUidForRequest',
@@ -47,6 +49,9 @@ tap.test('Mapper', {autoend: true}, t => {
                 'requestBody.inputTwo': 'outputTwo',
                 'requestBody.inputThree': 'outputThree'
               }
+            },
+            allData: {
+              requestBody: body
             }
           }
         }
@@ -67,16 +72,12 @@ tap.test('Mapper', {autoend: true}, t => {
     t.test(
       'should create an object based on mapping (from request body, lookup requests and constants) ',
       t => {
+        const body = {
+          inputZero: 0
+        }
         const ctx = {
           request: {
-            body: {
-              inputZero: 0
-            }
-          },
-          lookupRequests: {
-            inputOne: 1,
-            inputTwo: 2,
-            inputThree: 3
+            body
           },
           state: {
             uuid: 'randomUidForRequest',
@@ -88,6 +89,14 @@ tap.test('Mapper', {autoend: true}, t => {
                 'lookupRequests.inputTwo': 'outputTwo',
                 'lookupRequests.inputThree': 'outputThree',
                 'constants.inputFour': 'outputFour'
+              }
+            },
+            allData: {
+              requestBody: body,
+              lookupRequests: {
+                inputOne: 1,
+                inputTwo: 2,
+                inputThree: 3
               },
               constants: {
                 inputFour: 4,
@@ -137,7 +146,8 @@ tap.test('Mapper', {autoend: true}, t => {
                   }
                 }
               }
-            }
+            },
+            allData: {}
           }
         }
 
@@ -151,17 +161,15 @@ tap.test('Mapper', {autoend: true}, t => {
     )
 
     t.test('should map and create mapping orchestration', t => {
+      const body = {
+        inputZero: 0
+      }
       const ctx = {
         request: {
-          body: {
-            inputZero: 0
-          },
+          body,
           header: {
             'x-openhim-transactionid': '1233'
           }
-        },
-        lookupRequests: {
-          inputOne: 1
         },
         state: {
           uuid: 'randomUidForRequest',
@@ -171,6 +179,12 @@ tap.test('Mapper', {autoend: true}, t => {
               'requestBody.inputZero': 'outputZero',
               'lookupRequests.inputOne': 'outputOne',
               'constants.inputFour': 'outputFour'
+            }
+          },
+          allData: {
+            requestBody: body,
+            lookupRequests: {
+              inputOne: 1
             },
             constants: {
               inputFour: 4,

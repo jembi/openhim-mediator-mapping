@@ -29,8 +29,8 @@ const performValidation = ctx => {
     dataToValidate.requestBody = ctx.request.body
   }
 
-  if (ctx.lookupRequests) {
-    dataToValidate.lookupRequests = ctx.lookupRequests
+  if (ctx.state.allData.lookupRequests) {
+    dataToValidate.lookupRequests = ctx.state.allData.lookupRequests
   }
 
   if (!dataToValidate.requestBody && !dataToValidate.lookupRequests) {

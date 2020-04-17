@@ -16,7 +16,8 @@ exports.open = async mongoUrl => {
       poolSize: 20,
       useCreateIndex: true,
       useNewUrlParser: true,
-      useFindAndModify: false
+      useFindAndModify: false,
+      useUnifiedTopology: true
     })
     .then(() => {
       logger.info(`Connected to mongo on ${mongoUrl}`)

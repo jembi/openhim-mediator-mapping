@@ -3,7 +3,6 @@
 const objectMapper = require('object-mapper')
 
 const logger = require('../logger')
-
 const {createOrchestration} = require('../orchestrations')
 
 const createMappedObject = ctx => {
@@ -15,11 +14,7 @@ const createMappedObject = ctx => {
     )
   }
 
-  const dataToBeMapped = {
-    requestBody: ctx.request.body,
-    lookupRequests: ctx.lookupRequests,
-    constants: ctx.state.metaData.constants
-  }
+  const dataToBeMapped = ctx.state.allData
 
   const output = {}
   const mappingStartTimestamp = new Date()
@@ -35,6 +30,9 @@ const createMappedObject = ctx => {
     )
     throw error
   }
+
+  // set the outgoing payload as useable data point
+  ctx.state.allData.responseBody = output
 
   ctx.body = output
   ctx.status = 200

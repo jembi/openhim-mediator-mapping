@@ -23,6 +23,12 @@ tap.test('Validation Middleware', {autoend: true}, t => {
           metaData: {
             name: 'Testing endpoint',
             inputValidation: null
+          },
+          allData: {
+            state: {},
+            timestamps: {
+              lookupRequests: {}
+            }
           }
         }
       }
@@ -41,12 +47,14 @@ tap.test('Validation Middleware', {autoend: true}, t => {
       t => {
         const ctx = {
           request: {},
-          lookupRequests: null,
           state: {
             uuid: 'randomUidForRequest',
             metaData: {
               name: 'Testing endpoint',
               inputValidation: {}
+            },
+            allData: {
+              lookupRequests: null
             }
           }
         }
@@ -80,6 +88,12 @@ tap.test('Validation Middleware', {autoend: true}, t => {
                 }
               }
             }
+          },
+          allData: {
+            state: {},
+            timestamps: {
+              lookupRequests: {}
+            }
           }
         }
       }
@@ -91,10 +105,6 @@ tap.test('Validation Middleware', {autoend: true}, t => {
     t.test('should validate lookupRequests data', t => {
       const ctx = {
         request: {},
-        lookupRequests: {
-          name: 'Typer',
-          surname: 'Durden'
-        },
         state: {
           metaData: {
             inputValidation: {
@@ -109,6 +119,12 @@ tap.test('Validation Middleware', {autoend: true}, t => {
                   required: ['name']
                 }
               }
+            }
+          },
+          allData: {
+            lookupRequests: {
+              name: 'Typer',
+              surname: 'Durden'
             }
           }
         }
@@ -130,6 +146,7 @@ tap.test('Validation Middleware', {autoend: true}, t => {
         },
         state: {
           metaData: {
+            name: 'Testing endpoint',
             inputValidation: {
               type: 'object',
               properties: {
@@ -143,6 +160,9 @@ tap.test('Validation Middleware', {autoend: true}, t => {
                 }
               }
             }
+          },
+          allData: {
+            lookupRequests: {}
           }
         }
       }
@@ -188,6 +208,9 @@ tap.test('Validation Middleware', {autoend: true}, t => {
                 }
               }
             }
+          },
+          allData: {
+            lookupRequests: {}
           }
         }
       }

@@ -73,7 +73,8 @@ tap.test('Parser', {autoend: true}, t => {
           uuid: 'randomUidForRequest',
           metaData: {
             name: 'Testing endpoint'
-          }
+          },
+          allData: {}
         },
         get: name => {
           const contentHeader = 'application/xml'

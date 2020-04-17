@@ -5,7 +5,7 @@ const mongoose = require('mongoose')
 const {
   ALLOWED_CONTENT_TYPES,
   MIDDLEWARE_PATH_REGEX
-} = require('../../../constants')
+} = require('../../constants')
 
 const endpointSchema = new mongoose.Schema(
   {
@@ -37,7 +37,10 @@ const endpointSchema = new mongoose.Schema(
     },
     constants: {},
     inputMapping: {},
-    inputValidation: {}
+    inputValidation: {},
+    state: {
+      extract: {}
+    }
   },
   {
     timestamps: true // set the created_at/updated_at timestamps on the record
