@@ -1,0 +1,100 @@
+{
+  "name": "DHIS2 Location data to FHIR Part 2",
+  "description": "This config is dependent on the data set sent from 'DHIS2 Location data to FHIR Part 1'. With the DHIS2 Facility array, this config will validate and map the data into a FHIR Bundle containing individual FHIR Location Resources. This FHIR Bundle will then posted to the HAPI FHIR Sandbox instance.",
+  "endpoint": {
+    "pattern": "/dhis2part2"
+  },
+  "transformation": {
+    "input": "JSON",
+    "output": "JSON"
+  },
+  "requests": {
+    "response": [
+      {
+        "id": "hapi-fhir",
+        "config": {
+          "method": "post",
+          "url": "http://hapi.fhir.org/baseR4/",
+          "headers": {
+            "Content-Type": "application/json"
+          }
+        }
+      }
+    ]
+  },
+  "constants": {
+    "resourceType": "Bundle",
+    "type": "transaction",
+    "entry": {
+      "resourceType": "Location",
+      "request": {
+        "method": "POST",
+        "url": "Location"
+      },
+      "identifier": [
+        {
+          "key": "DHIS2 UID"
+        }
+      ]
+    }
+  },
+  "inputMapping": {
+    "constants.resourceType": "resourceType",
+    "constants.type": "type",
+    "requestBody.consolidated.displayName": "entry[].resource.name",
+    "constants.entry.identifier": {
+      "key": "entry[].resource.identifier",
+      "transform": {
+        "function": "oneToAllElements"
+      }
+    },
+    "requestBody.consolidated.id": "entry[].resource.identifier[].value",
+    "constants.entry.resourceType": {
+      "key": "entry[].resource.resourceType",
+      "transform": {
+        "function": "oneToAllElements"
+      }
+    },
+    "constants.entry.request.method": {
+      "key": "entry[].request.method",
+      "transform": {
+        "function": "oneToAllElements"
+      }
+    },
+    "constants.entry.request.url": {
+      "key": "entry[].request.url",
+      "transform": {
+        "function": "oneToAllElements"
+      }
+    }
+  },
+  "inputValidation": {
+    "type": "object",
+    "properties": {
+      "lookupRequests": {
+        "type": "object",
+        "properties": {
+          "dhis-orgs": {
+            "type": "object",
+            "properties": {
+              "organisationUnits": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "displayName": {
+                      "type": "string"
+                    },
+                    "id": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

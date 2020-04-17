@@ -4,90 +4,66 @@ const uuid = require('uuid')
 const {DateTime} = require('luxon')
 
 const logger = require('../logger')
+const {endpointCache} = require('../db/services/endpoints/cache')
 const {createState, readStateByEndpointId} = require('../db/services/states')
+const {constructOpenhimResponse} = require('../openhim')
 const {extractValueFromObject, handleServerError} = require('../util')
 
-const extractStateValues = (ctx, extract) => {
-  if (
-    !extract ||
-    (!extract.system &&
-      !extract.requestBody &&
-      !extract.responseBody &&
-      !extract.query &&
-      !extract.lookupRequests)
-  ) {
-    return logger.info(
-      `${ctx.state.metaData.name} (${ctx.state.uuid}): State extract definitions not supplied for this endpoint`
-    )
+const extractByType = (type, extract, allData) => {
+  let state = {}
+
+  if (!type || !extract || !allData) {
+    return state
   }
 
+  Object.keys(extract[type]).forEach(prop => {
+    const value = extractValueFromObject(allData[type], extract[type][prop])
+    state[prop] = value
+  })
+  return state
+}
+
+const extractStateValues = (ctx, extract) => {
   const allData = ctx.state.allData
   let updatedState = {}
 
-  if (extract.system && Object.keys(extract.system).length > 0) {
-    let systemState = {}
-    if (extract.system.timestamps) {
-      ctx.state.allData.timestamps.endpointEnd = DateTime.utc().toISO()
-      ctx.state.allData.timestamps.endpointDuration = DateTime.fromISO(
-        ctx.state.allData.timestamps.endpointEnd
-      )
-        .diff(DateTime.fromISO(ctx.state.allData.timestamps.endpointStart))
-        .toObject()
-      Object.assign(systemState, ctx.state.allData.timestamps)
-    }
+  // always add timestamps to the endpoint state
+  ctx.state.allData.timestamps.endpointEnd = DateTime.utc().toISO()
+  ctx.state.allData.timestamps.endpointDuration = DateTime.fromISO(
+    ctx.state.allData.timestamps.endpointEnd
+  )
+    .diff(DateTime.fromISO(ctx.state.allData.timestamps.endpointStart))
+    .toObject()
+  updatedState.system = {
+    timestamps: ctx.state.allData.timestamps
+  }
 
-    updatedState.system = systemState
+  if (!extract) {
+    // return the default state if no user supplied state defined
+    return updatedState
   }
 
   if (extract.requestBody && Object.keys(extract.requestBody).length > 0) {
-    let requestBodyState = {}
-    Object.keys(extract.requestBody).forEach(prop => {
-      const requestBodyValue = extractValueFromObject(
-        allData.requestBody,
-        extract.requestBody[prop]
-      )
-      requestBodyState[prop] = requestBodyValue
-    })
-    updatedState.requestBody = requestBodyState
+    updatedState.requestBody = extractByType('requestBody', extract, allData)
   }
 
   if (extract.responseBody && Object.keys(extract.responseBody).length > 0) {
-    let responseBodyState = {}
-    Object.keys(extract.responseBody).forEach(prop => {
-      const responseBodyValue = extractValueFromObject(
-        allData.responseBody,
-        extract.responseBody[prop]
-      )
-      responseBodyState[prop] = responseBodyValue
-    })
-    updatedState.responseBody = responseBodyState
+    updatedState.responseBody = extractByType('responseBody', extract, allData)
   }
 
   if (extract.query && Object.keys(extract.query).length > 0) {
-    let queryState = {}
-    Object.keys(extract.query).forEach(prop => {
-      const queryValue = extractValueFromObject(
-        allData.query,
-        extract.query[prop]
-      )
-      queryState[prop] = queryValue
-    })
-    updatedState.query = queryState
+    updatedState.query = extractByType('query', extract, allData)
   }
 
   if (
     extract.lookupRequests &&
     Object.keys(extract.lookupRequests).length > 0
   ) {
-    let lookupRequestsState = {}
-    Object.keys(extract.lookupRequests).forEach(prop => {
-      const lookupValue = extractValueFromObject(
-        allData.lookupRequests,
-        extract.lookupRequests[prop]
-      )
-      lookupRequestsState[prop] = lookupValue
-    })
-    updatedState.lookupRequests = lookupRequestsState
+    updatedState.lookupRequests = extractByType(
+      'lookupRequests',
+      extract,
+      allData
+    )
   }
 
   return updatedState
@@ -125,9 +101,6 @@ const updateEndpointState = async (ctx, endpoint) => {
     })
 }
 
-const {constructOpenhimResponse} = require('../openhim')
-const {endpointCache} = require('../db/services/endpoints/cache')
-
 const getEndpointByPath = urlPath => {
   for (let endpoint of endpointCache) {
     if (endpoint.endpoint.pattern === urlPath) {
@@ -138,11 +111,14 @@ const getEndpointByPath = urlPath => {
 }
 
 exports.initiateContextMiddleware = () => async (ctx, next) => {
-  const endpointStart = DateTime.utc().toISO() // set the initial start time for entry into the endpoint
-  const requestUUID = uuid.v4()
+  // set the initial start time for entry into the endpoint
+  const endpointStart = DateTime.utc().toISO()
+  // set request UUID from incoming OpenHIM header if present, else create a random UUID
+  const requestUUID = ctx.headers['x-openhim-transactionid']
+    ? ctx.headers['x-openhim-transactionid']
+    : uuid.v4()
 
   const endpoint = getEndpointByPath(ctx.request.path)
-  const endpointState = await readStateByEndpointId(endpoint._id)
 
   if (!endpoint) {
     logger.error(`Unknown Endpoint: ${ctx.request.path}`)
@@ -155,6 +131,8 @@ exports.initiateContextMiddleware = () => async (ctx, next) => {
     }
     return
   }
+
+  const endpointState = await readStateByEndpointId(endpoint._id)
 
   logger.info(`${endpoint.name} (${requestUUID}): Initiating new request`)
 
@@ -169,10 +147,7 @@ exports.initiateContextMiddleware = () => async (ctx, next) => {
     }
   }
 
-  // set request UUID from incoming OpenHIM header if present, else create a random UUID
-  ctx.state.uuid = ctx.headers['x-openhim-transactionid']
-    ? ctx.headers['x-openhim-transactionid']
-    : requestUUID
+  ctx.state.uuid = requestUUID
   ctx.state.metaData = endpoint
 
   await next()
@@ -188,8 +163,4 @@ exports.initiateContextMiddleware = () => async (ctx, next) => {
       logger
     )
   }
-}
-
-if (process.env.NODE_ENV === 'test') {
-  exports.updateEndpointState = updateEndpointState
 }

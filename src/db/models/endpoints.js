@@ -5,7 +5,7 @@ const mongoose = require('mongoose')
 const {
   ALLOWED_CONTENT_TYPES,
   MIDDLEWARE_PATH_REGEX
-} = require('../../../constants')
+} = require('../../constants')
 
 const endpointSchema = new mongoose.Schema(
   {
