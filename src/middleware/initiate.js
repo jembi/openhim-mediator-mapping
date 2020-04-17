@@ -4,11 +4,18 @@ const uuid = require('uuid')
 const {DateTime} = require('luxon')
 
 const logger = require('../logger')
+const {endpointCache} = require('../db/services/endpoints/cache')
 const {createState, readStateByEndpointId} = require('../db/services/states')
+const {constructOpenhimResponse} = require('../openhim')
 const {extractValueFromObject, handleServerError} = require('../util')
 
 const extractByType = (type, extract, allData) => {
   let state = {}
+
+  if (!type || !extract || !allData) {
+    return state
+  }
+
   Object.keys(extract[type]).forEach(prop => {
     const value = extractValueFromObject(allData[type], extract[type][prop])
     state[prop] = value
@@ -94,9 +101,6 @@ const updateEndpointState = async (ctx, endpoint) => {
     })
 }
 
-const {constructOpenhimResponse} = require('../openhim')
-const {endpointCache} = require('../db/services/endpoints/cache')
-
 const getEndpointByPath = urlPath => {
   for (let endpoint of endpointCache) {
     if (endpoint.endpoint.pattern === urlPath) {
@@ -158,8 +162,4 @@ exports.initiateContextMiddleware = () => async (ctx, next) => {
       logger
     )
   }
-}
-
-if (process.env.NODE_ENV === 'test') {
-  exports.updateEndpointState = updateEndpointState
 }
