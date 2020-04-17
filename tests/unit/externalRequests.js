@@ -254,7 +254,7 @@ tap.test('External Requests', {autoend: true}, t => {
       await prepareLookupRequests(ctx)
 
       t.equals(ctx.orchestrations.length, 2)
-      t.equals(!ctx.lookupRequests, false)
+      t.ok(ctx.lookupRequests)
       t.deepEqual(ctx.lookupRequests, {chrome: 'Body', safari: 'Body'})
       t.end()
     })
