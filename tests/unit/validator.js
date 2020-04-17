@@ -158,7 +158,7 @@ tap.test('Validation Middleware', {autoend: true}, t => {
     t.test('should validate when a property has a value of null', t => {
       // // clear the module with the out-dated config
       delete require.cache[require.resolve('rewire')]
-      // // set environment variable to allow null values
+      // set environment variable to allow null values
       process.env.VALIDATION_ACCEPT_NULL_VALUES = 'true'
       // require module to get updated config
       const rewire = require('rewire')
