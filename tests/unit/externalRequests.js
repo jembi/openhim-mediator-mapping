@@ -115,7 +115,10 @@ tap.test('External Requests', {autoend: true}, t => {
           await Promise.all(performRequests(requests, ctx))
         } catch (error) {
           t.equals(ctx.orchestrations.length, 1)
-          t.match(error.message, /ECONNREFUSED/)
+          t.match(
+            error.message,
+            /No response from lookup '1233243'. connect ECONNREFUSED/
+          )
           t.end()
         }
       }
