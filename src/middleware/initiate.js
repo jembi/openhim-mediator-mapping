@@ -111,8 +111,12 @@ const getEndpointByPath = urlPath => {
 }
 
 exports.initiateContextMiddleware = () => async (ctx, next) => {
-  const endpointStart = DateTime.utc().toISO() // set the initial start time for entry into the endpoint
-  const requestUUID = uuid.v4()
+  // set the initial start time for entry into the endpoint
+  const endpointStart = DateTime.utc().toISO()
+  // set request UUID from incoming OpenHIM header if present, else create a random UUID
+  const requestUUID = ctx.headers['x-openhim-transactionid']
+    ? ctx.headers['x-openhim-transactionid']
+    : uuid.v4()
 
   const endpoint = getEndpointByPath(ctx.request.path)
 
@@ -143,10 +147,7 @@ exports.initiateContextMiddleware = () => async (ctx, next) => {
     }
   }
 
-  // set request UUID from incoming OpenHIM header if present, else create a random UUID
-  ctx.state.uuid = ctx.headers['x-openhim-transactionid']
-    ? ctx.headers['x-openhim-transactionid']
-    : requestUUID
+  ctx.state.uuid = requestUUID
   ctx.state.metaData = endpoint
 
   await next()
