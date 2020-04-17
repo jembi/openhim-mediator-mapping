@@ -761,8 +761,8 @@ tap.test('External Requests', {autoend: true}, t => {
         requestBody,
         queryParams
       )
-      t.equals(!requestConfig.data, true)
-      t.equals(!requestConfig.params, true)
+      t.notOk(requestConfig.data)
+      t.notOk(requestConfig.params)
       t.end()
     })
 
