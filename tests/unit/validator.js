@@ -160,7 +160,7 @@ tap.test('Validation Middleware', {autoend: true}, t => {
       delete require.cache[require.resolve('rewire')]
       // // set environment variable to allow null values
       process.env.VALIDATION_ACCEPT_NULL_VALUES = 'true'
-      // // require module to get updated config
+      // require module to get updated config
       const rewire = require('rewire')
       const validator = rewire('../../src/middleware/validator')
       const performValidation = validator.__get__('performValidation')
