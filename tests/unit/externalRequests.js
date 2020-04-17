@@ -415,6 +415,13 @@ tap.test('External Requests', {autoend: true}, t => {
                     },
                     id: 'Patient',
                     primary: true
+                  },
+                  {
+                    config: {
+                      url: `${url}patient?name=raze`,
+                      method: method
+                    },
+                    id: 'Entity'
                   }
                 ]
               }
@@ -440,13 +447,14 @@ tap.test('External Requests', {autoend: true}, t => {
 
         nock(url)
           .put('/patient?name=raze')
+          .times(2)
           .reply(200, response)
 
         await prepareResponseRequests(ctx)
 
-        t.equals(ctx.orchestrations.length, 1)
+        t.equals(ctx.orchestrations.length, 2)
         t.deepEqual(
-          ctx.orchestrations[0].response.body,
+          ctx.orchestrations[1].response.body,
           JSON.stringify(response)
         )
 
@@ -786,6 +794,30 @@ tap.test('External Requests', {autoend: true}, t => {
       t.equals(requestConfig.data, requestBody)
       t.end()
     })
+
+    t.test('should the function for validating statuses', t => {
+      const requestDetails = {
+        config: {
+          url: `localhost:8080`,
+          method: 'GET'
+        },
+        allowedStatuses: [200, '3xx']
+      }
+      const requestBody = 'Body'
+      const queryParams = {
+        id: 'sanders'
+      }
+
+      const requestConfig = prepareRequestConfig(
+        requestDetails,
+        requestBody,
+        queryParams
+      )
+      t.ok(requestConfig.validateStatus)
+      t.notOk(requestConfig.validateStatus(400))
+      t.ok(requestConfig.validateStatus(300))
+      t.end()
+    })
   })
 
   t.test('setKoaResponseBody()', {autoend: true}, t => {
@@ -873,6 +905,31 @@ tap.test('External Requests', {autoend: true}, t => {
         t.deepEqual(result.response.body, err.response.data)
         t.equals(
           ctx.routerResponseStatuses.includes('primaryReqFailError'),
+          true
+        )
+        t.end()
+      }
+    )
+
+    t.test(
+      'should set the property "secondaryFailError" when response status is 500',
+      t => {
+        const ctx = {
+          body: {}
+        }
+        const request = {
+          primary: false
+        }
+        const err = {
+          response: {
+            data: {message: 'Internal Server Error'},
+            status: 500
+          }
+        }
+
+        handleRequestError(ctx, request, err)
+        t.equals(
+          ctx.routerResponseStatuses.includes('secondaryFailError'),
           true
         )
         t.end()
