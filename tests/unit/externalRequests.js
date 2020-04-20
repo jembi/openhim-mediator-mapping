@@ -1071,11 +1071,49 @@ tap.test('External Requests', {autoend: true}, t => {
         t.end()
       }
     )
+
+    t.test(
+      'should set the property "secondaryCompleted" on ctx when response status is not 2xx and 5xx',
+      t => {
+        const ctx = {
+          body: {}
+        }
+        const request = {
+          primary: false
+        }
+        const err = {
+          response: {
+            data: {message: 'Bad request'},
+            status: 400
+          }
+        }
+
+        const result = handleRequestError(ctx, request, err)
+
+        t.deepEqual(result.response.body, err.response.data)
+        t.equals(
+          ctx.routerResponseStatuses.includes('secondaryCompleted'),
+          true
+        )
+        t.end()
+      }
+    )
   })
 
   t.test('addRequestQueryParameters', {autoend: true}, t => {
     t.test('should create request query parameters', t => {
       const ctx = {
+        state: {
+          allData: {
+            lookupRequests: {
+              children: '4'
+            },
+            state: {
+              lastAddress: '1 1st street'
+            },
+            requestBody: 'body'
+          }
+        },
         request: {
           query: {
             code: '1233',
@@ -1126,6 +1164,15 @@ tap.test('External Requests', {autoend: true}, t => {
             path: 'query.surname',
             postfix,
             prefix
+          },
+          lastAddress: {
+            path: 'state.lastAddress'
+          },
+          children: {
+            path: 'lookupRequests.children'
+          },
+          brothers: {
+            path: 'responseBody.brother'
           }
         }
       }
@@ -1137,6 +1184,9 @@ tap.test('External Requests', {autoend: true}, t => {
       t.equals(params.code, ctx.request.query.code)
       t.equals(params.status, ctx.request.body.status[1].rich.status[0].sp)
       t.equals(params.name, `${prefix + ctx.request.query.name + postfix}`)
+      t.equals(params.children, ctx.state.allData.lookupRequests.children)
+      t.equals(params.brothers, ctx.state.allData.requestBody.brother)
+      t.equals(params.lastAddress, ctx.state.allData.state.lastAddress)
       t.end()
     })
   })
