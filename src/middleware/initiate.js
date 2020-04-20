@@ -38,11 +38,6 @@ const extractStateValues = (ctx, extract) => {
     timestamps: ctx.state.allData.timestamps
   }
 
-  if (!extract) {
-    // return the default state if no user supplied state defined
-    return updatedState
-  }
-
   if (extract.requestBody && Object.keys(extract.requestBody).length > 0) {
     updatedState.requestBody = extractByType('requestBody', extract, allData)
   }
@@ -110,8 +105,8 @@ exports.initiateContextMiddleware = () => async (ctx, next) => {
   // set the initial start time for entry into the endpoint
   const endpointStart = DateTime.utc().toISO()
   // set request UUID from incoming OpenHIM header if present, else create a random UUID
-  const requestUUID = ctx.headers['x-openhim-transactionid']
-    ? ctx.headers['x-openhim-transactionid']
+  const requestUUID = ctx.request.headers['x-openhim-transactionid']
+    ? ctx.request.headers['x-openhim-transactionid']
     : uuid.v4()
 
   const endpoint = getEndpointByPath(ctx.request.path)
@@ -119,12 +114,15 @@ exports.initiateContextMiddleware = () => async (ctx, next) => {
   if (!endpoint) {
     logger.error(`Unknown Endpoint: ${ctx.request.path}`)
 
-    if (ctx.request.header && ctx.request.header['x-openhim-transactionid']) {
+    ctx.response.type = 'application/json'
+    ctx.status = 404
+    ctx.response.body = `Unknown Endpoint: ${ctx.request.path}`
+
+    if (ctx.request.headers && ctx.request.headers['x-openhim-transactionid']) {
       ctx.response.type = 'application/json+openhim'
-      ctx.status = 404
-      ctx.response.body = `Unknown Endpoint: ${ctx.url}`
       constructOpenhimResponse(ctx, Date.now())
     }
+
     return
   }
 
