@@ -10,8 +10,8 @@
     "lint:fix": "eslint --fix .",
     "start": "node src/index.js",
     "start:dev": "nodemon src/index.js",
-    "test": "NODE_ENV='test' MONGO_URL='mongodb://localhost:27017/test' DYNAMIC_ENDPOINTS=false tap tests/**/*.js && npm run lint",
-    "test:integration": "NODE_ENV='test' MONGO_URL='mongodb://localhost:27017/test' DYNAMIC_ENDPOINTS=false tap tests/integration/*.js && npm run lint",
+    "test": "NODE_ENV='test' MONGO_URL='mongodb://localhost:27017/test' DYNAMIC_ENDPOINTS=false OPENHIM_REGISTER=false tap tests/**/*.js && npm run lint",
+    "test:integration": "NODE_ENV='test' MONGO_URL='mongodb://localhost:27017/test' DYNAMIC_ENDPOINTS=false OPENHIM_REGISTER=false tap tests/integration/*.js && npm run lint",
     "test:unit": "NODE_ENV='test' MONGO_URL='mongodb://localhost:27017/test' DYNAMIC_ENDPOINTS=false tap tests/unit/*.js && npm run lint",
     "coverage": "tap --coverage-report=text-lcov > coverage.lcov && codecov"
   },
