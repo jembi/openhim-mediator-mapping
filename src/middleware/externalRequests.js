@@ -106,7 +106,7 @@ const performRequests = (requests, ctx) => {
             reqTimestamp,
             responseTimestamp,
             requestDetails.id,
-            orchestrationError,
+            error: orchestrationError,
             requestParameters
           )
 
