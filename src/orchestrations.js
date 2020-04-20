@@ -40,7 +40,7 @@ exports.createOrchestration = (
   }
   if (requestParameters) {
     requestObject.queryString =
-      requestObject.queryString + querystring.stringify(requestParameters)
+      requestObject.queryString + '&' + querystring.stringify(requestParameters)
   }
   if (request.headers) {
     requestObject.headers = request.headers
