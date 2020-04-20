@@ -2,6 +2,7 @@
 
 const rewire = require('rewire')
 const tap = require('tap')
+const sinon = require('sinon')
 
 const mapper = rewire('../../src/middleware/mapper')
 const createMappedObject = mapper.__get__('createMappedObject')
@@ -206,6 +207,86 @@ tap.test('Mapper', {autoend: true}, t => {
       t.equals(ctx.orchestrations[0].name, 'Mapping')
       t.deepEqual(ctx.orchestrations[0].response.body, JSON.stringify(expected))
       t.end()
+    })
+
+    t.test(
+      'should map and create mapping orchestration when orchestration array already exists',
+      t => {
+        const body = {
+          inputZero: 0
+        }
+        const ctx = {
+          request: {
+            body,
+            header: {
+              'x-openhim-transactionid': '1233'
+            }
+          },
+          orchestrations: [], // empty array supplied
+          state: {
+            uuid: 'randomUidForRequest',
+            metaData: {
+              name: 'Testing endpoint',
+              inputMapping: {
+                'requestBody.inputZero': 'outputZero',
+                'lookupRequests.inputOne': 'outputOne',
+                'constants.inputFour': 'outputFour'
+              }
+            },
+            allData: {
+              requestBody: body,
+              lookupRequests: {
+                inputOne: 1
+              },
+              constants: {
+                inputFour: 4,
+                inputFive: 5
+              }
+            }
+          }
+        }
+
+        const expected = {
+          outputZero: 0,
+          outputOne: 1,
+          outputFour: 4
+        }
+
+        createMappedObject(ctx)
+
+        t.equals(ctx.orchestrations.length, 1)
+        t.equals(ctx.orchestrations[0].name, 'Mapping')
+        t.deepEqual(
+          ctx.orchestrations[0].response.body,
+          JSON.stringify(expected)
+        )
+        t.end()
+      }
+    )
+  })
+
+  t.test('mapBodyMiddleware()', {autoend: true}, t => {
+    t.test('should execute the middle functions', async t => {
+      const ctxMock = {
+        state: {},
+        request: {
+          headers: {},
+          path: '/path'
+        },
+        response: {}
+      }
+
+      const spy = sinon.spy()
+      const createMappedObjectMockRevert = mapper.__set__(
+        'createMappedObject',
+        spy
+      )
+
+      await mapper.mapBodyMiddleware()(ctxMock, () => {})
+
+      t.ok(spy.called)
+
+      createMappedObjectMockRevert()
     })
   })
 })
