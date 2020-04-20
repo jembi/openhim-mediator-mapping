@@ -129,6 +129,58 @@ tap.test('External Requests', {autoend: true}, t => {
       }
     )
 
+    t.test(
+      'should throw error and create orchestration when one lookup fails( server responds with a error)',
+      async t => {
+        const url = 'http://localhost:5000'
+        const method = 'GET'
+        const id = '1233243'
+
+        const responseError = {
+          message: 'Bad request'
+        }
+        nock(url)
+          .get('/patient')
+          .reply(400, responseError)
+
+        const requests = [
+          {
+            config: {
+              url: `${url}/patient`,
+              method: method
+            },
+            id: id
+          }
+        ]
+
+        const ctx = {
+          state: {
+            metaData: {
+              requests: {}
+            },
+            allData: {
+              timestamps: {
+                lookupRequests: {}
+              }
+            }
+          },
+          request: {
+            header: {
+              'x-openhim-transactionid': '1232244'
+            }
+          }
+        }
+
+        try {
+          await Promise.all(performRequests(requests, ctx))
+        } catch (error) {
+          t.equals(ctx.orchestrations.length, 1)
+          t.match(error.message, /Incorrect status code 400. Bad request/)
+          t.end()
+        }
+      }
+    )
+
     t.test('should do lookups and create orchestrations', async t => {
       const url = 'http://localhost:4000/'
 
