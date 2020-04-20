@@ -11,7 +11,7 @@ services:
   - docker
 script:
   - docker run --name mongo-repl-test -p 27017:27017 -d mongo:4.2 --replSet mapper-repl-set
-  - docker exec -i mongo-repl-test mongo --eval "rs.initialise()"
+  - docker exec -i mongo-repl-test mongo --eval "rs.initiate()"
   - npm test
 after_success:
   - npm run coverage
