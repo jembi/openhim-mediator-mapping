@@ -255,7 +255,7 @@ const handleRequestError = (ctx, request, requestError) => {
 
     if (response.status >= 500) {
       if (request.primary) {
-        setKoaResponseBodyFromPrimary(ctx, request, response.data)
+        setKoaResponseBodyFromPrimary(ctx, response.data)
 
         ctx.routerResponseStatuses.push('primaryReqFailError')
         ctx.status = response.status
@@ -266,7 +266,7 @@ const handleRequestError = (ctx, request, requestError) => {
       }
     } else {
       if (request.primary) {
-        setKoaResponseBodyFromPrimary(ctx, request, response.data)
+        setKoaResponseBodyFromPrimary(ctx, response.data)
 
         ctx.routerResponseStatuses.push('primaryCompleted')
         ctx.status = response.status
@@ -278,7 +278,7 @@ const handleRequestError = (ctx, request, requestError) => {
     }
   } else {
     if (request.primary) {
-      setKoaResponseBodyFromPrimary(ctx, request, requestError.message)
+      setKoaResponseBodyFromPrimary(ctx, requestError.message)
 
       ctx.routerResponseStatuses.push('primaryReqFailError')
       ctx.status = 500
@@ -294,7 +294,7 @@ const handleRequestError = (ctx, request, requestError) => {
 }
 
 // Sets the koa response body from the primary request's response body
-const setKoaResponseBodyFromPrimary = (ctx, request, body) => {
+const setKoaResponseBodyFromPrimary = (ctx, body) => {
   ctx.hasPrimaryRequest = true
   ctx.body = {}
   ctx.body = body
@@ -343,7 +343,7 @@ const sendMappedObject = (
         .toObject()
 
       if (request.primary) {
-        setKoaResponseBodyFromPrimary(ctx, request, response.body)
+        setKoaResponseBodyFromPrimary(ctx, response.body)
 
         ctx.status = response.status
       } else {

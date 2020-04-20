@@ -972,11 +972,8 @@ tap.test('External Requests', {autoend: true}, t => {
         body: {}
       }
       const body = {message: 'success'}
-      const request = {
-        id: '1233'
-      }
 
-      setKoaResponseBodyFromPrimary(ctx, request, body)
+      setKoaResponseBodyFromPrimary(ctx, body)
       t.deepEqual(ctx.body, body)
       t.equals(ctx.hasPrimaryRequest, true)
       t.end()
