@@ -13,7 +13,7 @@ const openhim = require('./openhim')
 
 const {createAPIRoutes} = require('./endpointRoutes')
 const {createMiddlewareRoute} = require('./routes')
-const {createWsStates} = require('./wsRoutes')
+const {createWsStates, createWsMetrics, createWsMetricsEndpoint} = require('./wsRoutes')
 
 const app = websockify(new koa())
 const router = new koaRouter()
@@ -26,6 +26,8 @@ app.use(cors());
 app.use(router.routes()).use(router.allowedMethods())
 
 app.ws.use(createWsStates(route))
+app.ws.use(createWsMetrics(route))
+app.ws.use(createWsMetricsEndpoint(route))
 
 if (!module.parent) {
   db.open(config.mongoUrl)

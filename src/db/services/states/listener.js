@@ -25,7 +25,8 @@ exports.removeStatesEventListeners = () => {
 }
 
 const addChangeListener = async (ws, change) => {
-  ws.send(JSON.stringify(change))
+  // pass string version of the new record inside an array
+  ws.send(JSON.stringify([change.fullDocument]))
 }
 
 const addCloseListener = () => {

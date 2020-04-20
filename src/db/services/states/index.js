@@ -2,16 +2,18 @@
 
 const StateModel = require('../../models/states')
 
-exports.createState = state => {
+exports.createEndpointState = state => {
   const stateObject = new StateModel(state)
   return stateObject.save({checkKeys: false})
 }
 
 exports.readStates = () => {
-  return StateModel.find()
+  return StateModel.find(
+    {}, {}, {limit: 100, sort: {createdAt: -1}}
+  )
 }
 
-exports.readStateByEndpointId = endpointId => {
+exports.readLatestEndpointStateById = endpointId => {
   return StateModel.findOne(
     {_endpointReference: endpointId},
     {},
