@@ -5,10 +5,7 @@ const {DateTime} = require('luxon')
 
 const logger = require('../logger')
 const {endpointCache} = require('../db/services/endpoints/cache')
-const {
-  createEndpointState,
-  readLatestEndpointStateById
-} = require('../db/services/states')
+const statesService = require('../db/services/states')
 const {constructOpenhimResponse} = require('../openhim')
 const {extractValueFromObject, handleServerError} = require('../util')
 
@@ -88,19 +85,16 @@ const updateEndpointState = async (ctx, endpoint) => {
   updatedState._endpointReference = endpoint._id
 
   // send update to mongo
-  await createEndpointState(updatedState)
-    .then(() => {
+  await statesService
+    .createEndpointState(updatedState)
+    .then(doc => {
+      console.log(JSON.stringify(doc))
       return logger.info(
         `${endpoint.name} (${ctx.state.uuid}): Captured request state`
       )
     })
     .catch(error => {
-      return handleServerError(
-        ctx,
-        'Failed to save request state: ',
-        error,
-        logger
-      )
+      throw Error(error)
     })
 }
 
@@ -135,7 +129,7 @@ exports.initiateContextMiddleware = () => async (ctx, next) => {
     return
   }
 
-  const endpointState = await readLatestEndpointStateById(endpoint._id)
+  const endpointState = await initiate.readLatestEndpointStateById(endpoint._id)
 
   logger.info(`${endpoint.name} (${requestUUID}): Initiating new request`)
 
