@@ -1,6 +1,7 @@
 'use strict'
 
 const axios = require('axios')
+const {DateTime} = require('luxon')
 
 const logger = require('../logger')
 
@@ -33,8 +34,13 @@ const performRequests = (requests, ctx) => {
   }
 
   return requests.map(requestDetails => {
-    const reqTimestamp = new Date()
+    const reqTimestamp = DateTime.utc().toISO()
     let responseTimestamp, orchestrationError, response
+
+    // capture the lookup request start time
+    ctx.state.allData.timestamps.lookupRequests[requestDetails.id] = {
+      requestStart: reqTimestamp
+    }
 
     // No body is sent out for now
     const body = null
@@ -48,7 +54,22 @@ const performRequests = (requests, ctx) => {
       .then(res => {
         response = res
         response.body = res.data
-        responseTimestamp = new Date()
+        responseTimestamp = DateTime.utc().toISO()
+
+        // capture the lookup request end time
+        ctx.state.allData.timestamps.lookupRequests[
+          requestDetails.id
+        ].requestEnd = responseTimestamp
+        ctx.state.allData.timestamps.lookupRequests[
+          requestDetails.id
+        ].requestDuration = DateTime.fromISO(responseTimestamp)
+          .diff(
+            DateTime.fromISO(
+              ctx.state.allData.timestamps.lookupRequests[requestDetails.id]
+                .requestStart
+            )
+          )
+          .toObject()
 
         // Assign any data received from the response to the assigned id in the context
         return {[requestDetails.id]: res.data}
@@ -105,7 +126,8 @@ const prepareLookupRequests = ctx => {
         logger.info(
           `${ctx.state.metaData.name} (${ctx.state.uuid}): Successfully performed request/s`
         )
-        ctx.lookupRequests = Object.assign({}, ...data)
+        // set the lookup payload as useable data point
+        ctx.state.allData.lookupRequests = Object.assign({}, ...data)
       })
       .catch(err => {
         throw new Error(`Rejected Promise: ${err}`)
@@ -191,11 +213,15 @@ const prepareResponseRequests = async ctx => {
 
       await Promise.all(promises)
         .then(() => {
-          logger.info('Mapped object successfully orchestrated')
+          logger.info(
+            `${ctx.state.metaData.name} (${ctx.state.uuid}): Mapped object successfully orchestrated`
+          )
           setStatusText(ctx)
         })
         .catch(err => {
-          logger.error(`Mapped object orchestration failure: ${err.message}`)
+          logger.error(
+            `${ctx.state.metaData.name} (${ctx.state.uuid}): Mapped object orchestration failure: ${err.message}`
+          )
         })
 
       // Respond in openhim mediator format if request came from the openhim
@@ -288,14 +314,33 @@ const sendMappedObject = (
   body,
   requestParameters
 ) => {
-  const reqTimestamp = new Date()
+  const reqTimestamp = DateTime.utc().toISO()
   let response, error, responseTimestamp
+
+  // capture the lookup request start time
+  ctx.state.allData.timestamps.lookupRequests[request.id] = {
+    requestStart: reqTimestamp
+  }
 
   return axios(axiosConfig)
     .then(resp => {
       response = resp
       response.body = resp.data
-      responseTimestamp = new Date()
+      responseTimestamp = DateTime.utc().toISO()
+
+      // capture the lookup request end time
+      ctx.state.allData.timestamps.lookupRequests[
+        request.id
+      ].requestEnd = responseTimestamp
+      ctx.state.allData.timestamps.lookupRequests[
+        request.id
+      ].requestDuration = DateTime.fromISO(responseTimestamp)
+        .diff(
+          DateTime.fromISO(
+            ctx.state.allData.timestamps.lookupRequests[request.id].requestStart
+          )
+        )
+        .toObject()
 
       if (request.primary) {
         setKoaResponseBodyFromPrimary(ctx, request, response.body)
@@ -306,7 +351,7 @@ const sendMappedObject = (
       }
     })
     .catch(err => {
-      responseTimestamp = new Date()
+      responseTimestamp = DateTime.utc().toISO()
 
       const result = handleRequestError(ctx, request, err)
       response = result.response
@@ -345,10 +390,28 @@ const addRequestQueryParameters = (ctx, request) => {
       // remove the extractType property from path
       const path = fullPath.replace(`${extractType}.`, '')
 
-      if (extractType === 'payload') {
-        parameterValue = extractValueFromObject(ctx.request.body, path)
-      } else if (extractType === 'query' && ctx.request.query) {
-        parameterValue = extractValueFromObject(ctx.request.query, path)
+      switch (extractType) {
+        case 'payload':
+          parameterValue = extractValueFromObject(ctx.request.body, path)
+          break
+        case 'query':
+          parameterValue = extractValueFromObject(ctx.request.query, path)
+          break
+        case 'state':
+          parameterValue = extractValueFromObject(ctx.state.allData.state, path)
+          break
+        case 'lookupRequests':
+          parameterValue = extractValueFromObject(
+            ctx.state.allData.lookupRequests,
+            path
+          )
+          break
+        case 'responseBody':
+          parameterValue = extractValueFromObject(
+            ctx.state.allData.responseBody,
+            path
+          )
+          break
       }
 
       if (parameterValue) {

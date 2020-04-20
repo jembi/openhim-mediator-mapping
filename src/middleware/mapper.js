@@ -3,7 +3,6 @@
 const objectMapper = require('object-mapper')
 
 const logger = require('../logger')
-
 const {createOrchestration} = require('../orchestrations')
 
 const createMappedObject = ctx => {
@@ -15,11 +14,7 @@ const createMappedObject = ctx => {
     )
   }
 
-  const dataToBeMapped = {
-    requestBody: ctx.request.body,
-    lookupRequests: ctx.lookupRequests,
-    constants: ctx.state.metaData.constants
-  }
+  const dataToBeMapped = ctx.state.allData
 
   const output = {}
   const mappingStartTimestamp = new Date()
@@ -30,10 +25,14 @@ const createMappedObject = ctx => {
       objectMapper(dataToBeMapped, ctx.state.metaData.inputMapping)
     )
   } catch (error) {
-    throw Error(
+    logger.error(
       `${ctx.state.metaData.name} (${ctx.state.uuid}): Object mapping failed: ${error.message}`
     )
+    throw error
   }
+
+  // set the outgoing payload as useable data point
+  ctx.state.allData.responseBody = output
 
   ctx.body = output
   ctx.status = 200
@@ -72,8 +71,4 @@ const createMappedObject = ctx => {
 exports.mapBodyMiddleware = () => async (ctx, next) => {
   createMappedObject(ctx)
   await next()
-}
-
-if (process.env.NODE_ENV == 'test') {
-  exports.createMappedObject = createMappedObject
 }

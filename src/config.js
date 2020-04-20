@@ -8,7 +8,8 @@ exports.getConfig = function() {
     logLevel: process.env.LOG_LEVEL || 'info',
     enableLogging: parseStringToBoolean(process.env.ENABLE_LOGGING, true),
     mongoUrl:
-      process.env.MONGO_URL || 'mongodb://localhost:27017/mapping-mediator',
+      process.env.MONGO_URL ||
+      'mongodb://localhost:27017,localhost:27018,localhost:27019/mapping-mediator?replicaSet=mapper-mongo-set',
     openhim: Object.freeze({
       apiURL: process.env.OPENHIM_URL || 'https://localhost:8080',
       username: process.env.OPENHIM_USERNAME || 'root@openhim.org',

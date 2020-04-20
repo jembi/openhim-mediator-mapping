@@ -13,7 +13,7 @@ exports.parseStringToBoolean = (value, defaultValue) => {
   }
 }
 
-exports.extractValueFromObject = (obj, path, def) => {
+exports.extractValueFromObject = (obj, path, defaultValue) => {
   /**
    * If the path is a string, convert it to an array
    * @param  {String|Array} path The path
@@ -39,6 +39,10 @@ exports.extractValueFromObject = (obj, path, def) => {
     return output
   }
 
+  if (!obj) {
+    return null
+  }
+
   path = stringToPath(path)
 
   // Cache the current object
@@ -47,7 +51,7 @@ exports.extractValueFromObject = (obj, path, def) => {
   // For each item in the path, dig into the object
   for (let i = 0; i < path.length; i++) {
     // If the item isn't found, return the default (or null)
-    if (!current[path[i]]) return def
+    if (!current[path[i]]) return defaultValue
 
     // Otherwise, update the current  value
     current = current[path[i]]

@@ -23,6 +23,7 @@
     "codecov": "^3.6.5",
     "koa": "^2.11.0",
     "koa-router": "^7.4.0",
+    "luxon": "^1.23.0",
     "mongoose": "^5.9.7",
     "object-mapper": "jembi/node-object-mapper",
     "openhim-mediator-utils": "^0.2.3",
@@ -40,9 +41,9 @@
     "eslint-plugin-promise": "^4.2.1",
     "nock": "^11.7.2",
     "nodemon": "^2.0.2",
-    "sinon": "^9.0.1",
     "prettier": "^1.19.1",
     "rewire": "^4.0.1",
+    "sinon": "^9.0.1",
     "supertest": "^4.0.2",
     "tap": "^14.10.7"
   }

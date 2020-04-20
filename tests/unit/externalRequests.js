@@ -102,6 +102,11 @@ tap.test('External Requests', {autoend: true}, t => {
           state: {
             metaData: {
               requests: {}
+            },
+            allData: {
+              timestamps: {
+                lookupRequests: {}
+              }
             }
           },
           request: {
@@ -148,6 +153,11 @@ tap.test('External Requests', {autoend: true}, t => {
         state: {
           metaData: {
             requests: {}
+          },
+          allData: {
+            timestamps: {
+              lookupRequests: {}
+            }
           }
         },
         request: {
@@ -171,7 +181,12 @@ tap.test('External Requests', {autoend: true}, t => {
       t => {
         const ctx = {
           state: {
-            metaData: {}
+            metaData: {},
+            allData: {
+              timestamps: {
+                lookupRequests: {}
+              }
+            }
           }
         }
         prepareLookupRequests(ctx)
@@ -192,6 +207,11 @@ tap.test('External Requests', {autoend: true}, t => {
           }
         },
         state: {
+          allData: {
+            timestamps: {
+              lookupRequests: {}
+            }
+          },
           metaData: {
             requests: {
               lookup: [
@@ -232,6 +252,11 @@ tap.test('External Requests', {autoend: true}, t => {
           }
         },
         state: {
+          allData: {
+            timestamps: {
+              lookupRequests: {}
+            }
+          },
           metaData: {
             requests: {
               lookup: [
@@ -257,8 +282,11 @@ tap.test('External Requests', {autoend: true}, t => {
       await prepareLookupRequests(ctx)
 
       t.equals(ctx.orchestrations.length, 2)
-      t.ok(ctx.lookupRequests)
-      t.deepEqual(ctx.lookupRequests, {chrome: 'Body', safari: 'Body'})
+      t.ok(ctx.state.allData.lookupRequests)
+      t.deepEqual(ctx.state.allData.lookupRequests, {
+        chrome: 'Body',
+        safari: 'Body'
+      })
       t.end()
     })
   })
@@ -269,6 +297,13 @@ tap.test('External Requests', {autoend: true}, t => {
         state: {
           metaData: {
             requests: {}
+          },
+          allData: {
+            constants: {},
+            state: {},
+            timestamps: {
+              lookupRequests: {}
+            }
           }
         }
       }
@@ -287,6 +322,13 @@ tap.test('External Requests', {autoend: true}, t => {
           state: {
             metaData: {
               requests: null
+            },
+            allData: {
+              constants: {},
+              state: {},
+              timestamps: {
+                lookupRequests: {}
+              }
             }
           }
         }
@@ -306,6 +348,13 @@ tap.test('External Requests', {autoend: true}, t => {
             metaData: {
               requests: {
                 response: []
+              }
+            },
+            allData: {
+              constants: {},
+              state: {},
+              timestamps: {
+                lookupRequests: {}
               }
             }
           },
@@ -328,6 +377,13 @@ tap.test('External Requests', {autoend: true}, t => {
             metaData: {
               requests: {
                 response: [{}]
+              }
+            },
+            allData: {
+              constants: {},
+              state: {},
+              timestamps: {
+                lookupRequests: {}
               }
             }
           },
@@ -370,6 +426,13 @@ tap.test('External Requests', {autoend: true}, t => {
                     id: id
                   }
                 ]
+              }
+            },
+            allData: {
+              constants: {},
+              state: {},
+              timestamps: {
+                lookupRequests: {}
               }
             }
           },
@@ -424,6 +487,13 @@ tap.test('External Requests', {autoend: true}, t => {
                     id: 'Entity'
                   }
                 ]
+              }
+            },
+            allData: {
+              constants: {},
+              state: {},
+              timestamps: {
+                lookupRequests: {}
               }
             }
           },
@@ -487,6 +557,13 @@ tap.test('External Requests', {autoend: true}, t => {
                   }
                 ]
               }
+            },
+            allData: {
+              constants: {},
+              state: {},
+              timestamps: {
+                lookupRequests: {}
+              }
             }
           },
           request: {
@@ -542,6 +619,13 @@ tap.test('External Requests', {autoend: true}, t => {
                   }
                 ]
               }
+            },
+            allData: {
+              constants: {},
+              state: {},
+              timestamps: {
+                lookupRequests: {}
+              }
             }
           }
         }
@@ -585,6 +669,13 @@ tap.test('External Requests', {autoend: true}, t => {
                     }
                   ]
                 }
+              },
+              allData: {
+                constants: {},
+                state: {},
+                timestamps: {
+                  lookupRequests: {}
+                }
               }
             }
           }
@@ -594,7 +685,10 @@ tap.test('External Requests', {autoend: true}, t => {
           )
 
           prepareLookupRequests(ctx).then(() => {
-            t.same({test1: 'testA', test2: 'testB'}, ctx.lookupRequests)
+            t.same(
+              {test1: 'testA', test2: 'testB'},
+              ctx.state.allData.lookupRequests
+            )
             performRequestsStub()
           })
         }
@@ -622,6 +716,13 @@ tap.test('External Requests', {autoend: true}, t => {
                       primary: true
                     }
                   ]
+                }
+              },
+              allData: {
+                constants: {},
+                state: {},
+                timestamps: {
+                  lookupRequests: {}
                 }
               }
             },
@@ -685,6 +786,13 @@ tap.test('External Requests', {autoend: true}, t => {
                     }
                   ]
                 }
+              },
+              allData: {
+                constants: {},
+                state: {},
+                timestamps: {
+                  lookupRequests: {}
+                }
               }
             },
             request: {
@@ -735,6 +843,13 @@ tap.test('External Requests', {autoend: true}, t => {
               name: 'Testing endpoint',
               requests: {
                 // no lookup config
+              }
+            },
+            allData: {
+              constants: {},
+              state: {},
+              timestamps: {
+                lookupRequests: {}
               }
             }
           }
