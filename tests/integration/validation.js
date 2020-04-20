@@ -77,8 +77,8 @@ tap.test(
         // If the read endpoint comes back positive then the cache should be updated and we can safely post.
         await waitForURLReachable(
           `http://localhost:13003/endpoints?name=Test Endpoint`,
-          200,
-          3
+          500,
+          5
         ).catch(error => {
           t.fail(`Should not error. Caused by: ${error.message}`)
         })
