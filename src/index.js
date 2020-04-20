@@ -17,6 +17,14 @@ const router = new koaRouter()
 createAPIRoutes(router)
 createMiddlewareRoute(router)
 
+router.get('/_health', (ctx, next) => {
+  ctx.status = 200
+  ctx.body = {
+    status: 'UP'
+  }
+  next()
+})
+
 app.use(router.routes()).use(router.allowedMethods())
 
 if (!module.parent) {
