@@ -366,7 +366,7 @@ const sendMappedObject = (
           reqTimestamp,
           responseTimestamp,
           request.id,
-          orchestrationError,
+          error: orchestrationError,
           requestParameters
         )
 
