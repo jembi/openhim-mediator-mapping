@@ -87,8 +87,7 @@ const updateEndpointState = async (ctx, endpoint) => {
   // send update to mongo
   await statesService
     .createEndpointState(updatedState)
-    .then(doc => {
-      console.log(JSON.stringify(doc))
+    .then(() => {
       return logger.info(
         `${endpoint.name} (${ctx.state.uuid}): Captured request state`
       )
@@ -129,7 +128,9 @@ exports.initiateContextMiddleware = () => async (ctx, next) => {
     return
   }
 
-  const endpointState = await initiate.readLatestEndpointStateById(endpoint._id)
+  const endpointState = await statesService.readLatestEndpointStateById(
+    endpoint._id
+  )
 
   logger.info(`${endpoint.name} (${requestUUID}): Initiating new request`)
 

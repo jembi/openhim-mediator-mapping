@@ -3,8 +3,10 @@
 const tap = require('tap')
 const {DateTime} = require('luxon')
 const rewire = require('rewire')
+const sinon = require('sinon')
 
 const initiate = rewire('../../src/middleware/initiate')
+const dbServicesState = require('../../src/db/services/states')
 
 const extractByType = initiate.__get__('extractByType')
 const extractStateValues = initiate.__get__('extractStateValues')
@@ -80,6 +82,12 @@ const initialCtx = {
 }
 
 tap.test('Initiate Middleware', {autoend: true}, t => {
+  const sandbox = sinon.createSandbox()
+
+  t.afterEach(async () => {
+    sandbox.restore()
+  })
+
   t.test('extractByType', {autoend: true}, t => {
     t.test('should return an empty object when "type" not supplied', t => {
       t.plan(1)
@@ -310,8 +318,70 @@ tap.test('Initiate Middleware', {autoend: true}, t => {
       }
     })
 
-    t.test('should create state object for supplied states', t => {
-      t.plan(1)
+    t.test(
+      'should throw if "createEndpointState" returns an error',
+      async t => {
+        t.plan(2)
+
+        const endpointStart = DateTime.utc().toISO()
+
+        const ctx = {
+          state: {
+            allData: {
+              lookupRequests: {
+                firstRequest: {
+                  text: 'a response value from the first request'
+                },
+                secondRequest: {
+                  text: 'a response value from the second request',
+                  array: ['one', 'two', 'three']
+                }
+              },
+              query: {
+                queryParamKey: 'queryParamValue'
+              },
+              requestBody: {
+                mainObject: {
+                  nestedObject: {
+                    text: 'a property on a nested object'
+                  },
+                  anotherNestedObject: {
+                    list: ['one', 'two', 'three']
+                  }
+                }
+              },
+              responseBody: [{text: 'one'}, {text: 'two'}, {text: 'three'}],
+              timestamps: {
+                endpointStart
+              }
+            }
+          }
+        }
+        const endpoint = defaultEndpoint
+
+        // stub for the call to insert data into mongo
+        const stub = sandbox
+          .stub(dbServicesState, 'createEndpointState')
+          .resolves(
+            new Promise((_resolve, reject) => {
+              reject('Mongo connection error')
+            })
+          )
+
+        try {
+          await updateEndpointState(ctx, endpoint)
+          t.fail()
+        } catch (err) {
+          t.equal(err.message, 'Mongo connection error')
+        }
+
+        // verify stub was called
+        t.ok(stub.called)
+      }
+    )
+
+    t.test('should create state record', async t => {
+      t.plan(2)
 
       const endpointStart = DateTime.utc().toISO()
 
@@ -349,12 +419,36 @@ tap.test('Initiate Middleware', {autoend: true}, t => {
       }
       const endpoint = defaultEndpoint
 
+      // stub for the call to insert data into mongo
+      const stub = sandbox
+        .stub(dbServicesState, 'createEndpointState')
+        .resolves(
+          new Promise(resolve => {
+            resolve({
+              system: {
+                timestamps: {
+                  endpointDuration: {
+                    milliseconds: 102
+                  },
+                  endpointStart: '2020-04-20T13:31:11.301Z',
+                  endpointEnd: '2020-04-20T13:31:11.403Z'
+                }
+              },
+              _id: '5e9da41f963bbe377dee075c',
+              _endpointReference: '5e99657dc4b9120472fdf4eb'
+            })
+          })
+        )
+
       try {
-        updateEndpointState(ctx, endpoint)
+        await updateEndpointState(ctx, endpoint)
         t.pass()
       } catch (err) {
         t.fail()
       }
+
+      // verify stub was called
+      t.ok(stub.called)
     })
   })
 })
