@@ -74,23 +74,23 @@ const performRequests = (requests, ctx) => {
         // Assign any data received from the response to the assigned id in the context
         return {[requestDetails.id]: res.data}
       })
-      .catch(err => {
-        orchestrationError = err
+      .catch(error => {
+        orchestrationError = error
         logger.error(
-          `Failed Request Config ${JSON.stringify(err.config, null, 2)}`
+          `Failed Request Config ${JSON.stringify(error.config, null, 2)}`
         )
 
-        if (err.response) {
+        if (error.response) {
           throw new Error(
-            `Incorrect status code ${err.response.status}. ${err.response.data.message}`
+            `Incorrect status code ${error.response.status}. ${error.response.data.message}`
           )
-        } else if (err.request) {
+        } else if (error.request) {
           throw new Error(
-            `No response from lookup '${requestDetails.id}'. ${err.message}`
+            `No response from lookup '${requestDetails.id}'. ${error.message}`
           )
         } else {
           // Something happened in setting up the request that triggered an Error
-          throw new Error(`Unhandled Error: ${err.message}`)
+          throw new Error(`Unhandled Error: ${error.message}`)
         }
       })
       .finally(() => {
@@ -129,8 +129,8 @@ const prepareLookupRequests = ctx => {
         // set the lookup payload as useable data point
         ctx.state.allData.lookupRequests = Object.assign({}, ...data)
       })
-      .catch(err => {
-        throw new Error(`Rejected Promise: ${err}`)
+      .catch(error => {
+        throw new Error(`Rejected Promise: ${error}`)
       })
   }
   logger.debug(
@@ -218,9 +218,9 @@ const prepareResponseRequests = async ctx => {
           )
           setStatusText(ctx)
         })
-        .catch(err => {
+        .catch(error => {
           logger.error(
-            `${ctx.state.metaData.name} (${ctx.state.uuid}): Mapped object orchestration failure: ${err.message}`
+            `${ctx.state.metaData.name} (${ctx.state.uuid}): Mapped object orchestration failure: ${error.message}`
           )
         })
 
@@ -240,15 +240,15 @@ const prepareResponseRequests = async ctx => {
   It also sets the status code and flags which are used to determine the status Text for the response.
   The function also sets the koa response
 */
-const handleRequestError = (ctx, request, err) => {
+const handleRequestError = (ctx, request, requestError) => {
   let response, error
 
   if (!ctx.routerResponseStatuses) {
     ctx.routerResponseStatuses = []
   }
 
-  if (err.response) {
-    response = err.response
+  if (requestError.response) {
+    response = requestError.response
 
     // Axios response has the data property not the body
     response.body = response.data
@@ -278,16 +278,16 @@ const handleRequestError = (ctx, request, err) => {
     }
   } else {
     if (request.primary) {
-      setKoaResponseBodyFromPrimary(ctx, request, err.message)
+      setKoaResponseBodyFromPrimary(ctx, request, requestError.message)
 
       ctx.routerResponseStatuses.push('primaryReqFailError')
       ctx.status = 500
     } else {
       ctx.routerResponseStatuses.push('secondaryFailError')
 
-      setKoaResponseBody(ctx, request, err.message)
+      setKoaResponseBody(ctx, request, requestError.message)
     }
-    error = {message: err.message}
+    error = {message: requestError.message}
   }
 
   return {response, error}
@@ -315,7 +315,7 @@ const sendMappedObject = (
   requestParameters
 ) => {
   const reqTimestamp = DateTime.utc().toISO()
-  let response, error, responseTimestamp
+  let response, orchestrationError, responseTimestamp
 
   // capture the lookup request start time
   ctx.state.allData.timestamps.lookupRequests[request.id] = {
@@ -350,12 +350,12 @@ const sendMappedObject = (
         setKoaResponseBody(ctx, request, response.body)
       }
     })
-    .catch(err => {
+    .catch(error => {
       responseTimestamp = DateTime.utc().toISO()
 
-      const result = handleRequestError(ctx, request, err)
+      const result = handleRequestError(ctx, request, error)
       response = result.response
-      error = result.error
+      orchestrationError = result.error
     })
     .finally(() => {
       if (ctx.request.header && ctx.request.header['x-openhim-transactionid']) {
@@ -366,7 +366,7 @@ const sendMappedObject = (
           reqTimestamp,
           responseTimestamp,
           request.id,
-          error,
+          orchestrationError,
           requestParameters
         )
 
