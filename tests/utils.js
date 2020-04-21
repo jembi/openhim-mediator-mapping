@@ -7,8 +7,8 @@ const {deleteEndpoints} = require('../src/db/services/endpoints')
 const db = require('../src/db')
 const {mongoUrl} = require('../src/config').getConfig()
 
-const spawnServer = async envConfig => {
-  const server = spawn('node', ['src/index'], {envConfig})
+const spawnServer = async () => {
+  const server = spawn('node', ['src/index'])
 
   server.stdout.pipe(process.stdout)
   server.stderr.pipe(process.stderr)
@@ -18,7 +18,7 @@ const spawnServer = async envConfig => {
   server.on('close', () => console.log(`Test mapper instance exited`))
 
   await waitForURLReachable(
-    `http://localhost:${envConfig.SERVER_PORT}/uptime`,
+    `http://localhost:${process.env.SERVER_PORT}/uptime`,
     1000,
     5
   ).catch(error => {
@@ -67,11 +67,9 @@ exports.withTestMapperServer = (port, test) => {
     // Allow the test mapper server to make use of dynamic endpoints.
     // This is important to be able to create endpoints during tests and post data to them.
     process.env.DYNAMIC_ENDPOINTS = true
+    process.env.SERVER_PORT = port
 
-    await spawnServer({
-      SERVER_PORT: port,
-      DYNAMIC_ENDPOINTS: true
-    })
+    await spawnServer()
       .then(async testMapperServer => {
         // Execute the tests
         await test(t)
