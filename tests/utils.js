@@ -21,7 +21,13 @@ const spawnServer = async envConfig => {
     `http://localhost:${envConfig.SERVER_PORT}/uptime`,
     1000,
     5
-  )
+  ).catch(error => {
+    console.error(
+      `Could not reach Test Mock Mapper instance. Caused by: ${error.message}`
+    )
+    server.kill('SIGINT', 1)
+    throw error
+  })
   return server
 }
 
@@ -36,7 +42,9 @@ const waitForURLReachable = async (url, interval, attempts) => {
       })
       .catch(async error => {
         if (count > attempts) {
-          throw new Error('URL unreachable...')
+          throw new Error(
+            `Maximum (${attempts}) connection attempts reached to URL: ${url}`
+          )
         }
         if (error.request) {
           // URL not ready
@@ -60,18 +68,26 @@ exports.withTestMapperServer = (port, test) => {
     // This is important to be able to create endpoints during tests and post data to them.
     process.env.DYNAMIC_ENDPOINTS = true
 
-    const testMapperServer = await spawnServer({
+    await spawnServer({
       SERVER_PORT: port,
       DYNAMIC_ENDPOINTS: true
     })
+      .then(async testMapperServer => {
+        // Execute the tests
+        await test(t)
 
-    // Execute the tests
-    await test(t)
+        // Close the server instance after tests
+        t.teardown(async () => {
+          testMapperServer.kill('SIGINT', 0)
+        })
+      })
+      .catch(error => {
+        t.fail(error.message)
+      })
 
-    // Close the server and db connection on teardown
+    // Clean up the db and close db connection after tests
     t.teardown(async () => {
       await deleteEndpoints({})
-      testMapperServer.kill('SIGINT', 0)
       await db.close()
     })
   }
