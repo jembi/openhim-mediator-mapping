@@ -1,11 +1,12 @@
 'use strict'
 
 const request = require('supertest')
+const sleep = require('util').promisify(setTimeout)
 const tap = require('tap')
 
 const port = 13003
 
-const {withTestMapperServer, waitForURLReachable} = require('../utils')
+const {withTestMapperServer} = require('../utils')
 
 tap.test(
   'ValidationMiddleware',
@@ -71,15 +72,10 @@ tap.test(
           .set('Content-Type', 'application/json')
           .expect(201)
 
-        // The new endpoint may take a few milliseconds to trigger a cache update.
-        // If the read endpoint comes back positive then the cache should be updated and we can safely post.
-        await waitForURLReachable(
-          `http://localhost:13003/endpoints?name=Test Endpoint`,
-          500,
-          5
-        ).catch(error => {
-          t.fail(`Should not error. Caused by: ${error.message}`)
-        })
+        // The mongoDB endpoint collection change listeners may take a few milliseconds to update the endpoint cache.
+        // This wouldn't be a problem in the normal use case as a user would not create an endpoint and
+        // immediately start posting to it within a few milliseconds. Therefore this timeout here should be fine...
+        await sleep(1000)
 
         const requestData = {
           name: 'Test'
