@@ -29,7 +29,7 @@ tap.test(
                 id: 'checkTestServerUp',
                 config: {
                   method: 'get',
-                  url: `http://localhost:${port}/_health`
+                  url: `http://localhost:${port}/uptime`
                 }
               }
             ]
@@ -43,12 +43,11 @@ tap.test(
                   checkTestServerUp: {
                     type: 'object',
                     properties: {
-                      status: {
-                        type: 'string',
-                        enum: ['UP']
+                      milliseconds: {
+                        type: 'number'
                       }
                     },
-                    required: ['status']
+                    required: ['milliseconds']
                   }
                 },
                 required: ['checkTestServerUp']

@@ -2,6 +2,7 @@
 
 const koa = require('koa')
 const koaRouter = require('koa-router')
+const {DateTime} = require('luxon')
 
 const config = require('./config').getConfig()
 const db = require('./db')
@@ -17,10 +18,13 @@ const router = new koaRouter()
 createAPIRoutes(router)
 createMiddlewareRoute(router)
 
-router.get('/_health', (ctx, next) => {
+const millisecondsAtStart = DateTime.utc().ts
+
+router.get('/uptime', (ctx, next) => {
+  const now = DateTime.utc().ts
   ctx.status = 200
   ctx.body = {
-    status: 'UP'
+    milliseconds: now - millisecondsAtStart
   }
   next()
 })

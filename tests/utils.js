@@ -18,7 +18,7 @@ const spawnServer = async envConfig => {
   server.on('close', () => console.log(`Test mapper instance exited`))
 
   await waitForURLReachable(
-    `http://localhost:${envConfig.SERVER_PORT}/_health`,
+    `http://localhost:${envConfig.SERVER_PORT}/uptime`,
     1000,
     5
   )
