@@ -90,5 +90,58 @@ tap.test(
         t.end()
       }
     )
+
+    t.test(
+      'validateBodyMiddleware should return bad request when validation fails',
+      async t => {
+        const testEndpoint = {
+          name: 'Test Endpoint Fail',
+          endpoint: {
+            pattern: '/validationTestFail'
+          },
+          transformation: {
+            input: 'JSON',
+            output: 'JSON'
+          },
+          inputValidation: {
+            type: 'object',
+            properties: {
+              requestBody: {
+                type: 'object',
+                properties: {
+                  name: {
+                    type: 'string'
+                  }
+                },
+                required: ['name']
+              }
+            },
+            required: ['requestBody']
+          }
+        }
+
+        await request('http://localhost:13003')
+          .post('/endpoints')
+          .send(testEndpoint)
+          .set('Content-Type', 'application/json')
+          .expect(201)
+
+        // The mongoDB endpoint collection change listeners may take a few milliseconds to update the endpoint cache.
+        // This wouldn't be a problem in the normal use case as a user would not create an endpoint and
+        // immediately start posting to it within a few milliseconds. Therefore this timeout here should be fine...
+        await sleep(1000)
+
+        // Name is required and can't be null
+        const requestData = {name: null}
+
+        await request('http://localhost:13003')
+          .post('/validationTest')
+          .send(requestData)
+          .set('Content-Type', 'application/json')
+          .expect(400)
+
+        t.end()
+      }
+    )
   })
 )
