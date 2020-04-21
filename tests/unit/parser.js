@@ -394,7 +394,7 @@ tap.test('Parser', {autoend: true}, t => {
       }
     )
 
-    t.test('should ', async t => {
+    t.test('should complete complete middleware request', async t => {
       const ctx = {
         body: {
           Name: 'Jet',
@@ -407,13 +407,13 @@ tap.test('Parser', {autoend: true}, t => {
           metaData: {
             name: 'Testing endpoint',
             transformation: {
-              input: 'XML',
-              output: 'JSON'
+              input: 'JSON',
+              output: 'XML'
             }
           }
         },
         get: name => {
-          const contentHeader = 'application/xml'
+          const contentHeader = 'application/json'
           if (name) {
             return contentHeader
           }
@@ -428,8 +428,17 @@ tap.test('Parser', {autoend: true}, t => {
       const next = () => {}
       await parseBodyMiddleware()(ctx, next)
 
-      console.log(ctx.body)
-      t.pass() // ???? JSON shouldnt be allowed if input type is XML
+      t.equals(
+        ctx.body,
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n' +
+          '<root>\n' +
+          '  <Name>Jet</Name>\n' +
+          '  <Surname>Li</Surname>\n' +
+          '  <Email>jet@openhim.org</Email>\n' +
+          '</root>'
+      )
+
+      t.pass()
     })
   })
 })
