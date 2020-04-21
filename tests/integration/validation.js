@@ -4,7 +4,6 @@ const request = require('supertest')
 const tap = require('tap')
 
 const port = 13003
-process.env.SERVER_PORT = port
 
 const {withTestMapperServer, waitForURLReachable} = require('../utils')
 
