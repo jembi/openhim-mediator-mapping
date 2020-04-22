@@ -534,8 +534,8 @@ tap.test('Initiate Middleware', {autoend: true}, t => {
           },
           response: {}
         }
-        const noop = () => {}
-        await initiate.initiateContextMiddleware()(ctxMock, noop)
+        const next = () => {}
+        await initiate.initiateContextMiddleware()(ctxMock, next)
 
         t.equal(ctxMock.response.type, 'application/json')
         t.equal(ctxMock.response.body, 'Unknown Endpoint: /path')
