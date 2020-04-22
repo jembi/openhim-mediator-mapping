@@ -25,7 +25,7 @@ const spawnServer = async () => {
     console.error(
       `Could not reach Test Mock Mapper instance. Caused by: ${error.message}`
     )
-    server.kill('SIGINT', 1)
+    server.kill()
     throw error
   })
   return server
@@ -76,7 +76,7 @@ exports.withTestMapperServer = (port, test) => {
 
         // Close the server instance after tests
         t.teardown(async () => {
-          testMapperServer.kill('SIGINT', 0)
+          testMapperServer.kill()
         })
       })
       .catch(error => {
