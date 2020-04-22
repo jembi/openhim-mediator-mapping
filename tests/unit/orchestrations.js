@@ -139,7 +139,7 @@ tap.test('createOrchestrations()', {autoend: true}, t => {
       t.end()
     })
 
-    t.test('should set the status to Completed (from primaryCompleted', t => {
+    t.test('should set the status to Completed (from primaryCompleted)', t => {
       const ctx = {
         routerResponseStatuses: ['primaryCompleted']
       }
