@@ -430,12 +430,14 @@ tap.test('Parser', {autoend: true}, t => {
 
       t.equals(
         ctx.body,
-        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n' +
-          '<root>\n' +
-          '  <Name>Jet</Name>\n' +
-          '  <Surname>Li</Surname>\n' +
-          '  <Email>jet@openhim.org</Email>\n' +
+        [
+          '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>',
+          '<root>',
+          '  <Name>Jet</Name>',
+          '  <Surname>Li</Surname>',
+          '  <Email>jet@openhim.org</Email>',
           '</root>'
+        ].join('\n')
       )
 
       t.pass()
