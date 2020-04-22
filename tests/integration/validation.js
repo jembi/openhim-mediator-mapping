@@ -66,7 +66,7 @@ tap.test(
           }
         }
 
-        await request('http://localhost:13003')
+        await request(`http://localhost:${port}`)
           .post('/endpoints')
           .send(testEndpoint)
           .set('Content-Type', 'application/json')
@@ -81,7 +81,7 @@ tap.test(
           name: 'Test'
         }
 
-        await request('http://localhost:13003')
+        await request(`http://localhost:${port}`)
           .post('/validationTest')
           .send(requestData)
           .set('Content-Type', 'application/json')
@@ -120,7 +120,7 @@ tap.test(
           }
         }
 
-        await request('http://localhost:13003')
+        await request(`http://localhost:${port}`)
           .post('/endpoints')
           .send(testEndpoint)
           .set('Content-Type', 'application/json')
@@ -134,7 +134,7 @@ tap.test(
         // Name is required and can't be null
         const requestData = {name: null}
 
-        await request('http://localhost:13003')
+        await request(`http://localhost:${port}`)
           .post('/validationTest')
           .send(requestData)
           .set('Content-Type', 'application/json')
