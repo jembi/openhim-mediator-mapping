@@ -39,8 +39,9 @@ exports.createOrchestration = (
     requestObject.queryString = urlObject.searchParams.toString()
   }
   if (requestParameters) {
-    requestObject.queryString =
-      `${requestObject.queryString}&${querystring.stringify(requestParameters)}`
+    requestObject.queryString = `${
+      requestObject.queryString
+    }&${querystring.stringify(requestParameters)}`
   }
   if (request.headers) {
     requestObject.headers = request.headers
