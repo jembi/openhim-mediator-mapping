@@ -142,7 +142,7 @@ tap.test(
       const requestData = 'Nonsense XML'
 
       await request(`http://localhost:${port}`)
-        .post('/parserTest1')
+        .post('/parserTest3')
         .send(requestData)
         .set('Content-Type', 'application/xml')
         .set('x-openhim-transactionid', 'requestUUID')
@@ -152,7 +152,7 @@ tap.test(
             response.text,
             [
               '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>',
-              '<error>Parser Test Endpoint XML -&gt; XML (requestUUID): Parsing incoming body failed: Bad Request</error>'
+              '<error>Parser Test Endpoint Bad XML output XML (requestUUID): Parsing incoming body failed: Bad Request</error>'
             ].join('\n')
           )
         })
