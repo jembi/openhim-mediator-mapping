@@ -5,6 +5,7 @@ const koa = require('koa')
 const koaRouter = require('koa-router')
 const route = require('koa-route')
 const websockify = require('koa-websocket')
+const {DateTime} = require('luxon')
 
 const config = require('./config').getConfig()
 const db = require('./db')
@@ -23,6 +24,17 @@ createMiddlewareRoute(router)
 
 app.use(cors());
 
+const millisecondsAtStart = DateTime.utc().ts
+
+router.get('/uptime', (ctx, next) => {
+  const now = DateTime.utc().ts
+  ctx.status = 200
+  ctx.body = {
+    milliseconds: now - millisecondsAtStart
+  }
+  next()
+})
+
 app.use(router.routes()).use(router.allowedMethods())
 
 app.ws.use(createWsStates(route))
@@ -39,8 +51,4 @@ if (!module.parent) {
       openhim.mediatorSetup()
     }
   })
-}
-
-if (process.env.NODE_ENV === 'test') {
-  module.exports = app
 }
