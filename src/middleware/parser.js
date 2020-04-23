@@ -151,7 +151,7 @@ exports.parseBodyMiddleware = () => async (ctx, next) => {
     // parse outgoing body
     parseOutgoingBody(ctx, outputContentType)
   } catch (error) {
-    ctx.status = 400
+    ctx.status = ctx.statusCode ? ctx.statusCode : 400
     logger.error(error.message)
 
     // parse outgoing body

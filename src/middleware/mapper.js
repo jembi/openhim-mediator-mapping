@@ -36,7 +36,9 @@ const createMappedObject = ctx => {
     logger.error(
       `${ctx.state.metaData.name} (${ctx.state.uuid}): Object mapping failed: ${error.message}`
     )
-    throw error
+    // Set the status code which will used to set the response status
+    ctx.statusCode = 500
+    throw Error(`Object mapping schema invalid: ${error.message}`)
   }
 
   // set the outgoing payload as useable data point
