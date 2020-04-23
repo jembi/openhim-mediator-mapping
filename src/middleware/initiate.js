@@ -5,7 +5,7 @@ const {DateTime} = require('luxon')
 
 const logger = require('../logger')
 const {endpointCache} = require('../db/services/endpoints/cache')
-const {createState, readStateByEndpointId} = require('../db/services/states')
+const statesService = require('../db/services/states')
 const {constructOpenhimResponse} = require('../openhim')
 const {extractValueFromObject, handleServerError} = require('../util')
 
@@ -39,7 +39,6 @@ const extractStateValues = (ctx, extract) => {
   }
 
   if (!extract) {
-    // return the default state if no user supplied state defined
     return updatedState
   }
 
@@ -85,19 +84,15 @@ const updateEndpointState = async (ctx, endpoint) => {
   updatedState._endpointReference = endpoint._id
 
   // send update to mongo
-  await createState(updatedState)
+  await statesService
+    .createEndpointState(updatedState)
     .then(() => {
       return logger.info(
         `${endpoint.name} (${ctx.state.uuid}): Captured request state`
       )
     })
     .catch(error => {
-      return handleServerError(
-        ctx,
-        'Failed to save request state: ',
-        error,
-        logger
-      )
+      throw Error(error)
     })
 }
 
@@ -114,8 +109,8 @@ exports.initiateContextMiddleware = () => async (ctx, next) => {
   // set the initial start time for entry into the endpoint
   const endpointStart = DateTime.utc().toISO()
   // set request UUID from incoming OpenHIM header if present, else create a random UUID
-  const requestUUID = ctx.headers['x-openhim-transactionid']
-    ? ctx.headers['x-openhim-transactionid']
+  const requestUUID = ctx.request.headers['x-openhim-transactionid']
+    ? ctx.request.headers['x-openhim-transactionid']
     : uuid.v4()
 
   const endpoint = getEndpointByPath(ctx.request.path)
@@ -123,16 +118,21 @@ exports.initiateContextMiddleware = () => async (ctx, next) => {
   if (!endpoint) {
     logger.error(`Unknown Endpoint: ${ctx.request.path}`)
 
-    if (ctx.request.header && ctx.request.header['x-openhim-transactionid']) {
+    ctx.response.type = 'application/json'
+    ctx.status = 404
+    ctx.response.body = `Unknown Endpoint: ${ctx.request.path}`
+
+    if (ctx.request.headers && ctx.request.headers['x-openhim-transactionid']) {
       ctx.response.type = 'application/json+openhim'
-      ctx.status = 404
-      ctx.response.body = `Unknown Endpoint: ${ctx.url}`
       constructOpenhimResponse(ctx, Date.now())
     }
+
     return
   }
 
-  const endpointState = await readStateByEndpointId(endpoint._id)
+  const endpointState = await statesService.readLatestEndpointStateById(
+    endpoint._id
+  )
 
   logger.info(`${endpoint.name} (${requestUUID}): Initiating new request`)
 
