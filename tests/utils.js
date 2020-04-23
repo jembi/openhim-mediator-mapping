@@ -64,7 +64,7 @@ exports.withTestMapperServer = (port, test) => {
   return async t => {
     // Before Test cleanup. We have to open two db connections for the tests as the child process's
     // db connection is not available to the test suite.
-    await db.open(mongoUrl)
+    const testDB = await db.open(mongoUrl)
     await deleteEndpoints({})
 
     // Allow the test mapper server to make use of dynamic endpoints.
@@ -89,6 +89,7 @@ exports.withTestMapperServer = (port, test) => {
     // Clean up the db and close db connection after tests
     t.teardown(async () => {
       await deleteEndpoints({})
+      await testDB.connection.db.dropDatabase()
       await db.close()
     })
   }
