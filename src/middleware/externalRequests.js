@@ -35,7 +35,7 @@ const performRequests = (requests, ctx) => {
 
   return requests.map(requestDetails => {
     const reqTimestamp = DateTime.utc().toISO()
-    let responseTimestamp, error, response
+    let responseTimestamp, orchestrationError, response
 
     // capture the lookup request start time
     ctx.state.allData.timestamps.lookupRequests[requestDetails.id] = {
@@ -75,9 +75,11 @@ const performRequests = (requests, ctx) => {
         return {[requestDetails.id]: res.data}
       })
       .catch(error => {
+        orchestrationError = error
         logger.error(
           `Failed Request Config ${JSON.stringify(error.config, null, 2)}`
         )
+
         if (error.response) {
           throw new Error(
             `Incorrect status code ${error.response.status}. ${error.response.data.message}`
@@ -104,7 +106,7 @@ const performRequests = (requests, ctx) => {
             reqTimestamp,
             responseTimestamp,
             requestDetails.id,
-            error,
+            orchestrationError,
             requestParameters
           )
 
@@ -127,8 +129,8 @@ const prepareLookupRequests = ctx => {
         // set the lookup payload as useable data point
         ctx.state.allData.lookupRequests = Object.assign({}, ...data)
       })
-      .catch(err => {
-        throw new Error(`Rejected Promise: ${err}`)
+      .catch(error => {
+        throw new Error(`Rejected Promise: ${error}`)
       })
   }
   logger.debug(
@@ -216,9 +218,9 @@ const prepareResponseRequests = async ctx => {
           )
           setStatusText(ctx)
         })
-        .catch(err => {
+        .catch(error => {
           logger.error(
-            `${ctx.state.metaData.name} (${ctx.state.uuid}): Mapped object orchestration failure: ${err.message}`
+            `${ctx.state.metaData.name} (${ctx.state.uuid}): Mapped object orchestration failure: ${error.message}`
           )
         })
 
@@ -238,22 +240,22 @@ const prepareResponseRequests = async ctx => {
   It also sets the status code and flags which are used to determine the status Text for the response.
   The function also sets the koa response
 */
-const handleRequestError = (ctx, request, err) => {
+const handleRequestError = (ctx, request, requestError) => {
   let response, error
 
   if (!ctx.routerResponseStatuses) {
     ctx.routerResponseStatuses = []
   }
 
-  if (err.response) {
-    response = err.response
+  if (requestError.response) {
+    response = requestError.response
 
     // Axios response has the data property not the body
     response.body = response.data
 
     if (response.status >= 500) {
       if (request.primary) {
-        setKoaResponseBodyFromPrimary(ctx, request, response.data)
+        setKoaResponseBodyFromPrimary(ctx, response.data)
 
         ctx.routerResponseStatuses.push('primaryReqFailError')
         ctx.status = response.status
@@ -264,7 +266,7 @@ const handleRequestError = (ctx, request, err) => {
       }
     } else {
       if (request.primary) {
-        setKoaResponseBodyFromPrimary(ctx, request, response.data)
+        setKoaResponseBodyFromPrimary(ctx, response.data)
 
         ctx.routerResponseStatuses.push('primaryCompleted')
         ctx.status = response.status
@@ -276,23 +278,23 @@ const handleRequestError = (ctx, request, err) => {
     }
   } else {
     if (request.primary) {
-      setKoaResponseBodyFromPrimary(ctx, request, err.message)
+      setKoaResponseBodyFromPrimary(ctx, requestError.message)
 
       ctx.routerResponseStatuses.push('primaryReqFailError')
       ctx.status = 500
     } else {
       ctx.routerResponseStatuses.push('secondaryFailError')
 
-      setKoaResponseBody(ctx, request, err.message)
+      setKoaResponseBody(ctx, request, requestError.message)
     }
-    error = {message: err.message}
+    error = {message: requestError.message}
   }
 
   return {response, error}
 }
 
 // Sets the koa response body from the primary request's response body
-const setKoaResponseBodyFromPrimary = (ctx, request, body) => {
+const setKoaResponseBodyFromPrimary = (ctx, body) => {
   ctx.hasPrimaryRequest = true
   ctx.body = {}
   ctx.body = body
@@ -313,7 +315,7 @@ const sendMappedObject = (
   requestParameters
 ) => {
   const reqTimestamp = DateTime.utc().toISO()
-  let response, error, responseTimestamp
+  let response, orchestrationError, responseTimestamp
 
   // capture the lookup request start time
   ctx.state.allData.timestamps.lookupRequests[request.id] = {
@@ -341,19 +343,19 @@ const sendMappedObject = (
         .toObject()
 
       if (request.primary) {
-        setKoaResponseBodyFromPrimary(ctx, request, response.body)
+        setKoaResponseBodyFromPrimary(ctx, response.body)
 
         ctx.status = response.status
       } else {
         setKoaResponseBody(ctx, request, response.body)
       }
     })
-    .catch(err => {
+    .catch(error => {
       responseTimestamp = DateTime.utc().toISO()
 
-      const result = handleRequestError(ctx, request, err)
+      const result = handleRequestError(ctx, request, error)
       response = result.response
-      error = result.error
+      orchestrationError = result.error
     })
     .finally(() => {
       if (ctx.request.header && ctx.request.header['x-openhim-transactionid']) {
@@ -364,7 +366,7 @@ const sendMappedObject = (
           reqTimestamp,
           responseTimestamp,
           request.id,
-          error,
+          orchestrationError,
           requestParameters
         )
 
