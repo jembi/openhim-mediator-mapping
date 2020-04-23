@@ -38,6 +38,10 @@ const extractStateValues = (ctx, extract) => {
     timestamps: ctx.state.allData.timestamps
   }
 
+  if (!extract) {
+    return updatedState
+  }
+
   if (extract.requestBody && Object.keys(extract.requestBody).length > 0) {
     updatedState.requestBody = extractByType('requestBody', extract, allData)
   }
