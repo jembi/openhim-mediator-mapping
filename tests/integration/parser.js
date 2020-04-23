@@ -23,9 +23,6 @@ tap.test(
           transformation: {
             input: 'XML',
             output: 'XML'
-          },
-          inputMapping: {
-            'requestBody.name': 'test.name'
           }
         }
 
@@ -49,9 +46,7 @@ tap.test(
               response.text,
               [
                 '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>',
-                '<test>',
-                '  <name>Parser</name>',
-                '</test>'
+                '<root/>'
               ].join('\n')
             )
           })
