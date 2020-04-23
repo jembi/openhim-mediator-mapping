@@ -24,21 +24,6 @@ tap.test(
             input: 'XML',
             output: 'XML'
           },
-          inputValidation: {
-            type: 'object',
-            properties: {
-              requestBody: {
-                type: 'object',
-                properties: {
-                  name: {
-                    type: 'string'
-                  }
-                },
-                required: ['name']
-              }
-            },
-            required: ['requestBody']
-          },
           inputMapping: {
             'requestBody.name': 'test.name'
           }
@@ -98,36 +83,6 @@ tap.test(
                 }
               }
             ]
-          },
-          inputValidation: {
-            type: 'object',
-            properties: {
-              lookupRequests: {
-                type: 'object',
-                properties: {
-                  checkTestServerUp: {
-                    type: 'object',
-                    properties: {
-                      milliseconds: {
-                        type: 'number'
-                      }
-                    },
-                    required: ['milliseconds']
-                  }
-                },
-                required: ['checkTestServerUp']
-              },
-              requestBody: {
-                type: 'object',
-                properties: {
-                  name: {
-                    type: 'string'
-                  }
-                },
-                required: ['name']
-              }
-            },
-            required: ['requestBody']
           },
           inputMapping: {
             'requestBody.name': 'test.name',
