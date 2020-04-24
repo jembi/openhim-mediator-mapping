@@ -1,6 +1,6 @@
 {
   "name": "FHIR - Create Observations (weight/height)",
-  "description": "Endpoint to validate the incoming payload and construct a FHIR Bundle with two Observations for the Height and Weight for the Patient UUID",
+  "description": "Endpoint to validate the incoming payload and construct a FHIR Bundle with two Observations for the Height and Weight for the Patient id",
   "endpoint": {
     "pattern": "/create-height-weight-observations"
   },
@@ -68,9 +68,9 @@
       "requestBody": {
         "type": "object",
         "properties": {
-          "uuid": {
+          "id": {
             "type": "string",
-            "format": "uuid"
+            "pattern": "[A-Za-z0-9\-\.]{1,64}"
           },
           "display": {
             "type": "string"
@@ -82,12 +82,12 @@
             "type": "number"
           }
         },
-        "required": ["uuid", "display", "height", "weight"]
+        "required": ["id", "display", "height", "weight"]
       }
     }
   },
   "inputTransforms": {
-    "patientReference": "'Patient/' & requestBody.uuid",
+    "patientReference": "'Patient/' & requestBody.id",
     "heightInCm": "$number(requestBody.height) * 100"
   },
   "inputMapping": {
@@ -141,5 +141,20 @@
     "constants.resourceHeight.valueQuantity.unit": "entry[1].resource.valueQuantity.unit",
     "constants.resourceHeight.valueQuantity.code": "entry[1].resource.valueQuantity.code",
     "transforms.heightInCm": "entry[1].resource.valueQuantity.value"
+  },
+  "requests": {
+    "lookup": [],
+    "response": [
+      {
+        "id": "hapi-fhir",
+        "config": {
+          "method": "post",
+          "url": "http://hapi.fhir.org/baseR4/",
+          "headers": {
+            "Content-Type": "application/json"
+          }
+        }
+      }
+    ]
   }
 }
