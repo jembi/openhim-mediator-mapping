@@ -7,11 +7,16 @@ const config = require('../config').getConfig()
 const logger = require('../logger')
 
 const {ALLOWED_CONTENT_TYPES} = require('../constants')
-const {createOrchestration} = require('../orchestrations')
+const {createOrchestration, setStatusText} = require('../orchestrations')
+const {constructOpenhimResponse} = require('../openhim')
 
 const xmlBuilder = new xml2js.Builder()
 
 const parseOutgoingBody = (ctx, outputFormat) => {
+  if (!ctx.orchestrations) {
+    ctx.orchestrations = []
+  }
+
   if (outputFormat === 'XML') {
     try {
       const parserStartTime = new Date()
@@ -28,10 +33,6 @@ const parseOutgoingBody = (ctx, outputFormat) => {
         }
         const request = {}
         const error = null
-
-        if (!ctx.orchestrations) {
-          ctx.orchestrations = []
-        }
 
         const orchestration = createOrchestration(
           request,
@@ -51,6 +52,23 @@ const parseOutgoingBody = (ctx, outputFormat) => {
       )
     }
   }
+
+  if (!ctx.statusText) {
+    setStatusText(ctx)
+  }
+
+  // Respond in openhim mediator format if request came from the openhim
+  if (
+    ctx.request &&
+    ctx.request.header &&
+    ctx.request.header['x-openhim-transactionid']
+  ) {
+    ctx.response.type = 'application/json+openhim'
+    const date = new Date()
+
+    constructOpenhimResponse(ctx, date)
+  }
+
   logger.info(
     `${ctx.state.metaData.name} (${ctx.state.uuid}): Parsing outgoing body into ${outputFormat} format`
   )
@@ -152,6 +170,7 @@ exports.parseBodyMiddleware = () => async (ctx, next) => {
     parseOutgoingBody(ctx, outputContentType)
   } catch (error) {
     ctx.status = ctx.statusCode ? ctx.statusCode : 400
+    ctx.statusText = 'Failed'
     logger.error(error.message)
 
     // parse outgoing body
