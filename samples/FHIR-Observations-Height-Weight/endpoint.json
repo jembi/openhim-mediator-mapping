@@ -1,0 +1,145 @@
+{
+  "name": "FHIR - Create Observations (weight/height)",
+  "description": "Endpoint to validate the incoming payload and construct a FHIR Bundle with two Observations for the Height and Weight for the Patient UUID",
+  "endpoint": {
+    "pattern": "/create-height-weight-observations"
+  },
+  "transformation": {
+    "input": "JSON",
+    "output": "JSON"
+  },
+  "constants": {
+    "resourceType": "Bundle",
+    "type": "transaction",
+    "entry": {
+      "resourceType": "Observation",
+      "status": "final",
+      "request": {
+        "method": "POST",
+        "url": "Observation"
+      },
+      "resource": {
+        "code": {
+          "coding": [
+            {
+              "system" : "http://loinc.org"
+            }
+          ]
+        },
+        "valueQuantity" : {
+          "system" : "http://unitsofmeasure.org"
+        }
+      }
+    },
+    "resourceHeight": {
+      "code": {
+        "coding": [
+          {
+            "code" : "8302-2",
+            "display" : "Body height"
+          }
+        ],
+        "text": "height"
+      },
+      "valueQuantity" : {
+        "unit" : "cm",
+        "code" : "cm"
+      }
+    },
+    "resourceWeight": {
+      "code": {
+        "coding": [
+          {
+            "code" : "29463-7",
+            "display" : "Body Weight"
+          }
+        ],
+        "text": "weight"
+      },
+      "valueQuantity" : {
+        "unit" : "kg",
+        "code" : "kg"
+      }
+    }
+  },
+  "inputValidation": {
+    "type": "object",
+    "properties": {
+      "requestBody": {
+        "type": "object",
+        "properties": {
+          "uuid": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "display": {
+            "type": "string"
+          },
+          "height": {
+            "type": "string"
+          },
+          "weight": {
+            "type": "number"
+          }
+        },
+        "required": ["uuid", "display", "height", "weight"]
+      }
+    }
+  },
+  "inputTransforms": {
+    "patientReference": "'Patient/' & requestBody.uuid",
+    "heightInCm": "$number(requestBody.height) * 100"
+  },
+  "inputMapping": {
+    "constants.resourceType": "resourceType",
+    "constants.type": "type",
+    "transforms.patientReference": [
+      "entry[0].resource.subject.reference",
+      "entry[1].resource.subject.reference"
+    ],
+    "requestBody.display": [
+      "entry[0].resource.subject.display",
+      "entry[1].resource.subject.display"
+    ],
+    "state.system.timestamps.endpointStart": [
+      "entry[0].resource.effectiveDateTime",
+      "entry[1].resource.effectiveDateTime"
+    ],
+    "constants.entry.resourceType": [
+      "entry[0].resource.resourceType",
+      "entry[1].resource.resourceType"
+    ],
+    "constants.entry.status": [
+      "entry[0].resource.status",
+      "entry[1].resource.status"
+    ],
+    "constants.entry.request.method": [
+      "entry[0].request.method",
+      "entry[1].request.method"
+    ],
+    "constants.entry.request.url": [
+      "entry[0].request.url",
+      "entry[1].request.url"
+    ],
+    "constants.entry.resource.code.coding[0].system": [
+      "entry[0].resource.code.coding[0].system",
+      "entry[1].resource.code.coding[0].system"
+    ],
+    "constants.entry.resource.valueQuantity.system": [
+      "entry[0].resource.valueQuantity.system",
+      "entry[1].resource.valueQuantity.system"
+    ],
+    "constants.resourceWeight.code.text": "entry[0].resource.code.text",
+    "constants.resourceWeight.code.coding[0].code": "entry[0].resource.code.coding[0].code",
+    "constants.resourceWeight.code.coding[0].display": "entry[0].resource.code.coding[0].display",
+    "constants.resourceWeight.valueQuantity.unit": "entry[0].resource.valueQuantity.unit",
+    "constants.resourceWeight.valueQuantity.code": "entry[0].resource.valueQuantity.code",
+    "requestBody.weight": "entry[0].resource.valueQuantity.value",
+    "constants.resourceHeight.code.text": "entry[1].resource.code.text",
+    "constants.resourceHeight.code.coding[0].code": "entry[1].resource.code.coding[0].code",
+    "constants.resourceHeight.code.coding[0].display": "entry[1].resource.code.coding[0].display",
+    "constants.resourceHeight.valueQuantity.unit": "entry[1].resource.valueQuantity.unit",
+    "constants.resourceHeight.valueQuantity.code": "entry[1].resource.valueQuantity.code",
+    "transforms.heightInCm": "entry[1].resource.valueQuantity.value"
+  }
+}
