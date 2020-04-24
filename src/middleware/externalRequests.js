@@ -412,6 +412,10 @@ const addRequestQueryParameters = (ctx, request) => {
             path
           )
           break
+        default:
+          throw new Error(
+            `Unsupported Query Parameter Extract Type: ${extractType}`
+          )
       }
 
       if (parameterValue) {
