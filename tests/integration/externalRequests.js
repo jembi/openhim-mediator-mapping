@@ -105,8 +105,82 @@ tap.test(
           .expect(response => {
             t.deepEquals(response.body, {fhirPatient, fhirObservation})
           })
+      })
 
-        t.end()
+      t.test('requestMiddleware should post response', async t => {
+        t.plan(3)
+        const fhirPatient = {
+          resourceType: 'Patient',
+          gender: 'unknown'
+        }
+        const fhirPatientResponse = {
+          resourceType: 'Patient',
+          id: '1135633',
+          meta: {
+            versionId: '1'
+          },
+          gender: 'unknown'
+        }
+
+        server.on('request', async (req, res) => {
+          if (req.method === 'POST' && req.url === '/Patient') {
+            t.pass(req.body, fhirPatient)
+            res.writeHead(201, {'Content-Type': 'application/json'})
+            res.end(JSON.stringify(fhirPatientResponse))
+            return
+          }
+          res.writeHead(404)
+          res.end()
+          return
+        })
+
+        const testEndpoint = {
+          name: 'External Request Test Endpoint 2',
+          endpoint: {
+            pattern: '/externalRequestTest2'
+          },
+          transformation: {
+            input: 'JSON',
+            output: 'JSON'
+          },
+          requests: {
+            response: [
+              {
+                id: 'fhir-server',
+                config: {
+                  method: 'post',
+                  url: `http://localhost:${mockServerPort}/Patient`
+                }
+              }
+            ]
+          },
+          inputMapping: {
+            requestBody: 'fhirPatient'
+          }
+        }
+
+        await request(`http://localhost:${testMapperPort}`)
+          .post('/endpoints')
+          .send(testEndpoint)
+          .set('Content-Type', 'application/json')
+          .expect(201)
+
+        // The mongoDB endpoint collection change listeners may take a few milliseconds to update the endpoint cache.
+        // This wouldn't be a problem in the normal use case as a user would not create an endpoint and
+        // immediately start posting to it within a few milliseconds. Therefore this timeout here should be fine...
+        await sleep(1000)
+
+        // The mapper currently only accepts POSTs
+        const requestData = fhirPatient
+
+        await request(`http://localhost:${testMapperPort}`)
+          .post('/externalRequestTest2')
+          .send(requestData)
+          .set('Content-Type', 'application/json')
+          .expect(response => {
+            t.equals(response.status, 201)
+            t.deepEquals(response.body, fhirPatientResponse)
+          })
       })
     })
   )
