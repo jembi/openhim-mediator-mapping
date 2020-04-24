@@ -4,7 +4,7 @@ const request = require('supertest')
 const sleep = require('util').promisify(setTimeout)
 const tap = require('tap')
 
-const port = 13004
+const port = 13005
 process.env.MONGO_URL = 'mongodb://localhost:27017/parserTest'
 
 const {withTestMapperServer} = require('../utils')
@@ -45,13 +45,7 @@ tap.test(
           .set('Content-Type', 'application/xml')
           .expect(200)
           .then(response => {
-            t.equals(
-              response.text,
-              [
-                '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>',
-                '<root/>'
-              ].join('\n')
-            )
+            t.match(response.text, /<name>Parser<\/name>/)
           })
 
         t.end()
@@ -151,11 +145,8 @@ tap.test(
           .expect(response => {
             t.equals(response.status, 400)
             t.equals(
-              response.text,
-              [
-                '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>',
-                '<error>Parser Test Endpoint Bad XML output XML (requestUUID): Parsing incoming body failed: Bad Request</error>'
-              ].join('\n')
+              response.body.response.body,
+              '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<error>Parser Test Endpoint Bad XML output XML (requestUUID): Parsing incoming body failed: Bad Request</error>'
             )
           })
 
@@ -197,7 +188,7 @@ tap.test(
           .set('x-openhim-transactionid', 'requestUUID')
           .expect(response => {
             t.equals(response.status, 400)
-            t.deepEquals(response.body, {
+            t.deepEqual(JSON.parse(response.body.response.body), {
               error:
                 'Parser Test Endpoint Bad XML output JSON (requestUUID): Parsing incoming body failed: Bad Request'
             })
