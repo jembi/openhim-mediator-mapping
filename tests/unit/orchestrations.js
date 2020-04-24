@@ -74,6 +74,9 @@ tap.test('createOrchestrations()', {autoend: true}, t => {
     }
     const responseTimestamp = Date.now()
     const name = 'Test'
+    const requestParams = {
+      id: '1233'
+    }
 
     const expectedOrch = {
       request: {
@@ -82,7 +85,7 @@ tap.test('createOrchestrations()', {autoend: true}, t => {
         path: '/patient/',
         timestamp: reqTimestamp,
         method: 'PUT',
-        queryString: 'name=brainman',
+        queryString: 'name=brainman&id=1233',
         headers,
         body: JSON.stringify(requestBody)
       },
@@ -105,7 +108,8 @@ tap.test('createOrchestrations()', {autoend: true}, t => {
       reqTimestamp,
       responseTimestamp,
       name,
-      null
+      null,
+      requestParams
     )
 
     t.deepEqual(expectedOrch, orchestration)
@@ -135,7 +139,7 @@ tap.test('createOrchestrations()', {autoend: true}, t => {
       t.end()
     })
 
-    t.test('should set the status to Completed', t => {
+    t.test('should set the status to Completed (from primaryCompleted)', t => {
       const ctx = {
         routerResponseStatuses: ['primaryCompleted']
       }
@@ -145,6 +149,20 @@ tap.test('createOrchestrations()', {autoend: true}, t => {
       t.equals(ctx.statusText, 'Completed')
       t.end()
     })
+
+    t.test(
+      'should set the status to Completed (from secondaryCompleted)',
+      t => {
+        const ctx = {
+          routerResponseStatuses: ['secondaryCompleted']
+        }
+
+        setStatusText(ctx)
+
+        t.equals(ctx.statusText, 'Completed')
+        t.end()
+      }
+    )
 
     t.test('should set the status to Successful', t => {
       const ctx = {}
