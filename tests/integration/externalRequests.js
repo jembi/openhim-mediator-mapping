@@ -150,7 +150,8 @@ tap.test(
                 config: {
                   method: 'post',
                   url: `http://localhost:${mockServerPort}/Patient`
-                }
+                },
+                allowedStatuses: ['201']
               }
             ]
           },
@@ -182,6 +183,91 @@ tap.test(
             t.deepEquals(response.body, fhirPatientResponse)
           })
       })
+
+      t.test(
+        'requestMiddleware should extract query params from requestBody and use them in a request',
+        async t => {
+          t.plan(3)
+          const fhirPatient = {
+            resourceType: 'Patient',
+            gender: 'unknown'
+          }
+
+          server.on('request', async (req, res) => {
+            if (
+              req.method === 'GET' &&
+              req.url === '/fhir/Patient?id=Patient:12345'
+            ) {
+              t.pass()
+              res.writeHead(201, {'Content-Type': 'application/json'})
+              res.end(JSON.stringify(fhirPatient))
+              return
+            }
+            res.writeHead(404)
+            res.end()
+            return
+          })
+
+          const testEndpoint = {
+            name: 'External Request Test Endpoint 3',
+            endpoint: {
+              pattern: '/externalRequestTest3'
+            },
+            transformation: {
+              input: 'JSON',
+              output: 'JSON'
+            },
+            requests: {
+              lookup: [
+                {
+                  id: 'fhir-server',
+                  config: {
+                    method: 'get',
+                    url: `http://localhost:${mockServerPort}/fhir/Patient`,
+                    headers: {
+                      'Content-Type': 'application/json'
+                    },
+                    params: {
+                      id: {
+                        path: 'payload.patientId',
+                        prefix: 'Patient:'
+                      }
+                    }
+                  },
+                  allowedStatuses: ['2xx']
+                }
+              ]
+            },
+            inputMapping: {
+              'lookupRequests.fhir-server.resourceType': 'resourceType',
+              'lookupRequests.fhir-server.gender': 'gender'
+            }
+          }
+
+          await request(`http://localhost:${testMapperPort}`)
+            .post('/endpoints')
+            .send(testEndpoint)
+            .set('Content-Type', 'application/json')
+            .expect(201)
+
+          // The mongoDB endpoint collection change listeners may take a few milliseconds to update the endpoint cache.
+          // This wouldn't be a problem in the normal use case as a user would not create an endpoint and
+          // immediately start posting to it within a few milliseconds. Therefore this timeout here should be fine...
+          await sleep(1000)
+
+          // The mapper currently only accepts POSTs
+          const requestData = {patientId: '12345'}
+
+          await request(`http://localhost:${testMapperPort}`)
+            .post('/externalRequestTest3')
+            .send(requestData)
+            .set('Content-Type', 'application/json')
+            .expect(response => {
+              t.equals(response.status, 200)
+              t.deepEquals(response.body, fhirPatient)
+            })
+        }
+      )
     })
   )
 )
