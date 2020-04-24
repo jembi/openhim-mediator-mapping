@@ -16,9 +16,10 @@ tap.test(
     testMapperPort,
     withMockServer(mockServerPort, async (t, server) => {
       t.test('requestMiddleware should perform lookupRequests', async t => {
+        t.plan(3)
         const fhirPatient = {
           resourceType: 'Patient',
-          id: 'randomUUID'
+          gender: 'other'
         }
         const fhirObservation = {
           resourceType: 'Observation',
@@ -33,24 +34,27 @@ tap.test(
           }
         }
         server.on('request', async (req, res) => {
-          if (req.method === 'GET' && req.url === '/patient') {
+          if (req.method === 'GET' && req.url === '/Patient') {
+            t.pass()
             res.writeHead(200, {'Content-Type': 'application/json'})
             res.end(JSON.stringify(fhirPatient))
             return
           }
-          if (req.method === 'GET' && req.url === '/observation') {
+          if (req.method === 'GET' && req.url === '/Observation') {
+            t.pass()
             res.writeHead(200, {'Content-Type': 'application/json'})
             res.end(JSON.stringify(fhirObservation))
             return
           }
           res.writeHead(404)
           res.end()
+          return
         })
 
         const testEndpoint = {
-          name: 'Test Endpoint',
+          name: 'External Request Test Endpoint 1',
           endpoint: {
-            pattern: '/externalRequestTest'
+            pattern: '/externalRequestTest1'
           },
           transformation: {
             input: 'JSON',
@@ -62,14 +66,14 @@ tap.test(
                 id: 'fhirPatient',
                 config: {
                   method: 'get',
-                  url: `http://localhost:${mockServerPort}/patient`
+                  url: `http://localhost:${mockServerPort}/Patient`
                 }
               },
               {
                 id: 'fhirObservation',
                 config: {
                   method: 'get',
-                  url: `http://localhost:${mockServerPort}/observation`
+                  url: `http://localhost:${mockServerPort}/Observation`
                 }
               }
             ]
@@ -95,7 +99,7 @@ tap.test(
         const requestData = {}
 
         await request(`http://localhost:${testMapperPort}`)
-          .post('/externalRequestTest')
+          .post('/externalRequestTest1')
           .send(requestData)
           .set('Content-Type', 'application/json')
           .expect(response => {
