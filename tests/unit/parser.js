@@ -398,6 +398,8 @@ tap.test('Parser', {autoend: true}, t => {
     )
 
     t.test('should complete middleware request', async t => {
+      t.plan(2)
+
       const ctx = {
         body: {
           Name: 'Jet',
@@ -428,7 +430,9 @@ tap.test('Parser', {autoend: true}, t => {
         request: {}
       }
 
-      const next = () => {}
+      const next = () => {
+        t.pass() // calls next
+      }
       await parseBodyMiddleware()(ctx, next)
 
       t.equals(
@@ -442,8 +446,6 @@ tap.test('Parser', {autoend: true}, t => {
           '</root>'
         ].join('\n')
       )
-
-      t.pass()
     })
   })
 })
