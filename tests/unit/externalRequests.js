@@ -17,8 +17,332 @@ const handleRequestError = externalRequests.__get__('handleRequestError')
 const addRequestQueryParameters = externalRequests.__get__(
   'addRequestQueryParameters'
 )
+const validateRequestStatusCode = externalRequests.__get__(
+  'validateRequestStatusCode'
+)
+const performRequests = externalRequests.__get__('performRequests')
+const prepareLookupRequests = externalRequests.__get__('prepareLookupRequests')
+const prepareRequestConfig = externalRequests.__get__('prepareRequestConfig')
 
 tap.test('External Requests', {autoend: true}, t => {
+  t.test('validateRequestStatusCode', {autoend: true}, t => {
+    t.test('should return false if the status is not allowed', t => {
+      const allowedStatuses = [200, 202]
+      const status = 500
+
+      const valid = validateRequestStatusCode(allowedStatuses)(status)
+      t.equals(valid, false)
+      t.end()
+    })
+
+    t.test('should return true if status is allowed', t => {
+      const allowedStatuses = [200, 202]
+      const status = 200
+
+      const valid = validateRequestStatusCode(allowedStatuses)(status)
+      t.equals(valid, true)
+      t.end()
+    })
+
+    t.test('should return true if status is allowed (wildcard status)', t => {
+      const allowedStatuses = ['2xx', 400]
+      const status = 202
+
+      const valid = validateRequestStatusCode(allowedStatuses)(status)
+      t.equals(valid, true)
+      t.end()
+    })
+  })
+
+  t.test('performRequests', {autoend: true}, t => {
+    t.test('should create orchestration object', t => {
+      const ctx = {}
+      const requests = []
+
+      performRequests(requests, ctx)
+      t.equals(!ctx.orchestrations, false)
+      t.end()
+    })
+
+    t.test('should create orchestrations array', t => {
+      const ctx = {}
+      const requests = []
+
+      performRequests(requests, ctx)
+      t.equals(!ctx.orchestrations, false)
+      t.end()
+    })
+
+    t.test(
+      'should throw error and create orchestration when one lookup fails( request to server that is down)',
+      async t => {
+        const url = 'http://localhost:8000/'
+        const url2 = 'http://localhost:9000/'
+        const method = 'PUT'
+        const id = '1233243'
+
+        const requests = [
+          {
+            config: {
+              url: url,
+              method: method
+            },
+            id: id
+          },
+          {
+            config: {
+              url: url2,
+              method: method
+            },
+            id: id
+          }
+        ]
+
+        const ctx = {
+          state: {
+            metaData: {
+              requests: {}
+            },
+            allData: {
+              timestamps: {
+                lookupRequests: {}
+              }
+            }
+          },
+          request: {
+            header: {
+              'x-openhim-transactionid': '1232244'
+            }
+          }
+        }
+
+        try {
+          await Promise.all(performRequests(requests, ctx))
+        } catch (error) {
+          t.equals(ctx.orchestrations.length, 1)
+          t.match(
+            error.message,
+            /No response from lookup '1233243'. connect ECONNREFUSED/
+          )
+          t.end()
+        }
+      }
+    )
+
+    t.test(
+      'should throw error and create orchestration when one lookup fails( server responds with a error)',
+      async t => {
+        const url = 'http://localhost:5000'
+        const method = 'GET'
+        const id = '1233243'
+
+        const responseError = {
+          message: 'Bad request'
+        }
+        nock(url)
+          .get('/patient')
+          .reply(400, responseError)
+
+        const requests = [
+          {
+            config: {
+              url: `${url}/patient`,
+              method: method
+            },
+            id: id
+          }
+        ]
+
+        const ctx = {
+          state: {
+            metaData: {
+              requests: {}
+            },
+            allData: {
+              timestamps: {
+                lookupRequests: {}
+              }
+            }
+          },
+          request: {
+            header: {
+              'x-openhim-transactionid': '1232244'
+            }
+          }
+        }
+
+        try {
+          await Promise.all(performRequests(requests, ctx))
+        } catch (error) {
+          t.equals(ctx.orchestrations.length, 1)
+          t.match(error.message, /Incorrect status code 400. Bad request/)
+          t.end()
+        }
+      }
+    )
+
+    t.test('should do lookups and create orchestrations', async t => {
+      const url = 'http://localhost:4000/'
+
+      nock(url)
+        .get('/patient')
+        .reply(200, 'Body')
+
+      const method = 'GET'
+      const id = '123'
+
+      const requests = [
+        {
+          config: {
+            url: `${url}patient`,
+            method: method
+          },
+          id: id
+        }
+      ]
+
+      const ctx = {
+        state: {
+          metaData: {
+            requests: {}
+          },
+          allData: {
+            timestamps: {
+              lookupRequests: {}
+            }
+          }
+        },
+        request: {
+          header: {
+            'x-openhim-transactionid': '1232244'
+          }
+        }
+      }
+
+      await Promise.all(performRequests(requests, ctx)).then(res => {
+        t.deepEqual(res[0], {'123': 'Body'})
+        t.equals(ctx.orchestrations.length, 1)
+        t.end()
+      })
+    })
+  })
+
+  t.test('prepareLookupRequests', {autoend: true}, t => {
+    t.test(
+      'should not do any lookups when requests metadata object is empty',
+      t => {
+        const ctx = {
+          state: {
+            metaData: {},
+            allData: {
+              timestamps: {
+                lookupRequests: {}
+              }
+            }
+          }
+        }
+        prepareLookupRequests(ctx)
+
+        t.notOk(ctx.orchestrations)
+        t.end()
+      }
+    )
+    t.test('should throw error when lookup request fails', async t => {
+      const url = 'http://localhost:4000/'
+
+      const method = 'GET'
+
+      const ctx = {
+        request: {
+          header: {
+            'x-openhim-transactionid': '123'
+          }
+        },
+        state: {
+          allData: {
+            timestamps: {
+              lookupRequests: {}
+            }
+          },
+          metaData: {
+            requests: {
+              lookup: [
+                {
+                  config: {
+                    url: `${url}patient`,
+                    method: method
+                  },
+                  id: 'safari'
+                }
+              ]
+            }
+          }
+        }
+      }
+      try {
+        await prepareLookupRequests(ctx)
+      } catch (err) {
+        t.match(err.message, /No response from lookup/)
+        t.end()
+      }
+    })
+
+    t.test('should do the lookup and create orchestration', async t => {
+      const url = 'http://localhost:4000/'
+
+      nock(url)
+        .get('/patient')
+        .times(2)
+        .reply(200, 'Body')
+
+      const method = 'GET'
+
+      const ctx = {
+        request: {
+          header: {
+            'x-openhim-transactionid': '123'
+          }
+        },
+        state: {
+          allData: {
+            timestamps: {
+              lookupRequests: {}
+            }
+          },
+          metaData: {
+            requests: {
+              lookup: [
+                {
+                  config: {
+                    url: `${url}patient`,
+                    method: method
+                  },
+                  id: 'safari'
+                },
+                {
+                  config: {
+                    url: `${url}patient`,
+                    method: method
+                  },
+                  id: 'chrome'
+                }
+              ]
+            }
+          }
+        }
+      }
+      await prepareLookupRequests(ctx)
+
+      t.equals(ctx.orchestrations.length, 2)
+      t.ok(ctx.state.allData.lookupRequests)
+      t.deepEqual(ctx.state.allData.lookupRequests, {
+        chrome: 'Body',
+        safari: 'Body'
+      })
+      t.end()
+    })
+  })
+
   t.test('prepareResponseRequests', {autoend: true}, t => {
     t.test('should not do any orchestration if the mapping fails', async t => {
       const ctx = {
@@ -206,6 +530,13 @@ tap.test('External Requests', {autoend: true}, t => {
                     },
                     id: 'Patient',
                     primary: true
+                  },
+                  {
+                    config: {
+                      url: `${url}patient?name=raze`,
+                      method: method
+                    },
+                    id: 'Entity'
                   }
                 ]
               }
@@ -238,13 +569,14 @@ tap.test('External Requests', {autoend: true}, t => {
 
         nock(url)
           .put('/patient?name=raze')
+          .times(2)
           .reply(200, response)
 
         await prepareResponseRequests(ctx)
 
-        t.equals(ctx.orchestrations.length, 1)
+        t.equals(ctx.orchestrations.length, 2)
         t.deepEqual(
-          ctx.orchestrations[0].response.body,
+          ctx.orchestrations[1].response.body,
           JSON.stringify(response)
         )
 
@@ -588,6 +920,73 @@ tap.test('External Requests', {autoend: true}, t => {
     )
   })
 
+  t.test('prepareRequestConfig', {autoend: true}, t => {
+    t.test('should create request config with no data and query params', t => {
+      const requestDetails = {
+        config: {
+          url: `localhost:8080`,
+          method: 'GET'
+        }
+      }
+      const requestBody = null
+      const queryParams = null
+
+      const requestConfig = prepareRequestConfig(
+        requestDetails,
+        requestBody,
+        queryParams
+      )
+      t.notOk(requestConfig.data)
+      t.notOk(requestConfig.params)
+      t.end()
+    })
+
+    t.test('should add data and query params to request config object', t => {
+      const requestDetails = {
+        config: {
+          url: `localhost:8080`,
+          method: 'GET'
+        }
+      }
+      const requestBody = 'Body'
+      const queryParams = {
+        id: 'sanders'
+      }
+
+      const requestConfig = prepareRequestConfig(
+        requestDetails,
+        requestBody,
+        queryParams
+      )
+      t.equals(requestConfig.data, requestBody)
+      t.end()
+    })
+
+    t.test('should the function for validating statuses', t => {
+      const requestDetails = {
+        config: {
+          url: `localhost:8080`,
+          method: 'GET'
+        },
+        allowedStatuses: [200, '3xx']
+      }
+      const requestBody = 'Body'
+      const queryParams = {
+        id: 'sanders'
+      }
+
+      const requestConfig = prepareRequestConfig(
+        requestDetails,
+        requestBody,
+        queryParams
+      )
+      t.ok(requestConfig.validateStatus)
+      t.notOk(requestConfig.validateStatus(400))
+      t.ok(requestConfig.validateStatus(300))
+      t.end()
+    })
+  })
+
   t.test('setKoaResponseBody()', {autoend: true}, t => {
     t.test('should set the koa response', t => {
       const ctx = {
@@ -625,11 +1024,8 @@ tap.test('External Requests', {autoend: true}, t => {
         body: {}
       }
       const body = {message: 'success'}
-      const request = {
-        id: '1233'
-      }
 
-      setKoaResponseBodyFromPrimary(ctx, request, body)
+      setKoaResponseBodyFromPrimary(ctx, body)
       t.deepEqual(ctx.body, body)
       t.equals(ctx.hasPrimaryRequest, true)
       t.end()
@@ -680,6 +1076,31 @@ tap.test('External Requests', {autoend: true}, t => {
     )
 
     t.test(
+      'should set the property "secondaryFailError" when response status is 500',
+      t => {
+        const ctx = {
+          body: {}
+        }
+        const request = {
+          primary: false
+        }
+        const err = {
+          response: {
+            data: {message: 'Internal Server Error'},
+            status: 500
+          }
+        }
+
+        handleRequestError(ctx, request, err)
+        t.equals(
+          ctx.routerResponseStatuses.includes('secondaryFailError'),
+          true
+        )
+        t.end()
+      }
+    )
+
+    t.test(
       'should set the property "primaryCompleted" on ctx when response status is not 2xx and 5xx',
       t => {
         const ctx = {
@@ -702,31 +1123,49 @@ tap.test('External Requests', {autoend: true}, t => {
         t.end()
       }
     )
-  })
-  t.test('validateStatus', {autoend: true}, t => {
-    t.test('should resolve wildcard status', t => {
-      t.plan(4)
 
-      // Example wildcard for 200 range
-      const allowedStatuses = ['2xx', 403]
+    t.test(
+      'should set the property "secondaryCompleted" on ctx when response status is not 2xx and 5xx',
+      t => {
+        const ctx = {
+          body: {}
+        }
+        const request = {
+          primary: false
+        }
+        const err = {
+          response: {
+            data: {message: 'Bad request'},
+            status: 400
+          }
+        }
 
-      const validateStatus = externalRequests.__get__(
-        'validateRequestStatusCode'
-      )
+        const result = handleRequestError(ctx, request, err)
 
-      // The validate status function returns a function that
-      // can be used to apply different rules from within the axios config
-      const statusValidator = validateStatus(allowedStatuses)
-      t.ok(statusValidator(200))
-      t.ok(statusValidator(299))
-      t.ok(statusValidator(403))
-      t.notOk(statusValidator(300))
-    })
+        t.deepEqual(result.response.body, err.response.data)
+        t.equals(
+          ctx.routerResponseStatuses.includes('secondaryCompleted'),
+          true
+        )
+        t.end()
+      }
+    )
   })
 
   t.test('addRequestQueryParameters', {autoend: true}, t => {
     t.test('should create request query parameters', t => {
       const ctx = {
+        state: {
+          allData: {
+            lookupRequests: {
+              children: '4'
+            },
+            state: {
+              lastAddress: '1 1st street'
+            },
+            requestBody: 'body'
+          }
+        },
         request: {
           query: {
             code: '1233',
@@ -777,6 +1216,15 @@ tap.test('External Requests', {autoend: true}, t => {
             path: 'query.surname',
             postfix,
             prefix
+          },
+          lastAddress: {
+            path: 'state.lastAddress'
+          },
+          children: {
+            path: 'lookupRequests.children'
+          },
+          brothers: {
+            path: 'responseBody.brother'
           }
         }
       }
@@ -788,6 +1236,9 @@ tap.test('External Requests', {autoend: true}, t => {
       t.equals(params.code, ctx.request.query.code)
       t.equals(params.status, ctx.request.body.status[1].rich.status[0].sp)
       t.equals(params.name, `${prefix + ctx.request.query.name + postfix}`)
+      t.equals(params.children, ctx.state.allData.lookupRequests.children)
+      t.equals(params.brothers, ctx.state.allData.requestBody.brother)
+      t.equals(params.lastAddress, ctx.state.allData.state.lastAddress)
       t.end()
     })
   })
