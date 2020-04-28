@@ -331,6 +331,69 @@ tap.test(
             )
           })
       })
+
+      t.test('requestMiddleware should fail response request', async t => {
+        t.plan(3)
+        server.on('request', async (req, res) => {
+          if (req.method === 'POST' && req.url === '/Patient') {
+            t.pass()
+            res.writeHead(504, {'Content-Type': 'application/json'})
+            res.end(JSON.stringify({message: 'Gateway Timeout'}))
+            return
+          }
+          res.writeHead(404)
+          res.end()
+          return
+        })
+
+        const testEndpoint = {
+          name: 'External Request Test Endpoint 5',
+          endpoint: {
+            pattern: '/externalRequestTest5'
+          },
+          transformation: {
+            input: 'JSON',
+            output: 'JSON'
+          },
+          requests: {
+            response: [
+              {
+                id: 'fhirPatient',
+                config: {
+                  method: 'post',
+                  url: `http://localhost:${mockServerPort}/Patient`
+                }
+              }
+            ]
+          }
+        }
+
+        await request(`http://localhost:${testMapperPort}`)
+          .post('/endpoints')
+          .send(testEndpoint)
+          .set('Content-Type', 'application/json')
+          .expect(201)
+
+        // The mongoDB endpoint collection change listeners may take a few milliseconds to update the endpoint cache.
+        // This wouldn't be a problem in the normal use case as a user would not create an endpoint and
+        // immediately start posting to it within a few milliseconds. Therefore this timeout here should be fine...
+        await sleep(1000)
+
+        // The mapper currently only accepts POSTs
+        const requestData = {
+          resourceType: 'Patient',
+          gender: 'unknown'
+        }
+
+        await request(`http://localhost:${testMapperPort}`)
+          .post('/externalRequestTest5')
+          .send(requestData)
+          .set('Content-Type', 'application/json')
+          .expect(response => {
+            t.equals(response.status, 504)
+            t.deepEquals(response.body.message, 'Gateway Timeout')
+          })
+      })
     })
   )
 )
