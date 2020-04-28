@@ -268,6 +268,69 @@ tap.test(
             })
         }
       )
+
+      t.test('requestMiddleware should fail lookup request', async t => {
+        t.plan(3)
+        server.on('request', async (req, res) => {
+          if (req.method === 'GET' && req.url === '/Patient') {
+            t.pass()
+            res.writeHead(418, {'Content-Type': 'application/json'})
+            res.end(JSON.stringify({message: `I'm a teapot`}))
+            return
+          }
+          res.writeHead(404)
+          res.end()
+          return
+        })
+
+        const testEndpoint = {
+          name: 'External Request Test Endpoint 4',
+          endpoint: {
+            pattern: '/externalRequestTest4'
+          },
+          transformation: {
+            input: 'JSON',
+            output: 'JSON'
+          },
+          requests: {
+            lookup: [
+              {
+                id: 'fhirPatient',
+                config: {
+                  method: 'get',
+                  url: `http://localhost:${mockServerPort}/Patient`
+                }
+              }
+            ]
+          }
+        }
+
+        await request(`http://localhost:${testMapperPort}`)
+          .post('/endpoints')
+          .send(testEndpoint)
+          .set('Content-Type', 'application/json')
+          .expect(201)
+
+        // The mongoDB endpoint collection change listeners may take a few milliseconds to update the endpoint cache.
+        // This wouldn't be a problem in the normal use case as a user would not create an endpoint and
+        // immediately start posting to it within a few milliseconds. Therefore this timeout here should be fine...
+        await sleep(1000)
+
+        // The mapper currently only accepts POSTs
+        const requestData = {}
+
+        await request(`http://localhost:${testMapperPort}`)
+          .post('/externalRequestTest4')
+          .send(requestData)
+          .set('Content-Type', 'application/json')
+          .expect(response => {
+            t.equals(response.status, 418)
+            t.deepEquals(
+              response.body.error,
+              `Rejected Promise: Error: Incorrect status code 418. I'm a teapot`
+            )
+          })
+      })
     })
   )
 )
