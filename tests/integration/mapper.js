@@ -258,7 +258,7 @@ tap.test(
 
       t.deepEqual(result.body, {
         error:
-          'Object mapping schema invalid: No function exists for key: inValidFunction'
+          'Input transform error: Object mapping schema invalid: No function exists for key: inValidFunction'
       })
       t.end()
     })

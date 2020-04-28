@@ -342,7 +342,8 @@ tap.test('Parser', {autoend: true}, t => {
             header: {
               'x-openhim-transactionid': '12333'
             }
-          }
+          },
+          response: {}
         }
         const outputFormat = 'XML'
         const expectedHeader = {
@@ -360,10 +361,10 @@ tap.test('Parser', {autoend: true}, t => {
 
         parseOutgoingBody(ctx, outputFormat)
 
-        t.deepEqual(ctx.body, expectedBody)
         t.deepEqual(ctx.header, expectedHeader)
         t.equals(ctx.orchestrations.length, 1)
         t.equals(ctx.orchestrations[0].name, 'Outgoing Parser')
+        t.equals(ctx.orchestrations[0].response.body, expectedBody)
         t.end()
       }
     )
