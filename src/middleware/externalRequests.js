@@ -5,8 +5,7 @@ const {DateTime} = require('luxon')
 
 const logger = require('../logger')
 
-const {constructOpenhimResponse} = require('../openhim')
-const {createOrchestration, setStatusText} = require('../orchestrations')
+const {createOrchestration} = require('../orchestrations')
 const {extractValueFromObject} = require('../util')
 
 const validateRequestStatusCode = allowedStatuses => {
@@ -216,21 +215,12 @@ const prepareResponseRequests = async ctx => {
           logger.info(
             `${ctx.state.metaData.name} (${ctx.state.uuid}): Mapped object successfully orchestrated`
           )
-          setStatusText(ctx)
         })
         .catch(error => {
           logger.error(
             `${ctx.state.metaData.name} (${ctx.state.uuid}): Mapped object orchestration failure: ${error.message}`
           )
         })
-
-      // Respond in openhim mediator format if request came from the openhim
-      if (ctx.request.header && ctx.request.header['x-openhim-transactionid']) {
-        ctx.response.type = 'application/json+openhim'
-        const date = new Date()
-
-        constructOpenhimResponse(ctx, date)
-      }
     }
   }
 }

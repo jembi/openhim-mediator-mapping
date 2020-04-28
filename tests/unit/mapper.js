@@ -9,25 +9,65 @@ const createMappedObject = mapper.__get__('createMappedObject')
 
 tap.test('Mapper', {autoend: true}, t => {
   t.test('createMappedObject()', {autoend: true}, t => {
-    t.test('should set the inputMapping if its undefined', t => {
-      const ctx = {
-        state: {
-          uuid: 'randomUidForRequest',
-          metaData: {
-            name: 'Testing endpoint'
+    t.test(
+      'should do no mapping if mapping schema is undefined and return the object sent and lookups done',
+      t => {
+        const ctx = {
+          state: {
+            uuid: 'randomUidForRequest',
+            metaData: {
+              name: 'Testing endpoint'
+            },
+            allData: {
+              requestBody: {
+                name: 'Timothy'
+              },
+              lookupRequests: {
+                surname: 'Wesley'
+              }
+            }
           },
-          allData: {}
-        },
-        request: {
-          body: {}
+          request: {
+            body: {}
+          }
         }
+
+        createMappedObject(ctx)
+
+        t.deepEqual(ctx.body, {
+          requestBody: ctx.state.allData.requestBody,
+          lookupRequests: ctx.state.allData.lookupRequests
+        })
+        t.end()
       }
+    )
 
-      createMappedObject(ctx)
+    t.test(
+      'should do no mapping if mapping schema is undefined and return the object sent',
+      t => {
+        const ctx = {
+          state: {
+            uuid: 'randomUidForRequest',
+            metaData: {
+              name: 'Testing endpoint'
+            },
+            allData: {
+              requestBody: {
+                name: 'Timothy'
+              }
+            }
+          },
+          request: {
+            body: {}
+          }
+        }
 
-      t.deepEqual(ctx.state.metaData.inputMapping, {})
-      t.end()
-    })
+        createMappedObject(ctx)
+
+        t.deepEqual(ctx.body, ctx.state.allData.requestBody)
+        t.end()
+      }
+    )
 
     t.test(
       'should create an object based on mapping (from request body)',
@@ -155,7 +195,10 @@ tap.test('Mapper', {autoend: true}, t => {
         try {
           createMappedObject(ctx)
         } catch (error) {
-          t.equals(error.message, 'No function exists for key: inValidFunction')
+          t.equals(
+            error.message,
+            'Object mapping schema invalid: No function exists for key: inValidFunction'
+          )
         }
         t.end()
       }

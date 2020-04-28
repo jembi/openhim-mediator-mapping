@@ -252,7 +252,10 @@ tap.test('Parser', {autoend: true}, t => {
           ctx.header = {}
           ctx.header[key] = value
         },
-        request: {}
+        request: {},
+        response: {
+          type: ''
+        }
       }
       const outputFormat = 'XML'
       const expectedHeader = {
@@ -295,6 +298,9 @@ tap.test('Parser', {autoend: true}, t => {
             header: {
               'x-openhim-transactionid': '12333'
             }
+          },
+          response: {
+            type: ''
           }
         }
         const outputFormat = 'XML'
@@ -302,15 +308,9 @@ tap.test('Parser', {autoend: true}, t => {
           'Content-Type': 'application/xml'
         }
 
-        const expectedBody =
-          '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<root>\n' +
-          '  <Name>Jet</Name>\n' +
-          '  <Surname>Li</Surname>\n' +
-          '  <Email>jet@openhim.org</Email>\n</root>'
-
         parseOutgoingBody(ctx, outputFormat)
 
-        t.deepEqual(ctx.body, expectedBody)
+        t.equals(JSON.parse(ctx.body).status, 'Successful')
         t.deepEqual(ctx.header, expectedHeader)
         t.equals(ctx.orchestrations.length, 1)
         t.equals(ctx.orchestrations[0].name, 'Outgoing Parser')
