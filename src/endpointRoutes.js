@@ -1,6 +1,7 @@
 'use strict'
 
 const KoaBodyParser = require('@viweei/koa-body-parser')
+const ObjectId = require('mongoose').Types.ObjectId
 
 const logger = require('./logger')
 
@@ -40,7 +41,7 @@ const readEndpointRoute = router => {
     const failureMsg = 'Retrieving of endpoint failed: '
 
     try {
-      const endpointId = ctx.params.endpointId
+      let endpointId = new ObjectId(ctx.params.endpointId)
 
       await endpointServices
         .readEndpoint(endpointId)
@@ -60,11 +61,12 @@ const readEndpointRoute = router => {
           next()
         })
         .catch(error => {
-          ctx.statusCode = 400
+          ctx.statusCode = 500
           handleServerError(ctx, failureMsg, error, logger)
           next()
         })
     } catch (error) {
+      ctx.statusCode = 400
       handleServerError(ctx, failureMsg, error, logger)
       next()
     }
