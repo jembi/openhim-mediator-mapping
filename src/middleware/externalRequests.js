@@ -405,6 +405,7 @@ const addRequestQueryParameters = (ctx, request) => {
           )
           break
         default:
+          ctx.statusCode = 500
           throw new Error(
             `Unsupported Query Parameter Extract Type: ${extractType}`
           )
