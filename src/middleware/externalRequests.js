@@ -75,9 +75,7 @@ const performRequests = (requests, ctx) => {
       })
       .catch(error => {
         orchestrationError = error
-        logger.error(
-          `Failed Request Config ${JSON.stringify(error.config, null, 2)}`
-        )
+        logger.error(`Failed Request Config ${JSON.stringify(error.config)}`)
 
         if (error.response) {
           ctx.statusCode = error.response.status
