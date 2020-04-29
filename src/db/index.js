@@ -10,8 +10,8 @@ const {
   setupEventListeners
 } = require('./services/endpoints/cache')
 
-exports.open = async mongoUrl => {
-  await mongoose
+exports.open = mongoUrl => {
+  return mongoose
     .connect(mongoUrl, {
       poolSize: 20,
       useCreateIndex: true,
@@ -19,11 +19,12 @@ exports.open = async mongoUrl => {
       useFindAndModify: false,
       useUnifiedTopology: true
     })
-    .then(() => {
+    .then(connection => {
       logger.info(`Connected to mongo on ${mongoUrl}`)
       if (dynamicEndpoints) {
         setupEventListeners()
       }
+      return connection
     })
     .catch(error => {
       logger.error(

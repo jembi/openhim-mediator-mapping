@@ -1101,5 +1101,28 @@ tap.test('External Requests', {autoend: true}, t => {
       t.equals(params.lastAddress, ctx.state.allData.state.lastAddress)
       t.end()
     })
+
+    t.test('should throw when invalid param path specified', t => {
+      const ctx = {}
+
+      const request = {
+        params: {
+          id: {
+            path: 'invalidPath.id'
+          }
+        }
+      }
+
+      try {
+        addRequestQueryParameters(ctx, request)
+      } catch (error) {
+        t.equals(
+          error.message,
+          'Unsupported Query Parameter Extract Type: invalidPath'
+        )
+      }
+
+      t.end()
+    })
   })
 })

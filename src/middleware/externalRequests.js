@@ -80,6 +80,7 @@ const performRequests = (requests, ctx) => {
         )
 
         if (error.response) {
+          ctx.statusCode = error.response.status
           throw new Error(
             `Incorrect status code ${error.response.status}. ${error.response.data.message}`
           )
@@ -88,6 +89,7 @@ const performRequests = (requests, ctx) => {
             `No response from lookup '${requestDetails.id}'. ${error.message}`
           )
         } else {
+          ctx.statusCode = 500
           // Something happened in setting up the request that triggered an Error
           throw new Error(`Unhandled Error: ${error.message}`)
         }
@@ -402,6 +404,11 @@ const addRequestQueryParameters = (ctx, request) => {
             path
           )
           break
+        default:
+          ctx.statusCode = 500
+          throw new Error(
+            `Unsupported Query Parameter Extract Type: ${extractType}`
+          )
       }
 
       if (parameterValue) {
