@@ -1,6 +1,6 @@
 'use strict'
 
-const KoaBodyParser = require('@viweei/koa-body-parser')
+const koaParser = require('@viweei/koa-body-parser')
 
 const logger = require('./logger')
 
@@ -13,6 +13,17 @@ const {
   readEndpoints,
   updateEndpoint
 } = require('./db/services/endpoints')
+
+const KoaBodyParser = () => async (ctx, next) => {
+  if (
+    ctx.request.header &&
+    ctx.request.header['content-length'] &&
+    ctx.request.header['content-length'] !== '0'
+  ) {
+    await koaParser()(ctx, () => {})
+  }
+  await next()
+}
 
 const createEndpointRoute = router => {
   router.post('/endpoints', KoaBodyParser(), async (ctx, next) => {
