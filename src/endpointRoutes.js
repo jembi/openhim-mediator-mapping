@@ -6,20 +6,15 @@ const logger = require('./logger')
 
 const {handleServerError} = require('./util')
 
-const {
-  createEndpoint,
-  deleteEndpoint,
-  readEndpoint,
-  readEndpoints,
-  updateEndpoint
-} = require('./db/services/endpoints')
+const endpointServices = require('./db/services/endpoints')
 
 const createEndpointRoute = router => {
   router.post('/endpoints', KoaBodyParser(), async (ctx, next) => {
     const failureMsg = 'Create endpoint failed:'
 
     try {
-      await createEndpoint(ctx.request.body)
+      await endpointServices
+        .createEndpoint(ctx.request.body)
         .then(result => {
           ctx.status = 201
           ctx.body = result
@@ -47,7 +42,8 @@ const readEndpointRoute = router => {
     try {
       const endpointId = ctx.params.endpointId
 
-      await readEndpoint(endpointId)
+      await endpointServices
+        .readEndpoint(endpointId)
         .then(endpoint => {
           if (endpoint) {
             ctx.status = 200
@@ -82,7 +78,8 @@ const readEndpointsRoute = router => {
     try {
       const queryParams = ctx.request.query
 
-      await readEndpoints(queryParams)
+      await endpointServices
+        .readEndpoints(queryParams)
         .then(endpoints => {
           ctx.status = 200
           ctx.body = endpoints
@@ -125,7 +122,8 @@ const updateEndpointRoute = router => {
 
       const body = Object.assign({lastUpdated: Date.now()}, ctx.request.body)
 
-      await updateEndpoint(endpointId, body)
+      await endpointServices
+        .updateEndpoint(endpointId, body)
         .then(result => {
           if (result) {
             ctx.status = 200
@@ -160,7 +158,8 @@ const deleteEndpointRoute = router => {
     try {
       const endpointId = ctx.params.endpointId
 
-      await deleteEndpoint(endpointId)
+      await endpointServices
+        .deleteEndpoint(endpointId)
         .then(result => {
           if (result && result.deletedCount) {
             const message = `Endpoint with id '${endpointId}' deleted`
