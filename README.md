@@ -34,7 +34,7 @@ services:
   mapper-mongo-1:
     image: mongo:4.2
     container_name: mapper-mongo-1
-    post:
+    ports:
       - "27017:27017"
     networks:
       - mapper-cluster-network
@@ -45,7 +45,7 @@ services:
   mapper-mongo-2:
     image: mongo:4.2
     container_name: mapper-mongo-2
-    post:
+    ports:
       - "27018:27017"
     networks:
       - mapper-cluster-network
@@ -56,7 +56,7 @@ services:
   mapper-mongo-3:
     image: mongo:4.2
     container_name: mapper-mongo-3
-    post:
+    ports:
       - "27019:27017"
     networks:
       - mapper-cluster-network
