@@ -13,6 +13,21 @@ tap.test(
   'ParserMiddleware',
   withTestMapperServer(port, async t => {
     t.test(
+      'parser middleware for endpoint creation and update should return error when data sent through is not valid json',
+      async t => {
+        const invalidJson = 'Body'
+
+        const result = await request(`http://localhost:${port}`)
+          .post('/endpoints')
+          .send(invalidJson)
+          .set('Content-Type', 'application/json')
+          .expect(400)
+
+        t.match(result.body.error, /Parsing incoming request body failed/)
+      }
+    )
+
+    t.test(
       'parseBodyMiddleware should accept XML content input and output XML',
       async t => {
         const testEndpoint = {
