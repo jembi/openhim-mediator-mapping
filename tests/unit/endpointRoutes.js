@@ -10,6 +10,9 @@ const routes = rewire('../../src/endpointRoutes')
 
 const createEndpointRoute = routes.__get__('createEndpointRoute')
 const readEndpointRoute = routes.__get__('readEndpointRoute')
+const readEndpointsRoute = routes.__get__('readEndpointsRoute')
+const updateEndpointRoute = routes.__get__('updateEndpointRoute')
+const deleteEndpointRoute = routes.__get__('deleteEndpointRoute')
 
 tap.test('Endpoint Routes', {autoend: true}, async t => {
   let sandbox = sinon.createSandbox()
@@ -235,4 +238,356 @@ tap.test('Endpoint Routes', {autoend: true}, async t => {
       readEndpointRoute(router)
     }
   )
+
+  t.test('readEndpointsRoute should find endpoints', t => {
+    t.plan(2)
+    const result = [
+      {
+        name: 'test1',
+        endpoint: {
+          pattern: 'test1'
+        }
+      },
+      {
+        name: 'test2',
+        endpoint: {
+          pattern: 'test2'
+        }
+      }
+    ]
+
+    sandbox
+      .stub(endpointService, 'readEndpoints')
+      .withArgs({})
+      .resolves(result)
+
+    const ctx = {
+      request: {
+        query: {},
+        body: {}
+      }
+    }
+    const next = () => {
+      t.equals(ctx.status, 200)
+      t.deepEquals(ctx.body, result)
+    }
+    const router = {
+      get: (_pattern, callback) => {
+        callback(ctx, next)
+      }
+    }
+
+    readEndpointsRoute(router)
+  })
+
+  t.test('readEndpointsRoute should reject promise', t => {
+    t.plan(2)
+    sandbox.stub(endpointService, 'readEndpoints').rejects(new Error('Boom!'))
+
+    const ctx = {
+      request: {
+        query: {},
+        body: {}
+      }
+    }
+    const next = () => {
+      t.equals(ctx.status, 500)
+      t.deepEquals(ctx.body, {error: 'Retrieving of endpoints failed: Boom!'})
+    }
+    const router = {
+      get: (_pattern, callback) => {
+        callback(ctx, next)
+      }
+    }
+
+    readEndpointsRoute(router)
+  })
+
+  t.test('readEndpointsRoute should throw', t => {
+    t.plan(2)
+    sandbox.stub(endpointService, 'readEndpoints').throws(new Error('Boom!'))
+
+    const ctx = {
+      request: {
+        query: {},
+        body: {}
+      }
+    }
+    const next = () => {
+      t.equals(ctx.status, 500)
+      t.deepEquals(ctx.body, {error: 'Retrieving of endpoints failed: Boom!'})
+    }
+    const router = {
+      get: (_pattern, callback) => {
+        callback(ctx, next)
+      }
+    }
+
+    readEndpointsRoute(router)
+  })
+
+  t.test('updateEndpointRoute should update endpoint', t => {
+    t.plan(3)
+    const result = {
+      name: 'test1',
+      endpoint: {
+        pattern: 'test1'
+      }
+    }
+
+    const stub = sandbox
+      .stub(endpointService, 'updateEndpoint')
+      .resolves(result)
+
+    const ctx = {
+      params: {
+        endpointId: '5e99568a50902917f2bc352b'
+      },
+      request: {
+        query: {},
+        body: {
+          name: 'test1',
+          endpoint: 'test1'
+        }
+      }
+    }
+    const next = () => {
+      t.equals(ctx.status, 200)
+      t.deepEquals(ctx.body, result)
+      t.ok(stub.called)
+    }
+    const router = {
+      put: (_pattern, _parser, callback) => {
+        callback(ctx, next)
+      }
+    }
+
+    updateEndpointRoute(router)
+  })
+
+  t.test('updateEndpointRoute should throw with invalid ObjectId', t => {
+    t.plan(2)
+    const ctx = {
+      params: {
+        endpointId: 'Invalid'
+      }
+    }
+    const next = () => {
+      t.equals(ctx.status, 400)
+      t.deepEquals(ctx.body, {
+        error:
+          'Updating of endpoint failed: Argument passed in must be a single String of 12 bytes or a string of 24 hex characters'
+      })
+    }
+    const router = {
+      put: (_pattern, _parser, callback) => {
+        callback(ctx, next)
+      }
+    }
+
+    updateEndpointRoute(router)
+  })
+
+  t.test(
+    'updateEndpointRoute should fail when no request body data supplied',
+    t => {
+      t.plan(2)
+      const ctx = {
+        params: {
+          endpointId: '5e99568a50902917f2bc352b'
+        },
+        request: {
+          query: {},
+          body: {}
+        }
+      }
+      const next = () => {
+        t.equals(ctx.status, 400)
+        t.deepEquals(ctx.body, {
+          error: 'Updating of endpoint failed: Invalid endpoint object'
+        })
+      }
+      const router = {
+        put: (_pattern, _parser, callback) => {
+          callback(ctx, next)
+        }
+      }
+
+      updateEndpointRoute(router)
+    }
+  )
+
+  t.test(
+    'updateEndpointRoute should fail to update endpoint when endpoint not found',
+    t => {
+      t.plan(3)
+      const stub = sandbox
+        .stub(endpointService, 'updateEndpoint')
+        .resolves(null)
+
+      const ctx = {
+        params: {
+          endpointId: '5e99568a50902917f2bc352b'
+        },
+        request: {
+          query: {},
+          body: {
+            name: 'test1',
+            endpoint: 'test1'
+          }
+        }
+      }
+      const next = () => {
+        t.equals(ctx.status, 404)
+        t.deepEquals(ctx.body, {
+          error: 'Endpoint with id 5e99568a50902917f2bc352b does not exist'
+        })
+        t.ok(stub.called)
+      }
+      const router = {
+        put: (_pattern, _parser, callback) => {
+          callback(ctx, next)
+        }
+      }
+
+      updateEndpointRoute(router)
+    }
+  )
+
+  t.test('updateEndpointRoute should reject', t => {
+    t.plan(3)
+    const stub = sandbox
+      .stub(endpointService, 'updateEndpoint')
+      .rejects(new Error('MongoDB Error Detected'))
+
+    const ctx = {
+      params: {
+        endpointId: '5e99568a50902917f2bc352b'
+      },
+      request: {
+        query: {},
+        body: {
+          name: 'test1',
+          endpoint: 'test1'
+        }
+      }
+    }
+    const next = () => {
+      t.equals(ctx.status, 400)
+      t.deepEquals(ctx.body, {
+        error: 'Updating of endpoint failed: MongoDB Error Detected'
+      })
+      t.ok(stub.called)
+    }
+    const router = {
+      put: (_pattern, _parser, callback) => {
+        callback(ctx, next)
+      }
+    }
+
+    updateEndpointRoute(router)
+  })
+
+  t.test('deleteEndpointRoute should delete endpoint', t => {
+    t.plan(2)
+    const result = {
+      deletedCount: 1
+    }
+
+    sandbox.stub(endpointService, 'deleteEndpoint').resolves(result)
+
+    const ctx = {
+      params: {
+        endpointId: '5e99568a50902917f2bc352b'
+      }
+    }
+    const next = () => {
+      t.equals(ctx.status, 200)
+      t.deepEquals(ctx.body, {
+        message: "Endpoint with id '5e99568a50902917f2bc352b' deleted"
+      })
+    }
+    const router = {
+      delete: (_pattern, callback) => {
+        callback(ctx, next)
+      }
+    }
+
+    deleteEndpointRoute(router)
+  })
+
+  t.test('deleteEndpointRoute should throw with invalid ObjectId', t => {
+    t.plan(2)
+    const ctx = {
+      params: {
+        endpointId: 'Invalid'
+      }
+    }
+    const next = () => {
+      t.equals(ctx.status, 400)
+      t.deepEquals(ctx.body, {
+        error:
+          'Endpoint deletion failed: Argument passed in must be a single String of 12 bytes or a string of 24 hex characters'
+      })
+    }
+    const router = {
+      delete: (_pattern, callback) => {
+        callback(ctx, next)
+      }
+    }
+
+    deleteEndpointRoute(router)
+  })
+
+  t.test('deleteEndpointRoute should fail when endpoint not found', t => {
+    t.plan(2)
+
+    sandbox.stub(endpointService, 'deleteEndpoint').resolves(null)
+
+    const ctx = {
+      params: {
+        endpointId: '5e99568a50902917f2bc352b'
+      }
+    }
+    const next = () => {
+      t.equals(ctx.status, 404)
+      t.deepEquals(ctx.body, {
+        error: "Endpoint with id '5e99568a50902917f2bc352b' does not exist"
+      })
+    }
+    const router = {
+      delete: (_pattern, callback) => {
+        callback(ctx, next)
+      }
+    }
+
+    deleteEndpointRoute(router)
+  })
+
+  t.test('deleteEndpointRoute should reject', t => {
+    t.plan(2)
+
+    sandbox
+      .stub(endpointService, 'deleteEndpoint')
+      .rejects(new Error('Mongo Error Detected!'))
+
+    const ctx = {
+      params: {
+        endpointId: '5e99568a50902917f2bc352b'
+      }
+    }
+    const next = () => {
+      t.equals(ctx.status, 500)
+      t.deepEquals(ctx.body, {
+        error: 'Endpoint deletion failed: Mongo Error Detected!'
+      })
+    }
+    const router = {
+      delete: (_pattern, callback) => {
+        callback(ctx, next)
+      }
+    }
+
+    deleteEndpointRoute(router)
+  })
 })
