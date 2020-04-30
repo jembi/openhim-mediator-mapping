@@ -1,10 +1,13 @@
 'use strict'
 
 const axios = require('axios')
-const spawn = require('child_process').spawn
+const http = require('http')
 const sleep = require('util').promisify(setTimeout)
-const {deleteEndpoints} = require('../src/db/services/endpoints')
+const spawn = require('child_process').spawn
+
 const db = require('../src/db')
+
+const {deleteEndpoints} = require('../src/db/services/endpoints')
 const {mongoUrl} = require('../src/config').getConfig()
 
 const spawnServer = async () => {
@@ -61,7 +64,7 @@ exports.withTestMapperServer = (port, test) => {
   return async t => {
     // Before Test cleanup. We have to open two db connections for the tests as the child process's
     // db connection is not available to the test suite.
-    await db.open(mongoUrl)
+    const testDB = await db.open(mongoUrl)
     await deleteEndpoints({})
 
     // Allow the test mapper server to make use of dynamic endpoints.
@@ -86,7 +89,33 @@ exports.withTestMapperServer = (port, test) => {
     // Clean up the db and close db connection after tests
     t.teardown(async () => {
       await deleteEndpoints({})
+      await testDB.connection.db.dropDatabase()
       await db.close()
+    })
+  }
+}
+
+exports.withMockServer = (port, test) => {
+  return async t => {
+    const server = http.createServer()
+
+    // Clear request listeners between tests
+    t.afterEach(async () => {
+      server.removeAllListeners('request')
+    })
+
+    // Start the server
+    await new Promise(resolve => {
+      server.listen(port, () => resolve())
+      console.log(`Mock server listening on ${port}...`)
+    })
+
+    // Execute the test
+    await test(t, server)
+
+    // Close the server on teardown
+    t.teardown(() => {
+      server.close()
     })
   }
 }
