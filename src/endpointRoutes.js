@@ -41,7 +41,7 @@ const readEndpointRoute = router => {
     const failureMsg = 'Retrieving of endpoint failed: '
 
     try {
-      let endpointId = new ObjectId(ctx.params.endpointId)
+      const endpointId = new ObjectId(ctx.params.endpointId)
 
       await endpointServices
         .readEndpoint(endpointId)
@@ -108,7 +108,7 @@ const updateEndpointRoute = router => {
     const failureMsg = 'Updating of endpoint failed: '
 
     try {
-      const endpointId = ctx.params.endpointId
+      const endpointId = new ObjectId(ctx.params.endpointId)
 
       if (
         !ctx.request ||
@@ -147,6 +147,7 @@ const updateEndpointRoute = router => {
           next()
         })
     } catch (error) {
+      ctx.statusCode = 400
       handleServerError(ctx, failureMsg, error, logger)
       next()
     }
@@ -158,7 +159,7 @@ const deleteEndpointRoute = router => {
     const failureMsg = `Endpoint deletion failed: `
 
     try {
-      const endpointId = ctx.params.endpointId
+      const endpointId = new ObjectId(ctx.params.endpointId)
 
       await endpointServices
         .deleteEndpoint(endpointId)
@@ -177,11 +178,12 @@ const deleteEndpointRoute = router => {
           next()
         })
         .catch(error => {
-          ctx.statusCode = 400
+          ctx.statusCode = 500
           handleServerError(ctx, failureMsg, error, logger)
           next()
         })
     } catch (error) {
+      ctx.statusCode = 400
       handleServerError(ctx, failureMsg, error, logger)
       next()
     }
