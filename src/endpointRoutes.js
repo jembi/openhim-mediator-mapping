@@ -1,13 +1,26 @@
 'use strict'
 
-const KoaBodyParser = require('@viweei/koa-body-parser')
 const ObjectId = require('mongoose').Types.ObjectId
+const rawBodyParser = require('raw-body')
 
 const logger = require('./logger')
 
 const {handleServerError} = require('./util')
 
 const endpointServices = require('./db/services/endpoints')
+
+const KoaBodyParser = () => async (ctx, next) => {
+  try {
+    const body = await rawBodyParser(ctx.req)
+
+    ctx.request.body = body.toString() ? JSON.parse(body) : {}
+    await next()
+  } catch (error) {
+    const failureMsg = 'Parsing incoming request body failed: '
+    ctx.statusCode = 400
+    handleServerError(ctx, failureMsg, error, logger)
+  }
+}
 
 const createEndpointRoute = router => {
   router.post('/endpoints', KoaBodyParser(), async (ctx, next) => {
