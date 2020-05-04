@@ -1,5 +1,7 @@
 'use strict'
 
+const ObjectId = require('mongoose').Types.ObjectId
+
 const EndpointModel = require('../../models/endpoints')
 
 exports.createEndpoint = body => {
@@ -8,7 +10,8 @@ exports.createEndpoint = body => {
 }
 
 exports.readEndpoint = endpointId => {
-  return EndpointModel.findById(endpointId)
+  const objectId = new ObjectId(endpointId)
+  return EndpointModel.findById(objectId)
 }
 
 exports.readEndpoints = queryParams => {
@@ -16,14 +19,16 @@ exports.readEndpoints = queryParams => {
 }
 
 exports.updateEndpoint = (endpointId, body) => {
-  return EndpointModel.findOneAndUpdate({_id: endpointId}, body, {
+  const objectId = new ObjectId(endpointId)
+  return EndpointModel.findOneAndUpdate({_id: objectId}, body, {
     new: true,
     runValidators: true
   })
 }
 
 exports.deleteEndpoint = endpointId => {
-  return EndpointModel.deleteOne({_id: endpointId})
+  const objectId = new ObjectId(endpointId)
+  return EndpointModel.deleteOne({_id: objectId})
 }
 
 exports.deleteEndpoints = queryParams => {

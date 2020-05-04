@@ -210,10 +210,6 @@ tap.test('Endpoint Routes', {autoend: true}, async t => {
     t => {
       t.plan(2)
 
-      sandbox
-        .stub(endpointService, 'readEndpoint')
-        .rejects(new Error('MongoDB Error detected'))
-
       const ctx = {
         params: {
           endpointId: 'Invalid'
@@ -370,6 +366,11 @@ tap.test('Endpoint Routes', {autoend: true}, async t => {
     const ctx = {
       params: {
         endpointId: 'Invalid'
+      },
+      request: {
+        body: {
+          name: 'test1'
+        }
       }
     }
     const next = () => {

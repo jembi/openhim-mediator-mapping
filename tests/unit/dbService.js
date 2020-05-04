@@ -8,6 +8,7 @@ const {
   createEndpoint,
   deleteEndpoint,
   deleteEndpoints,
+  readEndpoint,
   readEndpoints,
   updateEndpoint
 } = require('../../src/db/services/endpoints')
@@ -220,6 +221,51 @@ tap.test('Database interactions', {autoend: true}, t => {
         })
     })
 
+    t.test('should read Endpoint by endpointId', {autoend: true}, async t => {
+      t.plan(3)
+
+      await readEndpoints({})
+        .then(data => {
+          t.equals(data.length, 0)
+        })
+        .catch(error => {
+          t.fail(`Should not reach here. ${error.message}`)
+        })
+
+      const testEndpointConfig = {
+        name: 'test',
+        endpoint: {
+          pattern: '/test'
+        },
+        transformation: {
+          input: 'JSON',
+          output: 'JSON'
+        },
+        lastUpdated: Date.now()
+      }
+      let endpointId
+
+      await createEndpoint(testEndpointConfig)
+        .then(data => {
+          t.ok(data.id)
+          endpointId = data.id
+        })
+        .catch(error => {
+          t.fail(`Should not reach here. ${error.message}`)
+        })
+
+      await readEndpoint(endpointId)
+        .then(data => {
+          t.ok(
+            JSON.stringify(data),
+            '{"endpoint":{"pattern":"/test"},"transformation":{"input":"JSON","output":"JSON"},"requests":{"lookup":[],"response":[]},"_id":"5eaff1ef3b7fac5474c70a14","name":"test","createdAt":"2020-05-04T10:43:59.447Z","updatedAt":"2020-05-04T10:43:59.447Z","__v":0}'
+          )
+        })
+        .catch(error => {
+          t.fail(`Should not reach here. ${error.message}`)
+        })
+    })
+
     t.test(
       'should fail to read Endpoints when queryParams are invalid',
       {autoend: true},
@@ -395,16 +441,14 @@ tap.test('Database interactions', {autoend: true}, t => {
       async t => {
         t.plan(1)
 
-        await deleteEndpoint('Not Valid')
-          .then(data => {
-            t.fail(`Should not reach here. ${data}`)
-          })
-          .catch(error => {
-            t.equals(
-              error.message,
-              'Cast to ObjectId failed for value "Not Valid" at path "_id" for model "endpoint"'
-            )
-          })
+        try {
+          await deleteEndpoint('Not Valid')
+        } catch (error) {
+          t.equals(
+            error.message,
+            'Argument passed in must be a single String of 12 bytes or a string of 24 hex characters'
+          )
+        }
       }
     )
 

@@ -1,6 +1,5 @@
 'use strict'
 
-const ObjectId = require('mongoose').Types.ObjectId
 const rawBodyParser = require('raw-body')
 
 const logger = require('./logger')
@@ -54,7 +53,7 @@ const readEndpointRoute = router => {
     const failureMsg = 'Retrieving of endpoint failed: '
 
     try {
-      const endpointId = new ObjectId(ctx.params.endpointId)
+      const endpointId = ctx.params.endpointId
 
       await endpointServices
         .readEndpoint(endpointId)
@@ -121,7 +120,7 @@ const updateEndpointRoute = router => {
     const failureMsg = 'Updating of endpoint failed: '
 
     try {
-      const endpointId = new ObjectId(ctx.params.endpointId)
+      const endpointId = ctx.params.endpointId
 
       if (
         !ctx.request ||
@@ -172,7 +171,7 @@ const deleteEndpointRoute = router => {
     const failureMsg = `Endpoint deletion failed: `
 
     try {
-      const endpointId = new ObjectId(ctx.params.endpointId)
+      const endpointId = ctx.params.endpointId
 
       await endpointServices
         .deleteEndpoint(endpointId)
