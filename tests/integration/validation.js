@@ -5,6 +5,7 @@ const sleep = require('util').promisify(setTimeout)
 const tap = require('tap')
 
 const port = 13003
+process.env.MONGO_URL = 'mongodb://localhost:27017/validatorTest'
 
 const {withTestMapperServer} = require('../utils')
 

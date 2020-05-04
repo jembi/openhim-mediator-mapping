@@ -449,7 +449,7 @@ tap.test('External Requests', {autoend: true}, t => {
     )
 
     t.test(
-      'should send requests and record the orchestrations (to a server that is down) (statusText should be Failed)',
+      'should send requests and record the orchestrations (to a server that is down)',
       async t => {
         const url = 'http://localhost:8000/'
         const url2 = 'http://localhost:9000/'
@@ -506,85 +506,76 @@ tap.test('External Requests', {autoend: true}, t => {
 
         t.equals(ctx.orchestrations.length, 2)
         t.match(ctx.orchestrations[0].error.message, /ECONNREFUSED/)
-        t.match(ctx.body, /Failed/)
         t.end()
       }
     )
 
-    t.test(
-      'should send requests and record the orchestrations (response statusText - Successful)',
-      async t => {
-        const url = 'http://localhost:8000/'
-        const method = 'PUT'
+    t.test('should send requests and record the orchestrations', async t => {
+      const url = 'http://localhost:8000/'
+      const method = 'PUT'
 
-        const ctx = {
-          status: 200,
-          state: {
-            metaData: {
-              requests: {
-                response: [
-                  {
-                    config: {
-                      url: `${url}patient?name=raze`,
-                      method: method
-                    },
-                    id: 'Patient',
-                    primary: true
+      const ctx = {
+        status: 200,
+        state: {
+          metaData: {
+            requests: {
+              response: [
+                {
+                  config: {
+                    url: `${url}patient?name=raze`,
+                    method: method
                   },
-                  {
-                    config: {
-                      url: `${url}patient?name=raze`,
-                      method: method
-                    },
-                    id: 'Entity'
-                  }
-                ]
-              }
-            },
-            allData: {
-              constants: {},
-              state: {},
-              timestamps: {
-                lookupRequests: {}
-              }
+                  id: 'Patient',
+                  primary: true
+                },
+                {
+                  config: {
+                    url: `${url}patient?name=raze`,
+                    method: method
+                  },
+                  id: 'Entity'
+                }
+              ]
             }
           },
-          request: {
-            header: {
-              'x-openhim-transactionid': '1232244'
+          allData: {
+            constants: {},
+            state: {},
+            timestamps: {
+              lookupRequests: {}
             }
-          },
-          response: {
-            headers: {}
-          },
-          body: {
-            surname: 'breez'
-          },
-          set: (key, value) => {
-            ctx.response.headers[key] = value
           }
+        },
+        request: {
+          header: {
+            'x-openhim-transactionid': '1232244'
+          }
+        },
+        response: {
+          headers: {}
+        },
+        body: {
+          surname: 'breez'
+        },
+        set: (key, value) => {
+          ctx.response.headers[key] = value
         }
-
-        const response = {name: 'raze', surname: 'breez'}
-
-        nock(url)
-          .put('/patient?name=raze')
-          .times(2)
-          .reply(200, response)
-
-        await prepareResponseRequests(ctx)
-
-        t.equals(ctx.orchestrations.length, 2)
-        t.deepEqual(
-          ctx.orchestrations[1].response.body,
-          JSON.stringify(response)
-        )
-
-        // The response statusText should be set to Successful
-        t.match(ctx.body, /Successful/)
-        t.end()
       }
-    )
+
+      const response = {name: 'raze', surname: 'breez'}
+
+      nock(url)
+        .put('/patient?name=raze')
+        .times(2)
+        .reply(200, response)
+
+      await prepareResponseRequests(ctx)
+
+      t.equals(ctx.orchestrations.length, 2)
+      t.deepEqual(ctx.orchestrations[1].response.body, JSON.stringify(response))
+
+      t.end()
+    })
 
     t.test(
       'should not record orchestrations if response is not being sent to the openhim',
@@ -743,137 +734,6 @@ tap.test('External Requests', {autoend: true}, t => {
             )
             performRequestsStub()
           })
-        }
-      )
-
-      t.test(
-        "should send requests and set the response body's statusText to Completed",
-        async t => {
-          const url = 'http://localhost:8000/'
-          const method = 'PUT'
-          const id = 'Patient'
-
-          const ctx = {
-            status: 200,
-            state: {
-              metaData: {
-                requests: {
-                  response: [
-                    {
-                      config: {
-                        url: `${url}patient?name=raze`,
-                        method: method
-                      },
-                      id: id,
-                      primary: true
-                    }
-                  ]
-                }
-              },
-              allData: {
-                constants: {},
-                state: {},
-                timestamps: {
-                  lookupRequests: {}
-                }
-              }
-            },
-            request: {
-              header: {
-                'x-openhim-transactionid': '1232244'
-              }
-            },
-            response: {
-              headers: {}
-            },
-            body: {
-              surname: 'breez'
-            },
-            set: (key, value) => {
-              ctx.response.headers[key] = value
-            }
-          }
-
-          const response = {name: 'raze', surname: 'breez'}
-
-          nock(url)
-            .put('/patient?name=raze')
-            .reply(400, response)
-
-          await prepareResponseRequests(ctx)
-
-          t.equals(ctx.orchestrations.length, 1)
-          t.match(ctx.body, /Completed/)
-          t.end()
-        }
-      )
-
-      t.test(
-        "should set the response body's statusText to 'Completed with error(s)' when there is an error on a non-primary request",
-        async t => {
-          const url = 'http://localhost:8000/'
-          const method = 'PUT'
-          const id = 'Patient'
-
-          const ctx = {
-            status: 200,
-            state: {
-              metaData: {
-                requests: {
-                  response: [
-                    {
-                      config: {
-                        url: `${url}patient?name=raze`,
-                        method: method
-                      },
-                      id: id,
-                      primary: true
-                    },
-                    {
-                      config: {
-                        url: `${url}resource?name=raze`,
-                        method: method
-                      },
-                      id: id
-                    }
-                  ]
-                }
-              },
-              allData: {
-                constants: {},
-                state: {},
-                timestamps: {
-                  lookupRequests: {}
-                }
-              }
-            },
-            request: {
-              header: {
-                'x-openhim-transactionid': '1232244'
-              }
-            },
-            response: {
-              headers: {}
-            },
-            body: {
-              surname: 'breez'
-            },
-            set: (key, value) => {
-              ctx.response.headers[key] = value
-            }
-          }
-
-          const response = {name: 'raze', surname: 'breez'}
-
-          nock(url)
-            .put('/patient?name=raze')
-            .reply(200, response)
-
-          await prepareResponseRequests(ctx)
-
-          t.equals(ctx.orchestrations.length, 2)
-          t.match(ctx.body, /Completed with error/)
-          t.end()
         }
       )
     })
@@ -1239,6 +1099,29 @@ tap.test('External Requests', {autoend: true}, t => {
       t.equals(params.children, ctx.state.allData.lookupRequests.children)
       t.equals(params.brothers, ctx.state.allData.requestBody.brother)
       t.equals(params.lastAddress, ctx.state.allData.state.lastAddress)
+      t.end()
+    })
+
+    t.test('should throw when invalid param path specified', t => {
+      const ctx = {}
+
+      const request = {
+        params: {
+          id: {
+            path: 'invalidPath.id'
+          }
+        }
+      }
+
+      try {
+        addRequestQueryParameters(ctx, request)
+      } catch (error) {
+        t.equals(
+          error.message,
+          'Unsupported Query Parameter Extract Type: invalidPath'
+        )
+      }
+
       t.end()
     })
   })

@@ -90,7 +90,7 @@ tap.test('Parser', {autoend: true}, t => {
           header: {
             'x-openhim-transactionid': '12333'
           },
-          raw_body: '<xml><name>Moin</name><surname>Sacks</surname></xml>'
+          raw_body: '<xml><name>Moin</name><surname>Sacks</surname></xml>' // ??? raw body us XML but body is JSON
         }
       }
       const inputFormat = 'XML'
@@ -104,6 +104,84 @@ tap.test('Parser', {autoend: true}, t => {
         ctx.orchestrations[0].response.body,
         JSON.stringify(ctx.request.body)
       )
+      t.end()
+    })
+
+    t.test(
+      'should parse data and create an orchestration - with orchestrations array',
+      async t => {
+        const ctx = {
+          orchestrations: [], // empty array to skip condition check
+          state: {
+            uuid: 'randomUidForRequest',
+            metaData: {
+              name: 'Testing endpoint'
+            },
+            allData: {}
+          },
+          get: name => {
+            const contentHeader = 'application/xml'
+            if (name) {
+              return contentHeader
+            }
+          },
+          request: {
+            body: {
+              name: 'Moin',
+              surname: 'Sacks'
+            },
+            header: {
+              'x-openhim-transactionid': '12333'
+            },
+            raw_body: '<xml><name>Moin</name><surname>Sacks</surname></xml>' // ??? raw body us XML but body is JSON
+          }
+        }
+        const inputFormat = 'XML'
+
+        await parseIncomingBody(ctx, inputFormat)
+
+        t.equals(ctx.orchestrations.length, 1)
+        t.equals(ctx.orchestrations[0].name, 'Incoming Parser')
+        t.equals(ctx.orchestrations[0].request.body, ctx.request.raw_body)
+        t.equals(
+          ctx.orchestrations[0].response.body,
+          JSON.stringify(ctx.request.body)
+        )
+        t.end()
+      }
+    )
+
+    t.test('should parse data and create an orchestration - JSON', async t => {
+      const ctx = {
+        state: {
+          uuid: 'randomUidForRequest',
+          metaData: {
+            name: 'Testing endpoint'
+          },
+          allData: {}
+        },
+        get: name => {
+          const contentHeader = 'application/json'
+          if (name) {
+            return contentHeader
+          }
+        },
+        request: {
+          body: {
+            name: 'Moin',
+            surname: 'Sacks'
+          },
+          header: {
+            'x-openhim-transactionid': '12333'
+          },
+          raw_body: '{"name": "Moin", "surname": "Sacks"}'
+        }
+      }
+      const inputFormat = 'JSON'
+
+      await parseIncomingBody(ctx, inputFormat)
+
+      t.notOk(ctx.orchestrations) // should not exist
       t.end()
     })
   })
@@ -174,7 +252,10 @@ tap.test('Parser', {autoend: true}, t => {
           ctx.header = {}
           ctx.header[key] = value
         },
-        request: {}
+        request: {},
+        response: {
+          type: ''
+        }
       }
       const outputFormat = 'XML'
       const expectedHeader = {
@@ -217,6 +298,9 @@ tap.test('Parser', {autoend: true}, t => {
             header: {
               'x-openhim-transactionid': '12333'
             }
+          },
+          response: {
+            type: ''
           }
         }
         const outputFormat = 'XML'
@@ -224,43 +308,145 @@ tap.test('Parser', {autoend: true}, t => {
           'Content-Type': 'application/xml'
         }
 
-        const expectedBody =
-          '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<root>\n' +
-          '  <Name>Jet</Name>\n' +
-          '  <Surname>Li</Surname>\n' +
-          '  <Email>jet@openhim.org</Email>\n</root>'
-
         parseOutgoingBody(ctx, outputFormat)
 
-        t.deepEqual(ctx.body, expectedBody)
+        t.equals(JSON.parse(ctx.body).status, 'Successful')
         t.deepEqual(ctx.header, expectedHeader)
         t.equals(ctx.orchestrations.length, 1)
         t.equals(ctx.orchestrations[0].name, 'Outgoing Parser')
         t.end()
       }
     )
+
+    t.test(
+      'should parse body from json to xml format and create an orchestration - with orchestrations array',
+      t => {
+        const ctx = {
+          orchestrations: [], // empty array to skip condition check
+          body: {
+            Name: 'Jet',
+            Surname: 'Li',
+            Email: 'jet@openhim.org'
+          },
+          state: {
+            uuid: 'randomUidForRequest',
+            metaData: {
+              name: 'Testing endpoint'
+            }
+          },
+          set: (key, value) => {
+            ctx.header = {}
+            ctx.header[key] = value
+          },
+          request: {
+            header: {
+              'x-openhim-transactionid': '12333'
+            }
+          },
+          response: {}
+        }
+        const outputFormat = 'XML'
+        const expectedHeader = {
+          'Content-Type': 'application/xml'
+        }
+
+        const expectedBody = [
+          '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>',
+          '<root>',
+          '  <Name>Jet</Name>',
+          '  <Surname>Li</Surname>',
+          '  <Email>jet@openhim.org</Email>',
+          '</root>'
+        ].join('\n')
+
+        parseOutgoingBody(ctx, outputFormat)
+
+        t.deepEqual(ctx.header, expectedHeader)
+        t.equals(ctx.orchestrations.length, 1)
+        t.equals(ctx.orchestrations[0].name, 'Outgoing Parser')
+        t.equals(ctx.orchestrations[0].response.body, expectedBody)
+        t.end()
+      }
+    )
   })
 
-  t.test(
-    'should throw due to invalid input type and add error message to ctx',
-    async t => {
-      const ctx = {
-        state: {
-          metaData: {
-            transformation: {
-              input: 'invalid',
-              output: 'JSON'
+  t.test('parseBodyMiddleware', {autoend: true}, t => {
+    t.test(
+      'should return an error for invalid input type and add error message to ctx',
+      async t => {
+        const ctx = {
+          state: {
+            uuid: 'unique-id',
+            metaData: {
+              name: 'Test endpoint',
+              transformation: {
+                input: 'XML',
+                output: 'JSON'
+              }
             }
           }
         }
+
+        const next = () => {
+          t.equals(ctx.status, 400)
+          t.same(ctx.body, {
+            error:
+              'Test endpoint (unique-id): transformation method "INVALID" not yet supported'
+          })
+        }
+        await parseBodyMiddleware()(ctx, next)
+      }
+    )
+
+    t.test('should complete middleware request', async t => {
+      t.plan(2)
+
+      const ctx = {
+        body: {
+          Name: 'Jet',
+          Surname: 'Li',
+          Email: 'jet@openhim.org'
+        },
+        state: {
+          uuid: 'randomUidForRequest',
+          allData: {},
+          metaData: {
+            name: 'Testing endpoint',
+            transformation: {
+              input: 'JSON',
+              output: 'XML'
+            }
+          }
+        },
+        get: name => {
+          const contentHeader = 'application/json'
+          if (name) {
+            return contentHeader
+          }
+        },
+        set: (key, value) => {
+          ctx.header = {}
+          ctx.header[key] = value
+        },
+        request: {}
       }
 
-      await parseBodyMiddleware()(ctx)
-      t.equals(ctx.status, 400)
-      t.same(ctx.body, {
-        error:
-          'undefined (undefined): transformation method "INVALID" not yet supported'
-      })
-    }
-  )
+      const next = () => {
+        t.pass() // calls next
+      }
+      await parseBodyMiddleware()(ctx, next)
+
+      t.equals(
+        ctx.body,
+        [
+          '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>',
+          '<root>',
+          '  <Name>Jet</Name>',
+          '  <Surname>Li</Surname>',
+          '  <Email>jet@openhim.org</Email>',
+          '</root>'
+        ].join('\n')
+      )
+    })
+  })
 })

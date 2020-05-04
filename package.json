@@ -11,7 +11,7 @@
     "start": "node src/index.js",
     "start:dev": "nodemon src/index.js",
     "test": "NODE_ENV='test' MONGO_URL='mongodb://localhost:27017/test' DYNAMIC_ENDPOINTS=false OPENHIM_REGISTER=false tap tests/**/*.js && npm run lint",
-    "test:integration": "NODE_ENV='test' MONGO_URL='mongodb://localhost:27017/test' DYNAMIC_ENDPOINTS=false OPENHIM_REGISTER=false tap tests/integration/*.js && npm run lint",
+    "test:integration": "NODE_ENV='test' DYNAMIC_ENDPOINTS=false OPENHIM_REGISTER=false tap tests/integration/*.js && npm run lint",
     "test:unit": "NODE_ENV='test' MONGO_URL='mongodb://localhost:27017/test' DYNAMIC_ENDPOINTS=false tap tests/unit/*.js && npm run lint",
     "coverage": "tap --coverage-report=text-lcov > coverage.lcov && codecov"
   },
@@ -22,6 +22,7 @@
     "ajv-errors": "^1.0.1",
     "axios": "^0.19.1",
     "codecov": "^3.6.5",
+    "jsonata": "^1.8.3",
     "koa": "^2.11.0",
     "koa-route": "^3.2.0",
     "koa-router": "^7.4.0",

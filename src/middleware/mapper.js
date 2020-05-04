@@ -6,12 +6,20 @@ const logger = require('../logger')
 const {createOrchestration} = require('../orchestrations')
 
 const createMappedObject = ctx => {
-  if (!ctx.state.metaData.inputMapping) {
-    // Ensure input mapping is an object
-    ctx.state.metaData.inputMapping = {}
+  if (
+    !ctx.state.metaData.inputMapping ||
+    !Object.keys(ctx.state.metaData.inputMapping).length
+  ) {
     logger.warn(
       `${ctx.state.metaData.name} (${ctx.state.uuid}): No mapping schema supplied`
     )
+    ctx.body = ctx.state.allData.lookupRequests
+      ? {
+          requestBody: ctx.state.allData.requestBody,
+          lookupRequests: ctx.state.allData.lookupRequests
+        }
+      : ctx.state.allData.requestBody
+    return
   }
 
   const dataToBeMapped = ctx.state.allData
@@ -28,7 +36,9 @@ const createMappedObject = ctx => {
     logger.error(
       `${ctx.state.metaData.name} (${ctx.state.uuid}): Object mapping failed: ${error.message}`
     )
-    throw error
+    // Set the status code which will used to set the response status
+    ctx.statusCode = 500
+    throw Error(`Object mapping schema invalid: ${error.message}`)
   }
 
   // set the outgoing payload as useable data point
