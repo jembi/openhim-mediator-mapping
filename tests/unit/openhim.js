@@ -20,7 +20,7 @@ tap.test('constructOpenhimResponse()', {autoend: true}, t => {
     sandbox.restore()
   })
 
-  t.test('', t => {
+  t.test('registerMediator should call callback with error', t => {
     t.plan(1)
     sandbox.stub(mediatorUtils, 'registerMediator').yields(new Error('Boom'))
     try {
@@ -30,7 +30,7 @@ tap.test('constructOpenhimResponse()', {autoend: true}, t => {
     }
   })
 
-  t.test('', t => {
+  t.test('registerMediator should setup openhim heartbeat listener', t => {
     t.plan(1)
 
     const emitter = new EventEmitter()
