@@ -14,7 +14,11 @@ const openhim = require('./openhim')
 
 const {createAPIRoutes} = require('./endpointRoutes')
 const {createMiddlewareRoute} = require('./routes')
-const {createWsStates, createWsMetrics, createWsMetricsEndpoint} = require('./wsRoutes')
+const {
+  createWsStates,
+  createWsMetrics,
+  createWsMetricsEndpoint
+} = require('./wsRoutes')
 
 const app = websockify(new koa())
 const router = new koaRouter()
@@ -22,7 +26,7 @@ const router = new koaRouter()
 createAPIRoutes(router)
 createMiddlewareRoute(router)
 
-app.use(cors());
+app.use(cors())
 
 const millisecondsAtStart = DateTime.utc().ts
 

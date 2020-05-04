@@ -5,10 +5,10 @@ const logger = require('../../../logger')
 
 let eventEmitter
 
-exports.setupStatesEventListeners = (ws) => {
+exports.setupStatesEventListeners = ws => {
   eventEmitter = StatesModel.watch()
   eventEmitter
-    .on('change', (change) => {
+    .on('change', change => {
       addChangeListener(ws, change)
     })
     .on('end', addCloseListener)

@@ -8,9 +8,7 @@ exports.createEndpointState = state => {
 }
 
 exports.readStates = () => {
-  return StateModel.find(
-    {}, {}, {limit: 100, sort: {createdAt: -1}}
-  )
+  return StateModel.find({}, {}, {limit: 100, sort: {createdAt: -1}})
 }
 
 exports.readLatestEndpointStateById = endpointId => {
