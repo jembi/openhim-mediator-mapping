@@ -3,7 +3,7 @@
 const EndpointModel = require('../../models/endpoints')
 const logger = require('../../../logger')
 
-const {readEndpoints} = require('.')
+const endpointService = require('.')
 
 let eventEmitter
 let endpointCache = []
@@ -25,7 +25,7 @@ exports.removeEventListeners = () => {
   logger.info('MongoDB Change Event Listeners Removed')
 }
 
-const addChangeListener = async change => {
+const addChangeListener = change => {
   logger.debug(
     `EndpointId: ${change.documentKey._id} - Registered Change Event: ${change.operationType}`
   )
@@ -41,13 +41,14 @@ const addErrorListener = error => {
 }
 
 const populateEndpointCache = async () => {
-  await readEndpoints()
+  await endpointService
+    .readEndpoints()
     .then(updatedEndpoints => {
       endpointCache.splice(0, endpointCache.length)
       endpointCache.push(...updatedEndpoints)
     })
     .catch(error => {
-      logger.error(
+      logger.fatal(
         `Failed to Read endpoints and Populate endpointCache. Caused by: ${error.message}`
       )
       throw error
