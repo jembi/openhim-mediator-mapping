@@ -6,7 +6,7 @@ const tap = require('tap')
 const {withTestMapperServer} = require('../utils')
 
 const port = 13008
-process.env.MONGO_URL = 'mongodb://localhost:27017/endpoints'
+process.env.MONGO_URL = 'mongodb://localhost:27017/test'
 
 tap.test(
   'Endpoint Routes',
