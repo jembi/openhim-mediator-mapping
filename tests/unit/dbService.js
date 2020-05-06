@@ -507,14 +507,14 @@ tap.test('Database interactions', {autoend: true}, t => {
   })
 
   t.test('validateEndpointId', {autoend: true}, t => {
-    t.test('should return false when id is invalid', t => {
+    t.test('should return false when ID is invalid', t => {
       const id = 'invalid'
 
       t.notOk(validateEndpointId(id))
       t.end()
     })
 
-    t.test('should return true when id is valid', t => {
+    t.test('should return true when ID is valid', t => {
       const id = '5e8d99cdbd40b81685123231'
 
       t.ok(validateEndpointId(id))

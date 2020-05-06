@@ -70,7 +70,7 @@ const performRequests = (requests, ctx) => {
           )
           .toObject()
 
-        // Assign any data received from the response to the assigned id in the context
+        // Assign any data received from the response to the assigned ID in the context
         return {[requestDetails.id]: res.data}
       })
       .catch(error => {

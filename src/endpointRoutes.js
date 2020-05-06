@@ -56,7 +56,7 @@ const readEndpointRoute = router => {
       const endpointId = ctx.params.endpointId
 
       if (!endpointServices.validateEndpointId(endpointId)) {
-        throw Error('Endpoint id supplied in url is invalid')
+        throw Error('Endpoint ID supplied in url is invalid')
       }
 
       await endpointServices
@@ -69,7 +69,7 @@ const readEndpointRoute = router => {
               `Endpoint "${endpoint.name}" with pattern ${endpoint.endpoint.pattern} has been retrieved`
             )
           } else {
-            const error = `Endpoint with id ${endpointId} does not exist`
+            const error = `Endpoint with ID ${endpointId} does not exist`
             ctx.status = 404
             ctx.body = {error: error}
             logger.error(`${failureMsg}${error}`)
@@ -127,7 +127,7 @@ const updateEndpointRoute = router => {
       const endpointId = ctx.params.endpointId
 
       if (!endpointServices.validateEndpointId(endpointId)) {
-        throw Error('Endpoint id supplied in url is invalid')
+        throw Error('Endpoint ID supplied in url is invalid')
       }
 
       if (
@@ -155,7 +155,7 @@ const updateEndpointRoute = router => {
             )
           } else {
             ctx.status = 404
-            const error = `Endpoint with id ${endpointId} does not exist`
+            const error = `Endpoint with ID ${endpointId} does not exist`
             ctx.body = {error: error}
             logger.error(`${failureMsg}${error}`)
           }
@@ -182,20 +182,20 @@ const deleteEndpointRoute = router => {
       const endpointId = ctx.params.endpointId
 
       if (!endpointServices.validateEndpointId(endpointId)) {
-        throw Error('Endpoint id supplied in url is invalid')
+        throw Error('Endpoint ID supplied in url is invalid')
       }
 
       await endpointServices
         .deleteEndpoint(endpointId)
         .then(result => {
           if (result && result.deletedCount) {
-            const message = `Endpoint with id '${endpointId}' deleted`
+            const message = `Endpoint with ID '${endpointId}' deleted`
             ctx.status = 200
             ctx.body = {message: message}
             logger.info(message)
           } else {
             ctx.status = 404
-            const error = `Endpoint with id '${endpointId}' does not exist`
+            const error = `Endpoint with ID '${endpointId}' does not exist`
             ctx.body = {error: error}
             logger.error(`${failureMsg}${error}`)
           }

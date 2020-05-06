@@ -160,7 +160,7 @@ tap.test('Endpoint Routes', {autoend: true}, async t => {
     const next = () => {
       t.equals(ctx.status, 404)
       t.deepEquals(ctx.body, {
-        error: 'Endpoint with id 5e99568a50902917f2bc352b does not exist'
+        error: 'Endpoint with ID 5e99568a50902917f2bc352b does not exist'
       })
     }
     const router = {
@@ -222,7 +222,7 @@ tap.test('Endpoint Routes', {autoend: true}, async t => {
         t.equals(ctx.status, 400)
         t.deepEquals(ctx.body, {
           error:
-            'Retrieving of endpoint failed: Endpoint id supplied in url is invalid'
+            'Retrieving of endpoint failed: Endpoint ID supplied in url is invalid'
         })
       }
       const router = {
@@ -377,7 +377,7 @@ tap.test('Endpoint Routes', {autoend: true}, async t => {
       t.equals(ctx.status, 400)
       t.deepEquals(ctx.body, {
         error:
-          'Updating of endpoint failed: Endpoint id supplied in url is invalid'
+          'Updating of endpoint failed: Endpoint ID supplied in url is invalid'
       })
     }
     const router = {
@@ -441,7 +441,7 @@ tap.test('Endpoint Routes', {autoend: true}, async t => {
       const next = () => {
         t.equals(ctx.status, 404)
         t.deepEquals(ctx.body, {
-          error: 'Endpoint with id 5e99568a50902917f2bc352b does not exist'
+          error: 'Endpoint with ID 5e99568a50902917f2bc352b does not exist'
         })
         t.ok(stub.called)
       }
@@ -505,7 +505,7 @@ tap.test('Endpoint Routes', {autoend: true}, async t => {
     const next = () => {
       t.equals(ctx.status, 200)
       t.deepEquals(ctx.body, {
-        message: "Endpoint with id '5e99568a50902917f2bc352b' deleted"
+        message: "Endpoint with ID '5e99568a50902917f2bc352b' deleted"
       })
     }
     const router = {
@@ -528,7 +528,7 @@ tap.test('Endpoint Routes', {autoend: true}, async t => {
       t.equals(ctx.status, 400)
       t.deepEquals(ctx.body, {
         error:
-          'Endpoint deletion failed: Endpoint id supplied in url is invalid'
+          'Endpoint deletion failed: Endpoint ID supplied in url is invalid'
       })
     }
     const router = {
@@ -553,7 +553,7 @@ tap.test('Endpoint Routes', {autoend: true}, async t => {
     const next = () => {
       t.equals(ctx.status, 404)
       t.deepEquals(ctx.body, {
-        error: "Endpoint with id '5e99568a50902917f2bc352b' does not exist"
+        error: "Endpoint with ID '5e99568a50902917f2bc352b' does not exist"
       })
     }
     const router = {
