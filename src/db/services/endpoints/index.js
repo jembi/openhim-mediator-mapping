@@ -37,4 +37,5 @@ exports.deleteEndpoints = queryParams => {
   return EndpointModel.deleteMany(queryParams)
 }
 
-exports.validateEndpointId = id => mongoose.Types.ObjectId.isValid(id)
+exports.validateEndpointId = endpointId =>
+  mongoose.Types.ObjectId.isValid(endpointId)
