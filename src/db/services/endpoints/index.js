@@ -1,8 +1,10 @@
 'use strict'
 
-const ObjectId = require('mongoose').Types.ObjectId
+const mongoose = require('mongoose')
 
 const EndpointModel = require('../../models/endpoints')
+
+const ObjectId = mongoose.Types.ObjectId
 
 exports.createEndpoint = body => {
   const endpoint = new EndpointModel(body)
@@ -34,3 +36,5 @@ exports.deleteEndpoint = endpointId => {
 exports.deleteEndpoints = queryParams => {
   return EndpointModel.deleteMany(queryParams)
 }
+
+exports.validateEndpointId = id => mongoose.Types.ObjectId.isValid(id)
