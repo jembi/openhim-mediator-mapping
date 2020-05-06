@@ -6,13 +6,7 @@ const logger = require('./logger')
 
 const {handleServerError} = require('./util')
 
-const {
-  createEndpoint,
-  deleteEndpoint,
-  readEndpoint,
-  readEndpoints,
-  updateEndpoint
-} = require('./db/services/endpoints')
+const endpointServices = require('./db/services/endpoints')
 
 const KoaBodyParser = () => async (ctx, next) => {
   try {
@@ -32,7 +26,8 @@ const createEndpointRoute = router => {
     const failureMsg = 'Create endpoint failed:'
 
     try {
-      await createEndpoint(ctx.request.body)
+      await endpointServices
+        .createEndpoint(ctx.request.body)
         .then(result => {
           ctx.status = 201
           ctx.body = result
@@ -60,7 +55,12 @@ const readEndpointRoute = router => {
     try {
       const endpointId = ctx.params.endpointId
 
-      await readEndpoint(endpointId)
+      if (!endpointServices.validateEndpointId(endpointId)) {
+        throw Error('Endpoint ID supplied in url is invalid')
+      }
+
+      await endpointServices
+        .readEndpoint(endpointId)
         .then(endpoint => {
           if (endpoint) {
             ctx.status = 200
@@ -69,7 +69,7 @@ const readEndpointRoute = router => {
               `Endpoint "${endpoint.name}" with pattern ${endpoint.endpoint.pattern} has been retrieved`
             )
           } else {
-            const error = `Endpoint with id ${endpointId} does not exist`
+            const error = `Endpoint with ID ${endpointId} does not exist`
             ctx.status = 404
             ctx.body = {error: error}
             logger.error(`${failureMsg}${error}`)
@@ -77,11 +77,12 @@ const readEndpointRoute = router => {
           next()
         })
         .catch(error => {
-          ctx.statusCode = 400
+          ctx.statusCode = 500
           handleServerError(ctx, failureMsg, error, logger)
           next()
         })
     } catch (error) {
+      ctx.statusCode = 400
       handleServerError(ctx, failureMsg, error, logger)
       next()
     }
@@ -95,7 +96,8 @@ const readEndpointsRoute = router => {
     try {
       const queryParams = ctx.request.query
 
-      await readEndpoints(queryParams)
+      await endpointServices
+        .readEndpoints(queryParams)
         .then(endpoints => {
           ctx.status = 200
           ctx.body = endpoints
@@ -124,6 +126,10 @@ const updateEndpointRoute = router => {
     try {
       const endpointId = ctx.params.endpointId
 
+      if (!endpointServices.validateEndpointId(endpointId)) {
+        throw Error('Endpoint ID supplied in url is invalid')
+      }
+
       if (
         !ctx.request ||
         !ctx.request.body ||
@@ -138,7 +144,8 @@ const updateEndpointRoute = router => {
 
       const body = Object.assign({lastUpdated: Date.now()}, ctx.request.body)
 
-      await updateEndpoint(endpointId, body)
+      await endpointServices
+        .updateEndpoint(endpointId, body)
         .then(result => {
           if (result) {
             ctx.status = 200
@@ -148,7 +155,7 @@ const updateEndpointRoute = router => {
             )
           } else {
             ctx.status = 404
-            const error = `Endpoint with id ${endpointId} does not exist`
+            const error = `Endpoint with ID ${endpointId} does not exist`
             ctx.body = {error: error}
             logger.error(`${failureMsg}${error}`)
           }
@@ -160,6 +167,7 @@ const updateEndpointRoute = router => {
           next()
         })
     } catch (error) {
+      ctx.statusCode = 400
       handleServerError(ctx, failureMsg, error, logger)
       next()
     }
@@ -173,27 +181,33 @@ const deleteEndpointRoute = router => {
     try {
       const endpointId = ctx.params.endpointId
 
-      await deleteEndpoint(endpointId)
+      if (!endpointServices.validateEndpointId(endpointId)) {
+        throw Error('Endpoint ID supplied in url is invalid')
+      }
+
+      await endpointServices
+        .deleteEndpoint(endpointId)
         .then(result => {
           if (result && result.deletedCount) {
-            const message = `Endpoint with id '${endpointId}' deleted`
+            const message = `Endpoint with ID '${endpointId}' deleted`
             ctx.status = 200
             ctx.body = {message: message}
             logger.info(message)
           } else {
             ctx.status = 404
-            const error = `Endpoint with id '${endpointId}' does not exist`
+            const error = `Endpoint with ID '${endpointId}' does not exist`
             ctx.body = {error: error}
             logger.error(`${failureMsg}${error}`)
           }
           next()
         })
         .catch(error => {
-          ctx.statusCode = 400
+          ctx.statusCode = 500
           handleServerError(ctx, failureMsg, error, logger)
           next()
         })
     } catch (error) {
+      ctx.statusCode = 400
       handleServerError(ctx, failureMsg, error, logger)
       next()
     }
