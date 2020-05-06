@@ -28,7 +28,7 @@ const endpointSchema = new mongoose.Schema(
       }
     },
     transformation: {
-      input: {type: String, enum: ALLOWED_CONTENT_TYPES, required: true},
+      input: {type: String, enum: ALLOWED_CONTENT_TYPES},
       output: {type: String, enum: ALLOWED_CONTENT_TYPES, required: true}
     },
     requests: {
