@@ -222,7 +222,7 @@ tap.test('Endpoint Routes', {autoend: true}, async t => {
         t.equals(ctx.status, 400)
         t.deepEquals(ctx.body, {
           error:
-            'Retrieving of endpoint failed: Argument passed in must be a single String of 12 bytes or a string of 24 hex characters'
+            'Retrieving of endpoint failed: Endpoint id supplied in url is invalid'
         })
       }
       const router = {
@@ -377,7 +377,7 @@ tap.test('Endpoint Routes', {autoend: true}, async t => {
       t.equals(ctx.status, 400)
       t.deepEquals(ctx.body, {
         error:
-          'Updating of endpoint failed: Argument passed in must be a single String of 12 bytes or a string of 24 hex characters'
+          'Updating of endpoint failed: Endpoint id supplied in url is invalid'
       })
     }
     const router = {
@@ -528,7 +528,7 @@ tap.test('Endpoint Routes', {autoend: true}, async t => {
       t.equals(ctx.status, 400)
       t.deepEquals(ctx.body, {
         error:
-          'Endpoint deletion failed: Argument passed in must be a single String of 12 bytes or a string of 24 hex characters'
+          'Endpoint deletion failed: Endpoint id supplied in url is invalid'
       })
     }
     const router = {
