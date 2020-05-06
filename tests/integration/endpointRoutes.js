@@ -58,7 +58,10 @@ tap.test(
             .get(`/endpoints/${endpointId}`)
             .expect(400)
 
-          t.match(result.body.error, /Cast to ObjectId failed/)
+          t.equals(
+            result.body.error,
+            'Retrieving of endpoint failed: Endpoint ID supplied in url is invalid'
+          )
           t.end()
         }
       )
@@ -74,7 +77,7 @@ tap.test(
 
           t.equals(
             result.body.error,
-            `Endpoint with id ${endpointId} does not exist`
+            `Endpoint with ID ${endpointId} does not exist`
           )
           t.end()
         }
@@ -247,7 +250,7 @@ tap.test(
 
           t.equals(
             result.body.error,
-            `Endpoint with id ${endpointId} does not exist`
+            `Endpoint with ID ${endpointId} does not exist`
           )
           t.end()
         }
@@ -313,7 +316,7 @@ tap.test(
 
           t.equals(
             result.body.error,
-            `Endpoint with id '${endpointId}' does not exist`
+            `Endpoint with ID '${endpointId}' does not exist`
           )
           t.end()
         }
@@ -343,7 +346,7 @@ tap.test(
 
         t.deepEqual(
           result.body.message,
-          `Endpoint with id '${endpoint.body._id}' deleted`
+          `Endpoint with ID '${endpoint.body._id}' deleted`
         )
         t.end()
       })
