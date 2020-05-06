@@ -6,7 +6,7 @@ const path = require('path')
 const logger = require('./logger')
 const config = require('./config')
 
-const {activateHeartbeat, registerMediator} = require('openhim-mediator-utils')
+const mediatorUtils = require('openhim-mediator-utils')
 
 let mediatorConfigJson, readError
 
@@ -27,18 +27,18 @@ const openhimConfig = Object.assign(
 )
 
 const mediatorSetup = () => {
-  registerMediator(openhimConfig, mediatorConfigJson, err => {
-    if (err) {
-      logger.error('Failed to register mediator')
-      throw new Error(err.message)
+  mediatorUtils.registerMediator(openhimConfig, mediatorConfigJson, error => {
+    if (error) {
+      logger.error(`Failed to register mediator. Caused by: ${error.message}`)
+      throw error
     }
 
     logger.info('Successfully registered mediator!')
 
-    const emitter = activateHeartbeat(openhimConfig)
+    const emitter = mediatorUtils.activateHeartbeat(openhimConfig)
 
-    emitter.on('error', err => {
-      logger.error('Heartbeat failed: ', err)
+    emitter.on('error', openhimError => {
+      logger.error('Heartbeat failed: ', openhimError)
     })
   })
 }
