@@ -21,6 +21,16 @@ const middlewareRoute = async router => {
     transformerMiddleware(),
     mapBodyMiddleware()
   )
+
+  router.get(
+    MIDDLEWARE_PATH_REGEX,
+    initiateContextMiddleware(),
+    parseBodyMiddleware(),
+    requestsMiddleware(),
+    validateBodyMiddleware(),
+    transformerMiddleware(),
+    mapBodyMiddleware()
+  )
 }
 
 exports.createMiddlewareRoute = router => {
