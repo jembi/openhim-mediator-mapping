@@ -55,6 +55,10 @@ const readEndpointRoute = router => {
     try {
       const endpointId = ctx.params.endpointId
 
+      if (!endpointServices.validateEndpointId(endpointId)) {
+        throw Error('Endpoint id supplied in url is invalid')
+      }
+
       await endpointServices
         .readEndpoint(endpointId)
         .then(endpoint => {
@@ -122,6 +126,10 @@ const updateEndpointRoute = router => {
     try {
       const endpointId = ctx.params.endpointId
 
+      if (!endpointServices.validateEndpointId(endpointId)) {
+        throw Error('Endpoint id supplied in url is invalid')
+      }
+
       if (
         !ctx.request ||
         !ctx.request.body ||
@@ -172,6 +180,10 @@ const deleteEndpointRoute = router => {
 
     try {
       const endpointId = ctx.params.endpointId
+
+      if (!endpointServices.validateEndpointId(endpointId)) {
+        throw Error('Endpoint id supplied in url is invalid')
+      }
 
       await endpointServices
         .deleteEndpoint(endpointId)
