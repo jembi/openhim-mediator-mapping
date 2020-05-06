@@ -75,7 +75,11 @@ const parseOutgoingBody = (ctx, outputFormat) => {
 }
 
 const parseIncomingBody = async (ctx, inputFormat) => {
-  // parse incoming body
+  ctx.state.allData.query = ctx.request.query
+
+  // parse incoming body if request is of type post only
+  if (ctx.request.method === 'GET') return
+
   // KoaBodyParser executed the next() callback to allow the other middleware to continue before coming back here
   if (ALLOWED_CONTENT_TYPES.includes(inputFormat)) {
     // check content-type matches inputForm specified
@@ -110,7 +114,6 @@ const parseIncomingBody = async (ctx, inputFormat) => {
 
         // set the incoming payload/query params as useable data point
         ctx.state.allData.requestBody = ctx.request.body
-        ctx.state.allData.query = ctx.request.query
 
         if (
           ctx.request.header &&
