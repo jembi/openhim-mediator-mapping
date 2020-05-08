@@ -1,6 +1,6 @@
 module.exports = {
   title: 'OpenHIM Mapping Mediator',
-  tagline: 'Simplifying data adaption between systems',
+  tagline: 'Simplifying data adaptation between systems',
   url: 'https://jembi.github.io',
   baseUrl: '/openhim-mediator-mapping/',
   favicon: 'img/favicon.ico',

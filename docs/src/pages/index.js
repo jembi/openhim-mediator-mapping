@@ -9,7 +9,7 @@ import styles from './styles.module.css';
 const features = [
   {
     title: <span>Validation</span>,
-    imageUrl: 'img/undraw_docusaurus_mountain.svg',
+    imageUrl: 'img/undraw_checking_boxes.svg',
     description: (
       <span>
         Ensure that your data meets the specified criteria to adhere to your data quality standards
@@ -18,19 +18,19 @@ const features = [
   },
   {
     title: <span>Orchestration</span>,
-    imageUrl: 'img/undraw_docusaurus_tree.svg',
+    imageUrl: 'img/undraw_timeline.svg',
     description: (
       <span>
-        Perform various lookups to external services to fetch data required in the final response
+        Perform various requests to external (or internal) services to send or retrieve data
       </span>
     ),
   },
   {
     title: <span>Transformation</span>,
-    imageUrl: 'img/undraw_docusaurus_react.svg',
+    imageUrl: 'img/undraw_convert.svg',
     description: (
       <span>
-        Define a new data structure to respond with based on the data gathered within your request
+        Construct a new object for processing by extracting relevant data points within the request
       </span>
     ),
   },
@@ -56,8 +56,8 @@ function Home() {
   const {siteConfig = {}} = context;
   return (
     <Layout
-      title={`Hello from ${siteConfig.title}`}
-      description="Description will go into a meta tag in <head />">
+      title={siteConfig.title}
+      description={siteConfig.tagline}>
       <header className={classnames('hero hero--primary', styles.heroBanner)}>
         <div className="container">
           <img
