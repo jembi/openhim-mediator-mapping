@@ -33,8 +33,8 @@
     "mongoose": "^5.9.7",
     "object-mapper": "jembi/node-object-mapper",
     "openhim-mediator-utils": "^0.2.3",
-    "pino": "^5.16.0",
-    "pino-pretty": "^3.5.0",
+    "pino": "^6.2.1",
+    "pino-pretty": "^4.0.0",
     "uuid": "^3.3.3",
     "xml2js": "^0.4.23"
   },
