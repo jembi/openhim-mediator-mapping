@@ -28,7 +28,7 @@
     "codecov": "^3.6.5",
     "jsonata": "^1.8.3",
     "koa": "^2.11.0",
-    "koa-router": "^7.4.0",
+    "koa-router": "^8.0.8",
     "luxon": "^1.23.0",
     "mongoose": "^5.9.7",
     "object-mapper": "jembi/node-object-mapper",
