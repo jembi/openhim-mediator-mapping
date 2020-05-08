@@ -15,6 +15,11 @@
     "test:unit": "NODE_ENV='test' MONGO_URL='mongodb://localhost:27017/test' DYNAMIC_ENDPOINTS=false tap tests/unit/*.js && npm run lint",
     "coverage": "tap --coverage-report=text-lcov > coverage.lcov && codecov"
   },
+  "tap": {
+    "nyc-arg": [
+      "--exclude=tests/utils.js"
+    ]
+  },
   "dependencies": {
     "@koa/cors": "^3.0.0",
     "@viweei/koa-body-parser": "^1.0.2",

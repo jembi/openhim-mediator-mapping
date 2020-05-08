@@ -70,14 +70,12 @@ const performRequests = (requests, ctx) => {
           )
           .toObject()
 
-        // Assign any data received from the response to the assigned id in the context
+        // Assign any data received from the response to the assigned ID in the context
         return {[requestDetails.id]: res.data}
       })
       .catch(error => {
         orchestrationError = error
-        logger.error(
-          `Failed Request Config ${JSON.stringify(error.config, null, 2)}`
-        )
+        logger.error(`Failed Request Config ${JSON.stringify(error.config)}`)
 
         if (error.response) {
           ctx.statusCode = error.response.status

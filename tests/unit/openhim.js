@@ -1,10 +1,53 @@
 'use strict'
 
+const {EventEmitter} = require('events')
+const sinon = require('sinon')
 const tap = require('tap')
+const mediatorUtils = require('openhim-mediator-utils')
 
-const {constructOpenhimResponse} = require('../../src/openhim')
+const logger = require('../../src/logger')
+
+const {constructOpenhimResponse, mediatorSetup} = require('../../src/openhim')
 
 tap.test('constructOpenhimResponse()', {autoend: true}, t => {
+  let sandbox = sinon.createSandbox()
+  t.beforeEach(done => {
+    sandbox.restore()
+    done()
+  })
+
+  t.afterEach(async () => {
+    sandbox.restore()
+  })
+
+  t.test('registerMediator should call callback with error', t => {
+    t.plan(1)
+    sandbox.stub(mediatorUtils, 'registerMediator').yields(new Error('Boom'))
+    try {
+      mediatorSetup()
+    } catch (error) {
+      t.equals(error.message, 'Boom')
+    }
+  })
+
+  t.test('registerMediator should setup openhim heartbeat listener', t => {
+    t.plan(1)
+
+    const emitter = new EventEmitter()
+
+    sandbox.stub(mediatorUtils, 'registerMediator').yields(null)
+    sandbox.stub(mediatorUtils, 'activateHeartbeat').returns(emitter)
+    const loggerStub = sandbox.stub(logger, 'error')
+
+    try {
+      mediatorSetup()
+      emitter.emit('error', 'Boom!')
+      t.ok(loggerStub.called)
+    } catch (error) {
+      t.fail(`Should not reach here... ${error.message}`)
+    }
+  })
+
   t.test('should create the response', t => {
     const timestamp = Date.now()
     const statusText = 'Successful'
