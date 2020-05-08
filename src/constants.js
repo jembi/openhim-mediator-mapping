@@ -2,7 +2,7 @@
 
 exports.ALLOWED_CONTENT_TYPES = ['JSON', 'XML']
 
-exports.ALLOWED_HTTP_METHODS = ['PUT', 'POST', 'DELETE', 'GET', 'ANY']
+exports.ALLOWED_HTTP_METHODS = ['PUT', 'POST', 'DELETE', 'GET']
 
 exports.DEFAULT_ENDPOINT_METHOD = 'POST'
 
