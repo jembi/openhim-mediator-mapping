@@ -283,7 +283,7 @@ tap.test(
                       properties: {
                         gender: {
                           type: 'string',
-                          enum: ['female', 'unknown']
+                          enum: ['male', 'female', 'other', 'unknown']
                         },
                         resourceType: {
                           type: 'string'
