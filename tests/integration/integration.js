@@ -214,7 +214,7 @@ tap.test(
           server.on('request', async (req, res) => {
             if (req.method === 'GET' && req.url === '/fhir/Patient') {
               t.pass()
-              res.writeHead(201, {'Content-Type': 'application/json'})
+              res.writeHead(200, {'Content-Type': 'application/json'})
               res.end(JSON.stringify(fhirPatient))
               return
             }
