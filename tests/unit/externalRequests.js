@@ -139,9 +139,7 @@ tap.test('External Requests', {autoend: true}, t => {
         const responseError = {
           message: 'Bad request'
         }
-        nock(url)
-          .get('/patient')
-          .reply(400, responseError)
+        nock(url).get('/patient').reply(400, responseError)
 
         const requests = [
           {
@@ -184,9 +182,7 @@ tap.test('External Requests', {autoend: true}, t => {
     t.test('should do lookups and create orchestrations', async t => {
       const url = 'http://localhost:4000/'
 
-      nock(url)
-        .get('/patient')
-        .reply(200, 'Body')
+      nock(url).get('/patient').reply(200, 'Body')
 
       const method = 'GET'
       const id = '123'
@@ -290,10 +286,7 @@ tap.test('External Requests', {autoend: true}, t => {
     t.test('should do the lookup and create orchestration', async t => {
       const url = 'http://localhost:4000/'
 
-      nock(url)
-        .get('/patient')
-        .times(2)
-        .reply(200, 'Body')
+      nock(url).get('/patient').times(2).reply(200, 'Body')
 
       const method = 'GET'
 
@@ -564,10 +557,7 @@ tap.test('External Requests', {autoend: true}, t => {
 
       const response = {name: 'raze', surname: 'breez'}
 
-      nock(url)
-        .put('/patient?name=raze')
-        .times(2)
-        .reply(200, response)
+      nock(url).put('/patient?name=raze').times(2).reply(200, response)
 
       await prepareResponseRequests(ctx)
 
@@ -625,9 +615,7 @@ tap.test('External Requests', {autoend: true}, t => {
 
         const response = {name: 'raze', surname: 'breez'}
 
-        nock(url)
-          .put('/patient?name=raze')
-          .reply(200, response)
+        nock(url).put('/patient?name=raze').reply(200, response)
 
         await prepareResponseRequests(ctx)
 

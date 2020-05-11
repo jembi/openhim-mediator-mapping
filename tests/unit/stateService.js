@@ -36,9 +36,7 @@ tap.test('States DB Services', {autoend: true}, t => {
           system: {
             timestamps: {
               endpointStart: DateTime.utc().toISO(),
-              endpointEnd: DateTime.utc()
-                .plus(50)
-                .toISO(), // add 50 milliseconds
+              endpointEnd: DateTime.utc().plus(50).toISO(), // add 50 milliseconds
               endpointDuration: {
                 milliseconds: 50
               }
@@ -91,9 +89,7 @@ tap.test('States DB Services', {autoend: true}, t => {
     t.test('should create State', {autoend: true}, async t => {
       t.plan(4)
       const endpointStart = DateTime.utc().toISO()
-      const endpointEnd = DateTime.utc()
-        .plus(50)
-        .toISO()
+      const endpointEnd = DateTime.utc().plus(50).toISO()
       const endpointDurationMs = 50
       const stateObject = {
         _endpointReference: new ObjectId('507f1f77bcf86cd799439011'),
@@ -165,9 +161,7 @@ tap.test('States DB Services', {autoend: true}, t => {
             t.fail(`Should not reach here. ${error.message}`)
           })
 
-        const endpointStart1 = DateTime.utc()
-          .minus({minutes: 30})
-          .toISO()
+        const endpointStart1 = DateTime.utc().minus({minutes: 30}).toISO()
         const endpointEnd1 = DateTime.utc()
           .minus({minutes: 29, milliseconds: 500})
           .toISO()
@@ -186,9 +180,7 @@ tap.test('States DB Services', {autoend: true}, t => {
         }
         // latest createdAt timestamp so this is the last captured state
         const endpointStart2 = DateTime.utc().toISO()
-        const endpointEnd2 = DateTime.utc()
-          .plus(50)
-          .toISO()
+        const endpointEnd2 = DateTime.utc().plus(50).toISO()
         const endpointDurationMs2 = 50
         const stateObject2 = {
           _endpointReference: endpointId,
