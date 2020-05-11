@@ -4,59 +4,88 @@ title: Setup
 sidebar_label: Setup
 ---
 
-**This project is a proof of concept and not recommended as Production ready code!**
+The OpenHIM Mediator Mapping can be setup within a [NodeJS](https://nodejs.org/en/) environment along with [NPM](https://www.npmjs.com/) or with [Docker](https://docs.docker.com/). In either case it is configured using environment variables.
 
-The Mapping mediator can be setup within a [NodeJS](https://nodejs.org/en/) environment along with [NPM](https://www.npmjs.com/) or with [Docker](https://docs.docker.com/). In either case it is configured using environment variables.
-
+This application was developed using [Erbium](https://nodejs.org/en/about/releases/) NodeJS and is supporting the last two LTS versions of NodeJS
 
 ## NodeJS and NPM
 
-This project was developed using [Dubnium](https://scotch.io/tutorials/whats-new-in-node-10-dubnium) NodeJS.
+### Get code from Github
 
-To start up the project navigate into the root of the project in a terminal and run the following:
+To get the OpenHIM Mediator Mapping code from the Github execute any of the below commands to get the codebase
+
+#### Cloned repository
+
+```sh
+git clone https://github.com/jembi/openhim-mediator-mapping.git
+```
+
+#### Zipped repository
+
+```sh
+wget https://github.com/jembi/openhim-mediator-mapping/archive/master.zip
+```
+
+#### Zipped release version
+
+A tagged release can be downloaded by executing the below command, and replacing the <RELEASE_VERSION> placeholder with an actual [release tag](https://github.com/jembi/openhim-mediator-mapping/releases): E.g `v1.0.0`
+
+```sh
+wget https://github.com/jembi/openhim-mediator-mapping/releases/download/<RELEASE_VERSION>/build.openhim-mediator-mapping.<RELEASE_VERSION>.zip
+```
+
+### Run the code
+
+To start up the application, navigate into the root directory of the application within your terminal and execute the following commands:
+
+  > **NB! Zipped Release Version** - You do NOT have to run the `npm install` command as this has already been done in the release version. After downloading the specific release build, you can start the application by executing the `npm start` command
+
+Install all the required dependencies
 
 ```sh
 npm install
-
-<Environment_Variables> npm start
 ```
 
-Once the mediator has successfully started up you can test it by sending a POST request directly to your configured endpoints on the mediator.
+Start the application (optionally supplying any required [environment variables](setup.md#environment-variables))
 
-```bash
-curl --request POST --header "Content-Type: application/json" --data '{"key1":"value1", "key2":"value2"}' http://localhost:3003/<path_configured_in_meta.json>
+```sh
+<ENVIRONMENT_VARIABLES> npm start
 ```
-
-Or you could setup channels on your OpenHIM instance corresponding to your endpoints and send requests through to the OpenHIM to track the transaction there. See [here](https://github.com/jembi/openhim-mediator-tutorial/blob/master/0_Starting_OpenHIM.md#step-5---testing-the-openhim-routing) for a quick OpenHIM tutorial.
 
 ---
 
 ## Docker
 
-From the project directory run:
+The OpenHIM Mediator Mapping has been made available as a Docker container and can either be pulled from the Dockerhub repository, or it can be built locally
+
+### Dockerhub
+
+Pull the image from the publicly available repository by executing the below command
 
 ```sh
-docker build -t mapper .
-
-docker run --network {network-name} -v /endpoints:/app/endpoints -p 3003:3003 --name mapper mapper
+docker run -p 3003:3003 --name mapper jembi/openhim-mediator-mapping:latest
 ```
 
-The network flag is optional. If connecting to a specific docker network find the network name by running:
+### Local build
+
+Build the image from the application directory by executing the below commands:
+
+Build the image based of off the `Dockerfile` within the root directory
 
 ```sh
-docker network ls
+docker build -t openhim-mediator-mapping .
 ```
 
-**Environmental variables** can be included using the `-e` flag. For example:
+Create the container from the image that was built in the previous step
 
 ```sh
-docker run --network {network-name} -p 3003:3003 --name mapper -e TRUST_SELF_SIGNED=true mapper
+docker run -p 3003:3003 --name mapper openhim-mediator-mapping
 ```
 
-If a new endpoint is added to the endpoints folder, the docker container will have to be restarted:
+[Environment variables](setup.md#environment-variables) can be included using the `-e` flag. For example:
 
 ```sh
-docker restart mapper
+docker run -p 3003:3003 --name mapper -e TRUST_SELF_SIGNED=true openhim-mediator-mapping
 ```
 
 ---
@@ -67,21 +96,29 @@ The supported environment variables are listed as follows:
 
 - SERVER_PORT - Default: **3003**
 
+  > The server port to start the application on
+
 - LOG_LEVEL - Default: **info**
+
+  > The log level at which the logs should be printed out
 
 - OPENHIM_URL - Default: <https://localhost:8080>
 
-  > If running the OpenHIM in a docker container substitute in the **container name** instead of **localhost**.
+  > The URL to the OpenHIM instance<br />
+  If running the OpenHIM in a docker container substitute in the **container name** instead of **localhost**.
 
 - OPENHIM_USERNAME - Default: **root@openhim.org**
 
+  > The OpenHIM user to authenticate with
+
 - OPENHIM_PASSWORD - Default: **openhim-password**
 
-  > The OpenHIM requires this default API password to be changed on first login.
+  > The OpenHIM password for the supplied user to authenticate with
 
 - TRUST_SELF_SIGNED - Default: **true**
 
-  > Only set this variable to `true` if you are using it in a non-production environment
+  > Bypass the nodejs ssl certificate check on self signed certificates<br />
+  Only set this variable to `true` if you are using it in a non-production environment
 
 - OPENHIM_REGISTER - Default: **true**
 
