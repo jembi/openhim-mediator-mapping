@@ -13,7 +13,7 @@ const {
 } = require('./db/services/states/listener')
 
 exports.createWsStates = route => {
-  return route.all('/test/:id', async function(ctx) {
+  return route.all('/test/:id', async function (ctx) {
     logger.info('WebSocket opened.')
 
     const states = await readStates()
@@ -34,7 +34,7 @@ exports.createWsStates = route => {
 }
 
 exports.createWsMetrics = route => {
-  return route.all('/metrics', function(ctx) {
+  return route.all('/metrics', function (ctx) {
     logger.info('WebSocket Metrics opened.')
 
     const interval = setInterval(async () => {
@@ -56,7 +56,7 @@ exports.createWsMetrics = route => {
 }
 
 exports.createWsMetricsEndpoint = route => {
-  return route.all('/metrics/:endpointId', function(ctx, endpointId) {
+  return route.all('/metrics/:endpointId', function (ctx, endpointId) {
     logger.info('WebSocket Metrics Endpoint opened.')
     console.log(endpointId)
 
