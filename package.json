@@ -30,7 +30,7 @@
     "koa": "^2.11.0",
     "koa-router": "^8.0.8",
     "luxon": "^1.23.0",
-    "mongoose": "^5.9.7",
+    "mongoose": "^5.9.13",
     "object-mapper": "jembi/node-object-mapper",
     "openhim-mediator-utils": "^0.2.3",
     "pino": "^6.2.1",
