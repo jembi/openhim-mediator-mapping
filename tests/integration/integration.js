@@ -199,6 +199,143 @@ tap.test(
             })
         }
       )
+
+      t.test(
+        'should lookup data using query param, validate and \
+        transform, then map and send response to external service and finally outputting XML response using a get request',
+        async t => {
+          t.plan(5)
+
+          const fhirPatient = {
+            resourceType: 'Patient',
+            gender: 'unknown'
+          }
+
+          server.on('request', async (req, res) => {
+            if (req.method === 'GET' && req.url === '/fhir/Patient') {
+              t.pass()
+              res.writeHead(200, {'Content-Type': 'application/json'})
+              res.end(JSON.stringify(fhirPatient))
+              return
+            }
+            if (req.method == 'POST' && req.url === '/api') {
+              req.on('data', chunk => {
+                t.equals(
+                  chunk.toString(),
+                  '{"sex":"U","nationality":"South Africa"}'
+                )
+              })
+
+              res.writeHead(201, {'Content-Type': 'application/json'})
+              res.end()
+              return
+            }
+            res.writeHead(404)
+            res.end()
+            return
+          })
+
+          const testEndpoint = {
+            name: 'Integration Test Endpoint 2',
+            endpoint: {
+              pattern: '/integrationTest2'
+            },
+            transformation: {
+              input: 'JSON',
+              output: 'XML'
+            },
+            constants: {
+              nationality: 'South Africa'
+            },
+            requests: {
+              lookup: [
+                {
+                  id: 'fhir-server',
+                  config: {
+                    method: 'get',
+                    url: `http://localhost:${mockServerPort}/fhir/Patient`,
+                    headers: {
+                      'Content-Type': 'application/json'
+                    }
+                  },
+                  allowedStatuses: ['2xx']
+                }
+              ],
+              response: {
+                id: 'MPI',
+                config: {
+                  method: 'post',
+                  url: `http://localhost:${mockServerPort}/api`,
+                  headers: {
+                    'Content-Type': 'application/json'
+                  }
+                }
+              }
+            },
+            inputValidation: {
+              type: 'object',
+              properties: {
+                lookupRequests: {
+                  type: 'object',
+                  properties: {
+                    'fhir-server': {
+                      type: 'object',
+                      properties: {
+                        gender: {
+                          type: 'string',
+                          enum: ['male', 'female', 'other', 'unknown']
+                        },
+                        resourceType: {
+                          type: 'string'
+                        }
+                      },
+                      required: ['gender']
+                    }
+                  }
+                }
+              }
+            },
+            inputMapping: {
+              'lookupRequests.fhir-server.gender': {
+                key: 'sex',
+                transform: {
+                  function: 'mapCodes',
+                  parameters: {
+                    female: 'F',
+                    male: 'M',
+                    other: 'O',
+                    unknown: 'U'
+                  }
+                }
+              },
+              'constants.nationality': 'nationality'
+            }
+          }
+
+          await request(`http://localhost:${testMapperPort}`)
+            .post('/endpoints')
+            .send(testEndpoint)
+            .set('Content-Type', 'application/json')
+            .expect(201)
+
+          // The mongoDB endpoint collection change listeners may take a few milliseconds to update the endpoint cache.
+          // This wouldn't be a problem in the normal use case as a user would not create an endpoint and
+          // immediately start posting to it within a few milliseconds. Therefore this timeout here should be fine...
+          await sleep(1000)
+
+          await request(`http://localhost:${testMapperPort}`)
+            .get('/integrationTest2')
+            .set('x-openhim-transactionid', 'requestUUID')
+            .expect(response => {
+              t.equals(
+                response.body.response.body,
+                '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<root/>'
+              )
+              t.equals(response.body.orchestrations.length, 4)
+              t.equals(response.status, 201)
+            })
+        }
+      )
     })
   )
 )

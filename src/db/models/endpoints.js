@@ -4,6 +4,8 @@ const mongoose = require('mongoose')
 
 const {
   ALLOWED_CONTENT_TYPES,
+  ALLOWED_ENDPOINT_METHODS,
+  DEFAULT_ENDPOINT_METHOD,
   MIDDLEWARE_PATH_REGEX
 } = require('../../constants')
 
@@ -25,6 +27,11 @@ const endpointSchema = new mongoose.Schema(
         index: {
           unique: true
         }
+      },
+      method: {
+        type: String,
+        enum: ALLOWED_ENDPOINT_METHODS,
+        default: DEFAULT_ENDPOINT_METHOD
       }
     },
     transformation: {
