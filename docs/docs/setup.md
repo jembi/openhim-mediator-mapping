@@ -102,6 +102,14 @@ The supported environment variables are listed as follows:
 
   > The log level at which the logs should be printed out
 
+- ENABLE_LOGGING - Default: **true**
+
+  > Define if the application should print out any logs
+
+- MONGO_URL - Default: **mongodb://localhost:27017,localhost:27018,localhost:27019/mapping-mediator?replicaSet=mapper-mongo-set**
+
+  > The MongoDB url for connecting to the replica set database
+
 - OPENHIM_URL - Default: <https://localhost:8080>
 
   > The URL to the OpenHIM instance<br />
@@ -147,3 +155,7 @@ The supported environment variables are listed as follows:
 - VALIDATION_COERCE_TYPES - Default: **false**
 
   > Allow the validation middleware to coerce the incoming data values into the defined validation type. If the property validation type is defined as `number` and the value being supplied is a `string`, then the validation middleware will format the value into a `number`
+
+- DYNAMIC_ENDPOINTS - Default: **true**
+
+  > Define wether MongoDB should create a listener on the Endpoints collection to automatically apply endpoint changes
