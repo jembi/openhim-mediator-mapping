@@ -2,7 +2,7 @@
 
 const {parseStringToBoolean} = require('./util')
 
-exports.getConfig = function() {
+exports.getConfig = function () {
   return Object.freeze({
     port: process.env.SERVER_PORT || 3003,
     logLevel: process.env.LOG_LEVEL || 'info',
