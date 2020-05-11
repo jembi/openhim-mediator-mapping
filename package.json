@@ -8,8 +8,6 @@
   "scripts": {
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
-    "build": "npm run clean && babel src --out-dir lib -s",
-    "clean": "rimraf lib/",
     "start": "node src/index.js",
     "start:dev": "nodemon src/index.js",
     "test": "NODE_ENV='test' MONGO_URL='mongodb://localhost:27017/test' DYNAMIC_ENDPOINTS=false OPENHIM_REGISTER=false tap tests/**/*.js && npm run lint",
@@ -23,7 +21,6 @@
     ]
   },
   "dependencies": {
-    "@babel/cli": "^7.8.4",
     "@viweei/koa-body-parser": "^1.0.2",
     "ajv": "^6.10.2",
     "ajv-errors": "^1.0.1",
