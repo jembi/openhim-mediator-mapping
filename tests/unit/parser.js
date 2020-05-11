@@ -20,7 +20,11 @@ tap.test('Parser', {autoend: true}, t => {
             uuid: 'randomUidForRequest',
             metaData: {
               name: 'Testing endpoint'
-            }
+            },
+            allData: {}
+          },
+          request: {
+            query: {}
           }
         }
         const inputFormat = 'unsupported'
@@ -45,7 +49,12 @@ tap.test('Parser', {autoend: true}, t => {
             uuid: 'randomUidForRequest',
             metaData: {
               name: 'Testing endpoint'
-            }
+            },
+            allData: {}
+          },
+          request: {
+            query: {},
+            method: 'POST'
           },
           get: name => {
             const contentHeader = 'application/unsupported'
@@ -193,7 +202,8 @@ tap.test('Parser', {autoend: true}, t => {
         uuid: 'randomUidForRequest',
         metaData: {
           name: 'Testing endpoint'
-        }
+        },
+        allData: {}
       },
       request: null,
       get: name => {
@@ -208,10 +218,7 @@ tap.test('Parser', {autoend: true}, t => {
     await parseIncomingBody(ctx, inputFormat)
       .then(() => t.fail('Should not reach here'))
       .catch(error => {
-        t.equals(
-          error.message,
-          `Testing endpoint (randomUidForRequest): Parsing incoming body failed: Cannot read property 'body' of null`
-        )
+        t.equals(error.message, `Cannot read property 'query' of null`)
       })
     t.end()
   })
