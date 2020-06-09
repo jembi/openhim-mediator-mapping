@@ -26,6 +26,10 @@ const openhimConfig = Object.assign(
   configOptions.openhim
 )
 
+mediatorConfigJson = Object.assign({}, mediatorConfigJson, {
+  urn: configOptions.openhim.urn
+})
+
 const mediatorSetup = () => {
   mediatorUtils.registerMediator(openhimConfig, mediatorConfigJson, error => {
     if (error) {

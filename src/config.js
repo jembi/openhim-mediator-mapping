@@ -2,7 +2,7 @@
 
 const {parseStringToBoolean} = require('./util')
 
-exports.getConfig = function () {
+exports.getConfig = function() {
   return Object.freeze({
     port: process.env.SERVER_PORT || 3003,
     logLevel: process.env.LOG_LEVEL || 'info',
@@ -18,7 +18,8 @@ exports.getConfig = function () {
         process.env.TRUST_SELF_SIGNED,
         true
       ),
-      register: parseStringToBoolean(process.env.OPENHIM_REGISTER, true)
+      register: parseStringToBoolean(process.env.OPENHIM_REGISTER, true),
+      urn: process.env.MEDIATOR_URN || 'urn:mediator:generic_mapper'
     }),
     parser: Object.freeze({
       limit: process.env.PARSER_LIMIT || '1mb',

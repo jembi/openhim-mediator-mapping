@@ -203,3 +203,7 @@ The following parameters relate to the Mongo Replica set:
 - `--network mapper-cluster-network`
 
   The Mapping Mediator Container needs to connect to the same Docker network on which the Mongo replica set communicates
+
+## Registering to the OpenHIM
+
+The mapping mediator like most other OpenHIM mediators can register to an instance of OpenHIM. This is a feature that allows us to have a visual of the mediators in use. To configure a mediator to register one has to set the environment variable OPENHIM_REGISTER to `true`. The default value for the variable is `true`. For multiple instances of the mediator to register to the same instance of the openhim each mediator has to have a unique `urn`. You can set the `urn` using the environment variable MEDIATOR_URN.
