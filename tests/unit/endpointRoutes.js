@@ -252,10 +252,7 @@ tap.test('Endpoint Routes', {autoend: true}, async t => {
       }
     ]
 
-    sandbox
-      .stub(endpointService, 'readEndpoints')
-      .withArgs({})
-      .resolves(result)
+    sandbox.stub(endpointService, 'readEndpoints').withArgs({}).resolves(result)
 
     const ctx = {
       request: {

@@ -38,7 +38,7 @@ const endpointSchema = new mongoose.Schema(
       input: {
         type: String,
         enum: ALLOWED_CONTENT_TYPES,
-        required: function() {
+        required: function () {
           return (
             this &&
             this.endpoint &&
