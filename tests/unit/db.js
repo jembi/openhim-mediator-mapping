@@ -44,7 +44,7 @@ tap.test('Database interactions', {autoend: true}, t => {
     })
 
     t.test('should fail DB disconnect', {autoend: true}, async t => {
-      sandbox.stub(mongoose.connection, 'close').throws(function () {
+      sandbox.stub(mongoose.connection, 'close').throws(function() {
         return new Error('Failed Disconnect')
       })
       try {
