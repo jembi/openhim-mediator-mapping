@@ -60,7 +60,7 @@ tap.test('External Requests', {autoend: true}, t => {
       const requests = []
 
       performRequests(requests, ctx)
-      t.equals(!ctx.orchestrations, false)
+      t.ok(ctx.orchestrations)
       t.end()
     })
 
@@ -69,7 +69,7 @@ tap.test('External Requests', {autoend: true}, t => {
       const requests = []
 
       performRequests(requests, ctx)
-      t.equals(!ctx.orchestrations, false)
+      t.ok(ctx.orchestrations)
       t.end()
     })
 
