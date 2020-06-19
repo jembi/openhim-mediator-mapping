@@ -44,6 +44,16 @@ const performRequests = (requests, ctx) => {
     // No body is sent out for now
     const body = null
 
+    if (ctx.request.header['x-openhim-transactionid']) {
+      requestDetails.config.headers = Object.assign(
+        {
+          'x-openhim-transactionid':
+            ctx.request.header['x-openhim-transactionid']
+        },
+        requestDetails.config.headers
+      )
+    }
+
     const requestParameters = addRequestQueryParameters(
       ctx,
       requestDetails.config
@@ -203,6 +213,16 @@ const prepareResponseRequests = async ctx => {
           request.id
         ) {
           const params = addRequestQueryParameters(ctx, request.config)
+
+          if (ctx.request.header['x-openhim-transactionid']) {
+            request.config.headers = Object.assign(
+              {
+                'x-openhim-transactionid':
+                  ctx.request.header['x-openhim-transactionid']
+              },
+              request.config.headers
+            )
+          }
 
           const axiosConfig = prepareRequestConfig(request, body, params)
 

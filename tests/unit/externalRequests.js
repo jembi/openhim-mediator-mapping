@@ -182,7 +182,10 @@ tap.test('External Requests', {autoend: true}, t => {
     t.test('should do lookups and create orchestrations', async t => {
       const url = 'http://localhost:4000/'
 
-      nock(url).get('/patient').reply(200, 'Body')
+      nock(url)
+        .matchHeader('x-openhim-transactionid', '1232244')
+        .get('/patient')
+        .reply(200, 'Body')
 
       const method = 'GET'
       const id = '123'
@@ -557,7 +560,11 @@ tap.test('External Requests', {autoend: true}, t => {
 
       const response = {name: 'raze', surname: 'breez'}
 
-      nock(url).put('/patient?name=raze').times(2).reply(200, response)
+      nock(url)
+        .matchHeader('x-openhim-transactionid', '1232244')
+        .put('/patient?name=raze')
+        .times(2)
+        .reply(200, response)
 
       await prepareResponseRequests(ctx)
 
