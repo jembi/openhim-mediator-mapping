@@ -127,7 +127,7 @@ There are two types of external requests, the `lookup` and the `response`. Query
     [
       { label: 'Lookup', value: 'lookup' },
       { label: 'Response', value: 'response' },
-      { label: 'Query population', value: 'query' },
+      { label: 'Query and URL parameters', value: 'query' },
     ]
   }>
   <TabItem value="lookup">
@@ -244,7 +244,7 @@ There are two types of external requests, the `lookup` and the `response`. Query
   </TabItem>
   <TabItems value="query">
 
-  The query parameters for the external requests can be populated from the incoming request's body and query object. The query parameters to be added can be specified in the `meta.json` as shown below in config `params.query` object
+  The query or URL parameters for the external requests can be populated from the incoming request's body and query object. The parameters to be added can be specified in the `meta.json` as shown below in config `params` object
 
   ```json
   {
@@ -254,13 +254,18 @@ There are two types of external requests, the `lookup` and the `response`. Query
           "id": "iscec",
           "config": {
             "method": "get",
-            "url": "http://localhost:3444/encounters/1",
+            "url": "http://localhost:3444/encounters/:encounterId",
             "params": {
               "query": {
                 "id": {
                   "path": "payload.id",
                   "prefix": "prefix",
                   "postfix": "postfix"
+                }
+              },
+              "url": {
+                "encounterId": {
+                  "path": "payload.encounterId"
                 }
               }
             }
@@ -309,6 +314,33 @@ There are two types of external requests, the `lookup` and the `response`. Query
   ```
 
   If say the facility code in the payload is **1223**, the specification above will enable us to have a query parameter - **?filter=code:1223:section:52**
+
+  For URL parameter the name of the parameter must be included in the url with a `:` prefix. This parameter will be replaced in the URL at runtime with the value that you specify. For example:
+
+  ```json
+  {
+    "requests": {
+      "lookup": [
+        {
+          "id": "iscec",
+          "config": {
+            "method": "get",
+            "url": "http://localhost:3444/encounters/:encounterId",
+            "params": {
+              "url": {
+                "encounterId": {
+                  "path": "payload.encounterId"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+  ```
+
+  If the original request's payload had a `encounterId` property of `2442` then the url would become: `http://localhost:3444/encounters/2442`
   </TabItems>
 </Tabs>
 
