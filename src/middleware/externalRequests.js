@@ -4,6 +4,7 @@ const axios = require('axios')
 const {DateTime} = require('luxon')
 
 const logger = require('../logger')
+const {OPENHIM_TRANSACTION_HEADER} = require('../constants')
 
 const {createOrchestration} = require('../orchestrations')
 const {extractValueFromObject} = require('../util')
@@ -43,6 +44,16 @@ const performRequests = (requests, ctx) => {
 
     // No body is sent out for now
     const body = null
+
+    if (ctx.request.header[OPENHIM_TRANSACTION_HEADER]) {
+      requestDetails.config.headers = Object.assign(
+        {
+          [OPENHIM_TRANSACTION_HEADER]:
+            ctx.request.header[OPENHIM_TRANSACTION_HEADER]
+        },
+        requestDetails.config.headers
+      )
+    }
 
     const requestParameters = addRequestQueryParameters(
       ctx,
@@ -99,7 +110,7 @@ const performRequests = (requests, ctx) => {
         // For now these orchestrations are recorded when there are no failures
         if (
           ctx.request.header &&
-          ctx.request.header['x-openhim-transactionid']
+          ctx.request.header[OPENHIM_TRANSACTION_HEADER]
         ) {
           const orchestration = createOrchestration(
             requestDetails,
@@ -212,6 +223,16 @@ const prepareResponseRequests = async ctx => {
         ) {
           const params = addRequestQueryParameters(ctx, request.config)
           const requestUrl = resolveRequestUrl(ctx, request.config)
+
+          if (ctx.request.header[OPENHIM_TRANSACTION_HEADER]) {
+            request.config.headers = Object.assign(
+              {
+                [OPENHIM_TRANSACTION_HEADER]:
+                  ctx.request.header[OPENHIM_TRANSACTION_HEADER]
+              },
+              request.config.headers
+            )
+          }
 
           const axiosConfig = prepareRequestConfig(
             request,
@@ -362,7 +383,10 @@ const sendMappedObject = (
       orchestrationError = result.error
     })
     .finally(() => {
-      if (ctx.request.header && ctx.request.header['x-openhim-transactionid']) {
+      if (
+        ctx.request.header &&
+        ctx.request.header[OPENHIM_TRANSACTION_HEADER]
+      ) {
         const orchestration = createOrchestration(
           request,
           body,

@@ -9,6 +9,7 @@ const mockServerPort = 7756
 process.env.MONGO_URL = 'mongodb://localhost:27017/integrationTest'
 
 const {withTestMapperServer, withMockServer} = require('../utils')
+const {OPENHIM_TRANSACTION_HEADER} = require('../../src/constants')
 
 tap.test(
   'Integration Full Flow',
@@ -190,7 +191,7 @@ tap.test(
             .post('/integrationTest1')
             .send(requestData)
             .set('Content-Type', 'application/json')
-            .set('x-openhim-transactionid', 'requestUUID')
+            .set(OPENHIM_TRANSACTION_HEADER, 'requestUUID')
             .expect(response => {
               t.equals(
                 response.body.response.body,
@@ -327,7 +328,7 @@ tap.test(
 
           await request(`http://localhost:${testMapperPort}`)
             .get('/integrationTest2')
-            .set('x-openhim-transactionid', 'requestUUID')
+            .set(OPENHIM_TRANSACTION_HEADER, 'requestUUID')
             .expect(response => {
               t.equals(
                 response.body.response.body,

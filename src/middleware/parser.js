@@ -6,7 +6,10 @@ const KoaBodyParser = require('@viweei/koa-body-parser')
 const config = require('../config').getConfig()
 const logger = require('../logger')
 
-const {ALLOWED_CONTENT_TYPES} = require('../constants')
+const {
+  ALLOWED_CONTENT_TYPES,
+  OPENHIM_TRANSACTION_HEADER
+} = require('../constants')
 const {createOrchestration, setStatusText} = require('../orchestrations')
 const {constructOpenhimResponse} = require('../openhim')
 
@@ -25,7 +28,10 @@ const parseOutgoingBody = (ctx, outputFormat) => {
       ctx.body = xmlBuilder.buildObject(ctx.body)
       ctx.set('Content-Type', 'application/xml')
 
-      if (ctx.request.header && ctx.request.header['x-openhim-transactionid']) {
+      if (
+        ctx.request.header &&
+        ctx.request.header[OPENHIM_TRANSACTION_HEADER]
+      ) {
         const orchestrationName = 'Outgoing Parser'
         const parserEndTime = new Date()
         const response = {
@@ -61,7 +67,7 @@ const parseOutgoingBody = (ctx, outputFormat) => {
   if (
     ctx.request &&
     ctx.request.header &&
-    ctx.request.header['x-openhim-transactionid']
+    ctx.request.header[OPENHIM_TRANSACTION_HEADER]
   ) {
     ctx.response.type = 'application/json+openhim'
     const date = new Date()
@@ -78,7 +84,12 @@ const parseIncomingBody = async (ctx, inputFormat) => {
   ctx.state.allData.query = ctx.request.query
 
   // parse incoming body if request is of type post only
-  if (ctx.request.method === 'GET' || ctx.request.method === 'DELETE') return
+  if (ctx.request.method === 'GET' || ctx.request.method === 'DELETE') {
+    logger.debug(
+      `${ctx.state.metaData.name} (${ctx.state.uuid}): Parsing skipped due to method type: ${ctx.request.method}`
+    )
+    return
+  }
 
   // KoaBodyParser executed the next() callback to allow the other middleware to continue before coming back here
   if (ALLOWED_CONTENT_TYPES.includes(inputFormat)) {
@@ -117,7 +128,7 @@ const parseIncomingBody = async (ctx, inputFormat) => {
 
         if (
           ctx.request.header &&
-          ctx.request.header['x-openhim-transactionid']
+          ctx.request.header[OPENHIM_TRANSACTION_HEADER]
         ) {
           if (inputFormat === 'XML') {
             const orchestrationName = 'Incoming Parser'

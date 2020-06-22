@@ -29,11 +29,26 @@ const performValidation = ctx => {
     dataToValidate.requestBody = ctx.request.body
   }
 
+  if (
+    ctx.request &&
+    ctx.request.query &&
+    Object.keys(ctx.request.query).length
+  ) {
+    dataToValidate.query = ctx.request.query
+  }
+
   if (ctx.state.allData.lookupRequests) {
     dataToValidate.lookupRequests = ctx.state.allData.lookupRequests
   }
 
-  if (!dataToValidate.requestBody && !dataToValidate.lookupRequests) {
+  if (
+    !dataToValidate.requestBody &&
+    !dataToValidate.lookupRequests &&
+    !dataToValidate.query
+  ) {
+    logger.error(
+      `${ctx.state.metaData.name} (${ctx.state.uuid}): Validation Rules supplied but no data received to validate`
+    )
     throw new Error(`No data to validate`)
   }
 

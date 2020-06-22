@@ -43,7 +43,7 @@ tap.test('Validation Middleware', {autoend: true}, t => {
     })
 
     t.test(
-      'should throw when both request.body and lookupRequests are not supplied',
+      'should throw when no request.body, query params, or lookupRequests are supplied',
       t => {
         const ctx = {
           request: {},
@@ -64,7 +64,7 @@ tap.test('Validation Middleware', {autoend: true}, t => {
       }
     )
 
-    t.test('should throw when request is body not valid', t => {
+    t.test('should throw when request body is not valid', t => {
       const ctx = {
         request: {
           body: {
@@ -134,7 +134,7 @@ tap.test('Validation Middleware', {autoend: true}, t => {
       t.end()
     })
 
-    t.test('should validate', t => {
+    t.test('should validate requestBody data', t => {
       t.plan(2)
 
       const ctx = {
@@ -157,6 +157,47 @@ tap.test('Validation Middleware', {autoend: true}, t => {
                     surname: {type: 'string'}
                   },
                   required: ['name']
+                }
+              }
+            }
+          },
+          allData: {
+            lookupRequests: {}
+          }
+        }
+      }
+
+      t.doesNotThrow(() =>
+        validateBodyMiddleware()(ctx, () => {
+          t.pass()
+        })
+      )
+      t.end()
+    })
+
+    t.test('should validate requestBody data', t => {
+      t.plan(2)
+
+      const ctx = {
+        request: {
+          query: {
+            id: 'test',
+            paging: 'false'
+          }
+        },
+        state: {
+          metaData: {
+            name: 'Testing endpoint',
+            inputValidation: {
+              type: 'object',
+              properties: {
+                query: {
+                  type: 'object',
+                  properties: {
+                    id: {type: 'string'},
+                    paging: {type: 'string'}
+                  },
+                  required: ['id', 'paging']
                 }
               }
             }

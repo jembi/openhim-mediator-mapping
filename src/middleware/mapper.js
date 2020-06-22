@@ -3,6 +3,7 @@
 const objectMapper = require('object-mapper')
 
 const logger = require('../logger')
+const {OPENHIM_TRANSACTION_HEADER} = require('../constants')
 const {createOrchestration} = require('../orchestrations')
 
 const createMappedObject = ctx => {
@@ -51,7 +52,7 @@ const createMappedObject = ctx => {
     `${ctx.state.metaData.name} (${ctx.state.uuid}): Successfully mapped output document`
   )
 
-  if (ctx.request.header && ctx.request.header['x-openhim-transactionid']) {
+  if (ctx.request.header && ctx.request.header[OPENHIM_TRANSACTION_HEADER]) {
     const orchestrationName = 'Mapping'
     const mappingEndTimestamp = new Date()
     const response = {
