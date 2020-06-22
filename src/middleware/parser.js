@@ -6,7 +6,10 @@ const KoaBodyParser = require('@viweei/koa-body-parser')
 const config = require('../config').getConfig()
 const logger = require('../logger')
 
-const {ALLOWED_CONTENT_TYPES} = require('../constants')
+const {
+  ALLOWED_CONTENT_TYPES,
+  OPENHIM_TRANSACTION_HEADER
+} = require('../constants')
 const {createOrchestration, setStatusText} = require('../orchestrations')
 const {constructOpenhimResponse} = require('../openhim')
 
@@ -25,7 +28,10 @@ const parseOutgoingBody = (ctx, outputFormat) => {
       ctx.body = xmlBuilder.buildObject(ctx.body)
       ctx.set('Content-Type', 'application/xml')
 
-      if (ctx.request.header && ctx.request.header['x-openhim-transactionid']) {
+      if (
+        ctx.request.header &&
+        ctx.request.header[OPENHIM_TRANSACTION_HEADER]
+      ) {
         const orchestrationName = 'Outgoing Parser'
         const parserEndTime = new Date()
         const response = {
@@ -61,7 +67,7 @@ const parseOutgoingBody = (ctx, outputFormat) => {
   if (
     ctx.request &&
     ctx.request.header &&
-    ctx.request.header['x-openhim-transactionid']
+    ctx.request.header[OPENHIM_TRANSACTION_HEADER]
   ) {
     ctx.response.type = 'application/json+openhim'
     const date = new Date()
@@ -122,7 +128,7 @@ const parseIncomingBody = async (ctx, inputFormat) => {
 
         if (
           ctx.request.header &&
-          ctx.request.header['x-openhim-transactionid']
+          ctx.request.header[OPENHIM_TRANSACTION_HEADER]
         ) {
           if (inputFormat === 'XML') {
             const orchestrationName = 'Incoming Parser'

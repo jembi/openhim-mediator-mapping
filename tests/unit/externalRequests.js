@@ -4,6 +4,7 @@ const nock = require('nock')
 const rewire = require('rewire')
 const tap = require('tap')
 
+const {OPENHIM_TRANSACTION_HEADER} = require('../../src/constants')
 const externalRequests = rewire('../../src/middleware/externalRequests')
 
 const prepareResponseRequests = externalRequests.__get__(
@@ -111,7 +112,7 @@ tap.test('External Requests', {autoend: true}, t => {
           },
           request: {
             header: {
-              'x-openhim-transactionid': '1232244'
+              [OPENHIM_TRANSACTION_HEADER]: '1232244'
             }
           }
         }
@@ -164,7 +165,7 @@ tap.test('External Requests', {autoend: true}, t => {
           },
           request: {
             header: {
-              'x-openhim-transactionid': '1232244'
+              [OPENHIM_TRANSACTION_HEADER]: '1232244'
             }
           }
         }
@@ -183,7 +184,7 @@ tap.test('External Requests', {autoend: true}, t => {
       const url = 'http://localhost:4000/'
 
       nock(url)
-        .matchHeader('x-openhim-transactionid', '1232244')
+        .matchHeader(OPENHIM_TRANSACTION_HEADER, '1232244')
         .get('/patient')
         .reply(200, 'Body')
 
@@ -213,7 +214,7 @@ tap.test('External Requests', {autoend: true}, t => {
         },
         request: {
           header: {
-            'x-openhim-transactionid': '1232244'
+            [OPENHIM_TRANSACTION_HEADER]: '1232244'
           }
         }
       }
@@ -254,7 +255,7 @@ tap.test('External Requests', {autoend: true}, t => {
       const ctx = {
         request: {
           header: {
-            'x-openhim-transactionid': '123'
+            [OPENHIM_TRANSACTION_HEADER]: '123'
           }
         },
         state: {
@@ -296,7 +297,7 @@ tap.test('External Requests', {autoend: true}, t => {
       const ctx = {
         request: {
           header: {
-            'x-openhim-transactionid': '123'
+            [OPENHIM_TRANSACTION_HEADER]: '123'
           }
         },
         state: {
@@ -486,7 +487,7 @@ tap.test('External Requests', {autoend: true}, t => {
           },
           request: {
             header: {
-              'x-openhim-transactionid': '1232244'
+              [OPENHIM_TRANSACTION_HEADER]: '1232244'
             }
           },
           response: {
@@ -544,7 +545,7 @@ tap.test('External Requests', {autoend: true}, t => {
         },
         request: {
           header: {
-            'x-openhim-transactionid': '1232244'
+            [OPENHIM_TRANSACTION_HEADER]: '1232244'
           }
         },
         response: {
@@ -561,7 +562,7 @@ tap.test('External Requests', {autoend: true}, t => {
       const response = {name: 'raze', surname: 'breez'}
 
       nock(url)
-        .matchHeader('x-openhim-transactionid', '1232244')
+        .matchHeader(OPENHIM_TRANSACTION_HEADER, '1232244')
         .put('/patient?name=raze')
         .times(2)
         .reply(200, response)
