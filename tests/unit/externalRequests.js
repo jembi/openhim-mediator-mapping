@@ -1043,36 +1043,38 @@ tap.test('External Requests', {autoend: true}, t => {
       const prefix = 'sir:'
       const request = {
         params: {
-          id: {
-            path: 'payload.id'
-          },
-          place: {
-            path: 'payload.place.address'
-          },
-          status: {
-            path: 'payload.status[1].rich.status[0].sp'
-          },
-          code: {
-            path: 'query.code'
-          },
-          name: {
-            path: 'query.name',
-            postfix,
-            prefix
-          },
-          surname: {
-            path: 'query.surname',
-            postfix,
-            prefix
-          },
-          lastAddress: {
-            path: 'state.lastAddress'
-          },
-          children: {
-            path: 'lookupRequests.children'
-          },
-          brothers: {
-            path: 'responseBody.brother'
+          query: {
+            id: {
+              path: 'payload.id'
+            },
+            place: {
+              path: 'payload.place.address'
+            },
+            status: {
+              path: 'payload.status[1].rich.status[0].sp'
+            },
+            code: {
+              path: 'query.code'
+            },
+            name: {
+              path: 'query.name',
+              postfix,
+              prefix
+            },
+            surname: {
+              path: 'query.surname',
+              postfix,
+              prefix
+            },
+            lastAddress: {
+              path: 'state.lastAddress'
+            },
+            children: {
+              path: 'lookupRequests.children'
+            },
+            brothers: {
+              path: 'responseBody.brother'
+            }
           }
         }
       }

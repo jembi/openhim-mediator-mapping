@@ -368,10 +368,10 @@ const sendMappedObject = (
 const addRequestQueryParameters = (ctx, request) => {
   const requestQueryParams = {}
 
-  if (request.params) {
-    Object.keys(request.params).forEach(param => {
+  if (request.params && request.params.query) {
+    Object.keys(request.params.query).forEach(param => {
       let parameterValue
-      const queryParam = request.params[`${param}`]
+      const queryParam = request.params.query[`${param}`]
       const fullPath = queryParam.path
 
       // remove first index as this defines the type of param to extract
@@ -410,11 +410,11 @@ const addRequestQueryParameters = (ctx, request) => {
       }
 
       if (parameterValue) {
-        const prefix = request.params[`${param}`].prefix
-          ? request.params[`${param}`].prefix
+        const prefix = request.params.query[`${param}`].prefix
+          ? request.params.query[`${param}`].prefix
           : ''
-        const postfix = request.params[`${param}`].postfix
-          ? request.params[`${param}`].postfix
+        const postfix = request.params.query[`${param}`].postfix
+          ? request.params.query[`${param}`].postfix
           : ''
         requestQueryParams[`${param}`] = `${prefix}${parameterValue}${postfix}`
       }

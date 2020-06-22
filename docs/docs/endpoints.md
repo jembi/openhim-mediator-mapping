@@ -76,15 +76,17 @@ This feature allows for data lookups from external services and the sending of t
           "method": "get",
           "url": "http://localhost:3444/encounters/",
           "params": {
-            "id": {
-              "path": "payload.id",
-              "prefix": "",
-              "postfix": ""
-            },
-            "address":{
-              "path": "query.location",
-              "prefix": "",
-              "postfix": ""
+            "query": {
+              "id": {
+                "path": "payload.id",
+                "prefix": "",
+                "postfix": ""
+              },
+              "address":{
+                "path": "query.location",
+                "prefix": "",
+                "postfix": ""
+              }
             }
           }
         }
@@ -97,15 +99,17 @@ This feature allows for data lookups from external services and the sending of t
           "method": "post",
           "url": "http://localhost:3456/encounters?msn=23",
           "params": {
-            "place":{
-              "path": "payload.location[0].code",
-              "prefix": "",
-              "postfix": ""
-            },
-            "code": {
-              "path": "query.unit",
-              "postfix": "",
-              "prefix": ""
+            "query": {
+              "place":{
+                "path": "payload.location[0].code",
+                "prefix": "",
+                "postfix": ""
+              },
+              "code": {
+                "path": "query.unit",
+                "postfix": "",
+                "prefix": ""
+              }
             }
           }
         }
@@ -142,8 +146,10 @@ There are two types of external requests, the `lookup` and the `response`. Query
             "method": "get",
             "url": "http://localhost:3444/location/1",
             "params": {
-              "id": {
-                "path": "payload.id"
+              "query": {
+                "id": {
+                  "path": "payload.id"
+                }
               }
             }
           }
@@ -184,10 +190,13 @@ There are two types of external requests, the `lookup` and the `response`. Query
             "method": "get",
             "url": "http://localhost:3444/encounters/1",
             "params": {
-              "id": {
-                "path": "payload.id",
-                "prefix": "",
-                "postfix": ""
+              "query": {
+                "id": {
+                  "path": "payload.id",
+                  "prefix": "",
+                  "postfix": ""
+                }
+              }
             }
           }
         },
@@ -197,10 +206,12 @@ There are two types of external requests, the `lookup` and the `response`. Query
             "method": "get",
             "url": "http://localhost:3444/encounters/1",
             "params": {
-              "id": {
-                "path": "payload.id",
-                "prefix": "",
-                "postfix": ""
+              "query": {
+                "id": {
+                  "path": "payload.id",
+                  "prefix": "",
+                  "postfix": ""
+                }
               }
             },
             "primary": false
@@ -233,7 +244,7 @@ There are two types of external requests, the `lookup` and the `response`. Query
   </TabItem>
   <TabItems value="query">
 
-  The query parameters for the external requests can be populated from the incoming request's body and query object. The query parameters to be added can be specified in the `meta.json` as shown below in config params object
+  The query parameters for the external requests can be populated from the incoming request's body and query object. The query parameters to be added can be specified in the `meta.json` as shown below in config `params.query` object
 
   ```json
   {
@@ -245,10 +256,12 @@ There are two types of external requests, the `lookup` and the `response`. Query
             "method": "get",
             "url": "http://localhost:3444/encounters/1",
             "params": {
-              "id": {
-                "path": "payload.id",
-                "prefix": "prefix",
-                "postfix": "postfix"
+              "query": {
+                "id": {
+                  "path": "payload.id",
+                  "prefix": "prefix",
+                  "postfix": "postfix"
+                }
               }
             }
           }
@@ -264,11 +277,13 @@ There are two types of external requests, the `lookup` and the `response`. Query
   {
     "config": {
       "params": {
-        "id": {
-          "path": "payload.ids[0].nationalId"
-        },
-        "name": {
-          "path": "query.name"
+        "query": {
+          "id": {
+            "path": "payload.ids[0].nationalId"
+          },
+          "name": {
+            "path": "query.name"
+          }
         }
       }
     }
@@ -282,10 +297,12 @@ There are two types of external requests, the `lookup` and the `response`. Query
   ```json
   {
     "params": {
-      "filter": {
-        "path": "payload.facility_code",
-        "prefix": "code:",
-        "postfix": ":section:52"
+      "query": {
+        "filter": {
+          "path": "payload.facility_code",
+          "prefix": "code:",
+          "postfix": ":section:52"
+        }
       }
     }
   }

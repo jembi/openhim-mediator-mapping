@@ -228,9 +228,11 @@ tap.test(
                       'Content-Type': 'application/json'
                     },
                     params: {
-                      id: {
-                        path: 'payload.patientId',
-                        prefix: 'Patient:'
+                      query: {
+                        id: {
+                          path: 'payload.patientId',
+                          prefix: 'Patient:'
+                        }
                       }
                     }
                   },
