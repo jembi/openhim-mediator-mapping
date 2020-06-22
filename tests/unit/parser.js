@@ -3,7 +3,7 @@
 const rewire = require('rewire')
 const tap = require('tap')
 const {parseBodyMiddleware} = require('../../src/middleware/parser')
-
+const {OPENHIM_TRANSACTION_HEADER} = require('../../src/constants')
 const parser = rewire('../../src/middleware/parser')
 
 const parseIncomingBody = parser.__get__('parseIncomingBody')
@@ -97,7 +97,7 @@ tap.test('Parser', {autoend: true}, t => {
             surname: 'Sacks'
           },
           header: {
-            'x-openhim-transactionid': '12333'
+            [OPENHIM_TRANSACTION_HEADER]: '12333'
           },
           raw_body: '<xml><name>Moin</name><surname>Sacks</surname></xml>' // ??? raw body us XML but body is JSON
         }
@@ -140,7 +140,7 @@ tap.test('Parser', {autoend: true}, t => {
               surname: 'Sacks'
             },
             header: {
-              'x-openhim-transactionid': '12333'
+              [OPENHIM_TRANSACTION_HEADER]: '12333'
             },
             raw_body: '<xml><name>Moin</name><surname>Sacks</surname></xml>' // ??? raw body us XML but body is JSON
           }
@@ -181,7 +181,7 @@ tap.test('Parser', {autoend: true}, t => {
             surname: 'Sacks'
           },
           header: {
-            'x-openhim-transactionid': '12333'
+            [OPENHIM_TRANSACTION_HEADER]: '12333'
           },
           raw_body: '{"name": "Moin", "surname": "Sacks"}'
         }
@@ -303,7 +303,7 @@ tap.test('Parser', {autoend: true}, t => {
           },
           request: {
             header: {
-              'x-openhim-transactionid': '12333'
+              [OPENHIM_TRANSACTION_HEADER]: '12333'
             }
           },
           response: {
@@ -347,7 +347,7 @@ tap.test('Parser', {autoend: true}, t => {
           },
           request: {
             header: {
-              'x-openhim-transactionid': '12333'
+              [OPENHIM_TRANSACTION_HEADER]: '12333'
             }
           },
           response: {}

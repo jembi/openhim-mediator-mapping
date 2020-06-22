@@ -7,6 +7,7 @@ const tap = require('tap')
 const port = 13005
 process.env.MONGO_URL = 'mongodb://localhost:27017/parserTest'
 
+const {OPENHIM_TRANSACTION_HEADER} = require('../../src/constants')
 const {withTestMapperServer} = require('../utils')
 
 tap.test(
@@ -156,7 +157,7 @@ tap.test(
           .post('/parserTest3')
           .send(requestData)
           .set('Content-Type', 'application/xml')
-          .set('x-openhim-transactionid', 'requestUUID')
+          .set(OPENHIM_TRANSACTION_HEADER, 'requestUUID')
           .expect(response => {
             t.equals(response.status, 400)
             t.equals(
@@ -200,7 +201,7 @@ tap.test(
           .post('/parserTest4')
           .send(requestData)
           .set('Content-Type', 'application/xml')
-          .set('x-openhim-transactionid', 'requestUUID')
+          .set(OPENHIM_TRANSACTION_HEADER, 'requestUUID')
           .expect(response => {
             t.equals(response.status, 400)
             t.deepEqual(JSON.parse(response.body.response.body), {

@@ -5,6 +5,7 @@ const tap = require('tap')
 const sinon = require('sinon')
 
 const mapper = rewire('../../src/middleware/mapper')
+const {OPENHIM_TRANSACTION_HEADER} = require('../../src/constants')
 const createMappedObject = mapper.__get__('createMappedObject')
 
 tap.test('Mapper', {autoend: true}, t => {
@@ -212,7 +213,7 @@ tap.test('Mapper', {autoend: true}, t => {
         request: {
           body,
           header: {
-            'x-openhim-transactionid': '1233'
+            [OPENHIM_TRANSACTION_HEADER]: '1233'
           }
         },
         state: {
@@ -262,7 +263,7 @@ tap.test('Mapper', {autoend: true}, t => {
           request: {
             body,
             header: {
-              'x-openhim-transactionid': '1233'
+              [OPENHIM_TRANSACTION_HEADER]: '1233'
             }
           },
           orchestrations: [], // empty array supplied
