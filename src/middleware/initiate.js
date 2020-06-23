@@ -148,6 +148,19 @@ exports.initiateContextMiddleware = () => async (ctx, next) => {
       ctx.response.type = 'application/json+openhim'
       constructOpenhimResponse(ctx, Date.now())
     }
+
+    ctx.state = {
+      allData: {
+        state: {
+          metaData: {}
+        },
+        urlParams
+      },
+      metaData: {
+        name: 'Unknown endpoint'
+      }
+    }
+
     next()
     return
   }
