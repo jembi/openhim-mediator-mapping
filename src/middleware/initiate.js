@@ -7,7 +7,12 @@ const logger = require('../logger')
 const {endpointCache} = require('../db/services/endpoints/cache')
 const statesService = require('../db/services/states')
 const {constructOpenhimResponse} = require('../openhim')
-const {extractValueFromObject, handleServerError} = require('../util')
+const {
+  extractValueFromObject,
+  handleServerError,
+  extractUrlParamsFromUrlPath,
+  removeClosingSlash
+} = require('../util')
 
 const extractByType = (type, extract, allData) => {
   let state = {}
@@ -97,12 +102,29 @@ const updateEndpointState = async (ctx, endpoint) => {
 }
 
 const getEndpointByPath = urlPath => {
+  let matchOnPattern, matchOnRegexPattern
+  let urlParams = {}
+
+  // Closing forward slash will result in matching failures
+  urlPath = removeClosingSlash(urlPath)
+
   for (let endpoint of endpointCache) {
-    if (endpoint.endpoint.pattern === urlPath) {
-      return endpoint
+    if (removeClosingSlash(endpoint.endpoint.pattern) === urlPath) {
+      matchOnPattern = endpoint
+    }
+
+    if (urlPath.match(endpoint.endpoint.patternRegex)) {
+      urlParams = extractUrlParamsFromUrlPath(
+        urlPath,
+        endpoint.endpoint.pattern
+      )
+      matchOnRegexPattern = endpoint
     }
   }
-  return null
+
+  if (matchOnPattern) return {endpoint: matchOnPattern, urlParams}
+  if (matchOnRegexPattern) return {endpoint: matchOnRegexPattern, urlParams}
+  return {endpoint: null, urlParams}
 }
 
 exports.initiateContextMiddleware = () => async (ctx, next) => {
@@ -113,20 +135,20 @@ exports.initiateContextMiddleware = () => async (ctx, next) => {
     ? ctx.request.headers['x-openhim-transactionid']
     : uuid.v4()
 
-  const endpoint = getEndpointByPath(ctx.request.path)
+  const {endpoint, urlParams} = getEndpointByPath(ctx.request.path)
 
   if (!endpoint) {
     logger.error(`Unknown Endpoint: ${ctx.request.path}`)
 
     ctx.response.type = 'application/json'
     ctx.status = 404
-    ctx.response.body = `Unknown Endpoint: ${ctx.request.path}`
+    ctx.response.body = {error: `Unknown Endpoint: ${ctx.request.path}`}
 
     if (ctx.request.headers && ctx.request.headers['x-openhim-transactionid']) {
       ctx.response.type = 'application/json+openhim'
       constructOpenhimResponse(ctx, Date.now())
     }
-
+    next()
     return
   }
 
@@ -140,6 +162,7 @@ exports.initiateContextMiddleware = () => async (ctx, next) => {
   ctx.state.allData = {
     constants: endpoint.constants,
     state: endpointState,
+    urlParams: urlParams,
     timestamps: {
       endpointStart,
       endpointEnd: null,
