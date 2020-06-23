@@ -18,13 +18,14 @@ tap.test('Utility Methods', {autoend: true}, t => {
       'should extract regex from pattern "/organization/:uid/unit/:name" and verify regex',
       t => {
         const pattern = '/organization/:uid/unit/:name'
-        const expectedRegexString = `\\/organization\\/[^ ;:=#@,\\/]{1,}\\/unit\\/[^ ;:=#@,\\/]{1,}$`
-        const result = extractRegexFromPattern(pattern)
+        const expectedRegex = new RegExp(
+          /\/organization\/[^ ;:=#@,/]{1,}\/unit\/[^ ;:=#@,/]{1,}$/
+        )
+        const regex = extractRegexFromPattern(pattern)
 
-        t.equal(result, expectedRegexString)
+        t.equal(regex, expectedRegex.source)
 
         // Verify regex
-        const regex = new RegExp(result)
         const testString = '/organization/12222/unit/2'
         const invalidTestString = '/organization/122:22/unit/2'
         const invalidTestString1 = '/organization/122/22/unit/2:'

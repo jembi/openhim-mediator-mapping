@@ -423,7 +423,8 @@ tap.test('Parser', {autoend: true}, t => {
               input: 'JSON',
               output: 'XML'
             }
-          }
+          },
+          endpointExists: true
         },
         get: name => {
           const contentHeader = 'application/json'
