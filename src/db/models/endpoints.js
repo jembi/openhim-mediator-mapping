@@ -8,6 +8,7 @@ const {
   DEFAULT_ENDPOINT_METHOD,
   MIDDLEWARE_PATH_REGEX
 } = require('../../constants')
+const {extractRegexFromPattern} = require('../../util')
 
 const endpointSchema = new mongoose.Schema(
   {
@@ -28,6 +29,7 @@ const endpointSchema = new mongoose.Schema(
           unique: true
         }
       },
+      patternRegex: String,
       method: {
         type: String,
         enum: ALLOWED_ENDPOINT_METHODS,
@@ -66,4 +68,27 @@ const endpointSchema = new mongoose.Schema(
   }
 )
 
-module.exports = mongoose.model('endpoint', endpointSchema)
+endpointSchema.pre('save', async function (next) {
+  var endpoint = this
+
+  if (!endpoint.isModified('endpoint')) return next()
+
+  const regexString = extractRegexFromPattern(endpoint.endpoint.pattern)
+  await EndpointModel.find({'endpoint.patternRegex': regexString}).then(
+    result => {
+      if (result.length > 0) {
+        const error = new Error(
+          `Duplicate error: regex created from endpoint pattern ${endpoint.endpoint.pattern} for matching requests already exists`
+        )
+        return next(error)
+      }
+
+      endpoint.endpoint.patternRegex = regexString
+      return next()
+    }
+  )
+})
+
+const EndpointModel = mongoose.model('endpoint', endpointSchema)
+
+module.exports = EndpointModel
