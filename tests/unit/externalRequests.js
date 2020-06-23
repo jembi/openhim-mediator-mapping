@@ -24,6 +24,7 @@ const validateRequestStatusCode = externalRequests.__get__(
 const performRequests = externalRequests.__get__('performRequests')
 const prepareLookupRequests = externalRequests.__get__('prepareLookupRequests')
 const prepareRequestConfig = externalRequests.__get__('prepareRequestConfig')
+const resolveRequestUrl = externalRequests.__get__('resolveRequestUrl')
 
 tap.test('External Requests', {autoend: true}, t => {
   t.test('validateRequestStatusCode', {autoend: true}, t => {
@@ -841,6 +842,27 @@ tap.test('External Requests', {autoend: true}, t => {
       t.ok(requestConfig.validateStatus(300))
       t.end()
     })
+
+    t.test('should add url to request config object', t => {
+      const requestDetails = {
+        config: {
+          url: `localhost:8080`,
+          method: 'GET'
+        }
+      }
+      const requestBody = null
+      const queryParams = null
+      const requestUrl = 'localhost:8080/Patient'
+
+      const requestConfig = prepareRequestConfig(
+        requestDetails,
+        requestBody,
+        queryParams,
+        requestUrl
+      )
+      t.equals(requestConfig.url, requestUrl)
+      t.end()
+    })
   })
 
   t.test('setKoaResponseBody()', {autoend: true}, t => {
@@ -1051,36 +1073,38 @@ tap.test('External Requests', {autoend: true}, t => {
       const prefix = 'sir:'
       const request = {
         params: {
-          id: {
-            path: 'payload.id'
-          },
-          place: {
-            path: 'payload.place.address'
-          },
-          status: {
-            path: 'payload.status[1].rich.status[0].sp'
-          },
-          code: {
-            path: 'query.code'
-          },
-          name: {
-            path: 'query.name',
-            postfix,
-            prefix
-          },
-          surname: {
-            path: 'query.surname',
-            postfix,
-            prefix
-          },
-          lastAddress: {
-            path: 'state.lastAddress'
-          },
-          children: {
-            path: 'lookupRequests.children'
-          },
-          brothers: {
-            path: 'responseBody.brother'
+          query: {
+            id: {
+              path: 'payload.id'
+            },
+            place: {
+              path: 'payload.place.address'
+            },
+            status: {
+              path: 'payload.status[1].rich.status[0].sp'
+            },
+            code: {
+              path: 'query.code'
+            },
+            name: {
+              path: 'query.name',
+              postfix,
+              prefix
+            },
+            surname: {
+              path: 'query.surname',
+              postfix,
+              prefix
+            },
+            lastAddress: {
+              path: 'state.lastAddress'
+            },
+            children: {
+              path: 'lookupRequests.children'
+            },
+            brothers: {
+              path: 'responseBody.brother'
+            }
           }
         }
       }
@@ -1118,6 +1142,49 @@ tap.test('External Requests', {autoend: true}, t => {
         )
       }
 
+      t.end()
+    })
+  })
+
+  t.test('resolveRequestUrl', {autoend: true}, t => {
+    t.test('should return the request url if there are no url params', t => {
+      t.equals(
+        resolveRequestUrl({}, {url: 'http://test.org'}),
+        'http://test.org'
+      )
+      t.end()
+    })
+
+    t.test('should return the request url with url params replaced', t => {
+      const url = resolveRequestUrl(
+        {
+          request: {
+            body: {
+              test1: 'params',
+              test: {
+                '2': 'test'
+              }
+            }
+          }
+        },
+        {
+          url: 'http://test.org/url/:test1/are/fun/:test1/:test2/',
+          params: {
+            url: {
+              test1: {path: 'payload.test1'},
+              test2: {
+                path: 'payload.test.2',
+                prefix: 'to-',
+                postfix: '-thoroughly'
+              }
+            }
+          }
+        }
+      )
+      t.equals(
+        url,
+        'http://test.org/url/params/are/fun/params/to-test-thoroughly/'
+      )
       t.end()
     })
   })

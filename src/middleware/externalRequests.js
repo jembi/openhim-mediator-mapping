@@ -59,8 +59,11 @@ const performRequests = (requests, ctx) => {
       ctx,
       requestDetails.config
     )
+    const requestUrl = resolveRequestUrl(ctx, requestDetails.config)
 
-    return axios(prepareRequestConfig(requestDetails, null, requestParameters))
+    return axios(
+      prepareRequestConfig(requestDetails, null, requestParameters, requestUrl)
+    )
       .then(res => {
         response = res
         response.body = res.data
@@ -151,19 +154,24 @@ const prepareLookupRequests = ctx => {
 const prepareRequestConfig = (
   requestDetails,
   requestBody,
-  requestQueryParams
+  requestQueryParams,
+  requestUrl
 ) => {
-  const body = {}
+  const options = {}
 
   if (requestBody) {
-    body.data = requestBody
+    options.data = requestBody
   }
 
   if (requestQueryParams) {
-    body.params = requestQueryParams
+    options.params = requestQueryParams
   }
 
-  const requestOptions = Object.assign({}, requestDetails.config, body)
+  if (requestUrl) {
+    options.url = requestUrl
+  }
+
+  const requestOptions = Object.assign({}, requestDetails.config, options)
   // This step is separated out as in future the URL contained within the config
   // can be manipulated to add URL parameters taken from the body of an incoming request
   if (
@@ -214,6 +222,7 @@ const prepareResponseRequests = async ctx => {
           request.id
         ) {
           const params = addRequestQueryParameters(ctx, request.config)
+          const requestUrl = resolveRequestUrl(ctx, request.config)
 
           if (ctx.request.header[OPENHIM_TRANSACTION_HEADER]) {
             request.config.headers = Object.assign(
@@ -225,7 +234,12 @@ const prepareResponseRequests = async ctx => {
             )
           }
 
-          const axiosConfig = prepareRequestConfig(request, body, params)
+          const axiosConfig = prepareRequestConfig(
+            request,
+            body,
+            params,
+            requestUrl
+          )
 
           return sendMappedObject(ctx, axiosConfig, request, body, params)
         }
@@ -389,63 +403,79 @@ const sendMappedObject = (
     })
 }
 
+const extractParamValue = (path, ctx) => {
+  // remove first index as this defines the type of param to extract
+  const extractType = path.split('.')[0]
+
+  // remove the extractType property from path
+  path = path.replace(`${extractType}.`, '')
+
+  switch (extractType) {
+    case 'payload':
+      return extractValueFromObject(ctx.request.body, path)
+    case 'query':
+      return extractValueFromObject(ctx.request.query, path)
+    case 'state':
+      return extractValueFromObject(ctx.state.allData.state, path)
+    case 'lookupRequests':
+      return extractValueFromObject(ctx.state.allData.lookupRequests, path)
+    case 'responseBody':
+      return extractValueFromObject(ctx.state.allData.responseBody, path)
+    default:
+      ctx.statusCode = 500
+      throw new Error(
+        `Unsupported Query Parameter Extract Type: ${extractType}`
+      )
+  }
+}
+
 const addRequestQueryParameters = (ctx, request) => {
   const requestQueryParams = {}
 
-  if (request.params) {
-    Object.keys(request.params).forEach(param => {
-      let parameterValue
-      const queryParam = request.params[`${param}`]
-      const fullPath = queryParam.path
+  if (request.params && request.params.query) {
+    Object.keys(request.params.query).forEach(paramName => {
+      const queryParamOptions = request.params.query[`${paramName}`]
+      const fullPath = queryParamOptions.path
 
-      // remove first index as this defines the type of param to extract
-      const extractType = fullPath.split('.')[0]
-
-      // remove the extractType property from path
-      const path = fullPath.replace(`${extractType}.`, '')
-
-      switch (extractType) {
-        case 'payload':
-          parameterValue = extractValueFromObject(ctx.request.body, path)
-          break
-        case 'query':
-          parameterValue = extractValueFromObject(ctx.request.query, path)
-          break
-        case 'state':
-          parameterValue = extractValueFromObject(ctx.state.allData.state, path)
-          break
-        case 'lookupRequests':
-          parameterValue = extractValueFromObject(
-            ctx.state.allData.lookupRequests,
-            path
-          )
-          break
-        case 'responseBody':
-          parameterValue = extractValueFromObject(
-            ctx.state.allData.responseBody,
-            path
-          )
-          break
-        default:
-          ctx.statusCode = 500
-          throw new Error(
-            `Unsupported Query Parameter Extract Type: ${extractType}`
-          )
-      }
+      const parameterValue = extractParamValue(fullPath, ctx)
 
       if (parameterValue) {
-        const prefix = request.params[`${param}`].prefix
-          ? request.params[`${param}`].prefix
+        const prefix = queryParamOptions.prefix ? queryParamOptions.prefix : ''
+        const postfix = queryParamOptions.postfix
+          ? queryParamOptions.postfix
           : ''
-        const postfix = request.params[`${param}`].postfix
-          ? request.params[`${param}`].postfix
-          : ''
-        requestQueryParams[`${param}`] = `${prefix}${parameterValue}${postfix}`
+        requestQueryParams[
+          `${paramName}`
+        ] = `${prefix}${parameterValue}${postfix}`
       }
     })
   }
 
   return requestQueryParams
+}
+
+const resolveRequestUrl = (ctx, request) => {
+  let url = request.url
+
+  if (request.params && request.params.url) {
+    Object.keys(request.params.url).forEach(paramName => {
+      const urlParamOptions = request.params.url[paramName]
+      const fullPath = urlParamOptions.path
+
+      const parameterValue = extractParamValue(fullPath, ctx)
+
+      if (parameterValue) {
+        const prefix = urlParamOptions.prefix ? urlParamOptions.prefix : ''
+        const postfix = urlParamOptions.postfix ? urlParamOptions.postfix : ''
+        url = url.replace(
+          new RegExp(`:${paramName}`, 'g'),
+          `${prefix}${parameterValue}${postfix}`
+        )
+      }
+    })
+  }
+
+  return url
 }
 
 exports.requestsMiddleware = () => async (ctx, next) => {
