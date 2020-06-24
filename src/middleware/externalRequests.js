@@ -1,13 +1,13 @@
 'use strict'
 
 const axios = require('axios')
-const { DateTime } = require('luxon')
+const {DateTime} = require('luxon')
 
 const logger = require('../logger')
-const { OPENHIM_TRANSACTION_HEADER } = require('../constants')
+const {OPENHIM_TRANSACTION_HEADER} = require('../constants')
 
-const { createOrchestration } = require('../orchestrations')
-const { extractValueFromObject, parseStringToBoolean } = require('../util')
+const {createOrchestration} = require('../orchestrations')
+const {extractValueFromObject, parseStringToBoolean} = require('../util')
 
 const validateRequestStatusCode = allowedStatuses => {
   const stringStatuses = allowedStatuses.map(status => {
@@ -57,7 +57,9 @@ const performRequests = (requests, ctx) => {
       requestDetails.config
     )
     const requestUrl = resolveRequestUrl(ctx, requestDetails.config)
-    const body = parseStringToBoolean(requestDetails.forwardExistingRequestBody) ? ctx.request.body : null
+    const body = parseStringToBoolean(requestDetails.forwardExistingRequestBody)
+      ? ctx.request.body
+      : null
 
     return axios(
       prepareRequestConfig(requestDetails, body, requestParameters, requestUrl)
@@ -83,7 +85,7 @@ const performRequests = (requests, ctx) => {
           .toObject()
 
         // Assign any data received from the response to the assigned ID in the context
-        return { [requestDetails.id]: res.data }
+        return {[requestDetails.id]: res.data}
       })
       .catch(error => {
         orchestrationError = error
@@ -310,10 +312,10 @@ const handleRequestError = (ctx, request, requestError) => {
 
       setKoaResponseBody(ctx, request, requestError.message)
     }
-    error = { message: requestError.message }
+    error = {message: requestError.message}
   }
 
-  return { response, error }
+  return {response, error}
 }
 
 // Sets the koa response body from the primary request's response body
