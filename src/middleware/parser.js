@@ -173,17 +173,15 @@ exports.parseBodyMiddleware = () => async (ctx, next) => {
       : ''
 
   try {
-    // parse incoming body if endpoint exists
-    if (ctx.state.endpointExists) {
-      await parseIncomingBody(ctx, inputContentType)
+    // parse incoming body
+    await parseIncomingBody(ctx, inputContentType)
 
-      await next()
+    await next()
 
-      // wait for middleware to bubble up before running the below method
+    // wait for middleware to bubble up before running the below method
 
-      // parse outgoing body if endpoint exists
-      parseOutgoingBody(ctx, outputContentType)
-    }
+    // parse outgoing body
+    parseOutgoingBody(ctx, outputContentType)
   } catch (error) {
     ctx.status = ctx.statusCode ? ctx.statusCode : 400
     ctx.statusText = 'Failed'
@@ -191,9 +189,6 @@ exports.parseBodyMiddleware = () => async (ctx, next) => {
 
     // parse outgoing body
     ctx.body = {error: error.message}
-    if (ctx.state.endpointExists) {
-      return parseOutgoingBody(ctx, outputContentType)
-    }
-    return
+    return parseOutgoingBody(ctx, outputContentType)
   }
 }
