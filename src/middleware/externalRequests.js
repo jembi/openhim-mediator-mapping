@@ -10,9 +10,7 @@ const {createOrchestration} = require('../orchestrations')
 const {extractValueFromObject, parseStringToBoolean} = require('../util')
 
 const validateRequestStatusCode = allowedStatuses => {
-  const stringStatuses = allowedStatuses.map(status => {
-    return String(status)
-  })
+  const stringStatuses = allowedStatuses.map(String)
   return status => {
     if (stringStatuses.includes(String(status))) {
       return true
