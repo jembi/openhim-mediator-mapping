@@ -86,7 +86,7 @@ exports.extractRegexFromPattern = pattern => {
     pattern = pattern.substring(1)
   }
 
-  const splitPattern = pattern.split(/\//g)
+  const splitPattern = pattern.split('/')
   let regexString = ''
   const urlParamRegexPart = new RegExp(/\/[^ ;:=#@,/]{1,}/)
 
