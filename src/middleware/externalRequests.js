@@ -421,6 +421,8 @@ const extractParamValue = (path, ctx) => {
       return extractValueFromObject(ctx.state.allData.lookupRequests, path)
     case 'responseBody':
       return extractValueFromObject(ctx.state.allData.responseBody, path)
+    case 'urlParams':
+      return extractValueFromObject(ctx.state.allData.urlParams, path)
     default:
       ctx.statusCode = 500
       throw new Error(
