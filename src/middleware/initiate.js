@@ -102,12 +102,12 @@ const updateEndpointState = async (ctx, endpoint) => {
 }
 
 const getEndpointByPath = urlPath => {
-  let matchOnPattern, matchOnRegexPattern
+  let match
   let urlParams = {}
 
   for (let endpoint of endpointCache) {
     if (endpoint.endpoint.pattern === urlPath) {
-      matchOnPattern = endpoint
+      return {endpoint: endpoint, urlParams}
     }
 
     if (urlPath.match(endpoint.endpoint.patternRegex)) {
@@ -115,13 +115,11 @@ const getEndpointByPath = urlPath => {
         urlPath,
         endpoint.endpoint.pattern
       )
-      matchOnRegexPattern = endpoint
+      match = endpoint
     }
   }
 
-  if (matchOnPattern) return {endpoint: matchOnPattern, urlParams}
-  if (matchOnRegexPattern) return {endpoint: matchOnRegexPattern, urlParams}
-  return {endpoint: null, urlParams}
+  return {endpoint: match, urlParams}
 }
 
 exports.initiateContextMiddleware = () => async (ctx, next) => {

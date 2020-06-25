@@ -74,19 +74,24 @@ endpointSchema.pre('save', async function (next) {
   if (!endpoint.isModified('endpoint')) return next()
 
   const regexString = extractRegexFromPattern(endpoint.endpoint.pattern)
-  await EndpointModel.find({'endpoint.patternRegex': regexString}).then(
-    result => {
-      if (result.length > 0) {
-        const error = new Error(
-          `Duplicate error: regex created from endpoint pattern ${endpoint.endpoint.pattern} for matching requests already exists`
-        )
-        return next(error)
-      }
-
-      endpoint.endpoint.patternRegex = regexString
-      return next()
-    }
+  const regex = /:[^/]\w+/
+  const endpointMatchingRegex = new RegExp(
+    endpoint.endpoint.pattern.replace(regex, regex.source)
   )
+
+  await EndpointModel.find({
+    'endpoint.pattern': {$regex: endpointMatchingRegex}
+  }).then(result => {
+    if (result.length > 0) {
+      const error = new Error(
+        `Duplicate error: regex created from endpoint pattern ${endpoint.endpoint.pattern} for matching requests already exists`
+      )
+      return next(error)
+    }
+
+    endpoint.endpoint.patternRegex = regexString
+    return next()
+  })
 })
 
 const EndpointModel = mongoose.model('endpoint', endpointSchema)

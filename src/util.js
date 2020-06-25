@@ -67,32 +67,18 @@ exports.handleServerError = (ctx, operationFailureMsg, error, logger) => {
   logger.error(err)
 }
 
-// Strip away opening and closing forward slash if they are present in path
-const removeEnclosingSlashes = path => {
-  path = path.trim()
-
-  if (path[0] === '/') {
-    path = path.substring(1)
-  }
-  if (path[path.length - 1] === '/') {
-    path = path.substring(0, path.length - 1)
-  }
-
-  return path
-}
-
-exports.extractRegexFromPattern = pattern => {
+const extractRegexFromPattern = pattern => {
   if (pattern[0] === '/') {
     pattern = pattern.substring(1)
   }
 
   const splitPattern = pattern.split('/')
   let regexString = ''
-  const urlParamRegexPart = new RegExp(/\/[^ ;:=#@,/]{1,}/)
+  const urlParamRegexPart = new RegExp(/[^ ;:=#@,/]{1,}/)
 
   splitPattern.forEach(item => {
     if (item && item[0] === ':') {
-      regexString += urlParamRegexPart.source
+      regexString += `\\/(?<${item.substring(1)}>${urlParamRegexPart.source})`
     } else {
       regexString += `\\/${item}`
     }
@@ -102,24 +88,14 @@ exports.extractRegexFromPattern = pattern => {
   return regexString
 }
 
+exports.extractRegexFromPattern = extractRegexFromPattern
+
 exports.extractUrlParamsFromUrlPath = (path, pattern) => {
   const urlParams = {}
 
   if (!path || !pattern) return urlParams
 
-  path = removeEnclosingSlashes(path)
-  pattern = removeEnclosingSlashes(pattern)
+  const match = path.match(extractRegexFromPattern(pattern))
 
-  const splitPattern = pattern.split(/\//g)
-  const splitPath = path.split(/\//g)
-
-  if (splitPattern.length !== splitPath.length) return urlParams
-
-  splitPattern.forEach((item, index) => {
-    if (item && item[0] === ':') {
-      urlParams[`${item.substring(1)}`] = splitPath[index]
-    }
-  })
-
-  return urlParams
+  return match && match.groups ? match.groups : urlParams
 }

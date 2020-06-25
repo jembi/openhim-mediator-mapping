@@ -1,16 +1,11 @@
 'use strict'
 
-const rewire = require('rewire')
 const tap = require('tap')
-
-const utilsMethods = rewire('../../src/util')
 
 const {
   extractRegexFromPattern,
   extractUrlParamsFromUrlPath
 } = require('../../src/util')
-
-const removeEnclosingSlashes = utilsMethods.__get__('removeEnclosingSlashes')
 
 tap.test('Utility Methods', {autoend: true}, t => {
   t.test('extractRegexFromPattern', {autoend: true}, t => {
@@ -18,12 +13,10 @@ tap.test('Utility Methods', {autoend: true}, t => {
       'should extract regex from pattern "/organization/:uid/unit/:name" and verify regex',
       t => {
         const pattern = '/organization/:uid/unit/:name/'
-        const expectedRegex = new RegExp(
-          /\/organization\/[^ ;:=#@,/]{1,}\/unit\/[^ ;:=#@,/]{1,}\/$/
-        )
+        const expectedRegex = `\\/organization\\/(?<uid>[^ ;:=#@,\\/]{1,})\\/unit\\/(?<name>[^ ;:=#@,\\/]{1,})\\/$`
         const regex = extractRegexFromPattern(pattern)
 
-        t.equal(regex, expectedRegex.source)
+        t.equal(regex, expectedRegex)
 
         // Verify regex
         const testString = '/organization/12222/unit/2/'
@@ -95,16 +88,6 @@ tap.test('Utility Methods', {autoend: true}, t => {
       }
 
       t.deepEqual(extractUrlParamsFromUrlPath(path, pattern), expectedUrlParams)
-      t.end()
-    })
-  })
-
-  t.test('removeEnclosingSlashes', {autoend: true}, t => {
-    t.test('should remove forward slashes', t => {
-      const path = '/example/operation/'
-      const expectedResult = 'example/operation'
-
-      t.equals(removeEnclosingSlashes(path), expectedResult)
       t.end()
     })
   })
