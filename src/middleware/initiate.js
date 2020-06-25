@@ -10,8 +10,7 @@ const {constructOpenhimResponse} = require('../openhim')
 const {
   extractValueFromObject,
   handleServerError,
-  extractUrlParamsFromUrlPath,
-  removeClosingSlash
+  extractUrlParamsFromUrlPath
 } = require('../util')
 
 const extractByType = (type, extract, allData) => {
@@ -105,11 +104,8 @@ const getEndpointByPath = urlPath => {
   let matchOnPattern, matchOnRegexPattern
   let urlParams = {}
 
-  // Closing forward slash will result in matching failures
-  urlPath = removeClosingSlash(urlPath)
-
   for (let endpoint of endpointCache) {
-    if (removeClosingSlash(endpoint.endpoint.pattern) === urlPath) {
+    if (endpoint.endpoint.pattern === urlPath) {
       matchOnPattern = endpoint
     }
 

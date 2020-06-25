@@ -17,19 +17,19 @@ tap.test('Utility Methods', {autoend: true}, t => {
     t.test(
       'should extract regex from pattern "/organization/:uid/unit/:name" and verify regex',
       t => {
-        const pattern = '/organization/:uid/unit/:name'
+        const pattern = '/organization/:uid/unit/:name/'
         const expectedRegex = new RegExp(
-          /\/organization\/[^ ;:=#@,/]{1,}\/unit\/[^ ;:=#@,/]{1,}$/
+          /\/organization\/[^ ;:=#@,/]{1,}\/unit\/[^ ;:=#@,/]{1,}\/$/
         )
         const regex = extractRegexFromPattern(pattern)
 
         t.equal(regex, expectedRegex.source)
 
         // Verify regex
-        const testString = '/organization/12222/unit/2'
+        const testString = '/organization/12222/unit/2/'
         const invalidTestString = '/organization/122:22/unit/2'
         const invalidTestString1 = '/organization/122/22/unit/2:'
-        const invalidTestString2 = '/organization/12222/unit/2/'
+        const invalidTestString2 = '/organization/12222/unit/2'
 
         t.ok(testString.match(regex))
         t.notOk(invalidTestString.match(regex))
@@ -41,15 +41,15 @@ tap.test('Utility Methods', {autoend: true}, t => {
 
     t.test('should extract regex from pattern "/organization"', t => {
       const pattern = '/organization/'
-      const expectedRegexString = '\\/organization$'
+      const expectedRegexString = '\\/organization\\/$'
       const regex = extractRegexFromPattern(pattern)
 
       t.equal(regex, expectedRegexString)
 
       // verify regex
-      const testString = '/organization'
+      const testString = '/organization/'
       const invalidTestString = '/organization/122:22/unit/2'
-      const invalidTestString1 = '/organization/'
+      const invalidTestString1 = '/organization'
 
       t.ok(testString.match(regex))
       t.notOk(invalidTestString.match(regex))
@@ -99,7 +99,7 @@ tap.test('Utility Methods', {autoend: true}, t => {
     })
   })
 
-  t.test('removeClosingAndOpeningOpeningForwardSlashes', {autoend: true}, t => {
+  t.test('removeEnclosingSlashes', {autoend: true}, t => {
     t.test('should remove forward slashes', t => {
       const path = '/example/operation/'
       const expectedResult = 'example/operation'

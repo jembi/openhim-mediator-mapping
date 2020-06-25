@@ -67,13 +67,6 @@ exports.handleServerError = (ctx, operationFailureMsg, error, logger) => {
   logger.error(err)
 }
 
-const removeClosingSlash = path => {
-  if (path[path.length - 1] === '/') {
-    path = path.substring(0, path.length - 1)
-  }
-  return path
-}
-
 // Strip away opening and closing forward slash if they are present in path
 const removeEnclosingSlashes = path => {
   path = path.trim()
@@ -81,26 +74,27 @@ const removeEnclosingSlashes = path => {
   if (path[0] === '/') {
     path = path.substring(1)
   }
+  if (path[path.length - 1] === '/') {
+    path = path.substring(0, path.length - 1)
+  }
 
-  return removeClosingSlash(path)
+  return path
 }
 
-exports.removeClosingSlash = removeClosingSlash
-
 exports.extractRegexFromPattern = pattern => {
-  pattern = removeEnclosingSlashes(pattern)
+  if (pattern[0] === '/') {
+    pattern = pattern.substring(1)
+  }
 
   const splitPattern = pattern.split(/\//g)
   let regexString = ''
   const urlParamRegexPart = new RegExp(/\/[^ ;:=#@,/]{1,}/)
 
   splitPattern.forEach(item => {
-    if (item) {
-      if (item[0] === ':') {
-        regexString += urlParamRegexPart.source
-      } else {
-        regexString += `\\/${item}`
-      }
+    if (item && item[0] === ':') {
+      regexString += urlParamRegexPart.source
+    } else {
+      regexString += `\\/${item}`
     }
   })
   regexString += '$'
