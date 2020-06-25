@@ -4,6 +4,7 @@ const uuid = require('uuid')
 const {DateTime} = require('luxon')
 
 const logger = require('../logger')
+const {OPENHIM_TRANSACTION_HEADER} = require('../constants')
 const {endpointCache} = require('../db/services/endpoints/cache')
 const statesService = require('../db/services/states')
 const {constructOpenhimResponse} = require('../openhim')
@@ -127,8 +128,8 @@ exports.initiateContextMiddleware = () => async (ctx, next) => {
   // set the initial start time for entry into the endpoint
   const endpointStart = DateTime.utc().toISO()
   // set request UUID from incoming OpenHIM header if present, else create a random UUID
-  const requestUUID = ctx.request.headers['x-openhim-transactionid']
-    ? ctx.request.headers['x-openhim-transactionid']
+  const requestUUID = ctx.request.headers[OPENHIM_TRANSACTION_HEADER]
+    ? ctx.request.headers[OPENHIM_TRANSACTION_HEADER]
     : uuid.v4()
 
   const {endpoint, urlParams} = getEndpointByPath(ctx.request.path)
@@ -140,7 +141,10 @@ exports.initiateContextMiddleware = () => async (ctx, next) => {
     ctx.status = 404
     ctx.response.body = {error: `Unknown Endpoint: ${ctx.request.path}`}
 
-    if (ctx.request.headers && ctx.request.headers['x-openhim-transactionid']) {
+    if (
+      ctx.request.headers &&
+      ctx.request.headers[OPENHIM_TRANSACTION_HEADER]
+    ) {
       ctx.response.type = 'application/json+openhim'
       constructOpenhimResponse(ctx, Date.now())
     }

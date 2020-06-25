@@ -7,6 +7,7 @@ const sinon = require('sinon')
 
 const initiate = rewire('../../src/middleware/initiate')
 const dbServicesState = require('../../src/db/services/states')
+const {OPENHIM_TRANSACTION_HEADER} = require('../../src/constants')
 
 const extractByType = initiate.__get__('extractByType')
 const extractStateValues = initiate.__get__('extractStateValues')
@@ -599,7 +600,7 @@ tap.test('Initiate Middleware', {autoend: true}, t => {
         const ctxMock = {
           request: {
             headers: {
-              'x-openhim-transactionid': '5e99657dc4b9120472fdf4eb'
+              [OPENHIM_TRANSACTION_HEADER]: '5e99657dc4b9120472fdf4eb'
             },
             path: '/path'
           },

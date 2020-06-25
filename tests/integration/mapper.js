@@ -7,6 +7,7 @@ const tap = require('tap')
 const port = 13004
 process.env.MONGO_URL = 'mongodb://localhost:27017/mappingTest'
 
+const {OPENHIM_TRANSACTION_HEADER} = require('../../src/constants')
 const {withTestMapperServer} = require('../utils')
 
 tap.test(
@@ -442,7 +443,7 @@ tap.test(
         let result = await request(`http://localhost:${port}`)
           .post('/mappingTestSuccess1')
           .send(requestData)
-          .set('x-openhim-transactionid', '1233333122')
+          .set(OPENHIM_TRANSACTION_HEADER, '1233333122')
           .expect(200)
 
         t.ok(result.body['x-mediator-urn'])
