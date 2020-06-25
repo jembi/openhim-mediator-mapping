@@ -72,6 +72,7 @@ This feature allows for data lookups from external services and the sending of t
     "lookup": [
       {
         "id": "1223",
+        "forwardExistingRequestBody": true,
         "config": {
           "method": "get",
           "url": "http://localhost:3444/encounters/",
