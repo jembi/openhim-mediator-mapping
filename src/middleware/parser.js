@@ -170,10 +170,19 @@ const parseIncomingBody = async (ctx, inputFormat) => {
 }
 
 exports.parseBodyMiddleware = () => async (ctx, next) => {
-  const inputContentType = ctx.state.metaData.transformation.input
-    ? ctx.state.metaData.transformation.input.toUpperCase()
-    : ''
-  const outputContentType = ctx.state.metaData.transformation.output.toUpperCase()
+  const inputContentType =
+    ctx.state.metaData &&
+    ctx.state.metaData.transformation &&
+    ctx.state.metaData.transformation.input
+      ? ctx.state.metaData.transformation.input.toUpperCase()
+      : ''
+  const outputContentType =
+    ctx.state.metaData &&
+    ctx.state.metaData.transformation &&
+    ctx.state.metaData.transformation.output
+      ? ctx.state.metaData.transformation.output.toUpperCase()
+      : ''
+
   try {
     // parse incoming body
     await parseIncomingBody(ctx, inputContentType)
