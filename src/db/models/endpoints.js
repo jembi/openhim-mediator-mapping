@@ -8,7 +8,6 @@ const {
   DEFAULT_ENDPOINT_METHOD,
   MIDDLEWARE_PATH_REGEX
 } = require('../../constants')
-const {extractRegexFromPattern} = require('../../util')
 
 const endpointSchema = new mongoose.Schema(
   {
@@ -29,7 +28,6 @@ const endpointSchema = new mongoose.Schema(
           unique: true
         }
       },
-      patternRegex: String,
       method: {
         type: String,
         enum: ALLOWED_ENDPOINT_METHODS,
@@ -73,7 +71,6 @@ endpointSchema.pre('save', async function (next) {
 
   if (!endpoint.isModified('endpoint')) return next()
 
-  const regexString = extractRegexFromPattern(endpoint.endpoint.pattern)
   const regex = /:[^/]\w+/
   const endpointMatchingRegex = new RegExp(
     endpoint.endpoint.pattern.replace(regex, regex.source)
@@ -89,7 +86,6 @@ endpointSchema.pre('save', async function (next) {
       return next(error)
     }
 
-    endpoint.endpoint.patternRegex = regexString
     return next()
   })
 })
