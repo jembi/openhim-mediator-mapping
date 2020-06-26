@@ -11,7 +11,7 @@ const {constructOpenhimResponse} = require('../openhim')
 const {
   extractValueFromObject,
   handleServerError,
-  extractUrlParamsFromUrlPath
+  extractRegexFromPattern
 } = require('../util')
 
 const extractByType = (type, extract, allData) => {
@@ -102,7 +102,7 @@ const updateEndpointState = async (ctx, endpoint) => {
 }
 
 const getEndpointByPath = urlPath => {
-  let match
+  let matchedEndpoint
   let urlParams = {}
 
   for (let endpoint of endpointCache) {
@@ -110,16 +110,17 @@ const getEndpointByPath = urlPath => {
       return {endpoint: endpoint, urlParams}
     }
 
-    if (urlPath.match(endpoint.endpoint.patternRegex)) {
-      urlParams = extractUrlParamsFromUrlPath(
-        urlPath,
-        endpoint.endpoint.pattern
-      )
-      match = endpoint
+    const match = urlPath.match(
+      extractRegexFromPattern(endpoint.endpoint.pattern)
+    )
+
+    if (match) {
+      urlParams = match.groups ? match.groups : {}
+      matchedEndpoint = endpoint
     }
   }
 
-  return {endpoint: match, urlParams}
+  return {endpoint: matchedEndpoint, urlParams}
 }
 
 exports.initiateContextMiddleware = () => async (ctx, next) => {

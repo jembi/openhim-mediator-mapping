@@ -67,7 +67,7 @@ exports.handleServerError = (ctx, operationFailureMsg, error, logger) => {
   logger.error(err)
 }
 
-const extractRegexFromPattern = pattern => {
+exports.extractRegexFromPattern = pattern => {
   if (pattern[0] === '/') {
     pattern = pattern.substring(1)
   }
@@ -86,16 +86,4 @@ const extractRegexFromPattern = pattern => {
   regexString += '$'
 
   return regexString
-}
-
-exports.extractRegexFromPattern = extractRegexFromPattern
-
-exports.extractUrlParamsFromUrlPath = (path, pattern) => {
-  const urlParams = {}
-
-  if (!path || !pattern) return urlParams
-
-  const match = path.match(extractRegexFromPattern(pattern))
-
-  return match && match.groups ? match.groups : urlParams
 }

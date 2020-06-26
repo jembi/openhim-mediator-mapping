@@ -2,10 +2,7 @@
 
 const tap = require('tap')
 
-const {
-  extractRegexFromPattern,
-  extractUrlParamsFromUrlPath
-} = require('../../src/util')
+const {extractRegexFromPattern} = require('../../src/util')
 
 tap.test('Utility Methods', {autoend: true}, t => {
   t.test('extractRegexFromPattern', {autoend: true}, t => {
@@ -49,47 +46,6 @@ tap.test('Utility Methods', {autoend: true}, t => {
       t.ok(testString.match(regex))
       t.notOk(invalidTestString.match(regex))
       t.notOk(invalidTestString1.match(regex))
-      t.end()
-    })
-  })
-
-  t.test('extractUrlParamsFromUrlPath', {autoend: true}, t => {
-    t.test('should return empty object when url path is invalid', t => {
-      const path = ''
-      const pattern = '/os/om'
-
-      t.deepEqual(extractUrlParamsFromUrlPath(path, pattern), {})
-      t.end()
-    })
-
-    t.test('should return empty object when pattern is invalid', t => {
-      const path = '/os/om'
-      const pattern = ''
-
-      t.deepEqual(extractUrlParamsFromUrlPath(path, pattern), {})
-      t.end()
-    })
-
-    t.test(
-      'should return empty object when pattern and path are not in the same format',
-      t => {
-        const pattern = '/patient/:name'
-        const path = '/patient/tarzan/jungle'
-
-        t.deepEqual(extractUrlParamsFromUrlPath(path, pattern), {})
-        t.end()
-      }
-    )
-
-    t.test('should return url params', t => {
-      const pattern = '/patient/:name/:surname'
-      const path = '/patient/tarzan/jungle'
-      const expectedUrlParams = {
-        name: 'tarzan',
-        surname: 'jungle'
-      }
-
-      t.deepEqual(extractUrlParamsFromUrlPath(path, pattern), expectedUrlParams)
       t.end()
     })
   })

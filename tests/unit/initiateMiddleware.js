@@ -457,14 +457,11 @@ tap.test('Initiate Middleware', {autoend: true}, t => {
   t.test('getEndpointByPath', {autoend: true}, t => {
     t.test('should return the endpoint for the supplied path', async t => {
       t.plan(3)
-      const regex = /\/path-2$/
-      const regex1 = /\/path$/
       const endpointCache = [
         {
           _id: 'endpoint1',
           name: 'Endpoint 1',
           endpoint: {
-            patternRegex: regex1.source,
             pattern: '/path'
           }
         },
@@ -472,7 +469,6 @@ tap.test('Initiate Middleware', {autoend: true}, t => {
           _id: 'endpoint2',
           name: 'Endpoint 2',
           endpoint: {
-            patternRegex: regex.source,
             pattern: '/path-2'
           }
         }
@@ -500,7 +496,6 @@ tap.test('Initiate Middleware', {autoend: true}, t => {
           _id: 'endpoint1',
           name: 'Endpoint 1',
           endpoint: {
-            patternRegex: `/\\/path$/`,
             pattern: '/path'
           }
         },
@@ -508,7 +503,6 @@ tap.test('Initiate Middleware', {autoend: true}, t => {
           _id: 'endpoint2',
           name: 'Endpoint 2',
           endpoint: {
-            patternRegex: `/\\/path-2$/`,
             pattern: '/path-2'
           }
         }
@@ -529,15 +523,11 @@ tap.test('Initiate Middleware', {autoend: true}, t => {
     t.test(
       'should return the endpoint for the supplied path when match happens on pattern regex string',
       async t => {
-        const regexString = /\/path\/[^ :;/,]{1,}$/
-        const regexString1 = /\/path2\/[^ :;/,]{1,}$/
-
         const endpointCache = [
           {
             _id: 'endpoint1',
             name: 'Endpoint 1',
             endpoint: {
-              patternRegex: regexString.source,
               pattern: '/path/:id'
             }
           },
@@ -545,7 +535,6 @@ tap.test('Initiate Middleware', {autoend: true}, t => {
             _id: 'endpoint2',
             name: 'Endpoint 2',
             endpoint: {
-              patternRegex: regexString1.source,
               pattern: '/path2/:id'
             }
           }
