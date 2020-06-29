@@ -7,7 +7,7 @@ const logger = require('../logger')
 const {OPENHIM_TRANSACTION_HEADER} = require('../constants')
 
 const {createOrchestration} = require('../orchestrations')
-const {extractValueFromObject, parseStringToBoolean} = require('../util')
+const {extractValueFromObject} = require('../util')
 
 const validateRequestStatusCode = allowedStatuses => {
   const stringStatuses = allowedStatuses.map(String)
@@ -55,7 +55,7 @@ const performRequests = (requests, ctx) => {
       requestDetails.config
     )
     const requestUrl = resolveRequestUrl(ctx, requestDetails.config)
-    const body = parseStringToBoolean(requestDetails.forwardExistingRequestBody)
+    const body = requestDetails.forwardExistingRequestBody
       ? ctx.request.body
       : null
 
