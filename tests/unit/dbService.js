@@ -176,7 +176,7 @@ tap.test('Database interactions', {autoend: true}, t => {
           .catch(error => {
             t.equals(
               error.message,
-              'E11000 duplicate key error collection: unitTest.endpoints index: endpoint.pattern_1 dup key: { endpoint.pattern: "/test" }'
+              'Duplicate error: regex created from endpoint pattern /test for matching requests already exists'
             )
           })
       }

@@ -457,7 +457,6 @@ tap.test('Initiate Middleware', {autoend: true}, t => {
   t.test('getEndpointByPath', {autoend: true}, t => {
     t.test('should return the endpoint for the supplied path', async t => {
       t.plan(3)
-
       const endpointCache = [
         {
           _id: 'endpoint1',
@@ -480,7 +479,7 @@ tap.test('Initiate Middleware', {autoend: true}, t => {
         endpointCache
       )
 
-      const endpoint = getEndpointByPath('/path')
+      const {endpoint} = getEndpointByPath('/path')
 
       endpointCacheMockRevert()
 
@@ -514,12 +513,50 @@ tap.test('Initiate Middleware', {autoend: true}, t => {
         endpointCache
       )
 
-      const endpoint = getEndpointByPath('/path-doesnt-exist')
+      const {endpoint} = getEndpointByPath('/path-doesnt-exist')
 
       endpointCacheMockRevert()
 
       t.notOk(endpoint) // null
     })
+
+    t.test(
+      'should return the endpoint for the supplied path when match happens on pattern regex string',
+      async t => {
+        const endpointCache = [
+          {
+            _id: 'endpoint1',
+            name: 'Endpoint 1',
+            endpoint: {
+              pattern: '/path/:id'
+            }
+          },
+          {
+            _id: 'endpoint2',
+            name: 'Endpoint 2',
+            endpoint: {
+              pattern: '/path2/:id'
+            }
+          }
+        ]
+
+        const endpointCacheMockRevert = initiate.__set__(
+          'endpointCache',
+          endpointCache
+        )
+
+        const id = '123334'
+        const {endpoint, urlParams} = getEndpointByPath(`/path/${id}`)
+
+        endpointCacheMockRevert()
+
+        t.equal(endpoint._id, 'endpoint1')
+        t.equal(endpoint.name, 'Endpoint 1')
+        t.equal(endpoint.endpoint.pattern, '/path/:id')
+        t.deepEqual(urlParams, {id: id})
+        t.end()
+      }
+    )
   })
 
   t.test('initiateContextMiddleware', {autoend: true}, t => {
@@ -539,7 +576,7 @@ tap.test('Initiate Middleware', {autoend: true}, t => {
         await initiate.initiateContextMiddleware()(ctxMock, next)
 
         t.equal(ctxMock.response.type, 'application/json')
-        t.equal(ctxMock.response.body, 'Unknown Endpoint: /path')
+        t.equal(ctxMock.response.body.error, 'Unknown Endpoint: /path')
         t.equal(ctxMock.status, 404)
       }
     )
@@ -562,7 +599,7 @@ tap.test('Initiate Middleware', {autoend: true}, t => {
         await initiate.initiateContextMiddleware()(ctxMock, next)
 
         t.equal(ctxMock.response.type, 'application/json+openhim')
-        t.equal(ctxMock.response.body, 'Unknown Endpoint: /path')
+        t.equal(ctxMock.response.body.error, 'Unknown Endpoint: /path')
         t.equal(ctxMock.status, 404)
       }
     )
@@ -583,7 +620,10 @@ tap.test('Initiate Middleware', {autoend: true}, t => {
         'getEndpointByPath',
         () => {
           return {
-            _id: 'endpointId'
+            endpoint: {
+              _id: 'endpointId'
+            },
+            urlParams: {}
           }
         }
       )
@@ -645,8 +685,10 @@ tap.test('Initiate Middleware', {autoend: true}, t => {
         'getEndpointByPath',
         () => {
           return {
-            // dummy endpoint object
-            _id: 'endpointId'
+            endpoint: {
+              _id: 'endpointId'
+            },
+            urlParams: {}
           }
         }
       )

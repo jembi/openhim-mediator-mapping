@@ -339,6 +339,56 @@ tap.test(
             })
         }
       )
+
+      t.test('Match on pattern that has url parameters', async t => {
+        const testEndpoint = {
+          name: 'Test Endpoints with url parameters',
+          endpoint: {
+            pattern: '/patient/:code/orgUnit/:id'
+          },
+          transformation: {
+            input: 'XML',
+            output: 'XML'
+          }
+        }
+
+        await request(`http://localhost:${testMapperPort}`)
+          .post('/endpoints')
+          .send(testEndpoint)
+          .set('Content-Type', 'application/json')
+          .expect(201)
+
+        // The mongoDB endpoint collection change listeners may take a few milliseconds to update the endpoint cache.
+        // This wouldn't be a problem in the normal use case as a user would not create an endpoint and
+        // immediately start posting to it within a few milliseconds. Therefore this timeout here should be fine...
+        await sleep(1000)
+
+        const requestData = '<xml><name>Parser</name></xml>'
+        // should fail regex will not match
+        await request(`http://localhost:${testMapperPort}`)
+          .post('/patient/12')
+          .set('Content-Type', 'application/xml')
+          .send(requestData)
+          .expect(404)
+
+        // should fail regex will not match
+        await request(`http://localhost:${testMapperPort}`)
+          .post('/patient/1233/orgUnit/')
+          .set('Content-Type', 'application/xml')
+          .send(requestData)
+          .expect(404)
+
+        await request(`http://localhost:${testMapperPort}`)
+          .post('/patient/1233/orgUnit/2334')
+          .send(requestData)
+          .set('Content-Type', 'application/xml')
+          .expect(200)
+          .then(response => {
+            t.match(response.text, /<name>Parser<\/name>/)
+          })
+
+        t.end()
+      })
     })
   )
 )
