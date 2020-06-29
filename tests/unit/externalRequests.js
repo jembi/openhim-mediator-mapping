@@ -1044,6 +1044,9 @@ tap.test('External Requests', {autoend: true}, t => {
             requestBody: 'body',
             urlParams: {
               location: '12 street'
+            },
+            transforms: {
+              building: 'Burj Kalifa'
             }
           }
         },
@@ -1110,6 +1113,9 @@ tap.test('External Requests', {autoend: true}, t => {
             },
             location: {
               path: 'urlParams.location'
+            },
+            building: {
+              path: 'transforms.building'
             }
           }
         }
@@ -1126,6 +1132,7 @@ tap.test('External Requests', {autoend: true}, t => {
       t.equals(params.brothers, ctx.state.allData.requestBody.brother)
       t.equals(params.lastAddress, ctx.state.allData.state.lastAddress)
       t.equals(params.location, ctx.state.allData.urlParams.location)
+      t.equals(params.building, ctx.state.allData.transforms.building)
       t.end()
     })
 
