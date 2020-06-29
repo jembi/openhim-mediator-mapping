@@ -10,9 +10,7 @@ const {createOrchestration} = require('../orchestrations')
 const {extractValueFromObject} = require('../util')
 
 const validateRequestStatusCode = allowedStatuses => {
-  const stringStatuses = allowedStatuses.map(status => {
-    return String(status)
-  })
+  const stringStatuses = allowedStatuses.map(String)
   return status => {
     if (stringStatuses.includes(String(status))) {
       return true
@@ -42,9 +40,6 @@ const performRequests = (requests, ctx) => {
       requestStart: reqTimestamp
     }
 
-    // No body is sent out for now
-    const body = null
-
     if (ctx.request.header[OPENHIM_TRANSACTION_HEADER]) {
       requestDetails.config.headers = Object.assign(
         {
@@ -60,9 +55,12 @@ const performRequests = (requests, ctx) => {
       requestDetails.config
     )
     const requestUrl = resolveRequestUrl(ctx, requestDetails.config)
+    const body = requestDetails.forwardExistingRequestBody
+      ? ctx.request.body
+      : null
 
     return axios(
-      prepareRequestConfig(requestDetails, null, requestParameters, requestUrl)
+      prepareRequestConfig(requestDetails, body, requestParameters, requestUrl)
     )
       .then(res => {
         response = res
