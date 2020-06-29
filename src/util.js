@@ -51,9 +51,9 @@ exports.extractValueFromObject = (obj, path, defaultValue) => {
   // For each item in the path, dig into the object
   for (let i = 0; i < path.length; i++) {
     // If the item isn't found, return the default (or null)
-    if (!current[path[i]]) return defaultValue
+    if (current[path[i]] == null) return defaultValue
 
-    // Otherwise, update the current  value
+    // Otherwise, update the current value
     current = current[path[i]]
   }
 
