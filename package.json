@@ -1,6 +1,6 @@
 {
   "name": "openhim-mediator-generic-mapper",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Generic Mapping Mediator",
   "repository": "git@github.com:jembi/openhim-mediator-mapping.git",
   "author": "Jembi Health Systems NPC",
