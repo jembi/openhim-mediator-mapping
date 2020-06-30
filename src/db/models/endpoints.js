@@ -73,7 +73,7 @@ endpointSchema.pre('save', async function (next) {
 
   const regex = /:[^/]\w+/
   const endpointMatchingRegex = new RegExp(
-    endpoint.endpoint.pattern.replace(regex, regex.source)
+    `^${endpoint.endpoint.pattern.replace(regex, regex.source)}$`
   )
 
   await EndpointModel.find({
