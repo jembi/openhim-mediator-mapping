@@ -419,8 +419,8 @@ const extractParamValue = (path, ctx) => {
       return extractValueFromObject(ctx.state.allData.state, path)
     case 'lookupRequests':
       return extractValueFromObject(ctx.state.allData.lookupRequests, path)
-    case 'requestBody':
-      return extractValueFromObject(ctx.state.allData.requestBody, path)
+    case 'responseBody':
+      return extractValueFromObject(ctx.state.allData.responseBody, path)
     case 'urlParams':
       return extractValueFromObject(ctx.state.allData.urlParams, path)
     default:

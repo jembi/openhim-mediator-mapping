@@ -1041,7 +1041,7 @@ tap.test('External Requests', {autoend: true}, t => {
             state: {
               lastAddress: '1 1st street'
             },
-            requestBody: {
+            responseBody: {
               brother: 'test'
             },
             urlParams: {
@@ -1114,7 +1114,7 @@ tap.test('External Requests', {autoend: true}, t => {
               path: 'lookupRequests.children'
             },
             brother: {
-              path: 'requestBody.brother'
+              path: 'responseBody.brother'
             },
             location: {
               path: 'urlParams.location'
@@ -1148,7 +1148,7 @@ tap.test('External Requests', {autoend: true}, t => {
         params.children,
         ctx.state.allData.lookupRequests.children.toString()
       )
-      t.equals(params.brother, ctx.state.allData.requestBody.brother)
+      t.equals(params.brother, ctx.state.allData.responseBody.brother)
       t.equals(params.lastAddress, ctx.state.allData.state.lastAddress)
       t.equals(params.location, ctx.state.allData.urlParams.location)
       t.equals(params.building, ctx.state.allData.transforms.building)
