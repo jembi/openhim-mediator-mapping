@@ -44,7 +44,7 @@ The `meta.json` file contains the details involved for route setup. The followin
 
 #### Mapping Route Path
 
-This is the path on which the OpenHIM Mapping Mediator will listen to trigger a specific message mapping transformation.
+This is the path on which the OpenHIM Mapping Mediator will listen to trigger a specific message mapping transformation. The path is specified in the endpoint pattern property. Url parameters are supported. The URL parameters can be used in the external requests and in the mapping. A request that matches on a pattern like `/path/:parameter1/:parameter2` will have the values of these parameters available for use in the external requests and mapping under variable names `parameter1` and `parameter2`.
 
 #### Expected Input
 
