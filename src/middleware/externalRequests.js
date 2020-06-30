@@ -441,7 +441,7 @@ const addRequestQueryParameters = (ctx, request) => {
 
       const parameterValue = extractParamValue(fullPath, ctx)
 
-      if (parameterValue) {
+      if (parameterValue != null) {
         const prefix = queryParamOptions.prefix ? queryParamOptions.prefix : ''
         const postfix = queryParamOptions.postfix
           ? queryParamOptions.postfix
@@ -466,7 +466,7 @@ const resolveRequestUrl = (ctx, request) => {
 
       const parameterValue = extractParamValue(fullPath, ctx)
 
-      if (parameterValue) {
+      if (parameterValue != null) {
         const prefix = urlParamOptions.prefix ? urlParamOptions.prefix : ''
         const postfix = urlParamOptions.postfix ? urlParamOptions.postfix : ''
         url = url.replace(

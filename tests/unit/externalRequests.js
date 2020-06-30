@@ -1036,17 +1036,22 @@ tap.test('External Requests', {autoend: true}, t => {
         state: {
           allData: {
             lookupRequests: {
-              children: '4'
+              children: 4
             },
             state: {
               lastAddress: '1 1st street'
             },
-            requestBody: 'body',
+            responseBody: {
+              brother: 'test'
+            },
             urlParams: {
               location: '12 street'
             },
             transforms: {
-              building: 'Burj Kalifa'
+              building: 'Burj Kalifa',
+              floor: 0,
+              extension: '',
+              moreInfo: null
             }
           }
         },
@@ -1108,7 +1113,7 @@ tap.test('External Requests', {autoend: true}, t => {
             children: {
               path: 'lookupRequests.children'
             },
-            brothers: {
+            brother: {
               path: 'responseBody.brother'
             },
             location: {
@@ -1116,6 +1121,15 @@ tap.test('External Requests', {autoend: true}, t => {
             },
             building: {
               path: 'transforms.building'
+            },
+            floor: {
+              path: 'transforms.floor'
+            },
+            extension: {
+              path: 'transforms.extension'
+            },
+            moreInfo: {
+              path: 'transforms.moreInfo'
             }
           }
         }
@@ -1128,11 +1142,18 @@ tap.test('External Requests', {autoend: true}, t => {
       t.equals(params.code, ctx.request.query.code)
       t.equals(params.status, ctx.request.body.status[1].rich.status[0].sp)
       t.equals(params.name, `${prefix + ctx.request.query.name + postfix}`)
-      t.equals(params.children, ctx.state.allData.lookupRequests.children)
-      t.equals(params.brothers, ctx.state.allData.requestBody.brother)
+      // Query params are strings therefore the digit will be converted
+      t.equals(params.floor, ctx.state.allData.transforms.floor.toString())
+      t.equals(
+        params.children,
+        ctx.state.allData.lookupRequests.children.toString()
+      )
+      t.equals(params.brother, ctx.state.allData.responseBody.brother)
       t.equals(params.lastAddress, ctx.state.allData.state.lastAddress)
       t.equals(params.location, ctx.state.allData.urlParams.location)
       t.equals(params.building, ctx.state.allData.transforms.building)
+      t.equals(params.extension, ctx.state.allData.transforms.extension)
+      t.notOk(params.moreInfo)
       t.end()
     })
 
@@ -1199,6 +1220,69 @@ tap.test('External Requests', {autoend: true}, t => {
         url,
         'http://test.org/url/params/are/fun/params/to-test-thoroughly/'
       )
+      t.end()
+    })
+
+    t.test(
+      'should return template value if parameter resolves to null or undefined',
+      t => {
+        const url = resolveRequestUrl(
+          {
+            request: {
+              body: {
+                test1: null,
+                test: {
+                  '2': undefined
+                }
+              }
+            }
+          },
+          {
+            url: 'http://test.org/url/:test1/are/fun/:test1/:test2/',
+            params: {
+              url: {
+                test1: {path: 'payload.test1'},
+                test2: {
+                  path: 'payload.test.2',
+                  prefix: 'to-',
+                  postfix: '-thoroughly'
+                }
+              }
+            }
+          }
+        )
+        t.equals(url, 'http://test.org/url/:test1/are/fun/:test1/:test2/')
+        t.end()
+      }
+    )
+
+    t.test('should return url with substituted in zero or empty quotes', t => {
+      const url = resolveRequestUrl(
+        {
+          request: {
+            body: {
+              test1: '',
+              test: {
+                '2': 0
+              }
+            }
+          }
+        },
+        {
+          url: 'http://test.org/url/:test1/are/fun/:test1/:test2/',
+          params: {
+            url: {
+              test1: {path: 'payload.test1'},
+              test2: {
+                path: 'payload.test.2',
+                prefix: 'to-',
+                postfix: '-thoroughly'
+              }
+            }
+          }
+        }
+      )
+      t.equals(url, 'http://test.org/url//are/fun//to-0-thoroughly/')
       t.end()
     })
   })
