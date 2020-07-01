@@ -1052,6 +1052,12 @@ tap.test('External Requests', {autoend: true}, t => {
               floor: 0,
               extension: '',
               moreInfo: null
+            },
+            constants: {
+              multiplier: '2'
+            },
+            timestamps: {
+              endpointStart: '2020-04-20T16:20.04.020Z'
             }
           }
         },
@@ -1130,6 +1136,12 @@ tap.test('External Requests', {autoend: true}, t => {
             },
             moreInfo: {
               path: 'transforms.moreInfo'
+            },
+            multiplier: {
+              path: 'constants.multiplier'
+            },
+            time: {
+              path: 'timestamps.endpointStart'
             }
           }
         }
@@ -1153,6 +1165,8 @@ tap.test('External Requests', {autoend: true}, t => {
       t.equals(params.location, ctx.state.allData.urlParams.location)
       t.equals(params.building, ctx.state.allData.transforms.building)
       t.equals(params.extension, ctx.state.allData.transforms.extension)
+      t.equals(params.multiplier, ctx.state.allData.constants.multiplier)
+      t.equals(params.time, ctx.state.allData.timestamps.endpointStart)
       t.notOk(params.moreInfo)
       t.end()
     })

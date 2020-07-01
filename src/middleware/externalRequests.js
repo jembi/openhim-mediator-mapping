@@ -423,6 +423,10 @@ const extractParamValue = (path, ctx) => {
       return extractValueFromObject(ctx.state.allData.responseBody, path)
     case 'urlParams':
       return extractValueFromObject(ctx.state.allData.urlParams, path)
+    case 'constants':
+      return extractValueFromObject(ctx.state.allData.constants, path)
+    case 'timestamps':
+      return extractValueFromObject(ctx.state.allData.timestamps, path)
     default:
       ctx.statusCode = 500
       throw new Error(
