@@ -71,6 +71,17 @@ endpointSchema.pre('save', async function (next) {
 
   if (!endpoint.isModified('endpoint')) return next()
 
+  if (
+    endpoint.endpoint.pattern.match(/\/:\//) ||
+    endpoint.endpoint.pattern[endpoint.endpoint.pattern.length - 1] == ':'
+  ) {
+    return next(
+      Error(
+        'Invalid url parameters specified in pattern, url parameter specification format is "/:<PARAMETER_NAME>"'
+      )
+    )
+  }
+
   const regex = /:[^/]\w+/
   const endpointMatchingRegex = new RegExp(
     `^${endpoint.endpoint.pattern.replace(regex, regex.source)}$`
