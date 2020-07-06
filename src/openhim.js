@@ -49,25 +49,32 @@ const mediatorSetup = () => {
 
 exports.constructOpenhimResponse = (ctx, responseTimestamp) => {
   const response = ctx.response
+  const responseBody = ctx.response.body
   const orchestrations = ctx.orchestrations
-  const statusText = ctx.statusText
+  const statusText = responseBody
+    ? responseBody.status
+      ? responseBody.status
+      : ctx.statusText
+    : ctx.statusText
   const respObject = {}
 
   if (response) {
-    if (response.headers) {
-      respObject.headers = response.headers
+    if (response.headers || (responseBody && responseBody.headers)) {
+      respObject.headers = responseBody.headers
+        ? responseBody.headers 
+        : response.headers
     }
-    if (response.status) {
-      respObject.status = response.status
+    if (responseBody && responseBody.response && responseBody.response.status) {
+      respObject.status = responseBody.response.status
     }
-    if (response.body) {
+    if (responseBody) {
       respObject.body =
-        typeof response.body === 'string'
-          ? response.body
-          : JSON.stringify(response.body)
+        typeof responseBody === 'string'
+          ? responseBody.response
+          : JSON.stringify(responseBody.response)
     }
-    if (response.timestamp) {
-      respObject.timestamp = response.timestamp
+    if (responseBody.timestamp) {
+      respObject.timestamp = responseBody.timestamp
     } else if (responseTimestamp) {
       respObject.timestamp = responseTimestamp
     }
@@ -82,6 +89,7 @@ exports.constructOpenhimResponse = (ctx, responseTimestamp) => {
   const body = {
     'x-mediator-urn': mediatorConfigJson.urn,
     status: statusText,
+    headers: respObject.headers,
     response: respObject,
     orchestrations: orchestrations
   }
