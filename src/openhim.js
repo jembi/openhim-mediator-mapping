@@ -53,6 +53,7 @@ exports.constructOpenhimResponse = (ctx, responseTimestamp) => {
   const statusText = ctx.statusText
   const respObject = {}
 
+  // content-type already defined by final primary request
   if (response.type === 'application/json+openhim') {
     if (orchestrations) {
       if (
