@@ -94,6 +94,68 @@ tap.test(
           t.end()
         }
       )
+
+      t.test(
+        'should fail to create when endpoint pattern is missing parameter name (internal path)',
+        async t => {
+          const testEndpoint = {
+            name: 'Test Endpoint 00',
+            endpoint: {
+              pattern: '/test/name/:/section/:coode',
+              method: 'POST'
+            },
+            transformation: {
+              input: 'XML',
+              output: 'XML'
+            }
+          }
+
+          const result = await request(`http://localhost:${port}`)
+            .post('/endpoints')
+            .send(testEndpoint)
+            .set('Content-Type', 'application/json')
+            .expect(400)
+
+          t.ok(
+            result.body.error.match(
+              'Invalid url parameters specified in pattern, url parameter specification format is "/:<PARAMETER_NAME>"'
+            )
+          )
+
+          t.end()
+        }
+      )
+
+      t.test(
+        'should fail to create when endpoint pattern is missing parameter name (end of path)',
+        async t => {
+          const testEndpoint = {
+            name: 'Test Endpoint 01',
+            endpoint: {
+              pattern: '/test/name/section/:',
+              method: 'POST'
+            },
+            transformation: {
+              input: 'XML',
+              output: 'XML'
+            }
+          }
+
+          const result = await request(`http://localhost:${port}`)
+            .post('/endpoints')
+            .send(testEndpoint)
+            .set('Content-Type', 'application/json')
+            .expect(400)
+
+          t.ok(
+            result.body.error.match(
+              'Invalid url parameters specified in pattern, url parameter specification format is "/:<PARAMETER_NAME>"'
+            )
+          )
+
+          t.end()
+        }
+      )
     })
 
     t.test('read endpoint route', {autoend: true}, t => {
