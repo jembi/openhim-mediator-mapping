@@ -368,6 +368,13 @@ const sendMappedObject = (
       if (request.primary) {
         setKoaResponseBodyFromPrimary(ctx, response.body)
 
+        // data has already been transferred and therefor has a content-length defined
+        if (response.headers['transfer-encoding']) {
+          delete response.headers['transfer-encoding']
+        }
+
+        // set main response header to the primary request response
+        ctx.set(response.headers)
         ctx.status = response.status
       } else {
         setKoaResponseBody(ctx, request, response.body)
