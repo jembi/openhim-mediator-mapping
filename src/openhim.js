@@ -53,6 +53,17 @@ exports.constructOpenhimResponse = (ctx, responseTimestamp) => {
   const statusText = ctx.statusText
   const respObject = {}
 
+  if (response.type === 'application/json+openhim') {
+    if (orchestrations) {
+      if (response.body.orchestrations && Array.isArray(response.body.orchestrations)) {
+        response.body.orchestrations.unshift(orchestrations)
+      }
+    }
+
+    ctx.body = JSON.stringify(response.body)
+    return
+  }
+
   if (response) {
     if (response.headers) {
       respObject.headers = response.headers
