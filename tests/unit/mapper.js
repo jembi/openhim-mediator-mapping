@@ -212,9 +212,7 @@ tap.test('Mapper', {autoend: true}, t => {
       const ctx = {
         request: {
           body,
-          header: {
-            [OPENHIM_TRANSACTION_HEADER]: '1233'
-          }
+          headers: {[OPENHIM_TRANSACTION_HEADER]: '1233'}
         },
         state: {
           uuid: 'randomUidForRequest',
@@ -262,9 +260,7 @@ tap.test('Mapper', {autoend: true}, t => {
         const ctx = {
           request: {
             body,
-            header: {
-              [OPENHIM_TRANSACTION_HEADER]: '1233'
-            }
+            headers: {[OPENHIM_TRANSACTION_HEADER]: '1233'}
           },
           orchestrations: [], // empty array supplied
           state: {

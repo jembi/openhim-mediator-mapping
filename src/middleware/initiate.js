@@ -107,7 +107,7 @@ const getEndpointByPath = urlPath => {
 
   for (let endpoint of endpointCache) {
     if (endpoint.endpoint.pattern === urlPath) {
-      return {endpoint: endpoint, urlParams}
+      return {endpoint: JSON.parse(JSON.stringify(endpoint)), urlParams}
     }
 
     const match = urlPath.match(
@@ -116,7 +116,7 @@ const getEndpointByPath = urlPath => {
 
     if (match) {
       urlParams = match.groups ? match.groups : {}
-      matchedEndpoint = endpoint
+      matchedEndpoint = JSON.parse(JSON.stringify(endpoint))
     }
   }
 
