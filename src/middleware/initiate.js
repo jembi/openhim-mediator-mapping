@@ -144,7 +144,6 @@ exports.initiateContextMiddleware = () => async (ctx, next) => {
       ctx.request.headers &&
       ctx.request.headers[OPENHIM_TRANSACTION_HEADER]
     ) {
-      ctx.response.type = 'application/json+openhim'
       constructOpenhimResponse(ctx, Date.now())
     }
     return

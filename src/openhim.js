@@ -53,6 +53,29 @@ exports.constructOpenhimResponse = (ctx, responseTimestamp) => {
   const statusText = ctx.statusText
   const respObject = {}
 
+  // content-type already defined by final primary request
+  if (response.type === 'application/json+openhim') {
+    if (orchestrations) {
+      if (
+        response.body &&
+        response.body.orchestrations &&
+        Array.isArray(response.body.orchestrations)
+      ) {
+        response.body.orchestrations.unshift(orchestrations)
+      }
+    }
+
+    ctx.body =
+      typeof response.body === 'string'
+        ? response.body
+        : JSON.stringify(response.body)
+    return
+  }
+
+  // OpenHIM header not explicity set in response header
+  // Manually set OpenHIM header for processing
+  ctx.response.type = 'application/json+openhim'
+
   if (response) {
     if (response.headers) {
       respObject.headers = response.headers

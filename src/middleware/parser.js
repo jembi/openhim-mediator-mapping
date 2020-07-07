@@ -69,10 +69,7 @@ const parseOutgoingBody = (ctx, outputFormat) => {
     ctx.request.header &&
     ctx.request.header[OPENHIM_TRANSACTION_HEADER]
   ) {
-    ctx.response.type = 'application/json+openhim'
-    const date = new Date()
-
-    constructOpenhimResponse(ctx, date)
+    constructOpenhimResponse(ctx, Date.now())
   }
 
   logger.info(
