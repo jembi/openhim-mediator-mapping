@@ -52,7 +52,7 @@ const createMappedObject = ctx => {
     `${ctx.state.metaData.name} (${ctx.state.uuid}): Successfully mapped output document`
   )
 
-  if (ctx.request.header && ctx.request.header[OPENHIM_TRANSACTION_HEADER]) {
+  if (ctx.request.headers && ctx.request.headers[OPENHIM_TRANSACTION_HEADER]) {
     const orchestrationName = 'Mapping'
     const mappingEndTimestamp = new Date()
     const response = {

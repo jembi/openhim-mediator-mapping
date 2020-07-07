@@ -96,9 +96,7 @@ tap.test('Parser', {autoend: true}, t => {
             name: 'Moin',
             surname: 'Sacks'
           },
-          header: {
-            [OPENHIM_TRANSACTION_HEADER]: '12333'
-          },
+          headers: {[OPENHIM_TRANSACTION_HEADER]: '12333'},
           raw_body: '<xml><name>Moin</name><surname>Sacks</surname></xml>' // ??? raw body us XML but body is JSON
         }
       }
@@ -139,9 +137,7 @@ tap.test('Parser', {autoend: true}, t => {
               name: 'Moin',
               surname: 'Sacks'
             },
-            header: {
-              [OPENHIM_TRANSACTION_HEADER]: '12333'
-            },
+            headers: {[OPENHIM_TRANSACTION_HEADER]: '12333'},
             raw_body: '<xml><name>Moin</name><surname>Sacks</surname></xml>' // ??? raw body us XML but body is JSON
           }
         }
@@ -180,9 +176,7 @@ tap.test('Parser', {autoend: true}, t => {
             name: 'Moin',
             surname: 'Sacks'
           },
-          header: {
-            [OPENHIM_TRANSACTION_HEADER]: '12333'
-          },
+          headers: {[OPENHIM_TRANSACTION_HEADER]: '12333'},
           raw_body: '{"name": "Moin", "surname": "Sacks"}'
         }
       }
@@ -256,8 +250,8 @@ tap.test('Parser', {autoend: true}, t => {
           }
         },
         set: (key, value) => {
-          ctx.header = {}
-          ctx.header[key] = value
+          ctx.headers = {}
+          ctx.headers[key] = value
         },
         request: {},
         response: {
@@ -278,7 +272,7 @@ tap.test('Parser', {autoend: true}, t => {
       parseOutgoingBody(ctx, outputFormat)
 
       t.deepEqual(ctx.body, expectedBody)
-      t.deepEqual(ctx.header, expectedHeader)
+      t.deepEqual(ctx.headers, expectedHeader)
       t.end()
     })
 
@@ -298,13 +292,11 @@ tap.test('Parser', {autoend: true}, t => {
             }
           },
           set: (key, value) => {
-            ctx.header = {}
-            ctx.header[key] = value
+            ctx.headers = {}
+            ctx.headers[key] = value
           },
           request: {
-            header: {
-              [OPENHIM_TRANSACTION_HEADER]: '12333'
-            }
+            headers: {[OPENHIM_TRANSACTION_HEADER]: '12333'}
           },
           response: {
             type: ''
@@ -318,7 +310,7 @@ tap.test('Parser', {autoend: true}, t => {
         parseOutgoingBody(ctx, outputFormat)
 
         t.equals(JSON.parse(ctx.body).status, 'Successful')
-        t.deepEqual(ctx.header, expectedHeader)
+        t.deepEqual(ctx.headers, expectedHeader)
         t.equals(ctx.orchestrations.length, 1)
         t.equals(ctx.orchestrations[0].name, 'Outgoing Parser')
         t.end()
@@ -342,13 +334,11 @@ tap.test('Parser', {autoend: true}, t => {
             }
           },
           set: (key, value) => {
-            ctx.header = {}
-            ctx.header[key] = value
+            ctx.headers = {}
+            ctx.headers[key] = value
           },
           request: {
-            header: {
-              [OPENHIM_TRANSACTION_HEADER]: '12333'
-            }
+            headers: {[OPENHIM_TRANSACTION_HEADER]: '12333'}
           },
           response: {}
         }
@@ -368,7 +358,7 @@ tap.test('Parser', {autoend: true}, t => {
 
         parseOutgoingBody(ctx, outputFormat)
 
-        t.deepEqual(ctx.header, expectedHeader)
+        t.deepEqual(ctx.headers, expectedHeader)
         t.equals(ctx.orchestrations.length, 1)
         t.equals(ctx.orchestrations[0].name, 'Outgoing Parser')
         t.equals(ctx.orchestrations[0].response.body, expectedBody)
@@ -433,8 +423,8 @@ tap.test('Parser', {autoend: true}, t => {
           }
         },
         set: (key, value) => {
-          ctx.header = {}
-          ctx.header[key] = value
+          ctx.headers = {}
+          ctx.headers[key] = value
         },
         request: {}
       }

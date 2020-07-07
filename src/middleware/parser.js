@@ -29,8 +29,8 @@ const parseOutgoingBody = (ctx, outputFormat) => {
       ctx.set('Content-Type', 'application/xml')
 
       if (
-        ctx.request.header &&
-        ctx.request.header[OPENHIM_TRANSACTION_HEADER]
+        ctx.request.headers &&
+        ctx.request.headers[OPENHIM_TRANSACTION_HEADER]
       ) {
         const orchestrationName = 'Outgoing Parser'
         const parserEndTime = new Date()
@@ -66,8 +66,8 @@ const parseOutgoingBody = (ctx, outputFormat) => {
   // Respond in openhim mediator format if request came from the openhim
   if (
     ctx.request &&
-    ctx.request.header &&
-    ctx.request.header[OPENHIM_TRANSACTION_HEADER]
+    ctx.request.headers &&
+    ctx.request.headers[OPENHIM_TRANSACTION_HEADER]
   ) {
     constructOpenhimResponse(ctx, Date.now())
   }
@@ -124,8 +124,8 @@ const parseIncomingBody = async (ctx, inputFormat) => {
         ctx.state.allData.requestBody = ctx.request.body
 
         if (
-          ctx.request.header &&
-          ctx.request.header[OPENHIM_TRANSACTION_HEADER]
+          ctx.request.headers &&
+          ctx.request.headers[OPENHIM_TRANSACTION_HEADER]
         ) {
           if (inputFormat === 'XML') {
             const orchestrationName = 'Incoming Parser'

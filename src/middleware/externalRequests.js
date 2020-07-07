@@ -40,11 +40,11 @@ const performRequests = (requests, ctx) => {
       requestStart: reqTimestamp
     }
 
-    if (ctx.request.header[OPENHIM_TRANSACTION_HEADER]) {
+    if (ctx.request.headers[OPENHIM_TRANSACTION_HEADER]) {
       requestDetails.config.headers = Object.assign(
         {
           [OPENHIM_TRANSACTION_HEADER]:
-            ctx.request.header[OPENHIM_TRANSACTION_HEADER]
+            ctx.request.headers[OPENHIM_TRANSACTION_HEADER]
         },
         requestDetails.config.headers
       )
@@ -107,8 +107,8 @@ const performRequests = (requests, ctx) => {
       .finally(() => {
         // For now these orchestrations are recorded when there are no failures
         if (
-          ctx.request.header &&
-          ctx.request.header[OPENHIM_TRANSACTION_HEADER]
+          ctx.request.headers &&
+          ctx.request.headers[OPENHIM_TRANSACTION_HEADER]
         ) {
           const orchestration = createOrchestration(
             requestDetails,
@@ -222,11 +222,11 @@ const prepareResponseRequests = async ctx => {
           const params = addRequestQueryParameters(ctx, request.config)
           const requestUrl = resolveRequestUrl(ctx, request.config)
 
-          if (ctx.request.header[OPENHIM_TRANSACTION_HEADER]) {
+          if (ctx.request.headers[OPENHIM_TRANSACTION_HEADER]) {
             request.config.headers = Object.assign(
               {
                 [OPENHIM_TRANSACTION_HEADER]:
-                  ctx.request.header[OPENHIM_TRANSACTION_HEADER]
+                  ctx.request.headers[OPENHIM_TRANSACTION_HEADER]
               },
               request.config.headers
             )
@@ -389,8 +389,8 @@ const sendMappedObject = (
     })
     .finally(() => {
       if (
-        ctx.request.header &&
-        ctx.request.header[OPENHIM_TRANSACTION_HEADER]
+        ctx.request.headers &&
+        ctx.request.headers[OPENHIM_TRANSACTION_HEADER]
       ) {
         const orchestration = createOrchestration(
           request,

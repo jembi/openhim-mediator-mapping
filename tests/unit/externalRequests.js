@@ -112,9 +112,7 @@ tap.test('External Requests', {autoend: true}, t => {
             }
           },
           request: {
-            header: {
-              [OPENHIM_TRANSACTION_HEADER]: '1232244'
-            }
+            headers: {[OPENHIM_TRANSACTION_HEADER]: '1232244'}
           }
         }
 
@@ -165,9 +163,7 @@ tap.test('External Requests', {autoend: true}, t => {
             }
           },
           request: {
-            header: {
-              [OPENHIM_TRANSACTION_HEADER]: '1232244'
-            }
+            headers: {[OPENHIM_TRANSACTION_HEADER]: '1232244'}
           }
         }
 
@@ -214,9 +210,7 @@ tap.test('External Requests', {autoend: true}, t => {
           }
         },
         request: {
-          header: {
-            [OPENHIM_TRANSACTION_HEADER]: '1232244'
-          }
+          headers: {[OPENHIM_TRANSACTION_HEADER]: '1232244'}
         }
       }
 
@@ -255,9 +249,7 @@ tap.test('External Requests', {autoend: true}, t => {
 
       const ctx = {
         request: {
-          header: {
-            [OPENHIM_TRANSACTION_HEADER]: '123'
-          }
+          headers: {[OPENHIM_TRANSACTION_HEADER]: '123'}
         },
         state: {
           allData: {
@@ -297,9 +289,7 @@ tap.test('External Requests', {autoend: true}, t => {
 
       const ctx = {
         request: {
-          header: {
-            [OPENHIM_TRANSACTION_HEADER]: '123'
-          }
+          headers: {[OPENHIM_TRANSACTION_HEADER]: '123'}
         },
         state: {
           allData: {
@@ -487,9 +477,7 @@ tap.test('External Requests', {autoend: true}, t => {
             }
           },
           request: {
-            header: {
-              [OPENHIM_TRANSACTION_HEADER]: '1232244'
-            }
+            headers: {[OPENHIM_TRANSACTION_HEADER]: '1232244'}
           },
           response: {
             headers: {}
@@ -545,9 +533,7 @@ tap.test('External Requests', {autoend: true}, t => {
           }
         },
         request: {
-          header: {
-            [OPENHIM_TRANSACTION_HEADER]: '1232244'
-          }
+          headers: {[OPENHIM_TRANSACTION_HEADER]: '1232244'}
         },
         response: {
           headers: {}
@@ -609,7 +595,7 @@ tap.test('External Requests', {autoend: true}, t => {
             }
           },
           request: {
-            header: {}
+            headers: {}
           },
           response: {
             headers: {}
