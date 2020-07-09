@@ -37,12 +37,10 @@ const parseOutgoingBody = (ctx, outputFormat) => {
         const response = {
           body: ctx.body
         }
-        const request = {}
         const error = null
 
         const orchestration = createOrchestration(
-          request,
-          body,
+          {data: body},
           response,
           parserStartTime,
           parserEndTime,
@@ -133,7 +131,6 @@ const parseIncomingBody = async (ctx, inputFormat) => {
             const response = {
               body: ctx.request.body
             }
-            const request = {}
             const error = null
 
             if (!ctx.orchestrations) {
@@ -141,8 +138,7 @@ const parseIncomingBody = async (ctx, inputFormat) => {
             }
 
             const orchestration = createOrchestration(
-              request,
-              ctx.request.raw_body,
+              {data: ctx.request.raw_body},
               response,
               parserStartTime,
               parserEndTime,

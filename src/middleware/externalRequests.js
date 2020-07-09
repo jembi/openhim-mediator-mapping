@@ -59,9 +59,14 @@ const performRequests = (requests, ctx) => {
       ? ctx.request.body
       : null
 
-    return axios(
-      prepareRequestConfig(requestDetails, body, requestParameters, requestUrl)
+    const axiosConfig = prepareRequestConfig(
+      requestDetails,
+      body,
+      requestParameters,
+      requestUrl
     )
+
+    return axios(axiosConfig)
       .then(res => {
         response = res
         response.body = res.data
@@ -111,14 +116,12 @@ const performRequests = (requests, ctx) => {
           ctx.request.headers[OPENHIM_TRANSACTION_HEADER]
         ) {
           const orchestration = createOrchestration(
-            requestDetails,
-            body,
+            axiosConfig,
             response,
             reqTimestamp,
             responseTimestamp,
             requestDetails.id,
-            orchestrationError,
-            requestParameters
+            orchestrationError
           )
 
           ctx.orchestrations.push(orchestration)
@@ -239,7 +242,7 @@ const prepareResponseRequests = async ctx => {
             requestUrl
           )
 
-          return sendMappedObject(ctx, axiosConfig, request, body, params)
+          return sendMappedObject(ctx, axiosConfig, request)
         }
       })
 
@@ -330,13 +333,7 @@ const setKoaResponseBody = (ctx, request, body) => {
   }
 }
 
-const sendMappedObject = (
-  ctx,
-  axiosConfig,
-  request,
-  body,
-  requestParameters
-) => {
+const sendMappedObject = (ctx, axiosConfig, request) => {
   const reqTimestamp = DateTime.utc().toISO()
   let response, orchestrationError, responseTimestamp
 
@@ -393,14 +390,12 @@ const sendMappedObject = (
         ctx.request.headers[OPENHIM_TRANSACTION_HEADER]
       ) {
         const orchestration = createOrchestration(
-          request,
-          body,
+          axiosConfig,
           response,
           reqTimestamp,
           responseTimestamp,
           request.id,
-          orchestrationError,
-          requestParameters
+          orchestrationError
         )
 
         ctx.orchestrations.push(orchestration)

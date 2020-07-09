@@ -3,14 +3,12 @@
 const querystring = require('querystring')
 
 exports.createOrchestration = (
-  request,
-  reqBody,
+  requestAxiosConfig,
   responseObject,
   reqTimestamp,
   responseTimestamp,
   orchestrationName,
-  error,
-  requestParameters
+  error
 ) => {
   if (!reqTimestamp || !orchestrationName)
     throw new Error(
@@ -18,16 +16,15 @@ exports.createOrchestration = (
     )
 
   let urlObject
-  if (request && request.config && request.config.url) {
-    urlObject = new URL(request.config.url)
+  if (requestAxiosConfig && requestAxiosConfig.url) {
+    urlObject = new URL(requestAxiosConfig.url)
   }
 
   const requestObject = {
     host: urlObject && urlObject.hostname ? urlObject.hostname : '',
     port: urlObject && urlObject.port ? urlObject.port : '',
     path: urlObject && urlObject.pathname ? urlObject.pathname : '',
-    method:
-      request.config && request.config.method ? request.config.method : '',
+    method: requestAxiosConfig.method ? requestAxiosConfig.method : '',
     timestamp: reqTimestamp
   }
 
@@ -38,17 +35,19 @@ exports.createOrchestration = (
   if (urlObject && urlObject.searchParams) {
     requestObject.queryString = urlObject.searchParams.toString()
   }
-  if (requestParameters) {
+  if (requestAxiosConfig.params) {
     requestObject.queryString = `${
       requestObject.queryString
-    }&${querystring.stringify(requestParameters)}`
+    }&${querystring.stringify(requestAxiosConfig.params)}`
   }
-  if (request.headers) {
-    requestObject.headers = request.headers
+  if (requestAxiosConfig.headers) {
+    requestObject.headers = requestAxiosConfig.headers
   }
-  if (reqBody) {
+  if (requestAxiosConfig.data) {
     requestObject.body =
-      typeof reqBody === 'string' ? reqBody : JSON.stringify(reqBody)
+      typeof requestAxiosConfig.data === 'string'
+        ? requestAxiosConfig.data
+        : JSON.stringify(requestAxiosConfig.data)
   }
   if (responseObject && responseObject.status) {
     response.status = responseObject.status
