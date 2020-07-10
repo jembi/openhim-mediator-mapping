@@ -9,17 +9,14 @@ tap.test('createOrchestrations()', {autoend: true}, t => {
     t.plan(1)
 
     const request = {
-      config: {
-        url: 'http://localhost',
-        method: 'PUT'
-      },
-      id: '1232'
+      url: 'http://localhost',
+      method: 'PUT'
     }
     const reqTimestamp = null
     const name = 'Test'
 
     try {
-      createOrchestration(request, null, null, reqTimestamp, null, name)
+      createOrchestration(request, null, reqTimestamp, null, name)
     } catch (error) {
       t.equals(
         error.message,
@@ -32,17 +29,14 @@ tap.test('createOrchestrations()', {autoend: true}, t => {
     t.plan(1)
 
     const request = {
-      config: {
-        url: 'http://localhost',
-        method: 'PUT'
-      },
-      id: null
+      url: 'http://localhost',
+      method: 'PUT'
     }
     const reqTimestamp = Date.now()
     const name = null
 
     try {
-      createOrchestration(request, null, null, reqTimestamp, null, null, name)
+      createOrchestration(request, null, reqTimestamp, null, null, name)
     } catch (error) {
       t.equals(
         error.message,
@@ -53,17 +47,18 @@ tap.test('createOrchestrations()', {autoend: true}, t => {
 
   t.test('should create orchestration', t => {
     const headers = {'Content-Type': 'application/json'}
+    const requestBody = {surname: 'raze'}
     const request = {
-      config: {
-        url: 'http://localhost:8000/patient/?name=brainman',
-        method: 'PUT'
-      },
-      id: 'Patient',
-      headers
+      url: 'http://localhost:8000/patient/?name=brainman',
+      method: 'PUT',
+      headers,
+      data: requestBody,
+      params: {
+        id: 1233
+      }
     }
     const reqTimestamp = Date.now()
 
-    const requestBody = {surname: 'raze'}
     const response = {
       body: {
         name: 'brainman',
@@ -74,9 +69,6 @@ tap.test('createOrchestrations()', {autoend: true}, t => {
     }
     const responseTimestamp = Date.now()
     const name = 'Test'
-    const requestParams = {
-      id: '1233'
-    }
 
     const expectedOrch = {
       request: {
@@ -103,13 +95,11 @@ tap.test('createOrchestrations()', {autoend: true}, t => {
 
     const orchestration = createOrchestration(
       request,
-      requestBody,
       response,
       reqTimestamp,
       responseTimestamp,
       name,
-      null,
-      requestParams
+      null
     )
 
     t.deepEqual(expectedOrch, orchestration)

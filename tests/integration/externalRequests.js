@@ -706,6 +706,104 @@ tap.test(
             })
         }
       )
+
+      t.test(
+        'requestMiddleware should return an orchestration including resolved url parameters',
+        async t => {
+          t.plan(5)
+          const fhirPatient = {
+            resourceType: 'Patient',
+            gender: 'unknown'
+          }
+
+          server.on('request', async (req, res) => {
+            if (
+              req.method === 'GET' &&
+              req.url === '/fhir/Patient/pre12345post/_history'
+            ) {
+              t.pass()
+              res.writeHead(201, {'Content-Type': 'application/json'})
+              res.end(JSON.stringify(fhirPatient))
+              return
+            }
+            res.writeHead(404)
+            res.end()
+            return
+          })
+
+          const testEndpoint = {
+            name: 'External Request Test Endpoint 7',
+            endpoint: {
+              pattern: '/externalRequestTest7'
+            },
+            transformation: {
+              input: 'JSON',
+              output: 'JSON'
+            },
+            requests: {
+              lookup: [
+                {
+                  id: 'fhir-server',
+                  config: {
+                    method: 'get',
+                    url: `http://localhost:${mockServerPort}/fhir/Patient/:id/_history`,
+                    headers: {
+                      'Content-Type': 'application/json'
+                    },
+                    params: {
+                      url: {
+                        id: {
+                          path: 'payload.patientId',
+                          prefix: 'pre',
+                          postfix: 'post'
+                        }
+                      }
+                    }
+                  },
+                  allowedStatuses: ['2xx']
+                }
+              ]
+            },
+            inputMapping: {
+              'lookupRequests.fhir-server.resourceType': 'resourceType',
+              'lookupRequests.fhir-server.gender': 'gender'
+            }
+          }
+
+          await request(`http://localhost:${testMapperPort}`)
+            .post('/endpoints')
+            .send(testEndpoint)
+            .set('Content-Type', 'application/json')
+            .expect(201)
+
+          // The mongoDB endpoint collection change listeners may take a few milliseconds to update the endpoint cache.
+          // This wouldn't be a problem in the normal use case as a user would not create an endpoint and
+          // immediately start posting to it within a few milliseconds. Therefore this timeout here should be fine...
+          await sleep(1000)
+
+          const requestData = {patientId: '12345'}
+
+          await request(`http://localhost:${testMapperPort}`)
+            .post('/externalRequestTest7')
+            .send(requestData)
+            .set('Content-Type', 'application/json')
+            // forces a mediator response
+            .set('x-openhim-transactionid', '123')
+            .expect(response => {
+              console.log(response.body)
+              t.equals(response.status, 200)
+              t.equals(
+                response.body['x-mediator-urn'],
+                'urn:mediator:generic_mapper'
+              )
+              t.equals(response.body.status, 'Successful')
+              t.equals(
+                response.body.orchestrations[0].request.path,
+                '/fhir/Patient/pre12345post/_history'
+              )
+            })
+        }
+      )
     })
   )
 )

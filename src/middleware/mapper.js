@@ -58,7 +58,6 @@ const createMappedObject = ctx => {
     const response = {
       body: output
     }
-    const request = {}
     const error = null
 
     if (!ctx.orchestrations) {
@@ -66,8 +65,7 @@ const createMappedObject = ctx => {
     }
 
     const orchestration = createOrchestration(
-      request,
-      dataToBeMapped,
+      {data: dataToBeMapped},
       response,
       mappingStartTimestamp,
       mappingEndTimestamp,
