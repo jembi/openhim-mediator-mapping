@@ -790,7 +790,6 @@ tap.test(
             // forces a mediator response
             .set('x-openhim-transactionid', '123')
             .expect(response => {
-              console.log(response.body)
               t.equals(response.status, 200)
               t.equals(
                 response.body['x-mediator-urn'],
