@@ -166,5 +166,3 @@ The following parameters relate to the Mongo Replica set:
 ## Registering to the OpenHIM
 
 The mapping mediator like most other OpenHIM mediators can register to an instance of OpenHIM. This allows us to have a visual indication of the mediators in use. To register as a mediator you will has to set the environment variable OPENHIM_REGISTER to `true`. The default value for the variable is `true`. For multiple instances of the mediator to register to the same instance of the openHIM each mediator has to have a unique `urn`. You can set the `urn` using the environment variable MEDIATOR_URN.
-
-Test for triggering Travis
