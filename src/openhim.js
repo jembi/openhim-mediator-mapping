@@ -61,7 +61,9 @@ exports.constructOpenhimResponse = (ctx, responseTimestamp) => {
         response.body.orchestrations &&
         Array.isArray(response.body.orchestrations)
       ) {
-        response.body.orchestrations.unshift(orchestrations)
+        response.body.orchestrations = orchestrations.concat(
+          response.body.orchestrations
+        )
       }
     }
 
