@@ -246,7 +246,7 @@ tap.test('Mapper', {autoend: true}, t => {
       createMappedObject(ctx)
 
       t.equals(ctx.orchestrations.length, 1)
-      t.equals(ctx.orchestrations[0].name, 'Mapping')
+      t.equals(ctx.orchestrations[0].name, 'Endpoint Mapping: Testing endpoint')
       t.deepEqual(ctx.orchestrations[0].response.body, JSON.stringify(expected))
       t.end()
     })
@@ -295,7 +295,10 @@ tap.test('Mapper', {autoend: true}, t => {
         createMappedObject(ctx)
 
         t.equals(ctx.orchestrations.length, 1)
-        t.equals(ctx.orchestrations[0].name, 'Mapping')
+        t.equals(
+          ctx.orchestrations[0].name,
+          'Endpoint Mapping: Testing endpoint'
+        )
         t.deepEqual(
           ctx.orchestrations[0].response.body,
           JSON.stringify(expected)

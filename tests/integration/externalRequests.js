@@ -797,7 +797,7 @@ tap.test(
               )
               t.equals(response.body.status, 'Successful')
               t.equals(
-                response.body.orchestrations[0].request.path,
+                response.body.$push.orchestrations[0].request.path,
                 '/fhir/Patient/pre12345post/_history'
               )
             })

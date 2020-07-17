@@ -97,12 +97,14 @@ tap.test('constructOpenhimResponse()', {autoend: true}, t => {
         body: JSON.stringify(body),
         timestamp
       },
-      orchestrations: orchestrations
+      $push: {
+        orchestrations: orchestrations
+      }
     }
 
     constructOpenhimResponse(ctx, timestamp)
 
-    t.deepEqual(expectedResponse, JSON.parse(ctx.body))
+    t.deepEqual(JSON.parse(ctx.body), expectedResponse)
     t.end()
   })
 })
