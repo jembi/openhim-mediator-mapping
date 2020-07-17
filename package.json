@@ -21,6 +21,7 @@
     ]
   },
   "dependencies": {
+    "@koa/cors": "^3.0.0",
     "@viweei/koa-body-parser": "^1.0.2",
     "ajv": "^6.10.2",
     "ajv-errors": "^1.0.1",
@@ -28,7 +29,9 @@
     "codecov": "^3.6.5",
     "jsonata": "^1.8.3",
     "koa": "^2.11.0",
+    "koa-route": "^3.2.0",
     "koa-router": "^8.0.8",
+    "koa-websocket": "^6.0.0",
     "luxon": "^1.23.0",
     "mongoose": "^5.9.13",
     "object-mapper": "jembi/node-object-mapper",
