@@ -115,12 +115,13 @@ const performRequests = (requests, ctx) => {
           ctx.request.headers &&
           ctx.request.headers[OPENHIM_TRANSACTION_HEADER]
         ) {
+          const orchestrationName = `Endpoint Lookup Request: ${ctx.state.metaData.name}: ${requestDetails.id}`
           const orchestration = createOrchestration(
             axiosConfig,
             response,
             reqTimestamp,
             responseTimestamp,
-            requestDetails.id,
+            orchestrationName,
             orchestrationError
           )
 
@@ -409,12 +410,13 @@ const sendMappedObject = (ctx, axiosConfig, request) => {
         ctx.request.headers &&
         ctx.request.headers[OPENHIM_TRANSACTION_HEADER]
       ) {
+        const orchestrationName = `Endpoint Response Request: ${ctx.state.metaData.name}: ${request.id}`
         const orchestration = createOrchestration(
           axiosConfig,
           response,
           reqTimestamp,
           responseTimestamp,
-          request.id,
+          orchestrationName,
           orchestrationError
         )
 
