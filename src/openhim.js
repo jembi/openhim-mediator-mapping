@@ -56,14 +56,31 @@ exports.constructOpenhimResponse = (ctx, responseTimestamp) => {
   // content-type already defined by final primary request
   if (response.type === 'application/json+openhim') {
     if (orchestrations) {
-      if (
-        response.body &&
-        response.body.orchestrations &&
-        Array.isArray(response.body.orchestrations)
-      ) {
-        response.body.orchestrations = orchestrations.concat(
-          response.body.orchestrations
-        )
+      if (response.body) {
+        // append to routes/orchestrations
+        if (response.body.$push) {
+          if (
+            response.body.$push.orchestrations &&
+            Array.isArray(response.body.$push.orchestrations)
+          ) {
+            response.body.$push.orchestrations = orchestrations.concat(
+              response.body.$push.orchestrations
+            )
+          } else {
+            response.body.$push.orchestrations = orchestrations
+          }
+        } else {
+          if (
+            response.body.orchestrations &&
+            Array.isArray(response.body.orchestrations)
+          ) {
+            response.body.orchestrations = orchestrations.concat(
+              response.body.orchestrations
+            )
+          } else {
+            response.body.orchestrations = orchestrations
+          }
+        }
       }
     }
 
@@ -108,7 +125,9 @@ exports.constructOpenhimResponse = (ctx, responseTimestamp) => {
     'x-mediator-urn': mediatorConfigJson.urn,
     status: statusText,
     response: respObject,
-    orchestrations: orchestrations
+    $push: {
+      orchestrations: orchestrations
+    }
   }
 
   ctx.body = JSON.stringify(body)
