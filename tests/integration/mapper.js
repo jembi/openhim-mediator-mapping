@@ -448,13 +448,13 @@ tap.test(
 
         t.ok(result.body['x-mediator-urn'])
         t.equals(result.body.status, 'Successful')
-        t.equal(result.body.$push.orchestrations.length, 3)
+        t.equal(result.body.orchestrations.length, 3)
         t.equal(
-          result.body.$push.orchestrations[1].name,
+          result.body.orchestrations[1].name,
           'Endpoint Validation: Mapping Test Endpoint 1 (success)'
         )
         t.equal(
-          result.body.$push.orchestrations[2].name,
+          result.body.orchestrations[2].name,
           'Endpoint Mapping: Mapping Test Endpoint 1 (success)'
         )
         t.end()

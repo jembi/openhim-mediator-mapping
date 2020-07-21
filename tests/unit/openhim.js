@@ -97,9 +97,7 @@ tap.test('constructOpenhimResponse()', {autoend: true}, t => {
         body: JSON.stringify(body),
         timestamp
       },
-      $push: {
-        orchestrations: orchestrations
-      }
+      orchestrations: orchestrations
     }
 
     constructOpenhimResponse(ctx, timestamp)

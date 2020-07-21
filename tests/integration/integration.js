@@ -197,7 +197,7 @@ tap.test(
                 response.body.response.body,
                 '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<root/>'
               )
-              t.equals(response.body.$push.orchestrations.length, 5)
+              t.equals(response.body.orchestrations.length, 5)
               t.equals(response.status, 201)
             })
         }
@@ -334,7 +334,7 @@ tap.test(
                 response.body.response.body,
                 '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<root/>'
               )
-              t.equals(response.body.$push.orchestrations.length, 5)
+              t.equals(response.body.orchestrations.length, 5)
               t.equals(response.status, 201)
             })
         }
