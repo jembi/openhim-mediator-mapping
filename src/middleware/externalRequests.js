@@ -281,33 +281,40 @@ const handleRequestError = (ctx, request, requestError) => {
 
     if (response.status >= 500) {
       if (request.primary) {
-        setKoaResponseBodyFromPrimary(ctx, response.data)
-
         ctx.routerResponseStatuses.push('primaryReqFailError')
-        ctx.status = response.status
+        setKoaResponseBodyAndHeadersFromPrimary(
+          ctx,
+          response.status,
+          response.headers,
+          response.data
+        )
       } else {
         ctx.routerResponseStatuses.push('secondaryFailError')
-
         setKoaResponseBody(ctx, request, response.data)
       }
     } else {
       if (request.primary) {
-        setKoaResponseBodyFromPrimary(ctx, response.data)
-
         ctx.routerResponseStatuses.push('primaryCompleted')
-        ctx.status = response.status
+        setKoaResponseBodyAndHeadersFromPrimary(
+          ctx,
+          response.status,
+          response.headers,
+          response.data
+        )
       } else {
         ctx.routerResponseStatuses.push('secondaryCompleted')
-
         setKoaResponseBody(ctx, request, response.data)
       }
     }
   } else {
     if (request.primary) {
-      setKoaResponseBodyFromPrimary(ctx, requestError.message)
-
       ctx.routerResponseStatuses.push('primaryReqFailError')
-      ctx.status = 500
+      setKoaResponseBodyAndHeadersFromPrimary(
+        ctx,
+        500,
+        null,
+        requestError.message
+      )
     } else {
       ctx.routerResponseStatuses.push('secondaryFailError')
 
@@ -319,11 +326,28 @@ const handleRequestError = (ctx, request, requestError) => {
   return {response, error}
 }
 
-// Sets the koa response body from the primary request's response body
-const setKoaResponseBodyFromPrimary = (ctx, body) => {
+// Sets the koa response body and header from the primary request's response
+const setKoaResponseBodyAndHeadersFromPrimary = (
+  ctx,
+  status,
+  headers,
+  body
+) => {
   ctx.hasPrimaryRequest = true
   ctx.body = {}
   ctx.body = body
+
+  // data has already been transferred and therefore has a content-length defined
+  if (headers) {
+    if (headers['transfer-encoding']) {
+      delete headers['transfer-encoding']
+    }
+
+    // set main response header to the primary request response
+    ctx.set(headers)
+  }
+
+  ctx.status = status
 }
 
 // Sets the koa response body if there is no primary request
@@ -363,16 +387,12 @@ const sendMappedObject = (ctx, axiosConfig, request) => {
         .toObject()
 
       if (request.primary) {
-        setKoaResponseBodyFromPrimary(ctx, response.body)
-
-        // data has already been transferred and therefore has a content-length defined
-        if (response.headers['transfer-encoding']) {
-          delete response.headers['transfer-encoding']
-        }
-
-        // set main response header to the primary request response
-        ctx.set(response.headers)
-        ctx.status = response.status
+        setKoaResponseBodyAndHeadersFromPrimary(
+          ctx,
+          response.status,
+          response.headers,
+          response.body
+        )
       } else {
         setKoaResponseBody(ctx, request, response.body)
       }

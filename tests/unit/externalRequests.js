@@ -11,8 +11,8 @@ const prepareResponseRequests = externalRequests.__get__(
   'prepareResponseRequests'
 )
 const setKoaResponseBody = externalRequests.__get__('setKoaResponseBody')
-const setKoaResponseBodyFromPrimary = externalRequests.__get__(
-  'setKoaResponseBodyFromPrimary'
+const setKoaResponseBodyAndHeadersFromPrimary = externalRequests.__get__(
+  'setKoaResponseBodyAndHeadersFromPrimary'
 )
 const handleRequestError = externalRequests.__get__('handleRequestError')
 const addRequestQueryParameters = externalRequests.__get__(
@@ -885,11 +885,19 @@ tap.test('External Requests', {autoend: true}, t => {
   t.test('setKoaResponseFromPrimary()', {autoend: true}, t => {
     t.test('should set the koa response', t => {
       const ctx = {
-        body: {}
+        body: {},
+        headers: {},
+        set: headers => {
+          ctx.headers = headers
+        }
       }
+      const status = 200
+      const headers = {'Content-Type': 'application/json'}
       const body = {message: 'success'}
 
-      setKoaResponseBodyFromPrimary(ctx, body)
+      setKoaResponseBodyAndHeadersFromPrimary(ctx, status, headers, body)
+      t.deepEqual(ctx.status, status)
+      t.deepEqual(ctx.headers, headers)
       t.deepEqual(ctx.body, body)
       t.equals(ctx.hasPrimaryRequest, true)
       t.end()
