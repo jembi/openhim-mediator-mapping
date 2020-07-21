@@ -56,12 +56,17 @@ exports.constructOpenhimResponse = (ctx, responseTimestamp) => {
   // content-type already defined by final primary request
   if (response.type === 'application/json+openhim') {
     if (orchestrations) {
-      if (
-        response.body &&
-        response.body.orchestrations &&
-        Array.isArray(response.body.orchestrations)
-      ) {
-        response.body.orchestrations.unshift(orchestrations)
+      if (response.body) {
+        if (
+          response.body.orchestrations &&
+          Array.isArray(response.body.orchestrations)
+        ) {
+          response.body.orchestrations = orchestrations.concat(
+            response.body.orchestrations
+          )
+        } else {
+          response.body.orchestrations = orchestrations
+        }
       }
     }
 

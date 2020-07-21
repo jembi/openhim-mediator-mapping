@@ -53,7 +53,7 @@ const createMappedObject = ctx => {
   )
 
   if (ctx.request.headers && ctx.request.headers[OPENHIM_TRANSACTION_HEADER]) {
-    const orchestrationName = 'Mapping'
+    const orchestrationName = `Endpoint Mapping: ${ctx.state.metaData.name}`
     const mappingEndTimestamp = new Date()
     const response = {
       body: output
