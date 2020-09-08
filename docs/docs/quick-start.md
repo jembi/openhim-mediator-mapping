@@ -13,52 +13,7 @@ This quick start guide should get you up and running in just a few minutes.
 
 ## Setup
 
-Create a new file called `docker-compose.yaml` and save the below commands to the file
-
-### MongoDB replica set
-
-We will first be installing all the mongodb databases for our required replica set
-
-```yaml
-version: '3.4'
-
-networks:
-  mapper-cluster-network:
-
-services:
-  mapper-mongo-1:
-    image: mongo:4.2
-    container_name: mapper-mongo-1
-    ports:
-      - "27017:27017"
-    networks:
-      - mapper-cluster-network
-    command:
-      - --replSet
-      - mapper-mongo-set
-
-  mapper-mongo-2:
-    image: mongo:4.2
-    container_name: mapper-mongo-2
-    ports:
-      - "27018:27017"
-    networks:
-      - mapper-cluster-network
-    command:
-      - --replSet
-      - mapper-mongo-set
-
-  mapper-mongo-3:
-    image: mongo:4.2
-    container_name: mapper-mongo-3
-    ports:
-      - "27019:27017"
-    networks:
-      - mapper-cluster-network
-    command:
-      - --replSet
-      - mapper-mongo-set
-```
+Download the [docker-compose.yaml](https://github.com/jembi/openhim-mediator-mapping/tree/master/resources/docker-compose.yaml) containing the relevant services for the OpenHIM Mediator Mapping service to start successfully
 
 Run the docker compose script by executing the below command
 
@@ -74,13 +29,16 @@ You can see the running docker containers by executing the below command
 docker ps
 ```
 
-Now we need to configure our mongodb to be a replica set. First we need to get inside of the docker container by executing the below
+> **NB!** We will need need to configure our mongodb to be a replica set for the OpenHIM Mediator Mapping application to start up successfully. <br />
+> To verify the `mapper` has started successfully, check the logs (`docker logs -f mapper`) of the `mapper` container to ensure everything started successfully
+
+To configure our MongDB replica set, we need to get inside of the docker container by executing the below
 
 ```sh
 docker exec -it mapper-mongo-1 mongo
 ```
 
-Now we can configure our replica set be executing the below command 
+Now we can configure our replica set be executing the below command
 
 ```sh
 config = {
@@ -109,30 +67,7 @@ rs.initiate(config)
 
 You can `exit` the docker container and you mongodb replica set should be successfully configured
 
-### Mapper
-
-we can add the `mapper` service to our `docker-compose.yaml` file
-
-The `mapper` service would fail to start up properly if the mongodb replica set wasn't configured properly
-
-```yaml
-mapper:
-  container_name: mapper
-  image: jembi/openhim-mediator-mapping:latest
-  environment:
-    - MONGO_URL='mongodb://mapper-mongo-1:27017,mapper-mongo-2:27018,mapper-mongo-3:27019/mapping-mediator?replicaSet=mapper-mongo-set'
-    - OPENHIM_REGISTER=false
-  ports:
-    - "3003:3003"
-  networks:
-    - mapper-cluster-network
-  depends_on:
-    - mapper-mongo-1
-    - mapper-mongo-2
-    - mapper-mongo-3
-```
-
-execute the `docker-compose.yaml` file again to download and create the `mapper` container
+execute the `docker-compose.yaml` file again to to restart the `mapper` container so that it can successfully connect to the MongoDB replica set we configured in the previous step
 
 ```sh
 docker-compose up -d
@@ -146,6 +81,6 @@ curl http://localhost:3003/uptime
 
 ## Test Endpoint
 
-Once all the containers are in a running and healthy state, we can proceed to creating some endpoints for the OpenHIM Mediator Mapping to listen on.
+Once all the containers are running, we can proceed to creating some endpoints for the OpenHIM Mediator Mapping to listen on.
 
 For more detailed instructions on how to setup the application, continue to the next step

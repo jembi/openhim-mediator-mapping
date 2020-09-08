@@ -32,9 +32,9 @@ There are currently 4 data points that we are able to extract data values from.
 
 Specify your desired values to be extracted from the various data points that exist so that it can be used in any follow up request that is made
 
-## State management in practice
+## State Management in practice
 
-The below example is just to illustrate how to go about store state values. These state values can then be used when [constructing the new response payload](transformation.md)
+The example is just to illustrate how to go about storing state values. These state values can then be used when [constructing the new response payload](transformation.md)
 
 The below state management makes use of the below data points:
 
@@ -140,9 +140,9 @@ Below is a basic example of the `state` object within the `endpoint` schema
 </TabItem>
 <TabItem value="request">
 
-The sample `state` schema definition shows us how we define the schema for extracting certain data points but without context of the incoming document it makes it a bit harder to understand.
+The sample `state` schema definition shows us how we extract certain data points but without context of the incoming document it makes it a bit harder to understand.
 
-Lets make use of a sample document that will be sent to this endpoint to indicate the data points we will be extracting.
+Lets make use of a sample `payload.json` document that will be sent to this endpoint to indicate the data points we will be extracting.
 
 ```json
 {
@@ -160,10 +160,10 @@ Lets make use of a sample document that will be sent to this endpoint to indicat
 }
 ```
 
-The sample POST request to this endpoint would look something like the below:
+The sample POST request to this endpoint would look like the below:
 
 ```curl
-http://localhost/sample-endpoint?page=10
+curl -X POST -d "@payload.xml" -H "Content-Type: application/xml" http://localhost:3003/sample-endpoint?page=10
 ```
 
 </TabItem>
