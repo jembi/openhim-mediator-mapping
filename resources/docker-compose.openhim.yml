@@ -38,7 +38,7 @@ services:
       - mapper-mongo-set
 
   # The OpenHIM Core will not start up on the first deploy. The MongoDB replica set will first need to be created for the OpenHIM core to connect to it 
-  core:
+  openhim-core:
     container_name: openhim-core
     image: jembi/openhim-core:5
     environment:
@@ -78,19 +78,29 @@ services:
       timeout: 10s
       retries: 12
 
-    # The OpenHIM Mediator Mapping will not start up on the first deploy. The MongoDB replica set will first need to be created for the OpenHIM core to connect to it
-    mapper:
-      container_name: mapper
-      image: jembi/openhim-mediator-mapping:latest
-      environment:
-        - MONGO_URL='mongodb://mapper-mongo-1:27017,mapper-mongo-2:27018,mapper-mongo-3:27019/mapping-mediator?replicaSet=mapper-mongo-set'
-        - OPENHIM_REGISTER=true
-        - OPENHIM_URL=https://openhim-core:8080
-        - OPENHIM_USERNAME=root@openhim.org
-        - OPENHIM_PASSWORD=openhim-password
-      ports:
-        - "3003:3003"
-      networks:
-        - mapper-cluster-network
-      depends_on:
-        - openhim-core
+  # The OpenHIM Mediator Mapping will not start up on the first deploy. The MongoDB replica set will first need to be created for the OpenHIM core to connect to it
+  mapper:
+    container_name: mapper
+    image: jembi/openhim-mediator-mapping:latest
+    environment:
+      - MONGO_URL='mongodb://mapper-mongo-1:27017,mapper-mongo-2:27018,mapper-mongo-3:27019/mapping-mediator?replicaSet=mapper-mongo-set'
+      - OPENHIM_REGISTER=true
+      - OPENHIM_URL=https://openhim-core:8080
+      - OPENHIM_USERNAME=root@openhim.org
+      - OPENHIM_PASSWORD=him123
+      - PARSER_LIMIT=10mb
+    ports:
+      - "3003:3003"
+    networks:
+      - mapper-cluster-network
+    depends_on:
+      - openhim-core
+
+  # The OpenHIM Mediator Mapping will not start up on the first deploy. The MongoDB replica set will first need to be created for the OpenHIM core to connect to it
+  mcsd:
+    container_name: mock-service
+    image: jembi/instantohie-mcsd-mock-services:latest
+    ports:
+      - "4000:4000"
+    networks:
+      - mapper-cluster-network
