@@ -156,6 +156,12 @@ The supported environment variables are listed as follows:
 
   > Allow the validation middleware to coerce the incoming data values into the defined validation type. If the property validation type is defined as `number` and the value being supplied is a `string`, then the validation middleware will format the value into a `number`
 
+<<<<<<< HEAD
 - DYNAMIC_ENDPOINTS - Default: **true**
 
   > Define wether MongoDB should create a listener on the Endpoints collection to automatically apply endpoint changes
+=======
+- MEDIATOR_URN - Default: **urn:mediator:generic_mapper**
+  
+  > Set a unique identifier to allow for multiple `openhim-mediator-mapping` instances to be registered to the OpenHIM.
+>>>>>>> fe9f45b50712ea35d4913fd6223d0426179c70f7

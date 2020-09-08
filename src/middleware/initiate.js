@@ -4,10 +4,15 @@ const uuid = require('uuid')
 const {DateTime} = require('luxon')
 
 const logger = require('../logger')
+const {OPENHIM_TRANSACTION_HEADER} = require('../constants')
 const {endpointCache} = require('../db/services/endpoints/cache')
 const statesService = require('../db/services/states')
 const {constructOpenhimResponse} = require('../openhim')
-const {extractValueFromObject, handleServerError} = require('../util')
+const {
+  extractValueFromObject,
+  handleServerError,
+  extractRegexFromPattern
+} = require('../util')
 
 const extractByType = (type, extract, allData) => {
   let state = {}
@@ -97,36 +102,50 @@ const updateEndpointState = async (ctx, endpoint) => {
 }
 
 const getEndpointByPath = urlPath => {
+  let matchedEndpoint
+  let urlParams = {}
+
   for (let endpoint of endpointCache) {
     if (endpoint.endpoint.pattern === urlPath) {
-      return endpoint
+      return {endpoint: JSON.parse(JSON.stringify(endpoint)), urlParams}
+    }
+
+    const match = urlPath.match(
+      extractRegexFromPattern(endpoint.endpoint.pattern)
+    )
+
+    if (match) {
+      urlParams = match.groups ? match.groups : {}
+      matchedEndpoint = JSON.parse(JSON.stringify(endpoint))
     }
   }
-  return null
+
+  return {endpoint: matchedEndpoint, urlParams}
 }
 
 exports.initiateContextMiddleware = () => async (ctx, next) => {
   // set the initial start time for entry into the endpoint
   const endpointStart = DateTime.utc().toISO()
   // set request UUID from incoming OpenHIM header if present, else create a random UUID
-  const requestUUID = ctx.request.headers['x-openhim-transactionid']
-    ? ctx.request.headers['x-openhim-transactionid']
+  const requestUUID = ctx.request.headers[OPENHIM_TRANSACTION_HEADER]
+    ? ctx.request.headers[OPENHIM_TRANSACTION_HEADER]
     : uuid.v4()
 
-  const endpoint = getEndpointByPath(ctx.request.path)
+  const {endpoint, urlParams} = getEndpointByPath(ctx.request.path)
 
   if (!endpoint) {
     logger.error(`Unknown Endpoint: ${ctx.request.path}`)
 
     ctx.response.type = 'application/json'
     ctx.status = 404
-    ctx.response.body = `Unknown Endpoint: ${ctx.request.path}`
+    ctx.response.body = {error: `Unknown Endpoint: ${ctx.request.path}`}
 
-    if (ctx.request.headers && ctx.request.headers['x-openhim-transactionid']) {
-      ctx.response.type = 'application/json+openhim'
+    if (
+      ctx.request.headers &&
+      ctx.request.headers[OPENHIM_TRANSACTION_HEADER]
+    ) {
       constructOpenhimResponse(ctx, Date.now())
     }
-
     return
   }
 
@@ -140,6 +159,7 @@ exports.initiateContextMiddleware = () => async (ctx, next) => {
   ctx.state.allData = {
     constants: endpoint.constants,
     state: endpointState,
+    urlParams: urlParams,
     timestamps: {
       endpointStart,
       endpointEnd: null,
@@ -149,7 +169,6 @@ exports.initiateContextMiddleware = () => async (ctx, next) => {
 
   ctx.state.uuid = requestUUID
   ctx.state.metaData = endpoint
-
   await next()
 
   try {

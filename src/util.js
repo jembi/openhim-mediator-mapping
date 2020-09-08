@@ -51,9 +51,9 @@ exports.extractValueFromObject = (obj, path, defaultValue) => {
   // For each item in the path, dig into the object
   for (let i = 0; i < path.length; i++) {
     // If the item isn't found, return the default (or null)
-    if (!current[path[i]]) return defaultValue
+    if (current[path[i]] == null) return defaultValue
 
-    // Otherwise, update the current  value
+    // Otherwise, update the current value
     current = current[path[i]]
   }
 
@@ -65,4 +65,25 @@ exports.handleServerError = (ctx, operationFailureMsg, error, logger) => {
   const err = `${operationFailureMsg}${error.message}`
   ctx.body = {error: err}
   logger.error(err)
+}
+
+exports.extractRegexFromPattern = pattern => {
+  if (pattern[0] === '/') {
+    pattern = pattern.substring(1)
+  }
+
+  const splitPattern = pattern.split('/')
+  let regexString = ''
+  const urlParamRegexPart = new RegExp(/[^ ;:=#@,/]{1,}/)
+
+  splitPattern.forEach(item => {
+    if (item && item[0] === ':') {
+      regexString += `\\/(?<${item.substring(1)}>${urlParamRegexPart.source})`
+    } else {
+      regexString += `\\/${item}`
+    }
+  })
+  regexString += '$'
+
+  return regexString
 }

@@ -4,14 +4,13 @@ const axios = require('axios')
 const {DateTime} = require('luxon')
 
 const logger = require('../logger')
+const {OPENHIM_TRANSACTION_HEADER} = require('../constants')
 
 const {createOrchestration} = require('../orchestrations')
 const {extractValueFromObject} = require('../util')
 
 const validateRequestStatusCode = allowedStatuses => {
-  const stringStatuses = allowedStatuses.map(status => {
-    return String(status)
-  })
+  const stringStatuses = allowedStatuses.map(String)
   return status => {
     if (stringStatuses.includes(String(status))) {
       return true
@@ -41,15 +40,33 @@ const performRequests = (requests, ctx) => {
       requestStart: reqTimestamp
     }
 
-    // No body is sent out for now
-    const body = null
+    if (ctx.request.headers[OPENHIM_TRANSACTION_HEADER]) {
+      requestDetails.config.headers = Object.assign(
+        {
+          [OPENHIM_TRANSACTION_HEADER]:
+            ctx.request.headers[OPENHIM_TRANSACTION_HEADER]
+        },
+        requestDetails.config.headers
+      )
+    }
 
     const requestParameters = addRequestQueryParameters(
       ctx,
       requestDetails.config
     )
+    const requestUrl = resolveRequestUrl(ctx, requestDetails.config)
+    const body = requestDetails.forwardExistingRequestBody
+      ? ctx.request.body
+      : null
 
-    return axios(prepareRequestConfig(requestDetails, null, requestParameters))
+    const axiosConfig = prepareRequestConfig(
+      requestDetails,
+      body,
+      requestParameters,
+      requestUrl
+    )
+
+    return axios(axiosConfig)
       .then(res => {
         response = res
         response.body = res.data
@@ -95,18 +112,17 @@ const performRequests = (requests, ctx) => {
       .finally(() => {
         // For now these orchestrations are recorded when there are no failures
         if (
-          ctx.request.header &&
-          ctx.request.header['x-openhim-transactionid']
+          ctx.request.headers &&
+          ctx.request.headers[OPENHIM_TRANSACTION_HEADER]
         ) {
+          const orchestrationName = `Endpoint Lookup Request: ${ctx.state.metaData.name}: ${requestDetails.id}`
           const orchestration = createOrchestration(
-            requestDetails,
-            body,
+            axiosConfig,
             response,
             reqTimestamp,
             responseTimestamp,
-            requestDetails.id,
-            orchestrationError,
-            requestParameters
+            orchestrationName,
+            orchestrationError
           )
 
           ctx.orchestrations.push(orchestration)
@@ -140,19 +156,24 @@ const prepareLookupRequests = ctx => {
 const prepareRequestConfig = (
   requestDetails,
   requestBody,
-  requestQueryParams
+  requestQueryParams,
+  requestUrl
 ) => {
-  const body = {}
+  const options = {}
 
   if (requestBody) {
-    body.data = requestBody
+    options.data = requestBody
   }
 
   if (requestQueryParams) {
-    body.params = requestQueryParams
+    options.params = requestQueryParams
   }
 
-  const requestOptions = Object.assign({}, requestDetails.config, body)
+  if (requestUrl) {
+    options.url = requestUrl
+  }
+
+  const requestOptions = Object.assign({}, requestDetails.config, options)
   // This step is separated out as in future the URL contained within the config
   // can be manipulated to add URL parameters taken from the body of an incoming request
   if (
@@ -203,10 +224,26 @@ const prepareResponseRequests = async ctx => {
           request.id
         ) {
           const params = addRequestQueryParameters(ctx, request.config)
+          const requestUrl = resolveRequestUrl(ctx, request.config)
 
-          const axiosConfig = prepareRequestConfig(request, body, params)
+          if (ctx.request.headers[OPENHIM_TRANSACTION_HEADER]) {
+            request.config.headers = Object.assign(
+              {
+                [OPENHIM_TRANSACTION_HEADER]:
+                  ctx.request.headers[OPENHIM_TRANSACTION_HEADER]
+              },
+              request.config.headers
+            )
+          }
 
-          return sendMappedObject(ctx, axiosConfig, request, body, params)
+          const axiosConfig = prepareRequestConfig(
+            request,
+            body,
+            params,
+            requestUrl
+          )
+
+          return sendMappedObject(ctx, axiosConfig, request)
         }
       })
 
@@ -245,33 +282,40 @@ const handleRequestError = (ctx, request, requestError) => {
 
     if (response.status >= 500) {
       if (request.primary) {
-        setKoaResponseBodyFromPrimary(ctx, response.data)
-
         ctx.routerResponseStatuses.push('primaryReqFailError')
-        ctx.status = response.status
+        setKoaResponseBodyAndHeadersFromPrimary(
+          ctx,
+          response.status,
+          response.headers,
+          response.data
+        )
       } else {
         ctx.routerResponseStatuses.push('secondaryFailError')
-
         setKoaResponseBody(ctx, request, response.data)
       }
     } else {
       if (request.primary) {
-        setKoaResponseBodyFromPrimary(ctx, response.data)
-
         ctx.routerResponseStatuses.push('primaryCompleted')
-        ctx.status = response.status
+        setKoaResponseBodyAndHeadersFromPrimary(
+          ctx,
+          response.status,
+          response.headers,
+          response.data
+        )
       } else {
         ctx.routerResponseStatuses.push('secondaryCompleted')
-
         setKoaResponseBody(ctx, request, response.data)
       }
     }
   } else {
     if (request.primary) {
-      setKoaResponseBodyFromPrimary(ctx, requestError.message)
-
       ctx.routerResponseStatuses.push('primaryReqFailError')
-      ctx.status = 500
+      setKoaResponseBodyAndHeadersFromPrimary(
+        ctx,
+        500,
+        null,
+        requestError.message
+      )
     } else {
       ctx.routerResponseStatuses.push('secondaryFailError')
 
@@ -283,11 +327,28 @@ const handleRequestError = (ctx, request, requestError) => {
   return {response, error}
 }
 
-// Sets the koa response body from the primary request's response body
-const setKoaResponseBodyFromPrimary = (ctx, body) => {
+// Sets the koa response body and header from the primary request's response
+const setKoaResponseBodyAndHeadersFromPrimary = (
+  ctx,
+  status,
+  headers,
+  body
+) => {
   ctx.hasPrimaryRequest = true
   ctx.body = {}
   ctx.body = body
+
+  // data has already been transferred and therefore has a content-length defined
+  if (headers) {
+    if (headers['transfer-encoding']) {
+      delete headers['transfer-encoding']
+    }
+
+    // set main response header to the primary request response
+    ctx.set(headers)
+  }
+
+  ctx.status = status
 }
 
 // Sets the koa response body if there is no primary request
@@ -297,13 +358,7 @@ const setKoaResponseBody = (ctx, request, body) => {
   }
 }
 
-const sendMappedObject = (
-  ctx,
-  axiosConfig,
-  request,
-  body,
-  requestParameters
-) => {
+const sendMappedObject = (ctx, axiosConfig, request) => {
   const reqTimestamp = DateTime.utc().toISO()
   let response, orchestrationError, responseTimestamp
 
@@ -333,9 +388,12 @@ const sendMappedObject = (
         .toObject()
 
       if (request.primary) {
-        setKoaResponseBodyFromPrimary(ctx, response.body)
-
-        ctx.status = response.status
+        setKoaResponseBodyAndHeadersFromPrimary(
+          ctx,
+          response.status,
+          response.headers,
+          response.body
+        )
       } else {
         setKoaResponseBody(ctx, request, response.body)
       }
@@ -348,16 +406,18 @@ const sendMappedObject = (
       orchestrationError = result.error
     })
     .finally(() => {
-      if (ctx.request.header && ctx.request.header['x-openhim-transactionid']) {
+      if (
+        ctx.request.headers &&
+        ctx.request.headers[OPENHIM_TRANSACTION_HEADER]
+      ) {
+        const orchestrationName = `Endpoint Response Request: ${ctx.state.metaData.name}: ${request.id}`
         const orchestration = createOrchestration(
-          request,
-          body,
+          axiosConfig,
           response,
           reqTimestamp,
           responseTimestamp,
-          request.id,
-          orchestrationError,
-          requestParameters
+          orchestrationName,
+          orchestrationError
         )
 
         ctx.orchestrations.push(orchestration)
@@ -365,63 +425,87 @@ const sendMappedObject = (
     })
 }
 
+const extractParamValue = (path, ctx) => {
+  // remove first index as this defines the type of param to extract
+  const extractType = path.split('.')[0]
+
+  // remove the extractType property from path
+  path = path.replace(`${extractType}.`, '')
+
+  switch (extractType) {
+    case 'payload':
+      return extractValueFromObject(ctx.request.body, path)
+    case 'query':
+      return extractValueFromObject(ctx.request.query, path)
+    case 'transforms':
+      return extractValueFromObject(ctx.state.allData.transforms, path)
+    case 'state':
+      return extractValueFromObject(ctx.state.allData.state, path)
+    case 'lookupRequests':
+      return extractValueFromObject(ctx.state.allData.lookupRequests, path)
+    case 'responseBody':
+      return extractValueFromObject(ctx.state.allData.responseBody, path)
+    case 'urlParams':
+      return extractValueFromObject(ctx.state.allData.urlParams, path)
+    case 'constants':
+      return extractValueFromObject(ctx.state.allData.constants, path)
+    case 'timestamps':
+      return extractValueFromObject(ctx.state.allData.timestamps, path)
+    default:
+      ctx.statusCode = 500
+      throw new Error(
+        `Unsupported Query Parameter Extract Type: ${extractType}`
+      )
+  }
+}
+
 const addRequestQueryParameters = (ctx, request) => {
   const requestQueryParams = {}
 
-  if (request.params) {
-    Object.keys(request.params).forEach(param => {
-      let parameterValue
-      const queryParam = request.params[`${param}`]
-      const fullPath = queryParam.path
+  if (request.params && request.params.query) {
+    Object.keys(request.params.query).forEach(paramName => {
+      const queryParamOptions = request.params.query[`${paramName}`]
+      const fullPath = queryParamOptions.path
 
-      // remove first index as this defines the type of param to extract
-      const extractType = fullPath.split('.')[0]
+      const parameterValue = extractParamValue(fullPath, ctx)
 
-      // remove the extractType property from path
-      const path = fullPath.replace(`${extractType}.`, '')
-
-      switch (extractType) {
-        case 'payload':
-          parameterValue = extractValueFromObject(ctx.request.body, path)
-          break
-        case 'query':
-          parameterValue = extractValueFromObject(ctx.request.query, path)
-          break
-        case 'state':
-          parameterValue = extractValueFromObject(ctx.state.allData.state, path)
-          break
-        case 'lookupRequests':
-          parameterValue = extractValueFromObject(
-            ctx.state.allData.lookupRequests,
-            path
-          )
-          break
-        case 'responseBody':
-          parameterValue = extractValueFromObject(
-            ctx.state.allData.responseBody,
-            path
-          )
-          break
-        default:
-          ctx.statusCode = 500
-          throw new Error(
-            `Unsupported Query Parameter Extract Type: ${extractType}`
-          )
-      }
-
-      if (parameterValue) {
-        const prefix = request.params[`${param}`].prefix
-          ? request.params[`${param}`].prefix
+      if (parameterValue != null) {
+        const prefix = queryParamOptions.prefix ? queryParamOptions.prefix : ''
+        const postfix = queryParamOptions.postfix
+          ? queryParamOptions.postfix
           : ''
-        const postfix = request.params[`${param}`].postfix
-          ? request.params[`${param}`].postfix
-          : ''
-        requestQueryParams[`${param}`] = `${prefix}${parameterValue}${postfix}`
+        requestQueryParams[
+          `${paramName}`
+        ] = `${prefix}${parameterValue}${postfix}`
       }
     })
   }
 
   return requestQueryParams
+}
+
+const resolveRequestUrl = (ctx, request) => {
+  let url = request.url
+
+  if (request.params && request.params.url) {
+    Object.keys(request.params.url).forEach(paramName => {
+      const urlParamOptions = request.params.url[paramName]
+      const fullPath = urlParamOptions.path
+
+      const parameterValue = extractParamValue(fullPath, ctx)
+
+      if (parameterValue != null) {
+        const prefix = urlParamOptions.prefix ? urlParamOptions.prefix : ''
+        const postfix = urlParamOptions.postfix ? urlParamOptions.postfix : ''
+        url = url.replace(
+          new RegExp(`:${paramName}`, 'g'),
+          `${prefix}${parameterValue}${postfix}`
+        )
+      }
+    })
+  }
+
+  return url
 }
 
 exports.requestsMiddleware = () => async (ctx, next) => {

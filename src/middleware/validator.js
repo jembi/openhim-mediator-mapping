@@ -4,6 +4,8 @@ const Ajv = require('ajv')
 
 const config = require('../config').getConfig()
 const logger = require('../logger')
+const {OPENHIM_TRANSACTION_HEADER} = require('../constants')
+const {createOrchestration} = require('../orchestrations')
 
 const ajv = new Ajv({
   nullable: config.validation.nullable,
@@ -16,6 +18,8 @@ const ajv = new Ajv({
 require('ajv-errors')(ajv /*, {singleError: true} */)
 
 const performValidation = ctx => {
+  const validationStartTimestamp = new Date()
+
   if (!ctx.state.metaData.inputValidation) {
     logger.warn(
       `${ctx.state.metaData.name} (${ctx.state.uuid}): No validation rules supplied`
@@ -29,11 +33,26 @@ const performValidation = ctx => {
     dataToValidate.requestBody = ctx.request.body
   }
 
+  if (
+    ctx.request &&
+    ctx.request.query &&
+    Object.keys(ctx.request.query).length
+  ) {
+    dataToValidate.query = ctx.request.query
+  }
+
   if (ctx.state.allData.lookupRequests) {
     dataToValidate.lookupRequests = ctx.state.allData.lookupRequests
   }
 
-  if (!dataToValidate.requestBody && !dataToValidate.lookupRequests) {
+  if (
+    !dataToValidate.requestBody &&
+    !dataToValidate.lookupRequests &&
+    !dataToValidate.query
+  ) {
+    logger.error(
+      `${ctx.state.metaData.name} (${ctx.state.uuid}): Validation Rules supplied but no data received to validate`
+    )
     throw new Error(`No data to validate`)
   }
 
@@ -46,6 +65,30 @@ const performValidation = ctx => {
   logger.info(
     `${ctx.state.metaData.name} (${ctx.state.uuid}): Successfully validated user input`
   )
+
+  if (ctx.request.headers && ctx.request.headers[OPENHIM_TRANSACTION_HEADER]) {
+    const orchestrationName = `Endpoint Validation: ${ctx.state.metaData.name}`
+    const validationEndTimestamp = new Date()
+    const response = {
+      body: valid
+    }
+    const error = null
+
+    if (!ctx.orchestrations) {
+      ctx.orchestrations = []
+    }
+
+    const orchestration = createOrchestration(
+      {data: dataToValidate},
+      response,
+      validationStartTimestamp,
+      validationEndTimestamp,
+      orchestrationName,
+      error
+    )
+
+    ctx.orchestrations.push(orchestration)
+  }
 }
 
 exports.validateBodyMiddleware = () => async (ctx, next) => {

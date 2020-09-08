@@ -18,7 +18,8 @@ exports.getConfig = function () {
         process.env.TRUST_SELF_SIGNED,
         true
       ),
-      register: parseStringToBoolean(process.env.OPENHIM_REGISTER, true)
+      register: parseStringToBoolean(process.env.OPENHIM_REGISTER, true),
+      urn: process.env.MEDIATOR_URN || 'urn:mediator:generic_mapper'
     }),
     parser: Object.freeze({
       limit: process.env.PARSER_LIMIT || '1mb',

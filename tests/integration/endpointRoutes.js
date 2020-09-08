@@ -46,6 +46,116 @@ tap.test(
         t.equals(result.body.pattern, testEndpoint.pattern)
         t.end()
       })
+
+      t.test(
+        'should fail to create when endpoint "patternRegex" already exists',
+        async t => {
+          const testEndpoint = {
+            name: 'Test Endpoint 0',
+            endpoint: {
+              pattern: '/test/name/:id/section/:code',
+              method: 'POST'
+            },
+            transformation: {
+              input: 'XML',
+              output: 'XML'
+            }
+          }
+
+          const duplicateEndpoint = {
+            name: 'Test Endpoint duplicate',
+            endpoint: {
+              pattern: '/test/name/:surname/section/:code'
+            },
+            transformation: {
+              input: 'XML',
+              output: 'XML'
+            }
+          }
+
+          // Add endpoint
+          await request(`http://localhost:${port}`)
+            .post('/endpoints')
+            .send(testEndpoint)
+            .set('Content-Type', 'application/json')
+            .expect(201)
+
+          const result = await request(`http://localhost:${port}`)
+            .post('/endpoints')
+            .send(duplicateEndpoint)
+            .set('Content-Type', 'application/json')
+            .expect(400)
+
+          t.ok(
+            result.body.error.match(
+              /Duplicate error: regex created from endpoint pattern /
+            )
+          )
+          t.end()
+        }
+      )
+
+      t.test(
+        'should fail to create when endpoint pattern is missing parameter name (internal path)',
+        async t => {
+          const testEndpoint = {
+            name: 'Test Endpoint 00',
+            endpoint: {
+              pattern: '/test/name/:/section/:coode',
+              method: 'POST'
+            },
+            transformation: {
+              input: 'XML',
+              output: 'XML'
+            }
+          }
+
+          const result = await request(`http://localhost:${port}`)
+            .post('/endpoints')
+            .send(testEndpoint)
+            .set('Content-Type', 'application/json')
+            .expect(400)
+
+          t.ok(
+            result.body.error.match(
+              'Invalid url parameters specified in pattern, url parameter specification format is "/:<PARAMETER_NAME>"'
+            )
+          )
+
+          t.end()
+        }
+      )
+
+      t.test(
+        'should fail to create when endpoint pattern is missing parameter name (end of path)',
+        async t => {
+          const testEndpoint = {
+            name: 'Test Endpoint 01',
+            endpoint: {
+              pattern: '/test/name/section/:',
+              method: 'POST'
+            },
+            transformation: {
+              input: 'XML',
+              output: 'XML'
+            }
+          }
+
+          const result = await request(`http://localhost:${port}`)
+            .post('/endpoints')
+            .send(testEndpoint)
+            .set('Content-Type', 'application/json')
+            .expect(400)
+
+          t.ok(
+            result.body.error.match(
+              'Invalid url parameters specified in pattern, url parameter specification format is "/:<PARAMETER_NAME>"'
+            )
+          )
+
+          t.end()
+        }
+      )
     })
 
     t.test('read endpoint route', {autoend: true}, t => {

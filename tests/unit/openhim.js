@@ -102,7 +102,7 @@ tap.test('constructOpenhimResponse()', {autoend: true}, t => {
 
     constructOpenhimResponse(ctx, timestamp)
 
-    t.deepEqual(expectedResponse, JSON.parse(ctx.body))
+    t.deepEqual(JSON.parse(ctx.body), expectedResponse)
     t.end()
   })
 })

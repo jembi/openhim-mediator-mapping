@@ -6,7 +6,10 @@ const KoaBodyParser = require('@viweei/koa-body-parser')
 const config = require('../config').getConfig()
 const logger = require('../logger')
 
-const {ALLOWED_CONTENT_TYPES} = require('../constants')
+const {
+  ALLOWED_CONTENT_TYPES,
+  OPENHIM_TRANSACTION_HEADER
+} = require('../constants')
 const {createOrchestration, setStatusText} = require('../orchestrations')
 const {constructOpenhimResponse} = require('../openhim')
 
@@ -25,18 +28,19 @@ const parseOutgoingBody = (ctx, outputFormat) => {
       ctx.body = xmlBuilder.buildObject(ctx.body)
       ctx.set('Content-Type', 'application/xml')
 
-      if (ctx.request.header && ctx.request.header['x-openhim-transactionid']) {
+      if (
+        ctx.request.headers &&
+        ctx.request.headers[OPENHIM_TRANSACTION_HEADER]
+      ) {
         const orchestrationName = 'Outgoing Parser'
         const parserEndTime = new Date()
         const response = {
           body: ctx.body
         }
-        const request = {}
         const error = null
 
         const orchestration = createOrchestration(
-          request,
-          body,
+          {data: body},
           response,
           parserStartTime,
           parserEndTime,
@@ -60,13 +64,10 @@ const parseOutgoingBody = (ctx, outputFormat) => {
   // Respond in openhim mediator format if request came from the openhim
   if (
     ctx.request &&
-    ctx.request.header &&
-    ctx.request.header['x-openhim-transactionid']
+    ctx.request.headers &&
+    ctx.request.headers[OPENHIM_TRANSACTION_HEADER]
   ) {
-    ctx.response.type = 'application/json+openhim'
-    const date = new Date()
-
-    constructOpenhimResponse(ctx, date)
+    constructOpenhimResponse(ctx, Date.now())
   }
 
   logger.info(
@@ -78,7 +79,12 @@ const parseIncomingBody = async (ctx, inputFormat) => {
   ctx.state.allData.query = ctx.request.query
 
   // parse incoming body if request is of type post only
-  if (ctx.request.method === 'GET' || ctx.request.method === 'DELETE') return
+  if (ctx.request.method === 'GET' || ctx.request.method === 'DELETE') {
+    logger.debug(
+      `${ctx.state.metaData.name} (${ctx.state.uuid}): Parsing skipped due to method type: ${ctx.request.method}`
+    )
+    return
+  }
 
   // KoaBodyParser executed the next() callback to allow the other middleware to continue before coming back here
   if (ALLOWED_CONTENT_TYPES.includes(inputFormat)) {
@@ -116,8 +122,8 @@ const parseIncomingBody = async (ctx, inputFormat) => {
         ctx.state.allData.requestBody = ctx.request.body
 
         if (
-          ctx.request.header &&
-          ctx.request.header['x-openhim-transactionid']
+          ctx.request.headers &&
+          ctx.request.headers[OPENHIM_TRANSACTION_HEADER]
         ) {
           if (inputFormat === 'XML') {
             const orchestrationName = 'Incoming Parser'
@@ -125,7 +131,6 @@ const parseIncomingBody = async (ctx, inputFormat) => {
             const response = {
               body: ctx.request.body
             }
-            const request = {}
             const error = null
 
             if (!ctx.orchestrations) {
@@ -133,8 +138,7 @@ const parseIncomingBody = async (ctx, inputFormat) => {
             }
 
             const orchestration = createOrchestration(
-              request,
-              ctx.request.raw_body,
+              {data: ctx.request.raw_body},
               response,
               parserStartTime,
               parserEndTime,
@@ -159,10 +163,19 @@ const parseIncomingBody = async (ctx, inputFormat) => {
 }
 
 exports.parseBodyMiddleware = () => async (ctx, next) => {
-  const inputContentType = ctx.state.metaData.transformation.input
-    ? ctx.state.metaData.transformation.input.toUpperCase()
-    : ''
-  const outputContentType = ctx.state.metaData.transformation.output.toUpperCase()
+  const inputContentType =
+    ctx.state.metaData &&
+    ctx.state.metaData.transformation &&
+    ctx.state.metaData.transformation.input
+      ? ctx.state.metaData.transformation.input.toUpperCase()
+      : ''
+  const outputContentType =
+    ctx.state.metaData &&
+    ctx.state.metaData.transformation &&
+    ctx.state.metaData.transformation.output
+      ? ctx.state.metaData.transformation.output.toUpperCase()
+      : ''
+
   try {
     // parse incoming body
     await parseIncomingBody(ctx, inputContentType)

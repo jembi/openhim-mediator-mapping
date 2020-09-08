@@ -9,6 +9,7 @@ const mockServerPort = 7756
 process.env.MONGO_URL = 'mongodb://localhost:27017/integrationTest'
 
 const {withTestMapperServer, withMockServer} = require('../utils')
+const {OPENHIM_TRANSACTION_HEADER} = require('../../src/constants')
 
 tap.test(
   'Integration Full Flow',
@@ -76,9 +77,11 @@ tap.test(
                       'Content-Type': 'application/json'
                     },
                     params: {
-                      id: {
-                        path: 'payload.patientId',
-                        prefix: 'Test:'
+                      query: {
+                        id: {
+                          path: 'payload.patientId',
+                          prefix: 'Test:'
+                        }
                       }
                     }
                   },
@@ -188,13 +191,13 @@ tap.test(
             .post('/integrationTest1')
             .send(requestData)
             .set('Content-Type', 'application/json')
-            .set('x-openhim-transactionid', 'requestUUID')
+            .set(OPENHIM_TRANSACTION_HEADER, 'requestUUID')
             .expect(response => {
               t.equals(
                 response.body.response.body,
                 '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<root/>'
               )
-              t.equals(response.body.orchestrations.length, 4)
+              t.equals(response.body.orchestrations.length, 5)
               t.equals(response.status, 201)
             })
         }
@@ -325,17 +328,67 @@ tap.test(
 
           await request(`http://localhost:${testMapperPort}`)
             .get('/integrationTest2')
-            .set('x-openhim-transactionid', 'requestUUID')
+            .set(OPENHIM_TRANSACTION_HEADER, 'requestUUID')
             .expect(response => {
               t.equals(
                 response.body.response.body,
                 '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<root/>'
               )
-              t.equals(response.body.orchestrations.length, 4)
+              t.equals(response.body.orchestrations.length, 5)
               t.equals(response.status, 201)
             })
         }
       )
+
+      t.test('Match on pattern that has url parameters', async t => {
+        const testEndpoint = {
+          name: 'Test Endpoints with url parameters',
+          endpoint: {
+            pattern: '/patient/:code/orgUnit/:id'
+          },
+          transformation: {
+            input: 'XML',
+            output: 'XML'
+          }
+        }
+
+        await request(`http://localhost:${testMapperPort}`)
+          .post('/endpoints')
+          .send(testEndpoint)
+          .set('Content-Type', 'application/json')
+          .expect(201)
+
+        // The mongoDB endpoint collection change listeners may take a few milliseconds to update the endpoint cache.
+        // This wouldn't be a problem in the normal use case as a user would not create an endpoint and
+        // immediately start posting to it within a few milliseconds. Therefore this timeout here should be fine...
+        await sleep(1000)
+
+        const requestData = '<xml><name>Parser</name></xml>'
+        // should fail regex will not match
+        await request(`http://localhost:${testMapperPort}`)
+          .post('/patient/12')
+          .set('Content-Type', 'application/xml')
+          .send(requestData)
+          .expect(404)
+
+        // should fail regex will not match
+        await request(`http://localhost:${testMapperPort}`)
+          .post('/patient/1233/orgUnit/')
+          .set('Content-Type', 'application/xml')
+          .send(requestData)
+          .expect(404)
+
+        await request(`http://localhost:${testMapperPort}`)
+          .post('/patient/1233/orgUnit/2334')
+          .send(requestData)
+          .set('Content-Type', 'application/xml')
+          .expect(200)
+          .then(response => {
+            t.match(response.text, /<name>Parser<\/name>/)
+          })
+
+        t.end()
+      })
     })
   )
 )

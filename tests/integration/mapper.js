@@ -7,6 +7,7 @@ const tap = require('tap')
 const port = 13004
 process.env.MONGO_URL = 'mongodb://localhost:27017/mappingTest'
 
+const {OPENHIM_TRANSACTION_HEADER} = require('../../src/constants')
 const {withTestMapperServer} = require('../utils')
 
 tap.test(
@@ -442,13 +443,20 @@ tap.test(
         let result = await request(`http://localhost:${port}`)
           .post('/mappingTestSuccess1')
           .send(requestData)
-          .set('x-openhim-transactionid', '1233333122')
+          .set(OPENHIM_TRANSACTION_HEADER, '1233333122')
           .expect(200)
 
         t.ok(result.body['x-mediator-urn'])
         t.equals(result.body.status, 'Successful')
-        t.equal(result.body.orchestrations.length, 2)
-        t.equal(result.body.orchestrations[1].name, 'Mapping')
+        t.equal(result.body.orchestrations.length, 3)
+        t.equal(
+          result.body.orchestrations[1].name,
+          'Endpoint Validation: Mapping Test Endpoint 1 (success)'
+        )
+        t.equal(
+          result.body.orchestrations[2].name,
+          'Endpoint Mapping: Mapping Test Endpoint 1 (success)'
+        )
         t.end()
       }
     )

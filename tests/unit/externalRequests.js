@@ -4,14 +4,15 @@ const nock = require('nock')
 const rewire = require('rewire')
 const tap = require('tap')
 
+const {OPENHIM_TRANSACTION_HEADER} = require('../../src/constants')
 const externalRequests = rewire('../../src/middleware/externalRequests')
 
 const prepareResponseRequests = externalRequests.__get__(
   'prepareResponseRequests'
 )
 const setKoaResponseBody = externalRequests.__get__('setKoaResponseBody')
-const setKoaResponseBodyFromPrimary = externalRequests.__get__(
-  'setKoaResponseBodyFromPrimary'
+const setKoaResponseBodyAndHeadersFromPrimary = externalRequests.__get__(
+  'setKoaResponseBodyAndHeadersFromPrimary'
 )
 const handleRequestError = externalRequests.__get__('handleRequestError')
 const addRequestQueryParameters = externalRequests.__get__(
@@ -23,6 +24,7 @@ const validateRequestStatusCode = externalRequests.__get__(
 const performRequests = externalRequests.__get__('performRequests')
 const prepareLookupRequests = externalRequests.__get__('prepareLookupRequests')
 const prepareRequestConfig = externalRequests.__get__('prepareRequestConfig')
+const resolveRequestUrl = externalRequests.__get__('resolveRequestUrl')
 
 tap.test('External Requests', {autoend: true}, t => {
   t.test('validateRequestStatusCode', {autoend: true}, t => {
@@ -60,7 +62,7 @@ tap.test('External Requests', {autoend: true}, t => {
       const requests = []
 
       performRequests(requests, ctx)
-      t.equals(!ctx.orchestrations, false)
+      t.ok(ctx.orchestrations)
       t.end()
     })
 
@@ -69,7 +71,7 @@ tap.test('External Requests', {autoend: true}, t => {
       const requests = []
 
       performRequests(requests, ctx)
-      t.equals(!ctx.orchestrations, false)
+      t.ok(ctx.orchestrations)
       t.end()
     })
 
@@ -110,9 +112,7 @@ tap.test('External Requests', {autoend: true}, t => {
             }
           },
           request: {
-            header: {
-              'x-openhim-transactionid': '1232244'
-            }
+            headers: {[OPENHIM_TRANSACTION_HEADER]: '1232244'}
           }
         }
 
@@ -163,9 +163,7 @@ tap.test('External Requests', {autoend: true}, t => {
             }
           },
           request: {
-            header: {
-              'x-openhim-transactionid': '1232244'
-            }
+            headers: {[OPENHIM_TRANSACTION_HEADER]: '1232244'}
           }
         }
 
@@ -182,7 +180,10 @@ tap.test('External Requests', {autoend: true}, t => {
     t.test('should do lookups and create orchestrations', async t => {
       const url = 'http://localhost:4000/'
 
-      nock(url).get('/patient').reply(200, 'Body')
+      nock(url)
+        .matchHeader(OPENHIM_TRANSACTION_HEADER, '1232244')
+        .get('/patient')
+        .reply(200, 'Body')
 
       const method = 'GET'
       const id = '123'
@@ -209,9 +210,7 @@ tap.test('External Requests', {autoend: true}, t => {
           }
         },
         request: {
-          header: {
-            'x-openhim-transactionid': '1232244'
-          }
+          headers: {[OPENHIM_TRANSACTION_HEADER]: '1232244'}
         }
       }
 
@@ -250,9 +249,7 @@ tap.test('External Requests', {autoend: true}, t => {
 
       const ctx = {
         request: {
-          header: {
-            'x-openhim-transactionid': '123'
-          }
+          headers: {[OPENHIM_TRANSACTION_HEADER]: '123'}
         },
         state: {
           allData: {
@@ -292,9 +289,7 @@ tap.test('External Requests', {autoend: true}, t => {
 
       const ctx = {
         request: {
-          header: {
-            'x-openhim-transactionid': '123'
-          }
+          headers: {[OPENHIM_TRANSACTION_HEADER]: '123'}
         },
         state: {
           allData: {
@@ -482,9 +477,7 @@ tap.test('External Requests', {autoend: true}, t => {
             }
           },
           request: {
-            header: {
-              'x-openhim-transactionid': '1232244'
-            }
+            headers: {[OPENHIM_TRANSACTION_HEADER]: '1232244'}
           },
           response: {
             headers: {}
@@ -540,9 +533,7 @@ tap.test('External Requests', {autoend: true}, t => {
           }
         },
         request: {
-          header: {
-            'x-openhim-transactionid': '1232244'
-          }
+          headers: {[OPENHIM_TRANSACTION_HEADER]: '1232244'}
         },
         response: {
           headers: {}
@@ -557,7 +548,11 @@ tap.test('External Requests', {autoend: true}, t => {
 
       const response = {name: 'raze', surname: 'breez'}
 
-      nock(url).put('/patient?name=raze').times(2).reply(200, response)
+      nock(url)
+        .matchHeader(OPENHIM_TRANSACTION_HEADER, '1232244')
+        .put('/patient?name=raze')
+        .times(2)
+        .reply(200, response)
 
       await prepareResponseRequests(ctx)
 
@@ -600,7 +595,7 @@ tap.test('External Requests', {autoend: true}, t => {
             }
           },
           request: {
-            header: {}
+            headers: {}
           },
           response: {
             headers: {}
@@ -833,6 +828,27 @@ tap.test('External Requests', {autoend: true}, t => {
       t.ok(requestConfig.validateStatus(300))
       t.end()
     })
+
+    t.test('should add url to request config object', t => {
+      const requestDetails = {
+        config: {
+          url: `localhost:8080`,
+          method: 'GET'
+        }
+      }
+      const requestBody = null
+      const queryParams = null
+      const requestUrl = 'localhost:8080/Patient'
+
+      const requestConfig = prepareRequestConfig(
+        requestDetails,
+        requestBody,
+        queryParams,
+        requestUrl
+      )
+      t.equals(requestConfig.url, requestUrl)
+      t.end()
+    })
   })
 
   t.test('setKoaResponseBody()', {autoend: true}, t => {
@@ -869,11 +885,19 @@ tap.test('External Requests', {autoend: true}, t => {
   t.test('setKoaResponseFromPrimary()', {autoend: true}, t => {
     t.test('should set the koa response', t => {
       const ctx = {
-        body: {}
+        body: {},
+        headers: {},
+        set: headers => {
+          ctx.headers = headers
+        }
       }
+      const status = 200
+      const headers = {'Content-Type': 'application/json'}
       const body = {message: 'success'}
 
-      setKoaResponseBodyFromPrimary(ctx, body)
+      setKoaResponseBodyAndHeadersFromPrimary(ctx, status, headers, body)
+      t.deepEqual(ctx.status, status)
+      t.deepEqual(ctx.headers, headers)
       t.deepEqual(ctx.body, body)
       t.equals(ctx.hasPrimaryRequest, true)
       t.end()
@@ -1006,12 +1030,29 @@ tap.test('External Requests', {autoend: true}, t => {
         state: {
           allData: {
             lookupRequests: {
-              children: '4'
+              children: 4
             },
             state: {
               lastAddress: '1 1st street'
             },
-            requestBody: 'body'
+            responseBody: {
+              brother: 'test'
+            },
+            urlParams: {
+              location: '12 street'
+            },
+            transforms: {
+              building: 'Burj Kalifa',
+              floor: 0,
+              extension: '',
+              moreInfo: null
+            },
+            constants: {
+              multiplier: '2'
+            },
+            timestamps: {
+              endpointStart: '2020-04-20T16:20.04.020Z'
+            }
           }
         },
         request: {
@@ -1043,36 +1084,59 @@ tap.test('External Requests', {autoend: true}, t => {
       const prefix = 'sir:'
       const request = {
         params: {
-          id: {
-            path: 'payload.id'
-          },
-          place: {
-            path: 'payload.place.address'
-          },
-          status: {
-            path: 'payload.status[1].rich.status[0].sp'
-          },
-          code: {
-            path: 'query.code'
-          },
-          name: {
-            path: 'query.name',
-            postfix,
-            prefix
-          },
-          surname: {
-            path: 'query.surname',
-            postfix,
-            prefix
-          },
-          lastAddress: {
-            path: 'state.lastAddress'
-          },
-          children: {
-            path: 'lookupRequests.children'
-          },
-          brothers: {
-            path: 'responseBody.brother'
+          query: {
+            id: {
+              path: 'payload.id'
+            },
+            place: {
+              path: 'payload.place.address'
+            },
+            status: {
+              path: 'payload.status[1].rich.status[0].sp'
+            },
+            code: {
+              path: 'query.code'
+            },
+            name: {
+              path: 'query.name',
+              postfix,
+              prefix
+            },
+            surname: {
+              path: 'query.surname',
+              postfix,
+              prefix
+            },
+            lastAddress: {
+              path: 'state.lastAddress'
+            },
+            children: {
+              path: 'lookupRequests.children'
+            },
+            brother: {
+              path: 'responseBody.brother'
+            },
+            location: {
+              path: 'urlParams.location'
+            },
+            building: {
+              path: 'transforms.building'
+            },
+            floor: {
+              path: 'transforms.floor'
+            },
+            extension: {
+              path: 'transforms.extension'
+            },
+            moreInfo: {
+              path: 'transforms.moreInfo'
+            },
+            multiplier: {
+              path: 'constants.multiplier'
+            },
+            time: {
+              path: 'timestamps.endpointStart'
+            }
           }
         }
       }
@@ -1084,9 +1148,20 @@ tap.test('External Requests', {autoend: true}, t => {
       t.equals(params.code, ctx.request.query.code)
       t.equals(params.status, ctx.request.body.status[1].rich.status[0].sp)
       t.equals(params.name, `${prefix + ctx.request.query.name + postfix}`)
-      t.equals(params.children, ctx.state.allData.lookupRequests.children)
-      t.equals(params.brothers, ctx.state.allData.requestBody.brother)
+      // Query params are strings therefore the digit will be converted
+      t.equals(params.floor, ctx.state.allData.transforms.floor.toString())
+      t.equals(
+        params.children,
+        ctx.state.allData.lookupRequests.children.toString()
+      )
+      t.equals(params.brother, ctx.state.allData.responseBody.brother)
       t.equals(params.lastAddress, ctx.state.allData.state.lastAddress)
+      t.equals(params.location, ctx.state.allData.urlParams.location)
+      t.equals(params.building, ctx.state.allData.transforms.building)
+      t.equals(params.extension, ctx.state.allData.transforms.extension)
+      t.equals(params.multiplier, ctx.state.allData.constants.multiplier)
+      t.equals(params.time, ctx.state.allData.timestamps.endpointStart)
+      t.notOk(params.moreInfo)
       t.end()
     })
 
@@ -1110,6 +1185,112 @@ tap.test('External Requests', {autoend: true}, t => {
         )
       }
 
+      t.end()
+    })
+  })
+
+  t.test('resolveRequestUrl', {autoend: true}, t => {
+    t.test('should return the request url if there are no url params', t => {
+      t.equals(
+        resolveRequestUrl({}, {url: 'http://test.org'}),
+        'http://test.org'
+      )
+      t.end()
+    })
+
+    t.test('should return the request url with url params replaced', t => {
+      const url = resolveRequestUrl(
+        {
+          request: {
+            body: {
+              test1: 'params',
+              test: {
+                '2': 'test'
+              }
+            }
+          }
+        },
+        {
+          url: 'http://test.org/url/:test1/are/fun/:test1/:test2/',
+          params: {
+            url: {
+              test1: {path: 'payload.test1'},
+              test2: {
+                path: 'payload.test.2',
+                prefix: 'to-',
+                postfix: '-thoroughly'
+              }
+            }
+          }
+        }
+      )
+      t.equals(
+        url,
+        'http://test.org/url/params/are/fun/params/to-test-thoroughly/'
+      )
+      t.end()
+    })
+
+    t.test(
+      'should return template value if parameter resolves to null or undefined',
+      t => {
+        const url = resolveRequestUrl(
+          {
+            request: {
+              body: {
+                test1: null,
+                test: {
+                  '2': undefined
+                }
+              }
+            }
+          },
+          {
+            url: 'http://test.org/url/:test1/are/fun/:test1/:test2/',
+            params: {
+              url: {
+                test1: {path: 'payload.test1'},
+                test2: {
+                  path: 'payload.test.2',
+                  prefix: 'to-',
+                  postfix: '-thoroughly'
+                }
+              }
+            }
+          }
+        )
+        t.equals(url, 'http://test.org/url/:test1/are/fun/:test1/:test2/')
+        t.end()
+      }
+    )
+
+    t.test('should return url with substituted in zero or empty quotes', t => {
+      const url = resolveRequestUrl(
+        {
+          request: {
+            body: {
+              test1: '',
+              test: {
+                '2': 0
+              }
+            }
+          }
+        },
+        {
+          url: 'http://test.org/url/:test1/are/fun/:test1/:test2/',
+          params: {
+            url: {
+              test1: {path: 'payload.test1'},
+              test2: {
+                path: 'payload.test.2',
+                prefix: 'to-',
+                postfix: '-thoroughly'
+              }
+            }
+          }
+        }
+      )
+      t.equals(url, 'http://test.org/url//are/fun//to-0-thoroughly/')
       t.end()
     })
   })

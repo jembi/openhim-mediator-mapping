@@ -7,7 +7,7 @@
 
 This Mapping mediator is a POC. It's function is to allow data validation, and mapping to allow communication between previously disparate systems. What makes it different from other existing mapping mediators is that it is generic. Users can define their own validation and mapping schemas for their specific use case. This is useful as it opens up Mapping Mediators to users without any coding knowledge.
 
-Please see our [docs](./docs/Setup.md) for setup more details.
+Please see our [docs](https://jembi.github.io/openhim-mediator-mapping/docs/setup) for setup more details.
 
 ## Prerequisite
 
@@ -22,56 +22,15 @@ To store endpoint data:
 
 This set up guide will make use of Docker to run the Mongo cluster and yarn to run the Mapping Mediator. The containers will connect with each other over a Docker Network.
 
-The easiest way to setup the mongo containers is to run these commands in a `docker-compose` script. To do this copy the code below into a file named `docker-compose.yml`
-
-```yaml
-version: '3.3'
-
-networks:
-  mapper-cluster-network:
-
-services:
-  mapper-mongo-1:
-    image: mongo:4.2
-    container_name: mapper-mongo-1
-    ports:
-      - "27017:27017"
-    networks:
-      - mapper-cluster-network
-    command:
-      - --replSet
-      - mapper-mongo-set
-
-  mapper-mongo-2:
-    image: mongo:4.2
-    container_name: mapper-mongo-2
-    ports:
-      - "27018:27017"
-    networks:
-      - mapper-cluster-network
-    command:
-      - --replSet
-      - mapper-mongo-set
-
-  mapper-mongo-3:
-    image: mongo:4.2
-    container_name: mapper-mongo-3
-    ports:
-      - "27019:27017"
-    networks:
-      - mapper-cluster-network
-    command:
-      - --replSet
-      - mapper-mongo-set
-```
+The easiest way to setup the mongo containers is to use a `docker-compose` script. One is provided in the repo (`docker-compose.deps.yml`)
 
 Run the script with the following command:
 
 ```sh
-docker-compose up -d
+docker-compose -f docker-compose.deps.yml up -d
 ```
 
-Once the containers have started up exec into one of the containers with the following command, `docker exec -it mapper-mongo-1 mongo`
+Next, setup the replica set. Once the containers have started up exec into one of the containers with the following command, `docker exec -it mapper-mongo-1 mongo`
 
 Inside the shell enter the following:
 
@@ -203,3 +162,7 @@ The following parameters relate to the Mongo Replica set:
 - `--network mapper-cluster-network`
 
   The Mapping Mediator Container needs to connect to the same Docker network on which the Mongo replica set communicates
+
+## Registering to the OpenHIM
+
+The mapping mediator like most other OpenHIM mediators can register to an instance of OpenHIM. This allows us to have a visual indication of the mediators in use. To register as a mediator you will has to set the environment variable OPENHIM_REGISTER to `true`. The default value for the variable is `true`. For multiple instances of the mediator to register to the same instance of the openHIM each mediator has to have a unique `urn`. You can set the `urn` using the environment variable MEDIATOR_URN.

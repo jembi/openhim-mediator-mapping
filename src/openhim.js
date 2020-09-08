@@ -26,6 +26,10 @@ const openhimConfig = Object.assign(
   configOptions.openhim
 )
 
+mediatorConfigJson = Object.assign({}, mediatorConfigJson, {
+  urn: configOptions.openhim.urn
+})
+
 const mediatorSetup = () => {
   mediatorUtils.registerMediator(openhimConfig, mediatorConfigJson, error => {
     if (error) {
@@ -48,6 +52,34 @@ exports.constructOpenhimResponse = (ctx, responseTimestamp) => {
   const orchestrations = ctx.orchestrations
   const statusText = ctx.statusText
   const respObject = {}
+
+  // content-type already defined by final primary request
+  if (response.type === 'application/json+openhim') {
+    if (orchestrations) {
+      if (response.body) {
+        if (
+          response.body.orchestrations &&
+          Array.isArray(response.body.orchestrations)
+        ) {
+          response.body.orchestrations = orchestrations.concat(
+            response.body.orchestrations
+          )
+        } else {
+          response.body.orchestrations = orchestrations
+        }
+      }
+    }
+
+    ctx.body =
+      typeof response.body === 'string'
+        ? response.body
+        : JSON.stringify(response.body)
+    return
+  }
+
+  // OpenHIM header not explicity set in response header
+  // Manually set OpenHIM header for processing
+  ctx.response.type = 'application/json+openhim'
 
   if (response) {
     if (response.headers) {

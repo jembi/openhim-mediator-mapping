@@ -44,7 +44,7 @@ The `meta.json` file contains the details involved for route setup. The followin
 
 #### Mapping Route Path
 
-This is the path on which the OpenHIM Mapping Mediator will listen to trigger a specific message mapping transformation.
+This is the path on which the OpenHIM Mapping Mediator will listen to trigger a specific message mapping transformation. The path is specified in the endpoint pattern property. Url parameters are supported. The URL parameters can be used in the external requests and in the mapping. A request that matches on a pattern like `/path/:parameter1/:parameter2` will have the values of these parameters available for use in the external requests and mapping under variable names `parameter1` and `parameter2`.
 
 #### Expected Input
 
@@ -72,19 +72,22 @@ This feature allows for data lookups from external services and the sending of t
     "lookup": [
       {
         "id": "1223",
+        "forwardExistingRequestBody": true,
         "config": {
           "method": "get",
           "url": "http://localhost:3444/encounters/",
           "params": {
-            "id": {
-              "path": "payload.id",
-              "prefix": "",
-              "postfix": ""
-            },
-            "address":{
-              "path": "query.location",
-              "prefix": "",
-              "postfix": ""
+            "query": {
+              "id": {
+                "path": "payload.id",
+                "prefix": "",
+                "postfix": ""
+              },
+              "address":{
+                "path": "query.location",
+                "prefix": "",
+                "postfix": ""
+              }
             }
           }
         }
@@ -97,15 +100,17 @@ This feature allows for data lookups from external services and the sending of t
           "method": "post",
           "url": "http://localhost:3456/encounters?msn=23",
           "params": {
-            "place":{
-              "path": "payload.location[0].code",
-              "prefix": "",
-              "postfix": ""
-            },
-            "code": {
-              "path": "query.unit",
-              "postfix": "",
-              "prefix": ""
+            "query": {
+              "place":{
+                "path": "payload.location[0].code",
+                "prefix": "",
+                "postfix": ""
+              },
+              "code": {
+                "path": "query.unit",
+                "postfix": "",
+                "prefix": ""
+              }
             }
           }
         }
@@ -123,7 +128,7 @@ There are two types of external requests, the `lookup` and the `response`. Query
     [
       { label: 'Lookup', value: 'lookup' },
       { label: 'Response', value: 'response' },
-      { label: 'Query population', value: 'query' },
+      { label: 'Query and URL parameters', value: 'query' },
     ]
   }>
   <TabItem value="lookup">
@@ -142,8 +147,10 @@ There are two types of external requests, the `lookup` and the `response`. Query
             "method": "get",
             "url": "http://localhost:3444/location/1",
             "params": {
-              "id": {
-                "path": "payload.id"
+              "query": {
+                "id": {
+                  "path": "payload.id"
+                }
               }
             }
           }
@@ -184,10 +191,13 @@ There are two types of external requests, the `lookup` and the `response`. Query
             "method": "get",
             "url": "http://localhost:3444/encounters/1",
             "params": {
-              "id": {
-                "path": "payload.id",
-                "prefix": "",
-                "postfix": ""
+              "query": {
+                "id": {
+                  "path": "payload.id",
+                  "prefix": "",
+                  "postfix": ""
+                }
+              }
             }
           }
         },
@@ -197,10 +207,12 @@ There are two types of external requests, the `lookup` and the `response`. Query
             "method": "get",
             "url": "http://localhost:3444/encounters/1",
             "params": {
-              "id": {
-                "path": "payload.id",
-                "prefix": "",
-                "postfix": ""
+              "query": {
+                "id": {
+                  "path": "payload.id",
+                  "prefix": "",
+                  "postfix": ""
+                }
               }
             },
             "primary": false
@@ -233,7 +245,7 @@ There are two types of external requests, the `lookup` and the `response`. Query
   </TabItem>
   <TabItems value="query">
 
-  The query parameters for the external requests can be populated from the incoming request's body and query object. The query parameters to be added can be specified in the `meta.json` as shown below in config params object
+  The query or URL parameters for the external requests can be populated from the incoming request's body and query object. The parameters to be added can be specified in the `meta.json` as shown below in config `params` object
 
   ```json
   {
@@ -243,12 +255,19 @@ There are two types of external requests, the `lookup` and the `response`. Query
           "id": "iscec",
           "config": {
             "method": "get",
-            "url": "http://localhost:3444/encounters/1",
+            "url": "http://localhost:3444/encounters/:encounterId",
             "params": {
-              "id": {
-                "path": "payload.id",
-                "prefix": "prefix",
-                "postfix": "postfix"
+              "query": {
+                "id": {
+                  "path": "payload.id",
+                  "prefix": "prefix",
+                  "postfix": "postfix"
+                }
+              },
+              "url": {
+                "encounterId": {
+                  "path": "payload.encounterId"
+                }
               }
             }
           }
@@ -264,11 +283,13 @@ There are two types of external requests, the `lookup` and the `response`. Query
   {
     "config": {
       "params": {
-        "id": {
-          "path": "payload.ids[0].nationalId"
-        },
-        "name": {
-          "path": "query.name"
+        "query": {
+          "id": {
+            "path": "payload.ids[0].nationalId"
+          },
+          "name": {
+            "path": "query.name"
+          }
         }
       }
     }
@@ -282,16 +303,45 @@ There are two types of external requests, the `lookup` and the `response`. Query
   ```json
   {
     "params": {
-      "filter": {
-        "path": "payload.facility_code",
-        "prefix": "code:",
-        "postfix": ":section:52"
+      "query": {
+        "filter": {
+          "path": "payload.facility_code",
+          "prefix": "code:",
+          "postfix": ":section:52"
+        }
       }
     }
   }
   ```
 
   If say the facility code in the payload is **1223**, the specification above will enable us to have a query parameter - **?filter=code:1223:section:52**
+
+  For URL parameter the name of the parameter must be included in the url with a `:` prefix. This parameter will be replaced in the URL at runtime with the value that you specify. For example:
+
+  ```json
+  {
+    "requests": {
+      "lookup": [
+        {
+          "id": "iscec",
+          "config": {
+            "method": "get",
+            "url": "http://localhost:3444/encounters/:encounterId",
+            "params": {
+              "url": {
+                "encounterId": {
+                  "path": "payload.encounterId"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+  ```
+
+  If the original request's payload had a `encounterId` property of `2442` then the url would become: `http://localhost:3444/encounters/2442`
   </TabItems>
 </Tabs>
 

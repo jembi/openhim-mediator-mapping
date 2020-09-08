@@ -5,6 +5,7 @@ const tap = require('tap')
 const sinon = require('sinon')
 
 const mapper = rewire('../../src/middleware/mapper')
+const {OPENHIM_TRANSACTION_HEADER} = require('../../src/constants')
 const createMappedObject = mapper.__get__('createMappedObject')
 
 tap.test('Mapper', {autoend: true}, t => {
@@ -211,9 +212,7 @@ tap.test('Mapper', {autoend: true}, t => {
       const ctx = {
         request: {
           body,
-          header: {
-            'x-openhim-transactionid': '1233'
-          }
+          headers: {[OPENHIM_TRANSACTION_HEADER]: '1233'}
         },
         state: {
           uuid: 'randomUidForRequest',
@@ -247,7 +246,7 @@ tap.test('Mapper', {autoend: true}, t => {
       createMappedObject(ctx)
 
       t.equals(ctx.orchestrations.length, 1)
-      t.equals(ctx.orchestrations[0].name, 'Mapping')
+      t.equals(ctx.orchestrations[0].name, 'Endpoint Mapping: Testing endpoint')
       t.deepEqual(ctx.orchestrations[0].response.body, JSON.stringify(expected))
       t.end()
     })
@@ -261,9 +260,7 @@ tap.test('Mapper', {autoend: true}, t => {
         const ctx = {
           request: {
             body,
-            header: {
-              'x-openhim-transactionid': '1233'
-            }
+            headers: {[OPENHIM_TRANSACTION_HEADER]: '1233'}
           },
           orchestrations: [], // empty array supplied
           state: {
@@ -298,7 +295,10 @@ tap.test('Mapper', {autoend: true}, t => {
         createMappedObject(ctx)
 
         t.equals(ctx.orchestrations.length, 1)
-        t.equals(ctx.orchestrations[0].name, 'Mapping')
+        t.equals(
+          ctx.orchestrations[0].name,
+          'Endpoint Mapping: Testing endpoint'
+        )
         t.deepEqual(
           ctx.orchestrations[0].response.body,
           JSON.stringify(expected)
