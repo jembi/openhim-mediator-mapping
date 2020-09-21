@@ -7,7 +7,7 @@ const logger = require('../logger')
 const {OPENHIM_TRANSACTION_HEADER} = require('../constants')
 
 const {createOrchestration} = require('../orchestrations')
-const {extractValueFromObject} = require('../util')
+const {extractValueFromObject, makeQuerablePromise} = require('../util')
 
 const validateRequestStatusCode = allowedStatuses => {
   const stringStatuses = allowedStatuses.map(String)
@@ -26,108 +26,156 @@ const validateRequestStatusCode = allowedStatuses => {
   }
 }
 
+const performRequest = async (requestDetails, ctx) => {
+  const reqTimestamp = DateTime.utc().toISO()
+  let responseTimestamp, orchestrationError, response
+
+  // capture the lookup request start time
+  ctx.state.allData.timestamps.lookupRequests[requestDetails.id] = {
+    requestStart: reqTimestamp
+  }
+
+  if (ctx.request.headers[OPENHIM_TRANSACTION_HEADER]) {
+    requestDetails.config.headers = Object.assign(
+      {
+        [OPENHIM_TRANSACTION_HEADER]:
+          ctx.request.headers[OPENHIM_TRANSACTION_HEADER]
+      },
+      requestDetails.config.headers
+    )
+  }
+
+  const requestParameters = addRequestQueryParameters(
+    ctx,
+    requestDetails.config
+  )
+  const requestUrl = resolveRequestUrl(ctx, requestDetails.config)
+  const body = requestDetails.forwardExistingRequestBody
+    ? ctx.request.body
+    : null
+
+  const axiosConfig = prepareRequestConfig(
+    requestDetails,
+    body,
+    requestParameters,
+    requestUrl
+  )
+
+  return axios(axiosConfig)
+    .then(res => {
+      response = res
+      response.body = res.data
+      responseTimestamp = DateTime.utc().toISO()
+
+      // capture the lookup request end time
+      ctx.state.allData.timestamps.lookupRequests[
+        requestDetails.id
+      ].requestEnd = responseTimestamp
+      ctx.state.allData.timestamps.lookupRequests[
+        requestDetails.id
+      ].requestDuration = DateTime.fromISO(responseTimestamp)
+        .diff(
+          DateTime.fromISO(
+            ctx.state.allData.timestamps.lookupRequests[requestDetails.id]
+              .requestStart
+          )
+        )
+        .toObject()
+
+      // Assign any data received from the response to the assigned ID in the context
+      return {[requestDetails.id]: res.data}
+    })
+    .catch(error => {
+      orchestrationError = error
+      logger.error(`Failed Request Config ${JSON.stringify(error.config)}`)
+
+      if (error.response) {
+        ctx.statusCode = error.response.status
+        throw new Error(
+          `Incorrect status code ${error.response.status}. ${error.response.data.message}`
+        )
+      } else if (error.request) {
+        throw new Error(
+          `No response from lookup '${requestDetails.id}'. ${error.message}`
+        )
+      } else {
+        ctx.statusCode = 500
+        // Something happened in setting up the request that triggered an Error
+        throw new Error(`Unhandled Error: ${error.message}`)
+      }
+    })
+    .finally(() => {
+      // For now these orchestrations are recorded when there are no failures
+      if (
+        ctx.request.headers &&
+        ctx.request.headers[OPENHIM_TRANSACTION_HEADER]
+      ) {
+        const orchestrationName = `Endpoint Lookup Request: ${ctx.state.metaData.name}: ${requestDetails.id}`
+        const orchestration = createOrchestration(
+          axiosConfig,
+          response,
+          reqTimestamp,
+          responseTimestamp,
+          orchestrationName,
+          orchestrationError
+        )
+
+        ctx.orchestrations.push(orchestration)
+      }
+    })
+}
+
 const performRequests = (requests, ctx) => {
   if (ctx && !ctx.orchestrations) {
     ctx.orchestrations = []
   }
 
-  return requests.map(requestDetails => {
-    const reqTimestamp = DateTime.utc().toISO()
-    let responseTimestamp, orchestrationError, response
+  return requests.map(async r => {
+    if (r.forEach) {
+      const items = extractParamValue(r.forEach.items, ctx)
+      const concurrency = r.forEach.concurrency || 1
 
-    // capture the lookup request start time
-    ctx.state.allData.timestamps.lookupRequests[requestDetails.id] = {
-      requestStart: reqTimestamp
-    }
+      const currentlyExecuting = []
+      const allPromises = []
 
-    if (ctx.request.headers[OPENHIM_TRANSACTION_HEADER]) {
-      requestDetails.config.headers = Object.assign(
-        {
-          [OPENHIM_TRANSACTION_HEADER]:
-            ctx.request.headers[OPENHIM_TRANSACTION_HEADER]
-        },
-        requestDetails.config.headers
+      for (const item of items) {
+        const itemRequest = Object.assign({}, r)
+        const itemCtx = Object.assign({}, ctx)
+
+        itemCtx.request.body = item
+        itemCtx.state.allData.item = item
+
+        const promise = makeQuerablePromise(
+          performRequest(itemRequest, itemCtx)
+        )
+        currentlyExecuting.push(promise)
+        allPromises.push(promise)
+
+        if (currentlyExecuting.length === concurrency) {
+          // wait for at least one promise to settle
+          await Promise.race(currentlyExecuting)
+          for (const [i, promise] of currentlyExecuting.entries()) {
+            if (promise.isSettled()) {
+              currentlyExecuting.splice(i, 1)
+            }
+          }
+        }
+      }
+
+      return Promise.all(allPromises).then(responses =>
+        responses.reduce(
+          (combinedRes, currRes) => {
+            if (currRes[r.id]) {
+              combinedRes[r.id].push(currRes[r.id])
+            }
+            return combinedRes
+          },
+          {[r.id]: []}
+        )
       )
     }
 
-    const requestParameters = addRequestQueryParameters(
-      ctx,
-      requestDetails.config
-    )
-    const requestUrl = resolveRequestUrl(ctx, requestDetails.config)
-    const body = requestDetails.forwardExistingRequestBody
-      ? ctx.request.body
-      : null
-
-    const axiosConfig = prepareRequestConfig(
-      requestDetails,
-      body,
-      requestParameters,
-      requestUrl
-    )
-
-    return axios(axiosConfig)
-      .then(res => {
-        response = res
-        response.body = res.data
-        responseTimestamp = DateTime.utc().toISO()
-
-        // capture the lookup request end time
-        ctx.state.allData.timestamps.lookupRequests[
-          requestDetails.id
-        ].requestEnd = responseTimestamp
-        ctx.state.allData.timestamps.lookupRequests[
-          requestDetails.id
-        ].requestDuration = DateTime.fromISO(responseTimestamp)
-          .diff(
-            DateTime.fromISO(
-              ctx.state.allData.timestamps.lookupRequests[requestDetails.id]
-                .requestStart
-            )
-          )
-          .toObject()
-
-        // Assign any data received from the response to the assigned ID in the context
-        return {[requestDetails.id]: res.data}
-      })
-      .catch(error => {
-        orchestrationError = error
-        logger.error(`Failed Request Config ${JSON.stringify(error.config)}`)
-
-        if (error.response) {
-          ctx.statusCode = error.response.status
-          throw new Error(
-            `Incorrect status code ${error.response.status}. ${error.response.data.message}`
-          )
-        } else if (error.request) {
-          throw new Error(
-            `No response from lookup '${requestDetails.id}'. ${error.message}`
-          )
-        } else {
-          ctx.statusCode = 500
-          // Something happened in setting up the request that triggered an Error
-          throw new Error(`Unhandled Error: ${error.message}`)
-        }
-      })
-      .finally(() => {
-        // For now these orchestrations are recorded when there are no failures
-        if (
-          ctx.request.headers &&
-          ctx.request.headers[OPENHIM_TRANSACTION_HEADER]
-        ) {
-          const orchestrationName = `Endpoint Lookup Request: ${ctx.state.metaData.name}: ${requestDetails.id}`
-          const orchestration = createOrchestration(
-            axiosConfig,
-            response,
-            reqTimestamp,
-            responseTimestamp,
-            orchestrationName,
-            orchestrationError
-          )
-
-          ctx.orchestrations.push(orchestration)
-        }
-      })
+    return performRequest(r, ctx)
   })
 }
 
@@ -432,7 +480,9 @@ const extractParamValue = (path, ctx) => {
   // remove the extractType property from path
   path = path.replace(`${extractType}.`, '')
 
-  switch (extractType) {
+  switch (
+    extractType // TODO Add support for item resolution
+  ) {
     case 'payload':
       return extractValueFromObject(ctx.request.body, path)
     case 'query':
