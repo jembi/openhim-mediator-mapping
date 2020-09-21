@@ -41,7 +41,9 @@ tap.test(
               req.on('data', chunk => {
                 t.equals(
                   chunk.toString(),
-                  '{"sex":"U","age":74,"names":["Palesa","Naadirah"],"familyName":"Van Wyk","nationality":"South Africa"}'
+                  `{"sex":"U","age":${Math.floor(
+                    (Date.now() - new Date('1945-09-03')) / 31556952000
+                  )},"names":["Palesa","Naadirah"],"familyName":"Van Wyk","nationality":"South Africa"}`
                 )
               })
 
