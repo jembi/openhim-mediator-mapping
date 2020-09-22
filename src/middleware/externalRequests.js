@@ -132,7 +132,18 @@ const performRequests = (requests, ctx) => {
 
   return requests.map(async r => {
     if (r.forEach) {
+      if (!r.forEach.items) {
+        throw new Error('forEach.items property must exist for forEach lookups')
+      }
+
       const items = extractParamValue(r.forEach.items, ctx)
+
+      if (!items || !Array.isArray(items)) {
+        throw new Error(
+          "forEach.items could not be found at the specified path or the resolved value isn't an array"
+        )
+      }
+
       const concurrency = r.forEach.concurrency || 1
 
       const currentlyExecuting = []
