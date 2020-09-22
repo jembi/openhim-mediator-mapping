@@ -480,9 +480,7 @@ const extractParamValue = (path, ctx) => {
   // remove the extractType property from path
   path = path.replace(`${extractType}.`, '')
 
-  switch (
-    extractType // TODO Add support for item resolution
-  ) {
+  switch (extractType) {
     case 'payload':
       return extractValueFromObject(ctx.request.body, path)
     case 'query':
@@ -501,6 +499,8 @@ const extractParamValue = (path, ctx) => {
       return extractValueFromObject(ctx.state.allData.constants, path)
     case 'timestamps':
       return extractValueFromObject(ctx.state.allData.timestamps, path)
+    case 'item':
+      return extractValueFromObject(ctx.state.allData.item, path)
     default:
       ctx.statusCode = 500
       throw new Error(
