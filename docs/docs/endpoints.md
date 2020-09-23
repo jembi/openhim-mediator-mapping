@@ -129,6 +129,7 @@ There are two types of external requests, the `lookup` and the `response`. Query
       { label: 'Lookup', value: 'lookup' },
       { label: 'Response', value: 'response' },
       { label: 'Query and URL parameters', value: 'query' },
+      { label: 'ForEach requests', value: 'forEach' },
     ]
   }>
   <TabItem value="lookup">
@@ -243,7 +244,7 @@ There are two types of external requests, the `lookup` and the `response`. Query
   ```
 
   </TabItem>
-  <TabItems value="query">
+  <TabItem value="query">
 
   The query or URL parameters for the external requests can be populated from the incoming request's body and query object. The parameters to be added can be specified in the `meta.json` as shown below in config `params` object
 
@@ -342,7 +343,58 @@ There are two types of external requests, the `lookup` and the `response`. Query
   ```
 
   If the original request's payload had a `encounterId` property of `2442` then the url would become: `http://localhost:3444/encounters/2442`
-  </TabItems>
+  </TabItem>
+
+  <TabItem value="forEach">
+
+  Both lookups and responses support ForEach requests. These are requests that are executed for each element in an array variable. The configuration for these requests if done using the `forEach` property on the request object as shown below:
+
+  ```js {5-8}
+  {
+    "lookup": [
+      {
+        "id": "test",
+        "forEach": {
+          "items": "payload.entry",
+          "concurrency": "2" // if not specified default to 1
+        },
+        "config": {
+        }
+      }
+    ]
+  }
+  ```
+
+  Configuration reference:
+
+  > `items` - this is the path to any stored variable which must resolve to an array, a request will fire for each array element
+
+  > `concurrency` - (optional) how many requests to execute at any one time, defaults to 1.
+
+  The current item in the list is also made available as a variable for the requests to use so that each request may be dynamic. E.g:
+
+  ```js {9,13}
+  {
+    id: 'fhirPatient',
+    forwardExistingRequestBody: true,
+    forEach: {
+      items: 'payload.test'
+    },
+    config: {
+      method: 'post',
+      url: `http://localhost:8080/Patient/:id`,
+      params: {
+        url: {
+          id: {
+            path: 'item.id'
+          }
+        }
+      }
+    }
+  }
+  ```
+
+  </TabItem>
 </Tabs>
 
 ### 2. Input Validation Schema
