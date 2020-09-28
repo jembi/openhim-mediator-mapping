@@ -58,7 +58,7 @@ tap.test(
         // The mongoDB endpoint collection change listeners may take a few milliseconds to update the endpoint cache.
         // This wouldn't be a problem in the normal use case as a user would not create an endpoint and
         // immediately start posting to it within a few milliseconds. Therefore this timeout here should be fine...
-        await sleep(1000)
+        await sleep(100)
 
         const requestData = {
           name: 'Taylor',
@@ -147,7 +147,7 @@ tap.test(
         // The mongoDB endpoint collection change listeners may take a few milliseconds to update the endpoint cache.
         // This wouldn't be a problem in the normal use case as a user would not create an endpoint and
         // immediately start posting to it within a few milliseconds. Therefore this timeout here should be fine...
-        await sleep(1000)
+        await sleep(100)
 
         const requestData = {
           name: 'Taylor',
@@ -243,7 +243,7 @@ tap.test(
       // The mongoDB endpoint collection change listeners may take a few milliseconds to update the endpoint cache.
       // This wouldn't be a problem in the normal use case as a user would not create an endpoint and
       // immediately start posting to it within a few milliseconds. Therefore this timeout here should be fine...
-      await sleep(1000)
+      await sleep(100)
 
       const requestData = {
         name: 'Taylor',
@@ -337,7 +337,7 @@ tap.test(
       // The mongoDB endpoint collection change listeners may take a few milliseconds to update the endpoint cache.
       // This wouldn't be a problem in the normal use case as a user would not create an endpoint and
       // immediately start posting to it within a few milliseconds. Therefore this timeout here should be fine...
-      await sleep(1000)
+      await sleep(100)
 
       const requestData = {
         name: 'Taylor',
@@ -432,7 +432,7 @@ tap.test(
         // The mongoDB endpoint collection change listeners may take a few milliseconds to update the endpoint cache.
         // This wouldn't be a problem in the normal use case as a user would not create an endpoint and
         // immediately start posting to it within a few milliseconds. Therefore this timeout here should be fine...
-        await sleep(1000)
+        await sleep(100)
 
         const requestData = {
           name: 'Taylor',

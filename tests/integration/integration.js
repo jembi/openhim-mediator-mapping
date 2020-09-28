@@ -41,7 +41,9 @@ tap.test(
               req.on('data', chunk => {
                 t.equals(
                   chunk.toString(),
-                  '{"sex":"U","age":74,"names":["Palesa","Naadirah"],"familyName":"Van Wyk","nationality":"South Africa"}'
+                  `{"sex":"U","age":${Math.floor(
+                    (Date.now() - new Date('1945-09-03')) / 31556952000
+                  )},"names":["Palesa","Naadirah"],"familyName":"Van Wyk","nationality":"South Africa"}`
                 )
               })
 
@@ -177,7 +179,7 @@ tap.test(
           // The mongoDB endpoint collection change listeners may take a few milliseconds to update the endpoint cache.
           // This wouldn't be a problem in the normal use case as a user would not create an endpoint and
           // immediately start posting to it within a few milliseconds. Therefore this timeout here should be fine...
-          await sleep(1000)
+          await sleep(100)
 
           const requestData = {
             firstName: 'Palesa',
@@ -324,7 +326,7 @@ tap.test(
           // The mongoDB endpoint collection change listeners may take a few milliseconds to update the endpoint cache.
           // This wouldn't be a problem in the normal use case as a user would not create an endpoint and
           // immediately start posting to it within a few milliseconds. Therefore this timeout here should be fine...
-          await sleep(1000)
+          await sleep(100)
 
           await request(`http://localhost:${testMapperPort}`)
             .get('/integrationTest2')
@@ -361,7 +363,7 @@ tap.test(
         // The mongoDB endpoint collection change listeners may take a few milliseconds to update the endpoint cache.
         // This wouldn't be a problem in the normal use case as a user would not create an endpoint and
         // immediately start posting to it within a few milliseconds. Therefore this timeout here should be fine...
-        await sleep(1000)
+        await sleep(100)
 
         const requestData = '<xml><name>Parser</name></xml>'
         // should fail regex will not match
