@@ -347,7 +347,7 @@ There are two types of external requests, the `lookup` and the `response`. Query
 
   <TabItem value="forEach">
 
-  Both lookups and responses support ForEach requests. These are requests that are executed for each element in an array variable. The configuration for these requests if done using the `forEach` property on the request object as shown below:
+  Both lookups and responses support ForEach requests. These are requests that are executed for each element in an array variable. The configuration for these requests is done using the `forEach` property on the request object as shown below:
 
   ```js {5-8}
   {
