@@ -58,6 +58,7 @@ const endpointSchema = new mongoose.Schema(
     inputTransforms: {},
     inputValidation: {},
     state: {
+      default: {},
       extract: {}
     }
   },
