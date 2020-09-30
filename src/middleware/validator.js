@@ -20,7 +20,10 @@ require('ajv-errors')(ajv /*, {singleError: true} */)
 const performValidation = ctx => {
   const validationStartTimestamp = new Date()
 
-  if (!ctx.state.metaData.inputValidation) {
+  if (
+    !ctx.state.metaData.inputValidation ||
+    !Object.keys(ctx.state.metaData.inputValidation).length
+  ) {
     logger.warn(
       `${ctx.state.metaData.name} (${ctx.state.uuid}): No validation rules supplied`
     )

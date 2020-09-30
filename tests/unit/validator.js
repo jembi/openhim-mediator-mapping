@@ -51,7 +51,19 @@ tap.test('Validation Middleware', {autoend: true}, t => {
             uuid: 'randomUidForRequest',
             metaData: {
               name: 'Testing endpoint',
-              inputValidation: {}
+              inputValidation: {
+                type: 'object',
+                properties: {
+                  requestBody: {
+                    type: 'object',
+                    properties: {
+                      name: {type: 'string'},
+                      surname: {type: 'string'}
+                    },
+                    required: ['name']
+                  }
+                }
+              }
             },
             allData: {
               lookupRequests: null
