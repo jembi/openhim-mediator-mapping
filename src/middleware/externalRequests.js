@@ -130,13 +130,13 @@ const performRequests = (requests, ctx) => {
     ctx.orchestrations = []
   }
 
-  return requests.map(async r => {
-    if (r.forEach) {
-      if (!r.forEach.items) {
+  return requests.map(async request => {
+    if (request.forEach) {
+      if (!request.forEach.items) {
         throw new Error('forEach.items property must exist for forEach lookups')
       }
 
-      const items = extractParamValue(r.forEach.items, ctx)
+      const items = extractParamValue(request.forEach.items, ctx)
 
       if (!items || !Array.isArray(items)) {
         throw new Error(
@@ -144,13 +144,13 @@ const performRequests = (requests, ctx) => {
         )
       }
 
-      const concurrency = r.forEach.concurrency || 1
+      const concurrency = request.forEach.concurrency || 1
 
       const currentlyExecuting = []
       const allPromises = []
 
       for (const item of items) {
-        const itemRequest = Object.assign({}, r)
+        const itemRequest = Object.assign({}, request)
         const itemCtx = Object.assign({}, ctx)
 
         itemCtx.request.body = item
@@ -165,9 +165,9 @@ const performRequests = (requests, ctx) => {
         if (currentlyExecuting.length === concurrency) {
           // wait for at least one promise to settle
           await Promise.race(currentlyExecuting)
-          for (const [i, promise] of currentlyExecuting.entries()) {
+          for (const [index, promise] of currentlyExecuting.entries()) {
             if (promise.isSettled()) {
-              currentlyExecuting.splice(i, 1)
+              currentlyExecuting.splice(index, 1)
             }
           }
         }
@@ -176,17 +176,17 @@ const performRequests = (requests, ctx) => {
       return Promise.all(allPromises).then(responses =>
         responses.reduce(
           (combinedRes, currRes) => {
-            if (currRes[r.id]) {
-              combinedRes[r.id].push(currRes[r.id])
+            if (currRes[request.id]) {
+              combinedRes[request.id].push(currRes[request.id])
             }
             return combinedRes
           },
-          {[r.id]: []}
+          {[request.id]: []}
         )
       )
     }
 
-    return performRequest(r, ctx)
+    return performRequest(request, ctx)
   })
 }
 
