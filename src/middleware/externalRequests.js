@@ -292,7 +292,7 @@ const performResponseRequests = (requests, ctx) => {
         requestUrl
       )
 
-      return sendMappedObject(ctx, axiosConfig, request)
+      return performResponseRequest(ctx, axiosConfig, request)
     }
   })
 }
@@ -420,7 +420,7 @@ const setKoaResponseBody = (ctx, request, body) => {
   }
 }
 
-const sendMappedObject = (ctx, axiosConfig, request) => {
+const performResponseRequest = (ctx, axiosConfig, request) => {
   const reqTimestamp = DateTime.utc().toISO()
   let response, orchestrationError, responseTimestamp
 
