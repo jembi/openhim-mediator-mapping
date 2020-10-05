@@ -125,6 +125,55 @@ const performLookupRequest = async (requestDetails, ctx) => {
     })
 }
 
+const performRequestArray = async (request, ctx, performRequest) => {
+  const items = extractParamValue(request.forEach.items, ctx)
+
+  if (!items || !Array.isArray(items)) {
+    throw new Error(
+      "forEach.items could not be found at the specified path or the resolved value isn't an array"
+    )
+  }
+
+  const concurrency = request.forEach.concurrency || 1
+
+  const currentlyExecuting = []
+  const allPromises = []
+
+  for (const item of items) {
+    const itemRequest = Object.assign({}, request)
+    const itemCtx = Object.assign({}, ctx)
+
+    itemCtx.request.body = item
+    itemCtx.state.allData.item = item
+
+    const promise = makeQuerablePromise(performRequest(itemRequest, itemCtx))
+    currentlyExecuting.push(promise)
+    allPromises.push(promise)
+
+    if (currentlyExecuting.length === concurrency) {
+      // wait for at least one promise to settle
+      await Promise.race(currentlyExecuting)
+      for (const [index, promise] of currentlyExecuting.entries()) {
+        if (promise.isSettled()) {
+          currentlyExecuting.splice(index, 1)
+        }
+      }
+    }
+  }
+
+  return Promise.all(allPromises).then(responses =>
+    responses.reduce(
+      (combinedRes, currRes) => {
+        if (currRes[request.id]) {
+          combinedRes[request.id].push(currRes[request.id])
+        }
+        return combinedRes
+      },
+      {[request.id]: []}
+    )
+  )
+}
+
 const performLookupRequests = (requests, ctx) => {
   if (ctx && !ctx.orchestrations) {
     ctx.orchestrations = []
@@ -136,54 +185,7 @@ const performLookupRequests = (requests, ctx) => {
         throw new Error('forEach.items property must exist for forEach lookups')
       }
 
-      const items = extractParamValue(request.forEach.items, ctx)
-
-      if (!items || !Array.isArray(items)) {
-        throw new Error(
-          "forEach.items could not be found at the specified path or the resolved value isn't an array"
-        )
-      }
-
-      const concurrency = request.forEach.concurrency || 1
-
-      const currentlyExecuting = []
-      const allPromises = []
-
-      for (const item of items) {
-        const itemRequest = Object.assign({}, request)
-        const itemCtx = Object.assign({}, ctx)
-
-        itemCtx.request.body = item
-        itemCtx.state.allData.item = item
-
-        const promise = makeQuerablePromise(
-          performLookupRequest(itemRequest, itemCtx)
-        )
-        currentlyExecuting.push(promise)
-        allPromises.push(promise)
-
-        if (currentlyExecuting.length === concurrency) {
-          // wait for at least one promise to settle
-          await Promise.race(currentlyExecuting)
-          for (const [index, promise] of currentlyExecuting.entries()) {
-            if (promise.isSettled()) {
-              currentlyExecuting.splice(index, 1)
-            }
-          }
-        }
-      }
-
-      return Promise.all(allPromises).then(responses =>
-        responses.reduce(
-          (combinedRes, currRes) => {
-            if (currRes[request.id]) {
-              combinedRes[request.id].push(currRes[request.id])
-            }
-            return combinedRes
-          },
-          {[request.id]: []}
-        )
-      )
+      return performRequestArray(request, ctx, performLookupRequest)
     }
 
     return performLookupRequest(request, ctx)
