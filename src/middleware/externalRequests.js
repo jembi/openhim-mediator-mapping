@@ -260,10 +260,6 @@ const performResponseRequests = (requests, ctx) => {
     requests[0].primary = true
   }
 
-  // Empty the koa response body. It contains the mapped data that is to be sent out
-  const body = ctx.body
-  ctx.body = {}
-
   return requests.map(request => {
     if (
       request &&
@@ -272,9 +268,6 @@ const performResponseRequests = (requests, ctx) => {
       request.config.method &&
       request.id
     ) {
-      const params = addRequestQueryParameters(ctx, request.config)
-      const requestUrl = resolveRequestUrl(ctx, request.config)
-
       if (ctx.request.headers[OPENHIM_TRANSACTION_HEADER]) {
         request.config.headers = Object.assign(
           {
@@ -285,14 +278,7 @@ const performResponseRequests = (requests, ctx) => {
         )
       }
 
-      const axiosConfig = prepareRequestConfig(
-        request,
-        body,
-        params,
-        requestUrl
-      )
-
-      return performResponseRequest(ctx, axiosConfig, request)
+      return performResponseRequest(ctx, request)
     }
   })
 }
@@ -420,7 +406,7 @@ const setKoaResponseBody = (ctx, request, body) => {
   }
 }
 
-const performResponseRequest = (ctx, axiosConfig, request) => {
+const performResponseRequest = (ctx, request) => {
   const reqTimestamp = DateTime.utc().toISO()
   let response, orchestrationError, responseTimestamp
 
@@ -428,6 +414,15 @@ const performResponseRequest = (ctx, axiosConfig, request) => {
   ctx.state.allData.timestamps.lookupRequests[request.id] = {
     requestStart: reqTimestamp
   }
+
+  // Empty the koa response body. It contains the mapped data that is to be sent out
+  const body = ctx.body
+  ctx.body = {}
+
+  const params = addRequestQueryParameters(ctx, request.config)
+  const requestUrl = resolveRequestUrl(ctx, request.config)
+
+  const axiosConfig = prepareRequestConfig(request, body, params, requestUrl)
 
   return axios(axiosConfig)
     .then(resp => {
