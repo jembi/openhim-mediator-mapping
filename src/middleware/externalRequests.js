@@ -125,7 +125,7 @@ const performRequest = async (requestDetails, ctx) => {
     })
 }
 
-const performRequests = (requests, ctx) => {
+const performLookupRequests = (requests, ctx) => {
   if (ctx && !ctx.orchestrations) {
     ctx.orchestrations = []
   }
@@ -193,7 +193,7 @@ const performRequests = (requests, ctx) => {
 const prepareLookupRequests = ctx => {
   const requests = Object.assign({}, ctx.state.metaData.requests)
   if (requests.lookup && requests.lookup.length > 0) {
-    const responseData = performRequests(requests.lookup, ctx)
+    const responseData = performLookupRequests(requests.lookup, ctx)
 
     return Promise.all(responseData)
       .then(data => {
