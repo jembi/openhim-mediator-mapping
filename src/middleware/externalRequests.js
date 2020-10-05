@@ -26,7 +26,7 @@ const validateRequestStatusCode = allowedStatuses => {
   }
 }
 
-const performRequest = async (requestDetails, ctx) => {
+const performLookupRequest = async (requestDetails, ctx) => {
   const reqTimestamp = DateTime.utc().toISO()
   let responseTimestamp, orchestrationError, response
 
@@ -157,7 +157,7 @@ const performLookupRequests = (requests, ctx) => {
         itemCtx.state.allData.item = item
 
         const promise = makeQuerablePromise(
-          performRequest(itemRequest, itemCtx)
+          performLookupRequest(itemRequest, itemCtx)
         )
         currentlyExecuting.push(promise)
         allPromises.push(promise)
@@ -186,7 +186,7 @@ const performLookupRequests = (requests, ctx) => {
       )
     }
 
-    return performRequest(request, ctx)
+    return performLookupRequest(request, ctx)
   })
 }
 
