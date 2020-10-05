@@ -128,6 +128,8 @@ const performLookupRequest = async (requestDetails, ctx) => {
 const performRequestArray = async (request, ctx, performRequest) => {
   const items = extractParamValue(request.forEach.items, ctx)
 
+  logger.error(`ITEMS::: ${JSON.stringify(items)}`)
+
   if (!items || !Array.isArray(items)) {
     throw new Error(
       "forEach.items could not be found at the specified path or the resolved value isn't an array"
@@ -280,6 +282,16 @@ const performResponseRequests = (requests, ctx) => {
         )
       }
 
+      if (request.forEach) {
+        if (!request.forEach.items) {
+          throw new Error(
+            'forEach.items property must exist for forEach response'
+          )
+        }
+
+        return performRequestArray(request, ctx, performResponseRequest)
+      }
+
       return performResponseRequest(ctx, request)
     }
   })
@@ -297,6 +309,7 @@ const prepareResponseRequests = async ctx => {
       requests.response.length
     ) {
       const promises = performResponseRequests(requests.response, ctx)
+
       await Promise.all(promises)
         .then(() => {
           logger.info(
