@@ -21,7 +21,7 @@ const addRequestQueryParameters = externalRequests.__get__(
 const validateRequestStatusCode = externalRequests.__get__(
   'validateRequestStatusCode'
 )
-const performRequests = externalRequests.__get__('performRequests')
+const performLookupRequests = externalRequests.__get__('performLookupRequests')
 const prepareLookupRequests = externalRequests.__get__('prepareLookupRequests')
 const prepareRequestConfig = externalRequests.__get__('prepareRequestConfig')
 const resolveRequestUrl = externalRequests.__get__('resolveRequestUrl')
@@ -56,12 +56,12 @@ tap.test('External Requests', {autoend: true}, t => {
     })
   })
 
-  t.test('performRequests', {autoend: true}, t => {
+  t.test('performLookupRequests', {autoend: true}, t => {
     t.test('should create orchestration object', t => {
       const ctx = {}
       const requests = []
 
-      performRequests(requests, ctx)
+      performLookupRequests(requests, ctx)
       t.ok(ctx.orchestrations)
       t.end()
     })
@@ -70,7 +70,7 @@ tap.test('External Requests', {autoend: true}, t => {
       const ctx = {}
       const requests = []
 
-      performRequests(requests, ctx)
+      performLookupRequests(requests, ctx)
       t.ok(ctx.orchestrations)
       t.end()
     })
@@ -117,7 +117,7 @@ tap.test('External Requests', {autoend: true}, t => {
         }
 
         try {
-          await Promise.all(performRequests(requests, ctx))
+          await Promise.all(performLookupRequests(requests, ctx))
         } catch (error) {
           t.equals(ctx.orchestrations.length, 1)
           t.match(
@@ -168,7 +168,7 @@ tap.test('External Requests', {autoend: true}, t => {
         }
 
         try {
-          await Promise.all(performRequests(requests, ctx))
+          await Promise.all(performLookupRequests(requests, ctx))
         } catch (error) {
           t.equals(ctx.orchestrations.length, 1)
           t.match(error.message, /Incorrect status code 400. Bad request/)
@@ -214,7 +214,7 @@ tap.test('External Requests', {autoend: true}, t => {
         }
       }
 
-      await Promise.all(performRequests(requests, ctx)).then(res => {
+      await Promise.all(performLookupRequests(requests, ctx)).then(res => {
         t.deepEqual(res[0], {'123': 'Body'})
         t.equals(ctx.orchestrations.length, 1)
         t.end()
@@ -625,8 +625,8 @@ tap.test('External Requests', {autoend: true}, t => {
       t.test('should throw an error if any promise in the array fails', t => {
         t.plan(2)
 
-        const performRequestsStub = externalRequests.__set__(
-          'performRequests',
+        const performLookupRequestsStub = externalRequests.__set__(
+          'performLookupRequests',
           () => [Promise.resolve('Success'), Promise.reject('Fail')]
         )
 
@@ -661,7 +661,7 @@ tap.test('External Requests', {autoend: true}, t => {
         )
 
         prepareLookupRequests(ctx).catch(err => {
-          performRequestsStub()
+          performLookupRequestsStub()
           t.type(err, Error)
           t.equal(err.message, 'Rejected Promise: Fail')
         })
@@ -672,8 +672,8 @@ tap.test('External Requests', {autoend: true}, t => {
         t => {
           t.plan(1)
 
-          const performRequestsStub = externalRequests.__set__(
-            'performRequests',
+          const performLookupRequestsStub = externalRequests.__set__(
+            'performLookupRequests',
             () => [
               Promise.resolve({test1: 'testA'}),
               Promise.resolve({test2: 'testB'})
@@ -715,7 +715,7 @@ tap.test('External Requests', {autoend: true}, t => {
               {test1: 'testA', test2: 'testB'},
               ctx.state.allData.lookupRequests
             )
-            performRequestsStub()
+            performLookupRequestsStub()
           })
         }
       )
@@ -725,8 +725,8 @@ tap.test('External Requests', {autoend: true}, t => {
       'should not reach the request making function is there is no lookup config',
       t => {
         let called = false
-        const performRequestsStub = externalRequests.__set__({
-          performRequests: () => {
+        const performLookupRequestsStub = externalRequests.__set__({
+          performLookupRequests: () => {
             called = true
           }
         })
@@ -756,8 +756,12 @@ tap.test('External Requests', {autoend: true}, t => {
 
         prepareLookupRequests(ctx)
 
-        performRequestsStub()
-        t.equals(called, false, 'performRequestsStub should not be called')
+        performLookupRequestsStub()
+        t.equals(
+          called,
+          false,
+          'performLookupRequestsStub should not be called'
+        )
         t.end()
       }
     )

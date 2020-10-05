@@ -246,6 +246,57 @@ const prepareRequestConfig = (
   return requestOptions
 }
 
+const performResponseRequests = (requests, ctx) => {
+  //Create orchestrations
+  if (!ctx.orchestrations) {
+    ctx.orchestrations = []
+  }
+
+  /*
+    Set the response request to be the primary
+    if there is only one response request
+  */
+  if (requests.length === 1) {
+    requests[0].primary = true
+  }
+
+  // Empty the koa response body. It contains the mapped data that is to be sent out
+  const body = ctx.body
+  ctx.body = {}
+
+  return requests.map(request => {
+    if (
+      request &&
+      request.config &&
+      request.config.url &&
+      request.config.method &&
+      request.id
+    ) {
+      const params = addRequestQueryParameters(ctx, request.config)
+      const requestUrl = resolveRequestUrl(ctx, request.config)
+
+      if (ctx.request.headers[OPENHIM_TRANSACTION_HEADER]) {
+        request.config.headers = Object.assign(
+          {
+            [OPENHIM_TRANSACTION_HEADER]:
+              ctx.request.headers[OPENHIM_TRANSACTION_HEADER]
+          },
+          request.config.headers
+        )
+      }
+
+      const axiosConfig = prepareRequestConfig(
+        request,
+        body,
+        params,
+        requestUrl
+      )
+
+      return sendMappedObject(ctx, axiosConfig, request)
+    }
+  })
+}
+
 // For now only json data is processed
 const prepareResponseRequests = async ctx => {
   const requests = ctx.state.metaData.requests
@@ -257,55 +308,7 @@ const prepareResponseRequests = async ctx => {
       Array.isArray(requests.response) &&
       requests.response.length
     ) {
-      //Create orchestrations
-      if (!ctx.orchestrations) {
-        ctx.orchestrations = []
-      }
-
-      /*
-        Set the response request to be the primary
-        if there is only one response request
-      */
-      if (requests.response.length === 1) {
-        requests.response[0].primary = true
-      }
-
-      // Empty the koa response body. It contains the mapped data that is to be sent out
-      const body = ctx.body
-      ctx.body = {}
-
-      const promises = requests.response.map(request => {
-        if (
-          request &&
-          request.config &&
-          request.config.url &&
-          request.config.method &&
-          request.id
-        ) {
-          const params = addRequestQueryParameters(ctx, request.config)
-          const requestUrl = resolveRequestUrl(ctx, request.config)
-
-          if (ctx.request.headers[OPENHIM_TRANSACTION_HEADER]) {
-            request.config.headers = Object.assign(
-              {
-                [OPENHIM_TRANSACTION_HEADER]:
-                  ctx.request.headers[OPENHIM_TRANSACTION_HEADER]
-              },
-              request.config.headers
-            )
-          }
-
-          const axiosConfig = prepareRequestConfig(
-            request,
-            body,
-            params,
-            requestUrl
-          )
-
-          return sendMappedObject(ctx, axiosConfig, request)
-        }
-      })
-
+      const promises = performResponseRequests(requests.response, ctx)
       await Promise.all(promises)
         .then(() => {
           logger.info(
