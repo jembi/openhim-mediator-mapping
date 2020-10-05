@@ -1172,6 +1172,65 @@ tap.test(
             })
         }
       )
+
+      t.test(
+        'requestMiddleware return 400 when forEach responseRequests have invalid options',
+        async t => {
+          t.plan(2)
+
+          const testEndpoint = {
+            name: 'External Request Test Endpoint 13',
+            endpoint: {
+              pattern: '/externalRequestTest13'
+            },
+            transformation: {
+              input: 'JSON',
+              output: 'JSON'
+            },
+            requests: {
+              response: [
+                {
+                  id: 'fhirPatient',
+                  forEach: {
+                    invalid: ''
+                  },
+                  config: {
+                    method: 'post',
+                    url: `http://localhost:${mockServerPort}/Patient`
+                  }
+                }
+              ]
+            }
+          }
+
+          await request(`http://localhost:${testMapperPort}`)
+            .post('/endpoints')
+            .send(testEndpoint)
+            .set('Content-Type', 'application/json')
+            .expect(201)
+
+          // The mongoDB endpoint collection change listeners may take a few milliseconds to update the endpoint cache.
+          // This wouldn't be a problem in the normal use case as a user would not create an endpoint and
+          // immediately start posting to it within a few milliseconds. Therefore this timeout here should be fine...
+          await sleep(100)
+
+          const requestData = {
+            test: [{id: 1}, {id: 2}, {id: 3}]
+          }
+
+          await request(`http://localhost:${testMapperPort}`)
+            .post('/externalRequestTest13')
+            .send(requestData)
+            .set('Content-Type', 'application/json')
+            .expect(response => {
+              t.equals(response.status, 400)
+              t.deepEquals(
+                response.body.error,
+                'forEach.items property must exist for forEach response'
+              )
+            })
+        }
+      )
     })
   )
 )
