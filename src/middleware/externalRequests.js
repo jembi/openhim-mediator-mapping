@@ -318,6 +318,7 @@ const prepareResponseRequests = async ctx => {
           logger.error(
             `${ctx.state.metaData.name} (${ctx.state.uuid}): Mapped object orchestration failure: ${error.message}`
           )
+          throw new Error(`Rejected Promise: ${error}`)
         })
     }
   }
