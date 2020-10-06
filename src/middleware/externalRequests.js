@@ -290,7 +290,7 @@ const performResponseRequests = (requests, ctx) => {
         return performRequestArray(request, ctx, performResponseRequest)
       }
 
-      return performResponseRequest(ctx, request)
+      return performResponseRequest(request, ctx)
     }
   })
 }
@@ -419,7 +419,7 @@ const setKoaResponseBody = (ctx, request, body) => {
   }
 }
 
-const performResponseRequest = (ctx, request) => {
+const performResponseRequest = (request, ctx) => {
   const reqTimestamp = DateTime.utc().toISO()
   let response, orchestrationError, responseTimestamp
 
