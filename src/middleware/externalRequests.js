@@ -419,12 +419,12 @@ const setKoaResponseBody = (ctx, request, body) => {
   }
 }
 
-const performResponseRequest = (request, ctx) => {
+const performResponseRequest = (requestDetails, ctx) => {
   const reqTimestamp = DateTime.utc().toISO()
   let response, orchestrationError, responseTimestamp
 
   // capture the lookup request start time
-  ctx.state.allData.timestamps.lookupRequests[request.id] = {
+  ctx.state.allData.timestamps.lookupRequests[requestDetails.id] = {
     requestStart: reqTimestamp
   }
 
@@ -432,10 +432,15 @@ const performResponseRequest = (request, ctx) => {
   const body = ctx.body
   ctx.body = {}
 
-  const params = addRequestQueryParameters(ctx, request.config)
-  const requestUrl = resolveRequestUrl(ctx, request.config)
+  const params = addRequestQueryParameters(ctx, requestDetails.config)
+  const requestUrl = resolveRequestUrl(ctx, requestDetails.config)
 
-  const axiosConfig = prepareRequestConfig(request, body, params, requestUrl)
+  const axiosConfig = prepareRequestConfig(
+    requestDetails,
+    body,
+    params,
+    requestUrl
+  )
 
   return axios(axiosConfig)
     .then(resp => {
@@ -445,19 +450,20 @@ const performResponseRequest = (request, ctx) => {
 
       // capture the lookup request end time
       ctx.state.allData.timestamps.lookupRequests[
-        request.id
+        requestDetails.id
       ].requestEnd = responseTimestamp
       ctx.state.allData.timestamps.lookupRequests[
-        request.id
+        requestDetails.id
       ].requestDuration = DateTime.fromISO(responseTimestamp)
         .diff(
           DateTime.fromISO(
-            ctx.state.allData.timestamps.lookupRequests[request.id].requestStart
+            ctx.state.allData.timestamps.lookupRequests[requestDetails.id]
+              .requestStart
           )
         )
         .toObject()
 
-      if (request.primary) {
+      if (requestDetails.primary) {
         setKoaResponseBodyAndHeadersFromPrimary(
           ctx,
           response.status,
@@ -465,13 +471,13 @@ const performResponseRequest = (request, ctx) => {
           response.body
         )
       } else {
-        setKoaResponseBody(ctx, request, response.body)
+        setKoaResponseBody(ctx, requestDetails, response.body)
       }
     })
     .catch(error => {
       responseTimestamp = DateTime.utc().toISO()
 
-      const result = handleRequestError(ctx, request, error)
+      const result = handleRequestError(ctx, requestDetails, error)
       response = result.response
       orchestrationError = result.error
     })
@@ -480,7 +486,7 @@ const performResponseRequest = (request, ctx) => {
         ctx.request.headers &&
         ctx.request.headers[OPENHIM_TRANSACTION_HEADER]
       ) {
-        const orchestrationName = `Endpoint Response Request: ${ctx.state.metaData.name}: ${request.id}`
+        const orchestrationName = `Endpoint Response Request: ${ctx.state.metaData.name}: ${requestDetails.id}`
         const orchestration = createOrchestration(
           axiosConfig,
           response,
