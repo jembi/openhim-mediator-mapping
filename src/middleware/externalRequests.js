@@ -128,8 +128,6 @@ const performLookupRequest = async (requestDetails, ctx) => {
 const performRequestArray = async (request, ctx, performRequest) => {
   const items = extractParamValue(request.forEach.items, ctx)
 
-  logger.error(`ITEMS::: ${JSON.stringify(items)}`)
-
   if (!items || !Array.isArray(items)) {
     throw new Error(
       "forEach.items could not be found at the specified path or the resolved value isn't an array"
