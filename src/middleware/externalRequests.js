@@ -266,6 +266,8 @@ const performResponseRequestArray = async (request, ctx) => {
 
   for (const item of items) {
     const itemRequest = Object.assign({}, request)
+    // Prevent array requests being used as the primary
+    itemRequest.primary = false
     const itemCtx = Object.assign({}, ctx)
 
     itemCtx.body = item
@@ -325,6 +327,14 @@ const performResponseRequests = (requests, ctx) => {
         )
       }
 
+      /*
+        Set the response request to be the primary
+        if there is only one response request
+      */
+      if (requests.length === 1) {
+        requests[0].primary = true
+      }
+
       if (request.forEach) {
         if (!request.forEach.items) {
           throw new Error(
@@ -337,14 +347,6 @@ const performResponseRequests = (requests, ctx) => {
         ctx.body = {}
 
         return performResponseRequestArray(request, ctx)
-      }
-
-      /*
-        Set the response request to be the primary
-        if there is only one response request
-      */
-      if (requests.length === 1) {
-        requests[0].primary = true
       }
 
       return performResponseRequest(request, ctx)
