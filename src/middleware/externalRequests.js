@@ -125,7 +125,7 @@ const performLookupRequest = async (requestDetails, ctx) => {
     })
 }
 
-const performRequestArray = async (request, ctx, performRequest) => {
+const performLookupRequestArray = async (request, ctx) => {
   const items = extractParamValue(request.forEach.items, ctx)
 
   if (!items || !Array.isArray(items)) {
@@ -146,7 +146,9 @@ const performRequestArray = async (request, ctx, performRequest) => {
     itemCtx.request.body = item
     itemCtx.state.allData.item = item
 
-    const promise = makeQuerablePromise(performRequest(itemRequest, itemCtx))
+    const promise = makeQuerablePromise(
+      performLookupRequest(itemRequest, itemCtx)
+    )
     currentlyExecuting.push(promise)
     allPromises.push(promise)
 
