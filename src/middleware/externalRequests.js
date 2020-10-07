@@ -251,6 +251,10 @@ const prepareRequestConfig = (
 }
 
 const performResponseRequestArray = async (request, ctx) => {
+  // Empty the koa response body. It contains the mapped data that is to be sent out.
+  // This data will be replaced with the array item value
+  ctx.body = {}
+
   const items = extractParamValue(request.forEach.items, ctx)
 
   if (!items || !Array.isArray(items)) {
@@ -341,10 +345,6 @@ const performResponseRequests = (requests, ctx) => {
             'forEach.items property must exist for forEach response'
           )
         }
-
-        // Empty the koa response body. It contains the mapped data that is to be sent out.
-        // This data will be replaced with the array item value
-        ctx.body = {}
 
         return performResponseRequestArray(request, ctx)
       }
