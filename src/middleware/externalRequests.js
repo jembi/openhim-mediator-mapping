@@ -307,14 +307,6 @@ const performResponseRequests = (requests, ctx) => {
     ctx.orchestrations = []
   }
 
-  /*
-    Set the response request to be the primary
-    if there is only one response request
-  */
-  if (requests.length === 1) {
-    requests[0].primary = true
-  }
-
   return requests.map(request => {
     if (
       request &&
@@ -340,7 +332,19 @@ const performResponseRequests = (requests, ctx) => {
           )
         }
 
-        return performRequestArray(request, ctx, performResponseRequest)
+        // Empty the koa response body. It contains the mapped data that is to be sent out.
+        // This data will be replaced with the array item value
+        ctx.body = {}
+
+        return performResponseRequestArray(request, ctx)
+      }
+
+      /*
+        Set the response request to be the primary
+        if there is only one response request
+      */
+      if (requests.length === 1) {
+        requests[0].primary = true
       }
 
       return performResponseRequest(request, ctx)
@@ -527,6 +531,7 @@ const performResponseRequest = (requestDetails, ctx) => {
       } else {
         setKoaResponseBody(ctx, requestDetails, response.body)
       }
+      return {[requestDetails.id]: resp.data}
     })
     .catch(error => {
       responseTimestamp = DateTime.utc().toISO()
