@@ -61,7 +61,7 @@ tap.test('External Requests', {autoend: true}, t => {
       const ctx = {}
       const requests = []
 
-      performLookupRequests(requests, ctx)
+      performLookupRequests(ctx, requests)
       t.ok(ctx.orchestrations)
       t.end()
     })
@@ -70,7 +70,7 @@ tap.test('External Requests', {autoend: true}, t => {
       const ctx = {}
       const requests = []
 
-      performLookupRequests(requests, ctx)
+      performLookupRequests(ctx, requests)
       t.ok(ctx.orchestrations)
       t.end()
     })
@@ -117,7 +117,7 @@ tap.test('External Requests', {autoend: true}, t => {
         }
 
         try {
-          await Promise.all(performLookupRequests(requests, ctx))
+          await Promise.all(performLookupRequests(ctx, requests))
         } catch (error) {
           t.equals(ctx.orchestrations.length, 1)
           t.match(
@@ -168,7 +168,7 @@ tap.test('External Requests', {autoend: true}, t => {
         }
 
         try {
-          await Promise.all(performLookupRequests(requests, ctx))
+          await Promise.all(performLookupRequests(ctx, requests))
         } catch (error) {
           t.equals(ctx.orchestrations.length, 1)
           t.match(error.message, /Incorrect status code 400. Bad request/)
@@ -214,7 +214,7 @@ tap.test('External Requests', {autoend: true}, t => {
         }
       }
 
-      await Promise.all(performLookupRequests(requests, ctx)).then(res => {
+      await Promise.all(performLookupRequests(ctx, requests)).then(res => {
         t.deepEqual(res[0], {'123': 'Body'})
         t.equals(ctx.orchestrations.length, 1)
         t.end()

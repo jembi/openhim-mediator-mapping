@@ -26,7 +26,7 @@ const validateRequestStatusCode = allowedStatuses => {
   }
 }
 
-const performLookupRequest = async (requestDetails, ctx) => {
+const performLookupRequest = async (ctx, requestDetails) => {
   const reqTimestamp = DateTime.utc().toISO()
   let responseTimestamp, orchestrationError, response
 
@@ -125,7 +125,7 @@ const performLookupRequest = async (requestDetails, ctx) => {
     })
 }
 
-const performLookupRequestArray = async (request, ctx) => {
+const performLookupRequestArray = async (ctx, request) => {
   const items = extractParamValue(request.forEach.items, ctx)
 
   if (!items || !Array.isArray(items)) {
@@ -147,7 +147,7 @@ const performLookupRequestArray = async (request, ctx) => {
     itemCtx.state.allData.item = item
 
     const promise = makeQuerablePromise(
-      performLookupRequest(itemRequest, itemCtx)
+      performLookupRequest(itemCtx, itemRequest)
     )
     currentlyExecuting.push(promise)
     allPromises.push(promise)
@@ -176,7 +176,7 @@ const performLookupRequestArray = async (request, ctx) => {
   )
 }
 
-const performLookupRequests = (requests, ctx) => {
+const performLookupRequests = (ctx, requests) => {
   if (ctx && !ctx.orchestrations) {
     ctx.orchestrations = []
   }
@@ -187,17 +187,17 @@ const performLookupRequests = (requests, ctx) => {
         throw new Error('forEach.items property must exist for forEach lookups')
       }
 
-      return performLookupRequestArray(request, ctx)
+      return performLookupRequestArray(ctx, request)
     }
 
-    return performLookupRequest(request, ctx)
+    return performLookupRequest(ctx, request)
   })
 }
 
 const prepareLookupRequests = ctx => {
   const requests = Object.assign({}, ctx.state.metaData.requests)
   if (requests.lookup && requests.lookup.length > 0) {
-    const responseData = performLookupRequests(requests.lookup, ctx)
+    const responseData = performLookupRequests(ctx, requests.lookup)
 
     return Promise.all(responseData)
       .then(data => {
@@ -250,7 +250,7 @@ const prepareRequestConfig = (
   return requestOptions
 }
 
-const performResponseRequestArray = async (request, ctx) => {
+const performResponseRequestArray = async (ctx, request) => {
   // Empty the koa response body. It contains the mapped data that is to be sent out.
   // This data will be replaced with the array item value
   ctx.body = {}
@@ -278,7 +278,7 @@ const performResponseRequestArray = async (request, ctx) => {
     itemCtx.state.allData.item = item
 
     const promise = makeQuerablePromise(
-      performResponseRequest(itemRequest, itemCtx)
+      performResponseRequest(itemCtx, itemRequest)
     )
     currentlyExecuting.push(promise)
     allPromises.push(promise)
@@ -307,7 +307,7 @@ const performResponseRequestArray = async (request, ctx) => {
   })
 }
 
-const performResponseRequests = (requests, ctx) => {
+const performResponseRequests = (ctx, requests) => {
   //Create orchestrations
   if (!ctx.orchestrations) {
     ctx.orchestrations = []
@@ -346,10 +346,10 @@ const performResponseRequests = (requests, ctx) => {
           )
         }
 
-        return performResponseRequestArray(request, ctx)
+        return performResponseRequestArray(ctx, request)
       }
 
-      return performResponseRequest(request, ctx)
+      return performResponseRequest(ctx, request)
     }
   })
 }
@@ -365,7 +365,7 @@ const prepareResponseRequests = async ctx => {
       Array.isArray(requests.response) &&
       requests.response.length
     ) {
-      const promises = performResponseRequests(requests.response, ctx)
+      const promises = performResponseRequests(ctx, requests.response)
 
       await Promise.all(promises)
         .then(() => {
@@ -479,7 +479,7 @@ const setKoaResponseBody = (ctx, request, body) => {
   }
 }
 
-const performResponseRequest = (requestDetails, ctx) => {
+const performResponseRequest = (ctx, requestDetails) => {
   const reqTimestamp = DateTime.utc().toISO()
   let response, orchestrationError, responseTimestamp
 
