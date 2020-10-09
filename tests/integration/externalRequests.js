@@ -1172,6 +1172,201 @@ tap.test(
             })
         }
       )
+
+      t.test(
+        'requestMiddleware return 400 when forEach responseRequests have invalid options',
+        async t => {
+          t.plan(2)
+
+          const testEndpoint = {
+            name: 'External Request Test Endpoint 13',
+            endpoint: {
+              pattern: '/externalRequestTest13'
+            },
+            transformation: {
+              input: 'JSON',
+              output: 'JSON'
+            },
+            requests: {
+              response: [
+                {
+                  id: 'fhirPatient',
+                  forEach: {
+                    invalid: ''
+                  },
+                  config: {
+                    method: 'post',
+                    url: `http://localhost:${mockServerPort}/Patient`
+                  }
+                }
+              ]
+            }
+          }
+
+          await request(`http://localhost:${testMapperPort}`)
+            .post('/endpoints')
+            .send(testEndpoint)
+            .set('Content-Type', 'application/json')
+            .expect(201)
+
+          // The mongoDB endpoint collection change listeners may take a few milliseconds to update the endpoint cache.
+          // This wouldn't be a problem in the normal use case as a user would not create an endpoint and
+          // immediately start posting to it within a few milliseconds. Therefore this timeout here should be fine...
+          await sleep(100)
+
+          const requestData = {
+            test: [{id: 1}, {id: 2}, {id: 3}]
+          }
+
+          await request(`http://localhost:${testMapperPort}`)
+            .post('/externalRequestTest13')
+            .send(requestData)
+            .set('Content-Type', 'application/json')
+            .expect(response => {
+              t.equals(response.status, 400)
+              t.deepEquals(
+                response.body.error,
+                'forEach.items property must exist for forEach response'
+              )
+            })
+        }
+      )
+
+      t.test(
+        'requestMiddleware return 400 when forEach responseRequests have invalid options',
+        async t => {
+          t.plan(2)
+
+          const testEndpoint = {
+            name: 'External Request Test Endpoint 15',
+            endpoint: {
+              pattern: '/externalRequestTest15'
+            },
+            transformation: {
+              input: 'JSON',
+              output: 'JSON'
+            },
+            requests: {
+              response: [
+                {
+                  id: 'fhirPatient',
+                  forEach: {
+                    items: 'payload.test'
+                  },
+                  config: {
+                    method: 'post',
+                    url: `http://localhost:${mockServerPort}/Patient`
+                  }
+                }
+              ]
+            }
+          }
+
+          await request(`http://localhost:${testMapperPort}`)
+            .post('/endpoints')
+            .send(testEndpoint)
+            .set('Content-Type', 'application/json')
+            .expect(201)
+
+          // The mongoDB endpoint collection change listeners may take a few milliseconds to update the endpoint cache.
+          // This wouldn't be a problem in the normal use case as a user would not create an endpoint and
+          // immediately start posting to it within a few milliseconds. Therefore this timeout here should be fine...
+          await sleep(100)
+
+          const requestData = {
+            test: {not: 'array'}
+          }
+
+          await request(`http://localhost:${testMapperPort}`)
+            .post('/externalRequestTest15')
+            .send(requestData)
+            .set('Content-Type', 'application/json')
+            .expect(response => {
+              t.equals(response.status, 400)
+              t.deepEquals(
+                response.body.error,
+                "Rejected Promise: Error: forEach.items could not be found at the specified path or the resolved value isn't an array"
+              )
+            })
+        }
+      )
+
+      t.test(
+        'requestMiddleware should allow forEach requests to use the item state as a parameter',
+        async t => {
+          t.plan(1)
+          server.on('request', async (req, res) => {
+            if (req.method === 'POST' && req.url.startsWith('/Patient/')) {
+              res.writeHead(200, {'Content-Type': 'application/json'})
+              req.pipe(res)
+              return
+            }
+            res.writeHead(404)
+            res.end()
+            return
+          })
+
+          const testEndpoint = {
+            name: 'External Request Test Endpoint 14',
+            endpoint: {
+              pattern: '/externalRequestTest14'
+            },
+            transformation: {
+              input: 'JSON',
+              output: 'JSON'
+            },
+            requests: {
+              response: [
+                {
+                  id: 'fhirPatient',
+                  primary: true,
+                  forEach: {
+                    items: 'payload.test'
+                  },
+                  config: {
+                    method: 'post',
+                    url: `http://localhost:${mockServerPort}/Patient/:id`,
+                    params: {
+                      url: {
+                        id: {
+                          path: 'item.id'
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+
+          await request(`http://localhost:${testMapperPort}`)
+            .post('/endpoints')
+            .send(testEndpoint)
+            .set('Content-Type', 'application/json')
+            .expect(201)
+
+          // The mongoDB endpoint collection change listeners may take a few milliseconds to update the endpoint cache.
+          // This wouldn't be a problem in the normal use case as a user would not create an endpoint and
+          // immediately start posting to it within a few milliseconds. Therefore this timeout here should be fine...
+          await sleep(100)
+
+          const requestData = {
+            test: [{id: 111}, {id: 222}, {id: 333}]
+          }
+
+          await request(`http://localhost:${testMapperPort}`)
+            .post('/externalRequestTest14')
+            .send(requestData)
+            .set('Content-Type', 'application/json')
+            .expect(response => {
+              t.deepEquals(response.body, {
+                fhirPatient: {
+                  fhirPatient: [{id: 111}, {id: 222}, {id: 333}]
+                }
+              })
+            })
+        }
+      )
     })
   )
 )

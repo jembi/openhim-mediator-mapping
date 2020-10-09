@@ -26,7 +26,7 @@ const validateRequestStatusCode = allowedStatuses => {
   }
 }
 
-const performRequest = async (requestDetails, ctx) => {
+const performLookupRequest = async (ctx, requestDetails) => {
   const reqTimestamp = DateTime.utc().toISO()
   let responseTimestamp, orchestrationError, response
 
@@ -125,75 +125,79 @@ const performRequest = async (requestDetails, ctx) => {
     })
 }
 
-const performRequests = (requests, ctx) => {
+const performLookupRequestArray = async (ctx, request) => {
+  const items = extractParamValue(request.forEach.items, ctx)
+
+  if (!items || !Array.isArray(items)) {
+    throw new Error(
+      "forEach.items could not be found at the specified path or the resolved value isn't an array"
+    )
+  }
+
+  const concurrency = request.forEach.concurrency || 1
+
+  const currentlyExecuting = []
+  const allPromises = []
+
+  for (const item of items) {
+    const itemRequest = Object.assign({}, request)
+    const itemCtx = Object.assign({}, ctx)
+
+    itemCtx.request.body = item
+    itemCtx.state.allData.item = item
+
+    const promise = makeQuerablePromise(
+      performLookupRequest(itemCtx, itemRequest)
+    )
+    currentlyExecuting.push(promise)
+    allPromises.push(promise)
+
+    if (currentlyExecuting.length === concurrency) {
+      // wait for at least one promise to settle
+      await Promise.race(currentlyExecuting)
+      for (const [index, promise] of currentlyExecuting.entries()) {
+        if (promise.isSettled()) {
+          currentlyExecuting.splice(index, 1)
+        }
+      }
+    }
+  }
+
+  return Promise.all(allPromises).then(responses =>
+    responses.reduce(
+      (combinedRes, currRes) => {
+        if (currRes && currRes[request.id]) {
+          combinedRes[request.id].push(currRes[request.id])
+        }
+        return combinedRes
+      },
+      {[request.id]: []}
+    )
+  )
+}
+
+const performLookupRequests = (ctx, requests) => {
   if (ctx && !ctx.orchestrations) {
     ctx.orchestrations = []
   }
 
-  return requests.map(async r => {
-    if (r.forEach) {
-      if (!r.forEach.items) {
+  return requests.map(async request => {
+    if (request.forEach) {
+      if (!request.forEach.items) {
         throw new Error('forEach.items property must exist for forEach lookups')
       }
 
-      const items = extractParamValue(r.forEach.items, ctx)
-
-      if (!items || !Array.isArray(items)) {
-        throw new Error(
-          "forEach.items could not be found at the specified path or the resolved value isn't an array"
-        )
-      }
-
-      const concurrency = r.forEach.concurrency || 1
-
-      const currentlyExecuting = []
-      const allPromises = []
-
-      for (const item of items) {
-        const itemRequest = Object.assign({}, r)
-        const itemCtx = Object.assign({}, ctx)
-
-        itemCtx.request.body = item
-        itemCtx.state.allData.item = item
-
-        const promise = makeQuerablePromise(
-          performRequest(itemRequest, itemCtx)
-        )
-        currentlyExecuting.push(promise)
-        allPromises.push(promise)
-
-        if (currentlyExecuting.length === concurrency) {
-          // wait for at least one promise to settle
-          await Promise.race(currentlyExecuting)
-          for (const [i, promise] of currentlyExecuting.entries()) {
-            if (promise.isSettled()) {
-              currentlyExecuting.splice(i, 1)
-            }
-          }
-        }
-      }
-
-      return Promise.all(allPromises).then(responses =>
-        responses.reduce(
-          (combinedRes, currRes) => {
-            if (currRes[r.id]) {
-              combinedRes[r.id].push(currRes[r.id])
-            }
-            return combinedRes
-          },
-          {[r.id]: []}
-        )
-      )
+      return performLookupRequestArray(ctx, request)
     }
 
-    return performRequest(r, ctx)
+    return performLookupRequest(ctx, request)
   })
 }
 
 const prepareLookupRequests = ctx => {
   const requests = Object.assign({}, ctx.state.metaData.requests)
   if (requests.lookup && requests.lookup.length > 0) {
-    const responseData = performRequests(requests.lookup, ctx)
+    const responseData = performLookupRequests(ctx, requests.lookup)
 
     return Promise.all(responseData)
       .then(data => {
@@ -246,6 +250,110 @@ const prepareRequestConfig = (
   return requestOptions
 }
 
+const performResponseRequestArray = async (ctx, request) => {
+  // Empty the koa response body. It contains the mapped data that is to be sent out.
+  // This data will be replaced with the array item value
+  ctx.body = {}
+
+  const items = extractParamValue(request.forEach.items, ctx)
+
+  if (!items || !Array.isArray(items)) {
+    throw new Error(
+      "forEach.items could not be found at the specified path or the resolved value isn't an array"
+    )
+  }
+
+  const concurrency = request.forEach.concurrency || 1
+
+  const currentlyExecuting = []
+  const allPromises = []
+
+  for (const item of items) {
+    const itemRequest = Object.assign({}, request)
+    // Prevent array requests being used as the primary
+    itemRequest.primary = false
+    const itemCtx = Object.assign({}, ctx)
+
+    itemCtx.body = item
+    itemCtx.state.allData.item = item
+
+    const promise = makeQuerablePromise(
+      performResponseRequest(itemCtx, itemRequest)
+    )
+    currentlyExecuting.push(promise)
+    allPromises.push(promise)
+
+    if (currentlyExecuting.length === concurrency) {
+      // wait for at least one promise to settle
+      await Promise.race(currentlyExecuting)
+      for (const [index, promise] of currentlyExecuting.entries()) {
+        if (promise.isSettled()) {
+          currentlyExecuting.splice(index, 1)
+        }
+      }
+    }
+  }
+
+  return Promise.all(allPromises).then(responses => {
+    ctx.response.body[request.id] = responses.reduce(
+      (combinedRes, currRes) => {
+        if (currRes && currRes[request.id]) {
+          combinedRes[request.id].push(currRes[request.id])
+        }
+        return combinedRes
+      },
+      {[request.id]: []}
+    )
+  })
+}
+
+const performResponseRequests = (ctx, requests) => {
+  //Create orchestrations
+  if (!ctx.orchestrations) {
+    ctx.orchestrations = []
+  }
+
+  return requests.map(request => {
+    if (
+      request &&
+      request.config &&
+      request.config.url &&
+      request.config.method &&
+      request.id
+    ) {
+      if (ctx.request.headers[OPENHIM_TRANSACTION_HEADER]) {
+        request.config.headers = Object.assign(
+          {
+            [OPENHIM_TRANSACTION_HEADER]:
+              ctx.request.headers[OPENHIM_TRANSACTION_HEADER]
+          },
+          request.config.headers
+        )
+      }
+
+      /*
+        Set the response request to be the primary
+        if there is only one response request
+      */
+      if (requests.length === 1) {
+        requests[0].primary = true
+      }
+
+      if (request.forEach) {
+        if (!request.forEach.items) {
+          throw new Error(
+            'forEach.items property must exist for forEach response'
+          )
+        }
+
+        return performResponseRequestArray(ctx, request)
+      }
+
+      return performResponseRequest(ctx, request)
+    }
+  })
+}
+
 // For now only json data is processed
 const prepareResponseRequests = async ctx => {
   const requests = ctx.state.metaData.requests
@@ -257,54 +365,7 @@ const prepareResponseRequests = async ctx => {
       Array.isArray(requests.response) &&
       requests.response.length
     ) {
-      //Create orchestrations
-      if (!ctx.orchestrations) {
-        ctx.orchestrations = []
-      }
-
-      /*
-        Set the response request to be the primary
-        if there is only one response request
-      */
-      if (requests.response.length === 1) {
-        requests.response[0].primary = true
-      }
-
-      // Empty the koa response body. It contains the mapped data that is to be sent out
-      const body = ctx.body
-      ctx.body = {}
-
-      const promises = requests.response.map(request => {
-        if (
-          request &&
-          request.config &&
-          request.config.url &&
-          request.config.method &&
-          request.id
-        ) {
-          const params = addRequestQueryParameters(ctx, request.config)
-          const requestUrl = resolveRequestUrl(ctx, request.config)
-
-          if (ctx.request.headers[OPENHIM_TRANSACTION_HEADER]) {
-            request.config.headers = Object.assign(
-              {
-                [OPENHIM_TRANSACTION_HEADER]:
-                  ctx.request.headers[OPENHIM_TRANSACTION_HEADER]
-              },
-              request.config.headers
-            )
-          }
-
-          const axiosConfig = prepareRequestConfig(
-            request,
-            body,
-            params,
-            requestUrl
-          )
-
-          return sendMappedObject(ctx, axiosConfig, request)
-        }
-      })
+      const promises = performResponseRequests(ctx, requests.response)
 
       await Promise.all(promises)
         .then(() => {
@@ -316,6 +377,7 @@ const prepareResponseRequests = async ctx => {
           logger.error(
             `${ctx.state.metaData.name} (${ctx.state.uuid}): Mapped object orchestration failure: ${error.message}`
           )
+          throw new Error(`Rejected Promise: ${error}`)
         })
     }
   }
@@ -417,14 +479,28 @@ const setKoaResponseBody = (ctx, request, body) => {
   }
 }
 
-const sendMappedObject = (ctx, axiosConfig, request) => {
+const performResponseRequest = (ctx, requestDetails) => {
   const reqTimestamp = DateTime.utc().toISO()
   let response, orchestrationError, responseTimestamp
 
   // capture the lookup request start time
-  ctx.state.allData.timestamps.lookupRequests[request.id] = {
+  ctx.state.allData.timestamps.lookupRequests[requestDetails.id] = {
     requestStart: reqTimestamp
   }
+
+  // Empty the koa response body. It contains the mapped data that is to be sent out
+  const body = ctx.body
+  ctx.body = {}
+
+  const params = addRequestQueryParameters(ctx, requestDetails.config)
+  const requestUrl = resolveRequestUrl(ctx, requestDetails.config)
+
+  const axiosConfig = prepareRequestConfig(
+    requestDetails,
+    body,
+    params,
+    requestUrl
+  )
 
   return axios(axiosConfig)
     .then(resp => {
@@ -434,19 +510,20 @@ const sendMappedObject = (ctx, axiosConfig, request) => {
 
       // capture the lookup request end time
       ctx.state.allData.timestamps.lookupRequests[
-        request.id
+        requestDetails.id
       ].requestEnd = responseTimestamp
       ctx.state.allData.timestamps.lookupRequests[
-        request.id
+        requestDetails.id
       ].requestDuration = DateTime.fromISO(responseTimestamp)
         .diff(
           DateTime.fromISO(
-            ctx.state.allData.timestamps.lookupRequests[request.id].requestStart
+            ctx.state.allData.timestamps.lookupRequests[requestDetails.id]
+              .requestStart
           )
         )
         .toObject()
 
-      if (request.primary) {
+      if (requestDetails.primary) {
         setKoaResponseBodyAndHeadersFromPrimary(
           ctx,
           response.status,
@@ -454,13 +531,14 @@ const sendMappedObject = (ctx, axiosConfig, request) => {
           response.body
         )
       } else {
-        setKoaResponseBody(ctx, request, response.body)
+        setKoaResponseBody(ctx, requestDetails, response.body)
       }
+      return {[requestDetails.id]: resp.data}
     })
     .catch(error => {
       responseTimestamp = DateTime.utc().toISO()
 
-      const result = handleRequestError(ctx, request, error)
+      const result = handleRequestError(ctx, requestDetails, error)
       response = result.response
       orchestrationError = result.error
     })
@@ -469,7 +547,7 @@ const sendMappedObject = (ctx, axiosConfig, request) => {
         ctx.request.headers &&
         ctx.request.headers[OPENHIM_TRANSACTION_HEADER]
       ) {
-        const orchestrationName = `Endpoint Response Request: ${ctx.state.metaData.name}: ${request.id}`
+        const orchestrationName = `Endpoint Response Request: ${ctx.state.metaData.name}: ${requestDetails.id}`
         const orchestration = createOrchestration(
           axiosConfig,
           response,
