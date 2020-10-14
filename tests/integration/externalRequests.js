@@ -1360,9 +1360,7 @@ tap.test(
             .set('Content-Type', 'application/json')
             .expect(response => {
               t.deepEquals(response.body, {
-                fhirPatient: {
-                  fhirPatient: [{id: 111}, {id: 222}, {id: 333}]
-                }
+                fhirPatient: [{id: 111}, {id: 222}, {id: 333}]
               })
             })
         }

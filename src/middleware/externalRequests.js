@@ -295,7 +295,7 @@ const performResponseRequestArray = async (ctx, request) => {
   }
 
   return Promise.all(allPromises).then(responses => {
-    ctx.response.body[request.id] = responses.reduce(
+    ctx.response.body = responses.reduce(
       (combinedRes, currRes) => {
         if (currRes && currRes[request.id]) {
           combinedRes[request.id].push(currRes[request.id])
