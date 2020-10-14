@@ -132,7 +132,7 @@ tap.test('States DB Services', {autoend: true}, t => {
       async t => {
         t.plan(1)
 
-        await readLatestEndpointStateById('InvalidObjectId')
+        await readLatestEndpointStateById('InvalidObjectId', 'no-filter', [])
           .then(data => {
             t.fail(`Should not reach here. ${data}`)
           })
@@ -149,11 +149,11 @@ tap.test('States DB Services', {autoend: true}, t => {
       'should read last captured state for the supplied endpointId',
       {autoend: true},
       async t => {
-        t.plan(8)
+        t.plan(10)
 
         const endpointId = new ObjectId('507f1f77bcf86cd799439011')
 
-        await readLatestEndpointStateById(endpointId)
+        await readLatestEndpointStateById(endpointId, 'no-filter', [])
           .then(data => {
             t.notOk(data) // does not exist
           })
@@ -168,6 +168,8 @@ tap.test('States DB Services', {autoend: true}, t => {
         const endpointDurationMs1 = 500
         const stateObject1 = {
           _endpointReference: endpointId,
+          networkError: false,
+          httpStatus: 200,
           system: {
             timestamps: {
               endpointStart: endpointStart1,
@@ -184,6 +186,8 @@ tap.test('States DB Services', {autoend: true}, t => {
         const endpointDurationMs2 = 50
         const stateObject2 = {
           _endpointReference: endpointId,
+          networkError: false,
+          httpStatus: 200,
           system: {
             timestamps: {
               endpointStart: endpointStart2,
@@ -212,7 +216,7 @@ tap.test('States DB Services', {autoend: true}, t => {
             t.fail(`Should not reach here. ${error.message}`)
           })
 
-        await readLatestEndpointStateById(endpointId)
+        await readLatestEndpointStateById(endpointId, 'no-filter', [])
           .then(data => {
             t.ok(data._id)
             t.deepEquals(data._endpointReference, endpointId)
@@ -222,6 +226,239 @@ tap.test('States DB Services', {autoend: true}, t => {
               data.system.timestamps.endpointDuration.milliseconds,
               endpointDurationMs2
             )
+            t.equals(data.networkError, false)
+            t.equals(data.httpStatus, 200)
+          })
+          .catch(error => {
+            t.fail(`Should not reach here. ${error.message}`)
+          })
+      }
+    )
+
+    t.test(
+      'should throw error when invalid httpStatusFilter is provided',
+      {autoend: true},
+      async t => {
+        t.plan(1)
+
+        const endpointId = new ObjectId('507f1f77bcf86cd799439011')
+
+        try {
+          await readLatestEndpointStateById(endpointId, 'include', [
+            'invalid'
+          ]).then(data => {
+            t.fail(`Should not reach here. ${JSON.stringify(data)}`)
+          })
+        } catch (error) {
+          t.equals(error.message, `Invalid HTTP Status filter`)
+        }
+      }
+    )
+
+    t.test(
+      'should read last valid captured state with network error and httpStatus in 5xx range',
+      {autoend: true},
+      async t => {
+        t.plan(10)
+
+        const endpointId = new ObjectId('507f1f77bcf86cd799439011')
+
+        await readLatestEndpointStateById(endpointId, 'no-filter', [])
+          .then(data => {
+            t.notOk(data) // does not exist
+          })
+          .catch(error => {
+            t.fail(`Should not reach here. ${error.message}`)
+          })
+
+        // oldest captured state but the only one that fills the criteria of no network errors and an http status of 301
+        const endpointStart1 = DateTime.utc().minus({minutes: 30}).toISO()
+        const endpointEnd1 = DateTime.utc()
+          .minus({minutes: 29, milliseconds: 500})
+          .toISO()
+        const endpointDurationMs1 = 500
+        const stateObject1 = {
+          _endpointReference: endpointId,
+          networkError: true,
+          httpStatus: 500,
+          system: {
+            timestamps: {
+              endpointStart: endpointStart1,
+              endpointEnd: endpointEnd1,
+              endpointDuration: {
+                milliseconds: endpointDurationMs1
+              }
+            }
+          }
+        }
+
+        // most recent createdAt value
+        const endpointStart2 = DateTime.utc().toISO()
+        const endpointEnd2 = DateTime.utc().plus(50).toISO()
+        const endpointDurationMs2 = 50
+        const stateObject2 = {
+          _endpointReference: endpointId,
+          networkError: true,
+          httpStatus: 502,
+          system: {
+            timestamps: {
+              endpointStart: endpointStart2,
+              endpointEnd: endpointEnd2,
+              endpointDuration: {
+                milliseconds: endpointDurationMs2
+              }
+            }
+          }
+        }
+
+        //create first state record
+        await createEndpointState(stateObject1)
+          .then(data => {
+            t.ok(data.id)
+          })
+          .catch(error => {
+            t.fail(`Should not reach here. ${error.message}`)
+          })
+        // create latest state record
+        await createEndpointState(stateObject2)
+          .then(data => {
+            t.ok(data.id)
+          })
+          .catch(error => {
+            t.fail(`Should not reach here. ${error.message}`)
+          })
+
+        await readLatestEndpointStateById(endpointId, 'include', ['5xx'])
+          .then(data => {
+            t.ok(data._id)
+            t.deepEquals(data._endpointReference, endpointId)
+            t.equals(data.system.timestamps.endpointStart, endpointStart2)
+            t.equals(data.system.timestamps.endpointEnd, endpointEnd2)
+            t.equals(
+              data.system.timestamps.endpointDuration.milliseconds,
+              endpointDurationMs2
+            )
+            t.equals(data.networkError, true)
+            t.equals(data.httpStatus, 502)
+          })
+          .catch(error => {
+            t.fail(`Should not reach here. ${error.message}`)
+          })
+      }
+    )
+
+    t.test(
+      'should read last valid captured state for the supplied endpointId with no network error and httpStatus 301',
+      {autoend: true},
+      async t => {
+        t.plan(11)
+
+        const endpointId = new ObjectId('507f1f77bcf86cd799439011')
+
+        await readLatestEndpointStateById(endpointId, 'no-filter', [])
+          .then(data => {
+            t.notOk(data) // does not exist
+          })
+          .catch(error => {
+            t.fail(`Should not reach here. ${error.message}`)
+          })
+
+        // oldest captured state but the only one that fills the criteria of no network errors and an http status of 301
+        const endpointStart1 = DateTime.utc().minus({minutes: 30}).toISO()
+        const endpointEnd1 = DateTime.utc()
+          .minus({minutes: 29, milliseconds: 500})
+          .toISO()
+        const endpointDurationMs1 = 500
+        const stateObject1 = {
+          _endpointReference: endpointId,
+          networkError: false,
+          httpStatus: 301,
+          system: {
+            timestamps: {
+              endpointStart: endpointStart1,
+              endpointEnd: endpointEnd1,
+              endpointDuration: {
+                milliseconds: endpointDurationMs1
+              }
+            }
+          }
+        }
+
+        const endpointStart2 = DateTime.utc().toISO()
+        const endpointEnd2 = DateTime.utc().plus(50).toISO()
+        const endpointDurationMs2 = 50
+        const stateObject2 = {
+          _endpointReference: endpointId,
+          networkError: true,
+          httpStatus: 500,
+          system: {
+            timestamps: {
+              endpointStart: endpointStart2,
+              endpointEnd: endpointEnd2,
+              endpointDuration: {
+                milliseconds: endpointDurationMs2
+              }
+            }
+          }
+        }
+
+        const endpointStart3 = DateTime.utc().minus({minutes: 60}).toISO()
+        const endpointEnd3 = DateTime.utc()
+          .minus({minutes: 59, milliseconds: 500})
+          .toISO()
+        const endpointDurationMs3 = 500
+        const stateObject3 = {
+          _endpointReference: endpointId,
+          networkError: false,
+          httpStatus: 202,
+          system: {
+            timestamps: {
+              endpointStart: endpointStart3,
+              endpointEnd: endpointEnd3,
+              endpointDuration: {
+                milliseconds: endpointDurationMs3
+              }
+            }
+          }
+        }
+
+        //create first state record
+        await createEndpointState(stateObject1)
+          .then(data => {
+            t.ok(data.id)
+          })
+          .catch(error => {
+            t.fail(`Should not reach here. ${error.message}`)
+          })
+        // create latest state record
+        await createEndpointState(stateObject2)
+          .then(data => {
+            t.ok(data.id)
+          })
+          .catch(error => {
+            t.fail(`Should not reach here. ${error.message}`)
+          })
+        //create third state record
+        await createEndpointState(stateObject3)
+          .then(data => {
+            t.ok(data.id)
+          })
+          .catch(error => {
+            t.fail(`Should not reach here. ${error.message}`)
+          })
+
+        await readLatestEndpointStateById(endpointId, 'exclude', ['301'])
+          .then(data => {
+            t.ok(data._id)
+            t.deepEquals(data._endpointReference, endpointId)
+            t.equals(data.system.timestamps.endpointStart, endpointStart1)
+            t.equals(data.system.timestamps.endpointEnd, endpointEnd1)
+            t.equals(
+              data.system.timestamps.endpointDuration.milliseconds,
+              endpointDurationMs1
+            )
+            t.equals(data.networkError, false)
+            t.equals(data.httpStatus, 301)
           })
           .catch(error => {
             t.fail(`Should not reach here. ${error.message}`)

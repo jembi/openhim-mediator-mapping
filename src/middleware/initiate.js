@@ -150,7 +150,9 @@ exports.initiateContextMiddleware = () => async (ctx, next) => {
   }
 
   const endpointState = await statesService.readLatestEndpointStateById(
-    endpoint._id
+    endpoint._id,
+    endpoint.state.config.networkErrors,
+    endpoint.state.config.includeStatuses
   )
 
   logger.info(`${endpoint.name} (${requestUUID}): Initiating new request`)

@@ -46,6 +46,10 @@ const defaultEndpoint = {
         lookup2value: 'secondRequest.text',
         lookup2ArrayValue: 'secondRequest.array[1]'
       }
+    },
+    config: {
+      networkErrors: 'no-filter',
+      includeStatuses: ['*']
     }
   }
 }
@@ -621,7 +625,13 @@ tap.test('Initiate Middleware', {autoend: true}, t => {
         () => {
           return {
             endpoint: {
-              _id: 'endpointId'
+              _id: 'endpointId',
+              state: {
+                config: {
+                  networkErrors: 'no-filter',
+                  includeStatuses: []
+                }
+              }
             },
             urlParams: {}
           }
@@ -686,7 +696,13 @@ tap.test('Initiate Middleware', {autoend: true}, t => {
         () => {
           return {
             endpoint: {
-              _id: 'endpointId'
+              _id: 'endpointId',
+              state: {
+                config: {
+                  networkErrors: 'no-filter',
+                  includeStatuses: []
+                }
+              }
             },
             urlParams: {}
           }
