@@ -295,7 +295,7 @@ const performResponseRequestArray = async (ctx, request) => {
   }
 
   return Promise.all(allPromises).then(responses => {
-    ctx.response.body = responses.reduce(
+    const arrayResponses = responses.reduce(
       (combinedRes, currRes) => {
         if (currRes && currRes[request.id]) {
           combinedRes[request.id].push(currRes[request.id])
@@ -304,6 +304,8 @@ const performResponseRequestArray = async (ctx, request) => {
       },
       {[request.id]: []}
     )
+    ctx.response.body = arrayResponses
+    return arrayResponses
   })
 }
 
@@ -541,6 +543,7 @@ const performResponseRequest = (ctx, requestDetails) => {
       const result = handleRequestError(ctx, requestDetails, error)
       response = result.response
       orchestrationError = result.error
+      return {[requestDetails.id]: {response, error: result.error}}
     })
     .finally(() => {
       if (
