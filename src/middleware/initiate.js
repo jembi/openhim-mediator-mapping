@@ -43,6 +43,12 @@ const extractStateValues = (ctx, extract) => {
     timestamps: ctx.state.allData.timestamps
   }
 
+  if (allData.state) {
+    updatedState.lookupHttpStatus = allData.state.currentLookupHttpStatus
+    updatedState.lookupNetworkError =
+      allData.state.currentLookupNetworkError || false
+  }
+
   if (!extract) {
     return updatedState
   }

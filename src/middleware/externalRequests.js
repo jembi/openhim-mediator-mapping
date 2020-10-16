@@ -61,6 +61,10 @@ const performLookupRequest = async (ctx, requestDetails) => {
     requestUrl
   )
 
+  if (!ctx.state.allData.state) {
+    ctx.state.allData.state = {}
+  }
+
   return axios(axiosConfig)
     .then(res => {
       response = res
@@ -97,15 +101,25 @@ const performLookupRequest = async (ctx, requestDetails) => {
 
       if (error.response) {
         ctx.statusCode = error.response.status
+        ctx.state.allData.state.currentLookupHttpStatus =
+          ctx.state.allData.state.currentLookupHttpStatus >
+          error.response.status
+            ? ctx.state.allData.state.currentLookupHttpStatus
+            : error.response.status
         throw new Error(
           `Incorrect status code ${error.response.status}. ${error.response.data.message}`
         )
       } else if (error.request) {
+        ctx.state.allData.state.currentLookupNetworkError = true
         throw new Error(
           `No response from lookup '${requestDetails.id}'. ${error.message}`
         )
       } else {
         ctx.statusCode = 500
+        ctx.state.allData.state.currentLookupHttpStatus =
+          ctx.state.allData.state.currentLookupHttpStatus > 500
+            ? ctx.state.allData.state.currentLookupHttpStatus
+            : 500
         // Something happened in setting up the request that triggered an Error
         throw new Error(`Unhandled Error: ${error.message}`)
       }

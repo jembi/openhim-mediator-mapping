@@ -207,6 +207,71 @@ tap.test('Initiate Middleware', {autoend: true}, t => {
       }
     )
 
+    t.test(
+      'should return captured state - lookup request statuses - when supplied',
+      t => {
+        t.plan(2)
+
+        const endpointStart = DateTime.utc().toISO()
+
+        const ctx = {
+          state: {
+            allData: {
+              requestBody: {},
+              query: {
+                queryParamKey: 'queryParamValue'
+              },
+              timestamps: {
+                endpointStart
+              },
+              state: {
+                currentLookupHttpStatus: 598,
+                currentLookupNetworkError: true
+              }
+            }
+          }
+        }
+        const extract = {}
+
+        const extractedStateValues = extractStateValues(ctx, extract)
+
+        t.equal(extractedStateValues.lookupHttpStatus, 598)
+        t.equal(extractedStateValues.lookupNetworkError, true)
+      }
+    )
+
+    t.test(
+      'should return captured state - lookup network error false by default',
+      t => {
+        t.plan(2)
+
+        const endpointStart = DateTime.utc().toISO()
+
+        const ctx = {
+          state: {
+            allData: {
+              requestBody: {},
+              query: {
+                queryParamKey: 'queryParamValue'
+              },
+              timestamps: {
+                endpointStart
+              },
+              state: {
+                currentLookupHttpStatus: 200
+              }
+            }
+          }
+        }
+        const extract = {}
+
+        const extractedStateValues = extractStateValues(ctx, extract)
+
+        t.equal(extractedStateValues.lookupHttpStatus, 200)
+        t.equal(extractedStateValues.lookupNetworkError, false)
+      }
+    )
+
     t.test('should return captured state for specified extract details', t => {
       t.plan(5)
 
