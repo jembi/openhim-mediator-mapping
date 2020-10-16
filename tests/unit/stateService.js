@@ -168,8 +168,8 @@ tap.test('States DB Services', {autoend: true}, t => {
         const endpointDurationMs1 = 500
         const stateObject1 = {
           _endpointReference: endpointId,
-          networkError: false,
-          httpStatus: 200,
+          lookupNetworkError: false,
+          lookupHttpStatus: 200,
           system: {
             timestamps: {
               endpointStart: endpointStart1,
@@ -186,8 +186,8 @@ tap.test('States DB Services', {autoend: true}, t => {
         const endpointDurationMs2 = 50
         const stateObject2 = {
           _endpointReference: endpointId,
-          networkError: false,
-          httpStatus: 200,
+          lookupNetworkError: false,
+          lookupHttpStatus: 200,
           system: {
             timestamps: {
               endpointStart: endpointStart2,
@@ -226,8 +226,8 @@ tap.test('States DB Services', {autoend: true}, t => {
               data.system.timestamps.endpointDuration.milliseconds,
               endpointDurationMs2
             )
-            t.equals(data.networkError, false)
-            t.equals(data.httpStatus, 200)
+            t.equals(data.lookupNetworkError, false)
+            t.equals(data.lookupHttpStatus, 200)
           })
           .catch(error => {
             t.fail(`Should not reach here. ${error.message}`)
@@ -279,8 +279,8 @@ tap.test('States DB Services', {autoend: true}, t => {
         const endpointDurationMs1 = 500
         const stateObject1 = {
           _endpointReference: endpointId,
-          networkError: true,
-          httpStatus: 500,
+          lookupNetworkError: true,
+          lookupHttpStatus: 500,
           system: {
             timestamps: {
               endpointStart: endpointStart1,
@@ -298,8 +298,8 @@ tap.test('States DB Services', {autoend: true}, t => {
         const endpointDurationMs2 = 50
         const stateObject2 = {
           _endpointReference: endpointId,
-          networkError: true,
-          httpStatus: 502,
+          lookupNetworkError: true,
+          lookupHttpStatus: 502,
           system: {
             timestamps: {
               endpointStart: endpointStart2,
@@ -338,8 +338,8 @@ tap.test('States DB Services', {autoend: true}, t => {
               data.system.timestamps.endpointDuration.milliseconds,
               endpointDurationMs2
             )
-            t.equals(data.networkError, true)
-            t.equals(data.httpStatus, 502)
+            t.equals(data.lookupNetworkError, true)
+            t.equals(data.lookupHttpStatus, 502)
           })
           .catch(error => {
             t.fail(`Should not reach here. ${error.message}`)
@@ -371,8 +371,8 @@ tap.test('States DB Services', {autoend: true}, t => {
         const endpointDurationMs1 = 500
         const stateObject1 = {
           _endpointReference: endpointId,
-          networkError: false,
-          httpStatus: 301,
+          lookupNetworkError: false,
+          lookupHttpStatus: 301,
           system: {
             timestamps: {
               endpointStart: endpointStart1,
@@ -389,8 +389,8 @@ tap.test('States DB Services', {autoend: true}, t => {
         const endpointDurationMs2 = 50
         const stateObject2 = {
           _endpointReference: endpointId,
-          networkError: true,
-          httpStatus: 500,
+          lookupNetworkError: true,
+          lookupHttpStatus: 500,
           system: {
             timestamps: {
               endpointStart: endpointStart2,
@@ -409,8 +409,8 @@ tap.test('States DB Services', {autoend: true}, t => {
         const endpointDurationMs3 = 500
         const stateObject3 = {
           _endpointReference: endpointId,
-          networkError: false,
-          httpStatus: 202,
+          lookupNetworkError: false,
+          lookupHttpStatus: 202,
           system: {
             timestamps: {
               endpointStart: endpointStart3,
@@ -457,8 +457,8 @@ tap.test('States DB Services', {autoend: true}, t => {
               data.system.timestamps.endpointDuration.milliseconds,
               endpointDurationMs1
             )
-            t.equals(data.networkError, false)
-            t.equals(data.httpStatus, 301)
+            t.equals(data.lookupNetworkError, false)
+            t.equals(data.lookupHttpStatus, 301)
           })
           .catch(error => {
             t.fail(`Should not reach here. ${error.message}`)

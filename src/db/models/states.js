@@ -13,10 +13,10 @@ const stateSchema = new mongoose.Schema(
       type: mongoose.Types.ObjectId,
       required: true
     },
-    networkError: {
+    lookupNetworkError: {
       type: Boolean
     },
-    httpStatus: {
+    lookupHttpStatus: {
       type: Number,
       match: HTTP_STATUS_REGEX
     },

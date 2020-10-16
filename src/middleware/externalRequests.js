@@ -82,6 +82,12 @@ const performLookupRequest = async (ctx, requestDetails) => {
         )
         .toObject()
 
+      // Set state lookup status
+      ctx.state.allData.state.currentLookupHttpStatus =
+        ctx.state.allData.state.currentLookupHttpStatus > response.status
+          ? ctx.state.allData.state.currentLookupHttpStatus
+          : response.status
+
       // Assign any data received from the response to the assigned ID in the context
       return {[requestDetails.id]: res.data}
     })

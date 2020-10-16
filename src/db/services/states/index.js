@@ -17,9 +17,9 @@ const createFilterObject = (
   }
 
   if (networkErrorFilters === 'include') {
-    searchConditions.networkError = true
+    searchConditions.lookupNetworkError = true
   } else if (networkErrorFilters === 'exclude') {
-    searchConditions.networkError = false
+    searchConditions.lookupNetworkError = false
   }
 
   if (httpStatusFilters.length > 0 && !httpStatusFilters.includes('*')) {
@@ -29,14 +29,14 @@ const createFilterObject = (
       const validRange = pattern.match(/\d+?(?=xx)/g)
       if (validRange) {
         mongoFilterArray.push({
-          httpStatus: {
+          lookupHttpStatus: {
             $gte: Number(validRange[0] * 100),
             $lt: (Number(validRange[0]) + 1) * 100
           }
         })
       } else if (pattern.match(/^[1-5]\d\d$/)) {
         mongoFilterArray.push({
-          httpStatus: Number(pattern)
+          lookupHttpStatus: Number(pattern)
         })
       } else {
         throw new Error('Invalid HTTP Status filter')
