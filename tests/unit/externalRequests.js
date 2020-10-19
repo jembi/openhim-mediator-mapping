@@ -120,6 +120,7 @@ tap.test('External Requests', {autoend: true}, t => {
           await Promise.all(performLookupRequests(ctx, requests))
         } catch (error) {
           t.equals(ctx.orchestrations.length, 1)
+          t.equals(ctx.state.allData.state.currentLookupNetworkError, true)
           t.match(
             error.message,
             /No response from lookup '1233243'. connect ECONNREFUSED/
@@ -171,6 +172,7 @@ tap.test('External Requests', {autoend: true}, t => {
           await Promise.all(performLookupRequests(ctx, requests))
         } catch (error) {
           t.equals(ctx.orchestrations.length, 1)
+          t.equals(ctx.state.allData.state.currentLookupHttpStatus, 400)
           t.match(error.message, /Incorrect status code 400. Bad request/)
           t.end()
         }
@@ -215,7 +217,8 @@ tap.test('External Requests', {autoend: true}, t => {
       }
 
       await Promise.all(performLookupRequests(ctx, requests)).then(res => {
-        t.deepEqual(res[0], {'123': 'Body'})
+        t.deepEqual(res[0], {123: 'Body'})
+        t.equals(ctx.state.allData.state.currentLookupHttpStatus, 200)
         t.equals(ctx.orchestrations.length, 1)
         t.end()
       })
@@ -242,6 +245,7 @@ tap.test('External Requests', {autoend: true}, t => {
         t.end()
       }
     )
+
     t.test('should throw error when lookup request fails', async t => {
       const url = 'http://localhost:4000/'
 
@@ -1209,7 +1213,7 @@ tap.test('External Requests', {autoend: true}, t => {
             body: {
               test1: 'params',
               test: {
-                '2': 'test'
+                2: 'test'
               }
             }
           }
@@ -1244,7 +1248,7 @@ tap.test('External Requests', {autoend: true}, t => {
               body: {
                 test1: null,
                 test: {
-                  '2': undefined
+                  2: undefined
                 }
               }
             }
@@ -1275,7 +1279,7 @@ tap.test('External Requests', {autoend: true}, t => {
             body: {
               test1: '',
               test: {
-                '2': 0
+                2: 0
               }
             }
           }

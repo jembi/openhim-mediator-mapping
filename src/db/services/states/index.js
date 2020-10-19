@@ -7,10 +7,56 @@ exports.createEndpointState = state => {
   return stateObject.save({checkKeys: false})
 }
 
-exports.readLatestEndpointStateById = endpointId => {
+const createFilterObject = (
+  endpointId,
+  networkErrorFilters,
+  httpStatusFilters
+) => {
+  const searchConditions = {
+    _endpointReference: endpointId
+  }
+
+  if (networkErrorFilters === 'include') {
+    searchConditions.lookupNetworkError = true
+  } else if (networkErrorFilters === 'exclude') {
+    searchConditions.lookupNetworkError = false
+  }
+
+  if (httpStatusFilters.length > 0 && !httpStatusFilters.includes('*')) {
+    const mongoFilterArray = []
+
+    for (const pattern of httpStatusFilters) {
+      const validRange = pattern.match(/\d+?(?=xx)/g)
+      if (validRange) {
+        mongoFilterArray.push({
+          lookupHttpStatus: {
+            $gte: Number(validRange[0] * 100),
+            $lt: (Number(validRange[0]) + 1) * 100
+          }
+        })
+      } else if (pattern.match(/^[1-5]\d\d$/)) {
+        mongoFilterArray.push({
+          lookupHttpStatus: Number(pattern)
+        })
+      } else {
+        throw new Error('Invalid HTTP Status filter')
+      }
+    }
+
+    searchConditions.$or = mongoFilterArray
+  }
+
+  return searchConditions
+}
+
+exports.readLatestEndpointStateById = (
+  endpointId,
+  networkErrorFilters,
+  httpStatusFilters
+) => {
   return StateModel.findOne(
-    {_endpointReference: endpointId},
+    createFilterObject(endpointId, networkErrorFilters, httpStatusFilters),
     {},
     {sort: {createdAt: -1}}
-  )
+  ).exec()
 }

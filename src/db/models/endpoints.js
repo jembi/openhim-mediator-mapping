@@ -59,7 +59,15 @@ const endpointSchema = new mongoose.Schema(
     inputValidation: {},
     state: {
       default: {},
-      extract: {}
+      extract: {},
+      config: {
+        networkErrors: {
+          type: String, // This field adds a filter on the returned states by network errors.
+          enum: ['include', 'exclude', 'no-filter'],
+          default: 'no-filter'
+        },
+        includeStatuses: [String] // This field adds a filter on the returned states for http statuses. Example values ['*', '201', '4xx']
+      }
     }
   },
   {

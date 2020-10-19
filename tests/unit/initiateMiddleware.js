@@ -46,6 +46,10 @@ const defaultEndpoint = {
         lookup2value: 'secondRequest.text',
         lookup2ArrayValue: 'secondRequest.array[1]'
       }
+    },
+    config: {
+      networkErrors: 'no-filter',
+      includeStatuses: ['*']
     }
   }
 }
@@ -200,6 +204,71 @@ tap.test('Initiate Middleware', {autoend: true}, t => {
         )
         t.ok(extractedStateValues.system.timestamps.endpointEnd)
         t.ok(extractedStateValues.system.timestamps.endpointDuration)
+      }
+    )
+
+    t.test(
+      'should return captured state - lookup request statuses - when supplied',
+      t => {
+        t.plan(2)
+
+        const endpointStart = DateTime.utc().toISO()
+
+        const ctx = {
+          state: {
+            allData: {
+              requestBody: {},
+              query: {
+                queryParamKey: 'queryParamValue'
+              },
+              timestamps: {
+                endpointStart
+              },
+              state: {
+                currentLookupHttpStatus: 598,
+                currentLookupNetworkError: true
+              }
+            }
+          }
+        }
+        const extract = {}
+
+        const extractedStateValues = extractStateValues(ctx, extract)
+
+        t.equal(extractedStateValues.lookupHttpStatus, 598)
+        t.equal(extractedStateValues.lookupNetworkError, true)
+      }
+    )
+
+    t.test(
+      'should return captured state - lookup network error false by default',
+      t => {
+        t.plan(2)
+
+        const endpointStart = DateTime.utc().toISO()
+
+        const ctx = {
+          state: {
+            allData: {
+              requestBody: {},
+              query: {
+                queryParamKey: 'queryParamValue'
+              },
+              timestamps: {
+                endpointStart
+              },
+              state: {
+                currentLookupHttpStatus: 200
+              }
+            }
+          }
+        }
+        const extract = {}
+
+        const extractedStateValues = extractStateValues(ctx, extract)
+
+        t.equal(extractedStateValues.lookupHttpStatus, 200)
+        t.equal(extractedStateValues.lookupNetworkError, false)
       }
     )
 
@@ -621,7 +690,13 @@ tap.test('Initiate Middleware', {autoend: true}, t => {
         () => {
           return {
             endpoint: {
-              _id: 'endpointId'
+              _id: 'endpointId',
+              state: {
+                config: {
+                  networkErrors: 'no-filter',
+                  includeStatuses: []
+                }
+              }
             },
             urlParams: {}
           }
@@ -686,7 +761,13 @@ tap.test('Initiate Middleware', {autoend: true}, t => {
         () => {
           return {
             endpoint: {
-              _id: 'endpointId'
+              _id: 'endpointId',
+              state: {
+                config: {
+                  networkErrors: 'no-filter',
+                  includeStatuses: []
+                }
+              }
             },
             urlParams: {}
           }

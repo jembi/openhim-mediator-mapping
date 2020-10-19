@@ -61,6 +61,10 @@ const performLookupRequest = async (ctx, requestDetails) => {
     requestUrl
   )
 
+  if (!ctx.state.allData.state) {
+    ctx.state.allData.state = {}
+  }
+
   return axios(axiosConfig)
     .then(res => {
       response = res
@@ -82,6 +86,12 @@ const performLookupRequest = async (ctx, requestDetails) => {
         )
         .toObject()
 
+      // Set state lookup status
+      ctx.state.allData.state.currentLookupHttpStatus =
+        ctx.state.allData.state.currentLookupHttpStatus > response.status
+          ? ctx.state.allData.state.currentLookupHttpStatus
+          : response.status
+
       // Assign any data received from the response to the assigned ID in the context
       return {[requestDetails.id]: res.data}
     })
@@ -91,15 +101,25 @@ const performLookupRequest = async (ctx, requestDetails) => {
 
       if (error.response) {
         ctx.statusCode = error.response.status
+        ctx.state.allData.state.currentLookupHttpStatus =
+          ctx.state.allData.state.currentLookupHttpStatus >
+          error.response.status
+            ? ctx.state.allData.state.currentLookupHttpStatus
+            : error.response.status
         throw new Error(
           `Incorrect status code ${error.response.status}. ${error.response.data.message}`
         )
       } else if (error.request) {
+        ctx.state.allData.state.currentLookupNetworkError = true
         throw new Error(
           `No response from lookup '${requestDetails.id}'. ${error.message}`
         )
       } else {
         ctx.statusCode = 500
+        ctx.state.allData.state.currentLookupHttpStatus =
+          ctx.state.allData.state.currentLookupHttpStatus > 500
+            ? ctx.state.allData.state.currentLookupHttpStatus
+            : 500
         // Something happened in setting up the request that triggered an Error
         throw new Error(`Unhandled Error: ${error.message}`)
       }
@@ -295,7 +315,7 @@ const performResponseRequestArray = async (ctx, request) => {
   }
 
   return Promise.all(allPromises).then(responses => {
-    ctx.response.body[request.id] = responses.reduce(
+    const arrayResponses = responses.reduce(
       (combinedRes, currRes) => {
         if (currRes && currRes[request.id]) {
           combinedRes[request.id].push(currRes[request.id])
@@ -304,6 +324,8 @@ const performResponseRequestArray = async (ctx, request) => {
       },
       {[request.id]: []}
     )
+    ctx.response.body = arrayResponses
+    return arrayResponses
   })
 }
 
@@ -541,6 +563,7 @@ const performResponseRequest = (ctx, requestDetails) => {
       const result = handleRequestError(ctx, requestDetails, error)
       response = result.response
       orchestrationError = result.error
+      return {[requestDetails.id]: {response, error: result.error}}
     })
     .finally(() => {
       if (
