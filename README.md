@@ -61,9 +61,22 @@ rs.initiate(config)
 
 > **NOTE:** The IP used here is the local docker bridge IP. This IP is generally consistent, however different docker configurations could result in differences. You can confirm your IP with this terminal command: `ifconfig docker0`
 
-With your replica set running, you can start up your Mapping Mediator. Include the following environment variable config to connect your Mapping Mediator to the MongoDB replica set:
+With your replica set running, you can start up your Mapping Mediator. First install the Node dependencies by running `yarn`. Then include the following environment variable configs to connect your Mapping Mediator to the MongoDB replica set:
 
 - MONGO_URL='mongodb://localhost:27017,localhost:27018,localhost:27019/mapping-mediator?replicaSet=mapper-mongo-set'
+- OPENHIM_REGISTER=false
+
+```sh
+MONGO_URL='mongodb://localhost:27017,localhost:27018,localhost:27019/mapping-mediator?replicaSet=mapper-mongo-set' OPENHIM_REGISTER=false yarn start
+```
+
+Your mapper output logs should include the following:
+
+```txt
+Server listening on port 3003...
+Connected to mongo on mongodb://localhost:27017,localhost:27018,localhost:27019/mapping-mediator?replicaSet=mapper-mongo-set
+MongoDB Change Event Listeners Added
+```
 
 ### Docker Set Up
 
@@ -106,19 +119,19 @@ config = {
 rs.initiate(config)
 ```
 
-Next step is to get the name of the Docker network that your cluster communicates on. We defined part of that name in the `docker-compose` script but the network name is prefixed by the name of the directory that contains your script. List the Docker networks to find the network named `{directory-name}_mapper-cluster-network` with the following command:
+> Note: The Mongo replica set config between the **docker and yarn setup instructions are not interchangable**.
+
+With your replica set running, you can start up your Mapping Mediator with the following command:
 
 ```sh
-docker network ls
+docker run -it -p 3003:3003 -e OPENHIM_REGISTER=false -e MONGO_URL='mongodb://mapper-mongo-1:27017,mapper-mongo-2:27017,mapper-mongo:27017/mapping-mediator?replicaSet=mapper-mongo-set' --network {directory-name}_mapper-cluster-network jembi/openhim-mapping-mediator:latest
 ```
 
-With your replica set running you can start up your Mapping Mediator with the following command (substitute in your Docker network name at the network flag):
+The following parameters are specific to the docker start up process:
 
-```sh
-docker run -it -p 3003:3003 -e MONGO_URL='mongodb://mapper-mongo-1:27017,mapper-mongo-2:27017,mapper-mongo:27017/mapping-mediator?replicaSet=mapper-mongo-set' --network {directory-name}_mapper-cluster-network jembi/openhim-mapping-mediator:latest
-```
+- `-e OPENHIM_REGISTER=false`
 
-The following parameters relate to the Mongo Replica set:
+  > This environment variable allows the Mapping Mediator to be **started up without the OpenHIM**. See the next section to start up the Mapper with the OpenHIM.
 
 - `-e MONGO_URL='mongodb://mapper-mongo-1:27017,mapper-mongo-2:27017,mapper-mongo-3:27017/mapping-mediator?replicaSet=mapper-mongo-set'`
 
