@@ -22,12 +22,12 @@ To store endpoint data:
 
 This set up guide will make use of Docker to run the Mongo cluster and yarn to run the Mapping Mediator. The containers will connect with each other over a Docker Network.
 
-The easiest way to setup the mongo containers is to use a `docker-compose` script. One is provided in the repo (`docker-compose.deps.yml`)
+The easiest way to setup the mongo containers is to use a `docker-compose` script. One is provided in the repo (`docker-compose.mongo.yml`)
 
 Run the script with the following command:
 
 ```sh
-docker-compose -f docker-compose.deps.yml up -d
+docker-compose -f docker-compose.mongo.yml up -d
 ```
 
 Next, setup the replica set. Once the containers have started up exec into one of the containers with the following command, `docker exec -it mapper-mongo-1 mongo`
@@ -69,47 +69,12 @@ With your replica set running, you can start up your Mapping Mediator. Include t
 
 This set up guide will make use of Docker to run the Mongo cluster and the Mapping Mediator. The containers will connect with each other over a Docker Network.
 
-The easiest way to setup the mongo containers is to run these commands in a `docker-compose` script. To do this copy the code below into a file named `docker-compose.yml`
-
-```yaml
-version: '3.3'
-
-networks:
-  mapper-cluster-network:
-
-services:
-  mapper-mongo-1:
-    image: mongo:4.2
-    container_name: mapper-mongo-1
-    networks:
-      - mapper-cluster-network
-    command:
-      - --replSet
-      - mapper-mongo-set
-
-  mapper-mongo-2:
-    image: mongo:4.2
-    container_name: mapper-mongo-2
-    networks:
-      - mapper-cluster-network
-    command:
-      - --replSet
-      - mapper-mongo-set
-
-  mapper-mongo-3:
-    image: mongo:4.2
-    container_name: mapper-mongo-3
-    networks:
-      - mapper-cluster-network
-    command:
-      - --replSet
-      - mapper-mongo-set
-```
+The easiest way to setup the mongo containers is to use a `docker-compose` script. One is provided in the repo (`docker-compose.mongo.yml`)
 
 Run the script with the following command:
 
 ```sh
-docker-compose up -d
+docker-compose -f docker-compose.mongo.yml up -d
 ```
 
 Once the containers have started up exec into one of the containers with the following command, `docker exec -it mapper-mongo-1 mongo`
