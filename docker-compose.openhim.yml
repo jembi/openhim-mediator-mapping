@@ -1,0 +1,37 @@
+version: '3.8'
+
+networks:
+  mapper-cluster-network:
+    external: true
+    name: mapper-cluster-network
+
+services:
+  openhim-core:
+    container_name: openhim-core
+    image: jembi/openhim-core:5
+    networks:
+      - mapper-cluster-network
+    environment:
+      - mongo_url=mongodb://mapper-mongo-1:27017,mapper-mongo-2:27017,mapper-mongo-3:27017/openhim?replicaSet=mapper-mongo-set
+      - mongo_atnaUrl=mongodb://mapper-mongo-1:27017,mapper-mongo-2:27017,mapper-mongo-3:27017/openhim?replicaSet=mapper-mongo-set
+      - api_authenticationTypes=["token", "basic"]
+      - authentication_enableCustomTokenAuthentication=true
+      - authentication_enableJWTAuthentication=true
+      - authentication_jwt_secretOrPublicKey=secret
+      - authentication_jwt_algorithms=HS256
+      - authentication_jwt_issuer=openhim
+    ports:
+      - "8080:8080"
+      - "5000:5000"
+      - "5001:5001"
+
+  openhim-console:
+    container_name: openhim-console
+    image: jembi/openhim-console:1.14
+    networks:
+      - mapper-cluster-network
+    ports:
+      - "9000:80"
+    depends_on:
+      - openhim-core
+
