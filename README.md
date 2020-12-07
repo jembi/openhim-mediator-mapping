@@ -145,7 +145,7 @@ The following parameters are specific to the docker start up process:
 
 The mapping mediator, like most other OpenHIM mediators, can register to an instance of the OpenHIM. This gives the user a graphical interface to interact with the mediator for status information and config options(if available).
 
-> Note: For multiple instances of the mediator to register to the same instance of the openHIM each mediator has to have a unique `urn`. You can set the `urn` using the environment variable MEDIATOR_URN.
+> Note: For multiple instances of the mediator to register to the same instance of the OpenHIM each mediator has to have a unique `urn`. You can set the `urn` using the environment variable MEDIATOR_URN.
 
 To get an OpenHIM Core and Console instance setup, use the `docker-compose.openhim.yml` script here (or your preferred method). Run the docker compose command with the following:
 
