@@ -8,7 +8,7 @@ This sample endpoint accepts a basic flat object and converts it into a FHIR tra
 - Mapping - Create a new FHIR transaction bundle object from the supplied request payload, and from the configured constants, input transforms, endpoint state
 - Constants - Contains all the static values required for constructing the FHIR transaction bundle
 - States - Extract the endpoint start time to populate the effectiveDate of the Observation (When the observation was created)
-- Input Transforms 
+- Input Transforms
   - To build a new string for the Patient reference property - This requires the text "Patient/" to be prefixed on the supplied Patient UUID
   - To convert the supplied height value from meters to centimeters
 
