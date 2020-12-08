@@ -25,5 +25,5 @@ curl -X POST -d "@endpoint.json" -H "Content-Type: application/json" http://loca
 To test the endpoint configured successfully, execute the below curl command from the location of this sample endpoint.
 
 ```sh
-curl -X POST -d "@payload.json" -H "Content-Type: application/json" http://localhost:3003/create-height-weight-observations
+curl -X POST -d "@input.json" -H "Content-Type: application/json" http://localhost:3003/create-height-weight-observations
 ```
