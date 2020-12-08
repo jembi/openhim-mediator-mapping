@@ -22,12 +22,12 @@ To store endpoint data:
 
 This set up guide will make use of Docker to run the Mongo cluster and yarn to run the Mapping Mediator. The containers will connect with each other over a Docker Network.
 
-The easiest way to setup the mongo containers is to use a `docker-compose` script. One is provided in the repo (`docker-compose.deps.yml`)
+The easiest way to setup the mongo containers is to use a `docker-compose` script. One is provided in the repo (`docker-compose.mongo.yml`)
 
 Run the script with the following command:
 
 ```sh
-docker-compose -f docker-compose.deps.yml up -d
+docker-compose -f docker-compose.mongo.yml up -d
 ```
 
 Next, setup the replica set. Once the containers have started up exec into one of the containers with the following command, `docker exec -it mapper-mongo-1 mongo`
@@ -61,55 +61,33 @@ rs.initiate(config)
 
 > **NOTE:** The IP used here is the local docker bridge IP. This IP is generally consistent, however different docker configurations could result in differences. You can confirm your IP with this terminal command: `ifconfig docker0`
 
-With your replica set running, you can start up your Mapping Mediator. Include the following environment variable config to connect your Mapping Mediator to the MongoDB replica set:
+With your replica set running, you can start up your Mapping Mediator. First install the Node dependencies by running `yarn`. Then include the following environment variable configs to connect your Mapping Mediator to the MongoDB replica set:
 
 - MONGO_URL='mongodb://localhost:27017,localhost:27018,localhost:27019/mapping-mediator?replicaSet=mapper-mongo-set'
+- OPENHIM_REGISTER=false
+
+```sh
+MONGO_URL='mongodb://localhost:27017,localhost:27018,localhost:27019/mapping-mediator?replicaSet=mapper-mongo-set' OPENHIM_REGISTER=false yarn start
+```
+
+Your mapper output logs should include the following:
+
+```txt
+Server listening on port 3003...
+Connected to mongo on mongodb://localhost:27017,localhost:27018,localhost:27019/mapping-mediator?replicaSet=mapper-mongo-set
+MongoDB Change Event Listeners Added
+```
 
 ### Docker Set Up
 
 This set up guide will make use of Docker to run the Mongo cluster and the Mapping Mediator. The containers will connect with each other over a Docker Network.
 
-The easiest way to setup the mongo containers is to run these commands in a `docker-compose` script. To do this copy the code below into a file named `docker-compose.yml`
-
-```yaml
-version: '3.3'
-
-networks:
-  mapper-cluster-network:
-
-services:
-  mapper-mongo-1:
-    image: mongo:4.2
-    container_name: mapper-mongo-1
-    networks:
-      - mapper-cluster-network
-    command:
-      - --replSet
-      - mapper-mongo-set
-
-  mapper-mongo-2:
-    image: mongo:4.2
-    container_name: mapper-mongo-2
-    networks:
-      - mapper-cluster-network
-    command:
-      - --replSet
-      - mapper-mongo-set
-
-  mapper-mongo-3:
-    image: mongo:4.2
-    container_name: mapper-mongo-3
-    networks:
-      - mapper-cluster-network
-    command:
-      - --replSet
-      - mapper-mongo-set
-```
+The easiest way to setup the mongo containers is to use a `docker-compose` script. One is provided in the repo (`docker-compose.mongo.yml`)
 
 Run the script with the following command:
 
 ```sh
-docker-compose up -d
+docker-compose -f docker-compose.mongo.yml up -d
 ```
 
 Once the containers have started up exec into one of the containers with the following command, `docker exec -it mapper-mongo-1 mongo`
@@ -141,19 +119,19 @@ config = {
 rs.initiate(config)
 ```
 
-Next step is to get the name of the Docker network that your cluster communicates on. We defined part of that name in the `docker-compose` script but the network name is prefixed by the name of the directory that contains your script. List the Docker networks to find the network named `{directory-name}_mapper-cluster-network` with the following command:
+> Note: The Mongo replica set config between the **docker and yarn setup instructions are not interchangable**.
+
+With your replica set running, you can start up your Mapping Mediator with the following command:
 
 ```sh
-docker network ls
+docker run -it -p 3003:3003 -e OPENHIM_REGISTER=false -e MONGO_URL='mongodb://mapper-mongo-1:27017,mapper-mongo-2:27017,mapper-mongo:27017/mapping-mediator?replicaSet=mapper-mongo-set' --network {directory-name}_mapper-cluster-network jembi/openhim-mapping-mediator:latest
 ```
 
-With your replica set running you can start up your Mapping Mediator with the following command (substitute in your Docker network name at the network flag):
+The following parameters are specific to the docker start up process:
 
-```sh
-docker run -it -p 3003:3003 -e MONGO_URL='mongodb://mapper-mongo-1:27017,mapper-mongo-2:27017,mapper-mongo:27017/mapping-mediator?replicaSet=mapper-mongo-set' --network {directory-name}_mapper-cluster-network jembi/openhim-mapping-mediator:latest
-```
+- `-e OPENHIM_REGISTER=false`
 
-The following parameters relate to the Mongo Replica set:
+  > This environment variable allows the Mapping Mediator to be **started up without the OpenHIM**. See the next section to start up the Mapper with the OpenHIM.
 
 - `-e MONGO_URL='mongodb://mapper-mongo-1:27017,mapper-mongo-2:27017,mapper-mongo-3:27017/mapping-mediator?replicaSet=mapper-mongo-set'`
 
@@ -163,6 +141,55 @@ The following parameters relate to the Mongo Replica set:
 
   The Mapping Mediator Container needs to connect to the same Docker network on which the Mongo replica set communicates
 
-## Registering to the OpenHIM
+## Registering with the OpenHIM
 
-The mapping mediator like most other OpenHIM mediators can register to an instance of OpenHIM. This allows us to have a visual indication of the mediators in use. To register as a mediator you will has to set the environment variable OPENHIM_REGISTER to `true`. The default value for the variable is `true`. For multiple instances of the mediator to register to the same instance of the openHIM each mediator has to have a unique `urn`. You can set the `urn` using the environment variable MEDIATOR_URN.
+The mapping mediator, like most other OpenHIM mediators, can register to an instance of the OpenHIM. This gives the user a graphical interface to interact with the mediator for status information and config options(if available).
+
+> Note: For multiple instances of the mediator to register to the same instance of the OpenHIM each mediator has to have a unique `urn`. You can set the `urn` using the environment variable MEDIATOR_URN.
+
+To get an OpenHIM Core and Console instance setup, use the `docker-compose.openhim.yml` script here (or your preferred method). Run the docker compose command with the following:
+
+```sh
+docker-compose -f docker-compose.openhim.yml up -d
+```
+
+Open a browser and navigate to <http://localhost:9000>. Login with the default username **root@openhim.org** and password **openhim-password** then by-pass the security warnings. For more information on how to do this see [our OpenHIM set up tutorial](https://youtu.be/F0bTS3qJlG0?t=173). Finally, set your new openhim root user password.
+
+### Yarn Set Up
+
+To register the mediator, you will need the following environment variables:
+
+- OPENHIM_URL=https://localhost:8080
+- OPENHIM_PASSWORD={openhim_password}
+
+Substitute in your openhim password into the following command:
+
+```sh
+OPENHIM_URL=https://localhost:8080 OPENHIM_PASSWORD={openhim_password} yarn start
+```
+
+The output logs should contain the message: **Successfully registered mediator!**
+
+Finally, go back to your browser and navigate to the `Mediators` section. Here you should see your mapping mediator instance registered on the OpenHIM with a recent *heartbeat*
+
+### Docker Set Up
+
+To register as a mediator, you will need the following environment variables:
+
+- OPENHIM_URL=https://openhim-core:8080
+- OPENHIM_PASSWORD={openhim_password}
+- MONGO_URL=mongodb://mapper-mongo-1:27017,mapper-mongo-2:27017,mapper-mongo-3:27017/mapping-mediator?replicaSet=mapper-mongo-set
+
+```sh
+docker run -e OPENHIM_URL=https://openhim-core:8080 -e OPENHIM_PASSWORD={openhim_password} -e MONGO_URL=mongodb://mapper-mongo-1:27017,mapper-mongo-2:27017,mapper-mongo-3:27017/mapping-mediator?replicaSet=mapper-mongo-set --network mapper-cluster-network --name mapper -d jembi/openhim-mediator-mapping:v2.2.0
+```
+
+To see the output logs of the mapping mediator run the following command:
+
+```sh
+docker logs -f mapper
+```
+
+Here you should see the message: **Successfully registered mediator!**
+
+Finally, go back to your browser and navigate to the `Mediators` section. Here you should see your mapping mediator instance registered on the OpenHIM with a recent *heartbeat*.
