@@ -4,7 +4,7 @@ This sample endpoint accepts a basic flat object and converts it into a FHIR tra
 
 ## Features
 
-- Validation - Ensure that the incoming payload contains the required fields we need, and that they are in the correct format as specified in the input validation
+- Validation - Ensure that the incoming payload contains the required fields, and that they are in the correct format as specified in the input validation
 - Mapping - Create a new FHIR transaction bundle object from the supplied request payload, and from the configured constants, input transforms, endpoint state
 - Constants - Contains all the static values required for constructing the FHIR transaction bundle
 - States - Extract the endpoint start time to populate the effectiveDate of the Observation (When the observation was created)
