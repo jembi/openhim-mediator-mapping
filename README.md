@@ -184,7 +184,7 @@ To register as a mediator, you will need the following environment variables:
 docker run -e OPENHIM_URL=https://openhim-core:8080 -e OPENHIM_PASSWORD={openhim_password} -e MONGO_URL=mongodb://mapper-mongo-1:27017,mapper-mongo-2:27017,mapper-mongo-3:27017/mapping-mediator?replicaSet=mapper-mongo-set --network mapper-cluster-network --name mapper -d jembi/openhim-mediator-mapping:v2.2.0
 ```
 
-> Note: **The Mapping Mediator is not exposed to your local macine in this case**. All requests would need to go through the OpenHIM. To expose the Mapping mediator port to your local machine include the following flag in your run command: `-p 3003:3003`
+> Note: **The Mapping Mediator is not exposed to your local machine in this case**. All requests would need to go through the OpenHIM. To expose the Mapping Mediator port to your local machine include the following flag in your run command: `-p 3003:3003`
 
 To see the output logs of the mapping mediator run the following command:
 
