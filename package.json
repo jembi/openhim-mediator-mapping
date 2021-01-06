@@ -25,7 +25,7 @@
     "@viweei/koa-body-parser": "^1.0.2",
     "ajv": "^6.10.2",
     "ajv-errors": "^1.0.1",
-    "axios": "^0.19.1",
+    "axios": "^0.21.1",
     "codecov": "^3.7.1",
     "jsonata": "^1.8.3",
     "koa": "^2.11.0",
