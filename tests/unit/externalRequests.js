@@ -216,14 +216,9 @@ tap.test('External Requests', {autoend: true}, t => {
         }
       }
 
-<<<<<<< HEAD
-      await Promise.all(performRequests(requests, ctx)).then(res => {
-        t.deepEqual(res[0], {123: 'Body'})
-=======
       await Promise.all(performLookupRequests(ctx, requests)).then(res => {
         t.deepEqual(res[0], {123: 'Body'})
         t.equals(ctx.state.allData.state.currentLookupHttpStatus, 200)
->>>>>>> master
         t.equals(ctx.orchestrations.length, 1)
         t.end()
       })
