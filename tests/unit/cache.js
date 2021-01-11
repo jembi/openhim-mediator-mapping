@@ -92,7 +92,7 @@ tap.test('Endpoint Cache', {autoend: true}, t => {
 
     // The populate step is asynchronous therefore we should wait to make sure
     // we don't try check the function was called before it has had a chance.
-    await sleep(1000)
+    await sleep(100)
 
     t.ok(modelWatchStub.calledOnce)
     t.ok(readEndpointStub.calledOnce)

@@ -1,6 +1,6 @@
 {
   "name": "openhim-mediator-generic-mapper",
-  "version": "2.0.7",
+  "version": "2.2.0",
   "description": "Generic Mapping Mediator",
   "repository": "git@github.com:jembi/openhim-mediator-mapping.git",
   "author": "Jembi Health Systems NPC",
@@ -13,6 +13,7 @@
     "test": "NODE_ENV='test' MONGO_URL='mongodb://localhost:27017/test' DYNAMIC_ENDPOINTS=false OPENHIM_REGISTER=false tap tests/**/*.js && npm run lint",
     "test:integration": "NODE_ENV='test' DYNAMIC_ENDPOINTS=false OPENHIM_REGISTER=false tap tests/integration/*.js && npm run lint",
     "test:unit": "NODE_ENV='test' MONGO_URL='mongodb://localhost:27017/test' DYNAMIC_ENDPOINTS=false tap tests/unit/*.js && npm run lint",
+    "test:watch": "NODE_ENV='test' MONGO_URL='mongodb://localhost:27017/test' DYNAMIC_ENDPOINTS=false OPENHIM_REGISTER=false tap tests/**/*.js --watch",
     "coverage": "tap --coverage-report=text-lcov > coverage.lcov && codecov"
   },
   "tap": {
@@ -24,7 +25,7 @@
     "@viweei/koa-body-parser": "^1.0.2",
     "ajv": "^6.10.2",
     "ajv-errors": "^1.0.1",
-    "axios": "^0.19.1",
+    "axios": "^0.21.1",
     "codecov": "^3.7.1",
     "jsonata": "^1.8.3",
     "koa": "^2.11.0",

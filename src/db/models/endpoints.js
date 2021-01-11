@@ -58,10 +58,20 @@ const endpointSchema = new mongoose.Schema(
     inputTransforms: {},
     inputValidation: {},
     state: {
-      extract: {}
+      default: {},
+      extract: {},
+      config: {
+        networkErrors: {
+          type: String, // This field adds a filter on the returned states by network errors.
+          enum: ['include', 'exclude', 'no-filter'],
+          default: 'no-filter'
+        },
+        includeStatuses: [String] // This field adds a filter on the returned states for http statuses. Example values ['*', '201', '4xx']
+      }
     }
   },
   {
+    minimize: false,
     timestamps: true // set the created_at/updated_at timestamps on the record
   }
 )

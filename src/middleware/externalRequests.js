@@ -7,7 +7,7 @@ const logger = require('../logger')
 const {OPENHIM_TRANSACTION_HEADER} = require('../constants')
 
 const {createOrchestration} = require('../orchestrations')
-const {extractValueFromObject} = require('../util')
+const {extractValueFromObject, makeQuerablePromise} = require('../util')
 
 const validateRequestStatusCode = allowedStatuses => {
   const stringStatuses = allowedStatuses.map(String)
@@ -26,115 +26,198 @@ const validateRequestStatusCode = allowedStatuses => {
   }
 }
 
-const performRequests = (requests, ctx) => {
+const performLookupRequest = async (ctx, requestDetails) => {
+  const reqTimestamp = DateTime.utc().toISO()
+  let responseTimestamp, orchestrationError, response
+
+  // capture the lookup request start time
+  ctx.state.allData.timestamps.lookupRequests[requestDetails.id] = {
+    requestStart: reqTimestamp
+  }
+
+  if (ctx.request.headers[OPENHIM_TRANSACTION_HEADER]) {
+    requestDetails.config.headers = Object.assign(
+      {
+        [OPENHIM_TRANSACTION_HEADER]:
+          ctx.request.headers[OPENHIM_TRANSACTION_HEADER]
+      },
+      requestDetails.config.headers
+    )
+  }
+
+  const requestParameters = addRequestQueryParameters(
+    ctx,
+    requestDetails.config
+  )
+  const requestUrl = resolveRequestUrl(ctx, requestDetails.config)
+  const body = requestDetails.forwardExistingRequestBody
+    ? ctx.request.body
+    : null
+
+  const axiosConfig = prepareRequestConfig(
+    requestDetails,
+    body,
+    requestParameters,
+    requestUrl
+  )
+
+  if (!ctx.state.allData.state) {
+    ctx.state.allData.state = {}
+  }
+
+  return axios(axiosConfig)
+    .then(res => {
+      response = res
+      response.body = res.data
+      responseTimestamp = DateTime.utc().toISO()
+
+      // capture the lookup request end time
+      ctx.state.allData.timestamps.lookupRequests[
+        requestDetails.id
+      ].requestEnd = responseTimestamp
+      ctx.state.allData.timestamps.lookupRequests[
+        requestDetails.id
+      ].requestDuration = DateTime.fromISO(responseTimestamp)
+        .diff(
+          DateTime.fromISO(
+            ctx.state.allData.timestamps.lookupRequests[requestDetails.id]
+              .requestStart
+          )
+        )
+        .toObject()
+
+      // Set state lookup status
+      ctx.state.allData.state.currentLookupHttpStatus =
+        ctx.state.allData.state.currentLookupHttpStatus > response.status
+          ? ctx.state.allData.state.currentLookupHttpStatus
+          : response.status
+
+      // Assign any data received from the response to the assigned ID in the context
+      return {[requestDetails.id]: res.data}
+    })
+    .catch(error => {
+      orchestrationError = error
+      logger.error(`Failed Request Config ${JSON.stringify(error.config)}`)
+
+      if (error.response) {
+        ctx.statusCode = error.response.status
+        ctx.state.allData.state.currentLookupHttpStatus =
+          ctx.state.allData.state.currentLookupHttpStatus >
+          error.response.status
+            ? ctx.state.allData.state.currentLookupHttpStatus
+            : error.response.status
+        throw new Error(
+          `Incorrect status code ${error.response.status}. ${error.response.data.message}`
+        )
+      } else if (error.request) {
+        ctx.state.allData.state.currentLookupNetworkError = true
+        throw new Error(
+          `No response from lookup '${requestDetails.id}'. ${error.message}`
+        )
+      } else {
+        ctx.statusCode = 500
+        ctx.state.allData.state.currentLookupHttpStatus =
+          ctx.state.allData.state.currentLookupHttpStatus > 500
+            ? ctx.state.allData.state.currentLookupHttpStatus
+            : 500
+        // Something happened in setting up the request that triggered an Error
+        throw new Error(`Unhandled Error: ${error.message}`)
+      }
+    })
+    .finally(() => {
+      // For now these orchestrations are recorded when there are no failures
+      if (
+        ctx.request.headers &&
+        ctx.request.headers[OPENHIM_TRANSACTION_HEADER]
+      ) {
+        const orchestrationName = `Endpoint Lookup Request: ${ctx.state.metaData.name}: ${requestDetails.id}`
+        const orchestration = createOrchestration(
+          axiosConfig,
+          response,
+          reqTimestamp,
+          responseTimestamp,
+          orchestrationName,
+          orchestrationError
+        )
+
+        ctx.orchestrations.push(orchestration)
+      }
+    })
+}
+
+const performLookupRequestArray = async (ctx, request) => {
+  const items = extractParamValue(request.forEach.items, ctx)
+
+  if (!items || !Array.isArray(items)) {
+    throw new Error(
+      "forEach.items could not be found at the specified path or the resolved value isn't an array"
+    )
+  }
+
+  const concurrency = request.forEach.concurrency || 1
+
+  const currentlyExecuting = []
+  const allPromises = []
+
+  for (const item of items) {
+    const itemRequest = Object.assign({}, request)
+    const itemCtx = Object.assign({}, ctx)
+
+    itemCtx.request.body = item
+    itemCtx.state.allData.item = item
+
+    const promise = makeQuerablePromise(
+      performLookupRequest(itemCtx, itemRequest)
+    )
+    currentlyExecuting.push(promise)
+    allPromises.push(promise)
+
+    if (currentlyExecuting.length === concurrency) {
+      // wait for at least one promise to settle
+      await Promise.race(currentlyExecuting)
+      for (const [index, promise] of currentlyExecuting.entries()) {
+        if (promise.isSettled()) {
+          currentlyExecuting.splice(index, 1)
+        }
+      }
+    }
+  }
+
+  return Promise.all(allPromises).then(responses =>
+    responses.reduce(
+      (combinedRes, currRes) => {
+        if (currRes && currRes[request.id]) {
+          combinedRes[request.id].push(currRes[request.id])
+        }
+        return combinedRes
+      },
+      {[request.id]: []}
+    )
+  )
+}
+
+const performLookupRequests = (ctx, requests) => {
   if (ctx && !ctx.orchestrations) {
     ctx.orchestrations = []
   }
 
-  return requests.map(requestDetails => {
-    const reqTimestamp = DateTime.utc().toISO()
-    let responseTimestamp, orchestrationError, response
+  return requests.map(async request => {
+    if (request.forEach) {
+      if (!request.forEach.items) {
+        throw new Error('forEach.items property must exist for forEach lookups')
+      }
 
-    // capture the lookup request start time
-    ctx.state.allData.timestamps.lookupRequests[requestDetails.id] = {
-      requestStart: reqTimestamp
+      return performLookupRequestArray(ctx, request)
     }
 
-    if (ctx.request.headers[OPENHIM_TRANSACTION_HEADER]) {
-      requestDetails.config.headers = Object.assign(
-        {
-          [OPENHIM_TRANSACTION_HEADER]:
-            ctx.request.headers[OPENHIM_TRANSACTION_HEADER]
-        },
-        requestDetails.config.headers
-      )
-    }
-
-    const requestParameters = addRequestQueryParameters(
-      ctx,
-      requestDetails.config
-    )
-    const requestUrl = resolveRequestUrl(ctx, requestDetails.config)
-    const body = requestDetails.forwardExistingRequestBody
-      ? ctx.request.body
-      : null
-
-    const axiosConfig = prepareRequestConfig(
-      requestDetails,
-      body,
-      requestParameters,
-      requestUrl
-    )
-
-    return axios(axiosConfig)
-      .then(res => {
-        response = res
-        response.body = res.data
-        responseTimestamp = DateTime.utc().toISO()
-
-        // capture the lookup request end time
-        ctx.state.allData.timestamps.lookupRequests[
-          requestDetails.id
-        ].requestEnd = responseTimestamp
-        ctx.state.allData.timestamps.lookupRequests[
-          requestDetails.id
-        ].requestDuration = DateTime.fromISO(responseTimestamp)
-          .diff(
-            DateTime.fromISO(
-              ctx.state.allData.timestamps.lookupRequests[requestDetails.id]
-                .requestStart
-            )
-          )
-          .toObject()
-
-        // Assign any data received from the response to the assigned ID in the context
-        return {[requestDetails.id]: res.data}
-      })
-      .catch(error => {
-        orchestrationError = error
-        logger.error(`Failed Request Config ${JSON.stringify(error.config)}`)
-
-        if (error.response) {
-          ctx.statusCode = error.response.status
-          throw new Error(
-            `Incorrect status code ${error.response.status}. ${error.response.data.message}`
-          )
-        } else if (error.request) {
-          throw new Error(
-            `No response from lookup '${requestDetails.id}'. ${error.message}`
-          )
-        } else {
-          ctx.statusCode = 500
-          // Something happened in setting up the request that triggered an Error
-          throw new Error(`Unhandled Error: ${error.message}`)
-        }
-      })
-      .finally(() => {
-        // For now these orchestrations are recorded when there are no failures
-        if (
-          ctx.request.headers &&
-          ctx.request.headers[OPENHIM_TRANSACTION_HEADER]
-        ) {
-          const orchestrationName = `Endpoint Lookup Request: ${ctx.state.metaData.name}: ${requestDetails.id}`
-          const orchestration = createOrchestration(
-            axiosConfig,
-            response,
-            reqTimestamp,
-            responseTimestamp,
-            orchestrationName,
-            orchestrationError
-          )
-
-          ctx.orchestrations.push(orchestration)
-        }
-      })
+    return performLookupRequest(ctx, request)
   })
 }
 
 const prepareLookupRequests = ctx => {
   const requests = Object.assign({}, ctx.state.metaData.requests)
   if (requests.lookup && requests.lookup.length > 0) {
-    const responseData = performRequests(requests.lookup, ctx)
+    const responseData = performLookupRequests(ctx, requests.lookup)
 
     return Promise.all(responseData)
       .then(data => {
@@ -187,6 +270,112 @@ const prepareRequestConfig = (
   return requestOptions
 }
 
+const performResponseRequestArray = async (ctx, request) => {
+  // Empty the koa response body. It contains the mapped data that is to be sent out.
+  // This data will be replaced with the array item value
+  ctx.body = {}
+
+  const items = extractParamValue(request.forEach.items, ctx)
+
+  if (!items || !Array.isArray(items)) {
+    throw new Error(
+      "forEach.items could not be found at the specified path or the resolved value isn't an array"
+    )
+  }
+
+  const concurrency = request.forEach.concurrency || 1
+
+  const currentlyExecuting = []
+  const allPromises = []
+
+  for (const item of items) {
+    const itemRequest = Object.assign({}, request)
+    // Prevent array requests being used as the primary
+    itemRequest.primary = false
+    const itemCtx = Object.assign({}, ctx)
+
+    itemCtx.body = item
+    itemCtx.state.allData.item = item
+
+    const promise = makeQuerablePromise(
+      performResponseRequest(itemCtx, itemRequest)
+    )
+    currentlyExecuting.push(promise)
+    allPromises.push(promise)
+
+    if (currentlyExecuting.length === concurrency) {
+      // wait for at least one promise to settle
+      await Promise.race(currentlyExecuting)
+      for (const [index, promise] of currentlyExecuting.entries()) {
+        if (promise.isSettled()) {
+          currentlyExecuting.splice(index, 1)
+        }
+      }
+    }
+  }
+
+  return Promise.all(allPromises).then(responses => {
+    const arrayResponses = responses.reduce(
+      (combinedRes, currRes) => {
+        if (currRes && currRes[request.id]) {
+          combinedRes[request.id].push(currRes[request.id])
+        }
+        return combinedRes
+      },
+      {[request.id]: []}
+    )
+    ctx.response.body = arrayResponses
+    return arrayResponses
+  })
+}
+
+const performResponseRequests = (ctx, requests) => {
+  //Create orchestrations
+  if (!ctx.orchestrations) {
+    ctx.orchestrations = []
+  }
+
+  return requests.map(request => {
+    if (
+      request &&
+      request.config &&
+      request.config.url &&
+      request.config.method &&
+      request.id
+    ) {
+      if (ctx.request.headers[OPENHIM_TRANSACTION_HEADER]) {
+        request.config.headers = Object.assign(
+          {
+            [OPENHIM_TRANSACTION_HEADER]:
+              ctx.request.headers[OPENHIM_TRANSACTION_HEADER]
+          },
+          request.config.headers
+        )
+      }
+
+      /*
+        Set the response request to be the primary
+        if there is only one response request
+      */
+      if (requests.length === 1) {
+        requests[0].primary = true
+      }
+
+      if (request.forEach) {
+        if (!request.forEach.items) {
+          throw new Error(
+            'forEach.items property must exist for forEach response'
+          )
+        }
+
+        return performResponseRequestArray(ctx, request)
+      }
+
+      return performResponseRequest(ctx, request)
+    }
+  })
+}
+
 // For now only json data is processed
 const prepareResponseRequests = async ctx => {
   const requests = ctx.state.metaData.requests
@@ -198,54 +387,7 @@ const prepareResponseRequests = async ctx => {
       Array.isArray(requests.response) &&
       requests.response.length
     ) {
-      //Create orchestrations
-      if (!ctx.orchestrations) {
-        ctx.orchestrations = []
-      }
-
-      /*
-        Set the response request to be the primary
-        if there is only one response request
-      */
-      if (requests.response.length === 1) {
-        requests.response[0].primary = true
-      }
-
-      // Empty the koa response body. It contains the mapped data that is to be sent out
-      const body = ctx.body
-      ctx.body = {}
-
-      const promises = requests.response.map(request => {
-        if (
-          request &&
-          request.config &&
-          request.config.url &&
-          request.config.method &&
-          request.id
-        ) {
-          const params = addRequestQueryParameters(ctx, request.config)
-          const requestUrl = resolveRequestUrl(ctx, request.config)
-
-          if (ctx.request.headers[OPENHIM_TRANSACTION_HEADER]) {
-            request.config.headers = Object.assign(
-              {
-                [OPENHIM_TRANSACTION_HEADER]:
-                  ctx.request.headers[OPENHIM_TRANSACTION_HEADER]
-              },
-              request.config.headers
-            )
-          }
-
-          const axiosConfig = prepareRequestConfig(
-            request,
-            body,
-            params,
-            requestUrl
-          )
-
-          return sendMappedObject(ctx, axiosConfig, request)
-        }
-      })
+      const promises = performResponseRequests(ctx, requests.response)
 
       await Promise.all(promises)
         .then(() => {
@@ -257,6 +399,7 @@ const prepareResponseRequests = async ctx => {
           logger.error(
             `${ctx.state.metaData.name} (${ctx.state.uuid}): Mapped object orchestration failure: ${error.message}`
           )
+          throw new Error(`Rejected Promise: ${error}`)
         })
     }
   }
@@ -358,14 +501,28 @@ const setKoaResponseBody = (ctx, request, body) => {
   }
 }
 
-const sendMappedObject = (ctx, axiosConfig, request) => {
+const performResponseRequest = (ctx, requestDetails) => {
   const reqTimestamp = DateTime.utc().toISO()
   let response, orchestrationError, responseTimestamp
 
   // capture the lookup request start time
-  ctx.state.allData.timestamps.lookupRequests[request.id] = {
+  ctx.state.allData.timestamps.lookupRequests[requestDetails.id] = {
     requestStart: reqTimestamp
   }
+
+  // Empty the koa response body. It contains the mapped data that is to be sent out
+  const body = ctx.body
+  ctx.body = {}
+
+  const params = addRequestQueryParameters(ctx, requestDetails.config)
+  const requestUrl = resolveRequestUrl(ctx, requestDetails.config)
+
+  const axiosConfig = prepareRequestConfig(
+    requestDetails,
+    body,
+    params,
+    requestUrl
+  )
 
   return axios(axiosConfig)
     .then(resp => {
@@ -375,19 +532,20 @@ const sendMappedObject = (ctx, axiosConfig, request) => {
 
       // capture the lookup request end time
       ctx.state.allData.timestamps.lookupRequests[
-        request.id
+        requestDetails.id
       ].requestEnd = responseTimestamp
       ctx.state.allData.timestamps.lookupRequests[
-        request.id
+        requestDetails.id
       ].requestDuration = DateTime.fromISO(responseTimestamp)
         .diff(
           DateTime.fromISO(
-            ctx.state.allData.timestamps.lookupRequests[request.id].requestStart
+            ctx.state.allData.timestamps.lookupRequests[requestDetails.id]
+              .requestStart
           )
         )
         .toObject()
 
-      if (request.primary) {
+      if (requestDetails.primary) {
         setKoaResponseBodyAndHeadersFromPrimary(
           ctx,
           response.status,
@@ -395,22 +553,24 @@ const sendMappedObject = (ctx, axiosConfig, request) => {
           response.body
         )
       } else {
-        setKoaResponseBody(ctx, request, response.body)
+        setKoaResponseBody(ctx, requestDetails, response.body)
       }
+      return {[requestDetails.id]: resp.data}
     })
     .catch(error => {
       responseTimestamp = DateTime.utc().toISO()
 
-      const result = handleRequestError(ctx, request, error)
+      const result = handleRequestError(ctx, requestDetails, error)
       response = result.response
       orchestrationError = result.error
+      return {[requestDetails.id]: {response, error: result.error}}
     })
     .finally(() => {
       if (
         ctx.request.headers &&
         ctx.request.headers[OPENHIM_TRANSACTION_HEADER]
       ) {
-        const orchestrationName = `Endpoint Response Request: ${ctx.state.metaData.name}: ${request.id}`
+        const orchestrationName = `Endpoint Response Request: ${ctx.state.metaData.name}: ${requestDetails.id}`
         const orchestration = createOrchestration(
           axiosConfig,
           response,
@@ -451,6 +611,8 @@ const extractParamValue = (path, ctx) => {
       return extractValueFromObject(ctx.state.allData.constants, path)
     case 'timestamps':
       return extractValueFromObject(ctx.state.allData.timestamps, path)
+    case 'item':
+      return extractValueFromObject(ctx.state.allData.item, path)
     default:
       ctx.statusCode = 500
       throw new Error(

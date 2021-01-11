@@ -2,7 +2,7 @@
   "name": "Bahmni Patient Mapper",
   "description": "Validate and Map an OpenMRS BAHMNI Patient Resource into a FHIR Patient Resource",
   "endpoint": {
-    "pattern": "/bahmni-patient-to-fhir"
+    "pattern": "/bahmniPatient"
   },
   "transformation": {
     "input": "JSON",

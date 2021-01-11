@@ -1,6 +1,6 @@
 {
   "name": "DHIS2 Location data to FHIR Part 2",
-  "description": "This config is dependent on the data set sent from 'DHIS2 Location data to FHIR Part 1'. With the DHIS2 Facility array, this config will validate and map the data into a FHIR Bundle containing individual FHIR Location Resources. This FHIR Bundle will then posted to the HAPI FHIR Sandbox instance.",
+  "description": "This config is dependent on the data set sent from 'DHIS2 Location data to FHIR Part 1'. With the DHIS2 Facility array, this config will validate and map the data into a FHIR Bundle containing individual FHIR Location Resources. This FHIR Bundle will then be posted to the HAPI FHIR Sandbox instance.",
   "endpoint": {
     "pattern": "/dhis2part2"
   },

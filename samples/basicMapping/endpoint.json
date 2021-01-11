@@ -1,0 +1,22 @@
+{
+  "name": "Basic Mapping",
+  "description": "Tutorial schema to illustrate a simple FHIR patient mapping scenario",
+  "endpoint": {
+    "pattern": "/basic-map"
+  },
+  "transformation": {
+    "input": "JSON",
+    "output": "JSON"
+  },
+  "inputMapping": {
+    "constants.resourceType": "resourceType",
+    "requestBody.name": "name[].given[]+",
+    "requestBody.surname": "name[].family",
+    "requestBody.address.street_address": "address[].line",
+    "requestBody.address.town": "address[].city",
+    "requestBody.address.country": "address[].country"
+  },
+  "constants": {
+    "resourceType": "Patient"
+  }
+}

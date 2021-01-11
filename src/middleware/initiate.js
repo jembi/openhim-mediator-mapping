@@ -43,6 +43,12 @@ const extractStateValues = (ctx, extract) => {
     timestamps: ctx.state.allData.timestamps
   }
 
+  if (allData.state) {
+    updatedState.lookupHttpStatus = allData.state.currentLookupHttpStatus
+    updatedState.lookupNetworkError =
+      allData.state.currentLookupNetworkError || false
+  }
+
   if (!extract) {
     return updatedState
   }
@@ -78,7 +84,7 @@ const updateEndpointState = async (ctx, endpoint) => {
     throw new Error('No metaData supplied for updating state for this endpoint')
   }
 
-  if (!endpoint.state || Object.keys(endpoint).length === 0) {
+  if (!endpoint.state || Object.keys(endpoint.state).length === 0) {
     return logger.info(
       `${endpoint.name} (${ctx.state.uuid}): No state configuration for this endpoint`
     )
@@ -150,7 +156,9 @@ exports.initiateContextMiddleware = () => async (ctx, next) => {
   }
 
   const endpointState = await statesService.readLatestEndpointStateById(
-    endpoint._id
+    endpoint._id,
+    endpoint.state.config.networkErrors,
+    endpoint.state.config.includeStatuses
   )
 
   logger.info(`${endpoint.name} (${requestUUID}): Initiating new request`)

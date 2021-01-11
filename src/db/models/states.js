@@ -2,13 +2,23 @@
 
 const mongoose = require('mongoose')
 
-const {MONGOOSE_STRING_TIMESTAMP_REGEX} = require('../../constants')
+const {
+  HTTP_STATUS_REGEX,
+  MONGOOSE_STRING_TIMESTAMP_REGEX
+} = require('../../constants')
 
 const stateSchema = new mongoose.Schema(
   {
     _endpointReference: {
       type: mongoose.Types.ObjectId,
       required: true
+    },
+    lookupNetworkError: {
+      type: Boolean
+    },
+    lookupHttpStatus: {
+      type: Number,
+      match: HTTP_STATUS_REGEX
     },
     system: {
       timestamps: {

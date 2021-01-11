@@ -1,6 +1,6 @@
 {
   "urn": "urn:mediator:generic_mapper",
-  "version": "2.0.7",
+  "version": "2.2.0",
   "name": "Mapping Mediator",
   "description": "Generic OpenHIM Mapping Mediator",
   "endpoints": [
