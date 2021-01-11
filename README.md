@@ -5,9 +5,9 @@
 [![Total alerts](https://img.shields.io/lgtm/alerts/g/jembi/openhim-mediator-mapping.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/jembi/openhim-mediator-mapping/alerts/)
 [![Language grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/jembi/openhim-mediator-mapping.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/jembi/openhim-mediator-mapping/context:javascript)
 
-This Mapping mediator is a POC. It's function is to allow data validation, and mapping to allow communication between previously disparate systems. What makes it different from other existing mapping mediators is that it is generic. Users can define their own validation and mapping schemas for their specific use case. This is useful as it opens up Mapping Mediators to users without any coding knowledge.
+The Mapping Mediator's function is to allow data validation, mapping, and orchestration between previously disparate systems. What makes it different from other existing mapping mediators is that it is generic. Users can define their own validation and mapping schemas for their specific use case. This is useful as it opens up Mapping Mediators to users without any coding knowledge.
 
-Please see our [docs](https://jembi.github.io/openhim-mediator-mapping/docs/setup) for setup more details.
+Please see [our documentation page](https://jembi.github.io/openhim-mediator-mapping) for more details.
 
 ## Prerequisite
 
@@ -24,7 +24,7 @@ This set up guide will make use of Docker to run the Mongo cluster and yarn to r
 
 The easiest way to setup the mongo containers is to use a `docker-compose` script. One is provided in the repo (`docker-compose.deps.yml`)
 
-Run the script with the following command:
+Run the script from the project root directory with the following command:
 
 ```sh
 docker-compose -f docker-compose.deps.yml up -d
@@ -141,10 +141,12 @@ config = {
 rs.initiate(config)
 ```
 
-Next step is to get the name of the Docker network that your cluster communicates on. We defined part of that name in the `docker-compose` script but the network name is prefixed by the name of the directory that contains your script. List the Docker networks to find the network named `{directory-name}_mapper-cluster-network` with the following command:
+> Note: The Mongo replica set config between the **docker and yarn setup instructions are not interchangeable**.
+
+With your replica set running, you can start up your Mapping Mediator with the following command:
 
 ```sh
-docker network ls
+docker run -it -p 3003:3003 -e OPENHIM_REGISTER=false -e MONGO_URL='mongodb://mapper-mongo-1:27017,mapper-mongo-2:27017,mapper-mongo:27017/mapping-mediator?replicaSet=mapper-mongo-set' --network mapper-cluster-network jembi/openhim-mediator-mapping:latest
 ```
 
 With your replica set running you can start up your Mapping Mediator with the following command (substitute in your Docker network name at the network flag):
@@ -163,6 +165,58 @@ The following parameters relate to the Mongo Replica set:
 
   The Mapping Mediator Container needs to connect to the same Docker network on which the Mongo replica set communicates
 
-## Registering to the OpenHIM
+## Registering with the OpenHIM
+
+The mapping mediator, like most other OpenHIM mediators, can register to an instance of the OpenHIM. This gives the user a graphical interface to interact with the mediator for status information and config options(if available).
+
+> Note: For multiple instances of the mediator to register to the same instance of the OpenHIM each mediator has to have a unique `urn`. You can set the `urn` using the environment variable MEDIATOR_URN.
+
+To get an OpenHIM Core and Console instance setup, use the `docker-compose.openhim.yml` script here (or your preferred method). Run the docker compose command with the following:
+
+```sh
+docker-compose -f docker-compose.openhim.yml up -d
+```
+
+Open a browser and navigate to <http://localhost:9000>. Login with the default username **root@openhim.org** and password **openhim-password** then by-pass the security warnings. For more information on how to do this see [our OpenHIM set up tutorial](https://youtu.be/F0bTS3qJlG0?t=173). Finally, set your new openhim root user password.
+
+### Yarn Set Up
+
+To register the mediator, you will need the following environment variables:
+
+- `MONGO_URL='mongodb://localhost:27017,localhost:27018,localhost:27019/mapping-mediator?replicaSet=mapper-mongo-set'`
+- `OPENHIM_URL=https://localhost:8080`
+- `OPENHIM_PASSWORD={openhim_password}`
+
+Substitute in your openhim password into the following command:
+
+```sh
+MONGO_URL='mongodb://localhost:27017,localhost:27018,localhost:27019/mapping-mediator?replicaSet=mapper-mongo-set' OPENHIM_URL=https://localhost:8080 OPENHIM_PASSWORD={openhim_password} yarn start
+```
+
+The output logs should contain the message: **Successfully registered mediator!**
+
+Finally, go back to your browser and navigate to the `Mediators` section. Here you should see your mapping mediator instance registered on the OpenHIM with a recent *heartbeat*
+
+### Docker Set Up
+
+To register as a mediator, you will need the following environment variables:
+
+- OPENHIM_URL=https://openhim-core:8080
+- OPENHIM_PASSWORD={openhim_password}
+- MONGO_URL=mongodb://mapper-mongo-1:27017,mapper-mongo-2:27017,mapper-mongo-3:27017/mapping-mediator?replicaSet=mapper-mongo-set
+
+```sh
+docker run -e OPENHIM_URL=https://openhim-core:8080 -e OPENHIM_PASSWORD={openhim_password} -e MONGO_URL=mongodb://mapper-mongo-1:27017,mapper-mongo-2:27017,mapper-mongo-3:27017/mapping-mediator?replicaSet=mapper-mongo-set --network mapper-cluster-network --name mapper -d jembi/openhim-mediator-mapping:v2.2.0
+```
+
+> Note: **The Mapping Mediator is not exposed to your local machine in this case**. All requests would need to go through the OpenHIM. To expose the Mapping Mediator port to your local machine include the following flag in your run command: `-p 3003:3003`
+
+To see the output logs of the mapping mediator run the following command:
+
+```sh
+docker logs -f mapper
+```
+
+Here you should see the message: **Successfully registered mediator!**
 
 The mapping mediator like most other OpenHIM mediators can register to an instance of OpenHIM. This allows us to have a visual indication of the mediators in use. To register as a mediator you will has to set the environment variable OPENHIM_REGISTER to `true`. The default value for the variable is `true`. For multiple instances of the mediator to register to the same instance of the openHIM each mediator has to have a unique `urn`. You can set the `urn` using the environment variable MEDIATOR_URN.

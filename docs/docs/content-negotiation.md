@@ -12,8 +12,9 @@ The Content Negotiation feature within each endpoints allows the implementer to 
 This features can be used completely on its own without having to execute any of the other features if you purely just want to convert a document from one format to another.
 
 Supported Content Types:
-  - JSON
-  - XML
+
+- JSON
+- XML
 
 ## How does this work?
 

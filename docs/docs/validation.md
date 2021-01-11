@@ -7,7 +7,7 @@ sidebar_label: Validation
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-The Validation feature within each endpoints allows the implementer to define a definition of validation rules that the incoming payload needs to adhere to for it to be considered a valid payload. 
+The Validation feature within each endpoints allows the implementer to define a definition of validation rules that the incoming payload needs to adhere to for it to be considered a valid payload.
 This features can be used completely on its own without having to execute any of the other features if you purely just want to validate a payload to ensure data quality.
 
 Applying the validation feature is recommended but optional. The level of validation is completely configurable by the user. Any fields that don't require validation can be left out of the validation schema.
@@ -47,8 +47,8 @@ Data types such as `date`, `email`, `uuid`, etc. all inherit the type `string`. 
 
 Data points that can be validated within the OpenHIM Mediator Mapping include:
 
-  - requestBody
-  - lookupRequests
+- requestBody
+- lookupRequests
 
 ## Validation in practice
 
@@ -56,12 +56,12 @@ The example is just to illustrate how to go about defining the payload validatio
 
 The below Validation settings defines the following
 
-  - Validate on the incoming `requestBody` which should be an `Object`
-  - Within the `requestBody` object we expect 4 required fields to be supplied
-    - `id`: This incoming field is a required string value that needs to match on the supplied regular expression
-    - `display`: This incoming field is a required string
-    - `height`: This incoming field is a required string
-    - `id`: This incoming field is a required number
+- Validate on the incoming `requestBody` which should be an `Object`
+- Within the `requestBody` object we expect 4 required fields to be supplied:
+  - `id`: This incoming field is a required string value that needs to match on the supplied regular expression
+  - `display`: This incoming field is a required string
+  - `height`: This incoming field is a required string
+  - `id`: This incoming field is a required number
 
 <Tabs
   defaultValue="endpoint"

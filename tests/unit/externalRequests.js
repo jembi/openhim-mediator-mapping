@@ -215,7 +215,7 @@ tap.test('External Requests', {autoend: true}, t => {
       }
 
       await Promise.all(performRequests(requests, ctx)).then(res => {
-        t.deepEqual(res[0], {'123': 'Body'})
+        t.deepEqual(res[0], {123: 'Body'})
         t.equals(ctx.orchestrations.length, 1)
         t.end()
       })
@@ -1205,7 +1205,7 @@ tap.test('External Requests', {autoend: true}, t => {
             body: {
               test1: 'params',
               test: {
-                '2': 'test'
+                2: 'test'
               }
             }
           }
@@ -1240,7 +1240,7 @@ tap.test('External Requests', {autoend: true}, t => {
               body: {
                 test1: null,
                 test: {
-                  '2': undefined
+                  2: undefined
                 }
               }
             }
@@ -1271,7 +1271,7 @@ tap.test('External Requests', {autoend: true}, t => {
             body: {
               test1: '',
               test: {
-                '2': 0
+                2: 0
               }
             }
           }

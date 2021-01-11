@@ -23,7 +23,7 @@ When creating a new `endpoint` you can supply a section called `state` to the ro
 
 This object will contain all the details required for extracting your relevant state property.
 
-There are currently 4 data points that we are able to extract data values from. 
+There are currently 4 data points that we are able to extract data values from.
 
 - requestBody - Values extracted from the incoming request body
 - responseBody - Values extracted outgoing response body
@@ -38,17 +38,17 @@ The example is just to illustrate how to go about storing state values. These st
 
 The below state management makes use of the below data points:
 
-  - **system.timestamps** - Extract the timestamp of the last time this endpoint was triggered
-    - Used to populate the `_since` query parameter for the `lookup1` request
-  - **requestBody** - Values extracted from the incoming request body
-    - Used to extract the `submittedBy`, `organisationId` and `facilityId` from the incoming request payload
-  - **responseBody** - Values extracted outgoing response body
-    - Used to extract the `totals.count` from the response payload
-  - **query** - Values extracted from the query parameters
-    - Used to extract the `page` query parameter from the incoming request
-    - Used to populate the `page` query parameter for the `lookup1` request
-  - **lookupRequests** - Values extracted from the incoming request body
-    - Used to extract the `count` from the `lookup1` response payload and the `metrics.queries.count` from the `request1` response payload
+- **system.timestamps** - Extract the timestamp of the last time this endpoint was triggered
+  - Used to populate the `_since` query parameter for the `lookup1` request
+- **requestBody** - Values extracted from the incoming request body
+  - Used to extract the `submittedBy`, `organisationId` and `facilityId` from the incoming request payload
+- **responseBody** - Values extracted outgoing response body
+  - Used to extract the `totals.count` from the response payload
+- **query** - Values extracted from the query parameters
+  - Used to extract the `page` query parameter from the incoming request
+  - Used to populate the `page` query parameter for the `lookup1` request
+- **lookupRequests** - Values extracted from the incoming request body
+  - Used to extract the `count` from the `lookup1` response payload and the `metrics.queries.count` from the `request1` response payload
 
 <Tabs
   defaultValue="endpoint"

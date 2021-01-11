@@ -10,14 +10,15 @@ The main concept behind the OpenHIM Mediator Mapping is to simplify the creation
 
 It allows a non technical person to define some configuration and allow the OpenHIM Mediator Mapping to do the heavy lifting.
 
-Some of the features the OpenHIM Mediator Mapping caters for are as follows
-  - Content Negotiation
-  - Validation
-  - Transformation
-  - Data manipulations
-  - External requests
-  - State management
+Some of the features the OpenHIM Mediator Mapping caters for are as follows:
 
-What makes the OpenHIM Mediator Mapping so powerful is that it can be used for a wide range of use cases, ranging from the very basic of ensuring data quality by using the validation mechanism, or more complex use cases where it performs data validation, external lookups, data transformation and manipulations. 
+- Content Negotiation
+- Validation
+- Transformation
+- Data manipulations
+- External requests
+- State management
+
+What makes the OpenHIM Mediator Mapping so powerful is that it can be used for a wide range of use cases, ranging from the very basic of ensuring data quality by using the validation mechanism, or more complex use cases where it performs data validation, external lookups, data transformation and manipulations.
 
 Even more complex workflows can be configured by allowing `endpoints` to call other `endpoints` and chaining them together to achieve a desired workflow.
