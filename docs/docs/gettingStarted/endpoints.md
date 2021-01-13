@@ -7,54 +7,268 @@ sidebar_label: Endpoints
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-## Configuration files
+## Endpoint Configuration
 
-The configuration files must be stored in a directory in the root of the project named endpoints. This endpoints directory should be further broken down into sub-directories each containing a minimum of four specific files: `meta.json`, `input-mapping.json`, `input-validation.json`, and `constants.json`. `output.json` is optional at this point. The endpoints directory should be in the following structure:
+Each `Endpoint` is configured independently with a schema stored in MongoDB.
+The schemas are defined as JSON objects. Endpoints are added to the Mapping Mediator via its API.
+In the example below, we post a simple example endpoint to our local API endpoint which defaults to <http://localhost:3003/endpoints>.
 
-```txt
-├── Endpoints
-    ├── Example Patient Mapping
-        ├── constants.json (optional)
-        ├── input-mapping.json
-        ├── input-validation.json
-        ├── meta.json
-        ├── output.json (optional)
-    ├── Example Observation Mapping
-        ├── constants.json (optional)
-        ├── input-mapping.json
-        ├── input-validation.json
-        ├── meta.json
-        ├── output.json (optional)
-    ├── Example Different Patient Mapping
-        ├── constants.json (optional)
-        ├── input-mapping.json
-        ├── input-validation.json
-        ├── meta.json
-        ├── output.json (optional)
+```sh
+curl --location --request POST 'http://localhost:3003/endpoints' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "name": "Endpoint Example",
+    "endpoint": {
+        "pattern": "/example",
+        "method": "GET"
+    },
+    "transformation": {
+        "input": "JSON",
+        "output": "JSON"
+    },
+    "inputMapping": {
+      "constants.example_constant":"hello"
+    },
+    "constants": {
+      "example_constant": "world!"
+    }
+}'
 ```
 
-### 1. Meta Data
+This is a RESTful API that supports POST, PUT, GET, and DELETE. Therefore, once an `Endpoint` has been created it can be retrieved, updated, and deleted. For information please see the [Mapping Mediator API]() documentation.
 
-The `meta.json` file contains the details involved for route setup. The following can be set in the `meta.json` file:
+The schema can be broken down into 7 major areas of concern:
 
-- Mapping route path
-- Expected **input** message type
-- Desired **output** message type
-- External requests
+1. Metadata
+1. Mapping
+1. Constants
+1. Validation
+1. Transformation
+1. Orchestration
+1. State
 
-#### Mapping Route Path
+### 1. Metadata
 
-This is the path on which the OpenHIM Mapping Mediator will listen to trigger a specific message mapping transformation. The path is specified in the endpoint pattern property. Url parameters are supported. The URL parameters can be used in the external requests and in the mapping. A request that matches on a pattern like `/path/:parameter1/:parameter2` will have the values of these parameters available for use in the external requests and mapping under variable names `parameter1` and `parameter2`.
+The `metadata` section contains the details involved for route setup. The following can be set in the root level of the config object:
+
+- Endpoint `name`
+- Endpoint `description`
+- Route path `pattern`
+- Route HTTP `method`
+- Expected `input` message data type
+- Desired `output` message data type
+
+#### Route Path Pattern
+
+This is the path on which the OpenHIM Mapping Mediator will listen to trigger a specific message mapping transformation. The path is specified in the endpoint `pattern` property. Url parameters are supported. The URL parameters can be used in the external requests and in the mapping. A request that matches on a pattern like `/path/:parameter1/:parameter2` will have the values of these parameters available for use in the external requests and mapping under variable names `parameter1` and `parameter2`.
 
 #### Expected Input
 
-Specify the expected input message type for this specific endpoint to allow the OpenHIM Mapping Mediator to successfully parse the incoming message for processing. Current accepted formats are `JSON` and `XML`
+Specify the expected input message type for this specific endpoint to allow the OpenHIM Mapping Mediator to successfully parse the incoming message for processing. Currently accepted formats are `JSON` and `XML`
 
 #### Desired Output
 
-Specify the desired output message type for this specific endpoint to allow the OpenHIM Mapping Mediator to successfully parse the outgoing message. Current accepted formats are `JSON` and `XML`
+Specify the desired output message type for this specific endpoint to allow the OpenHIM Mapping Mediator to parse the outgoing message. Currently accepted formats are `JSON` and `XML`
 
-#### External Requests
+### 2. Mapping
+
+The mapping schema in the `input-mapping.json` JSON document defines how the incoming data will be retrieved and used to build up a new object in the desired outcome.
+
+The root structure of this input mapping schema consists of two properties as defined below
+
+```javascript
+{
+  "input": { ... },
+  "constants": { ... } // optional
+}
+```
+
+The structure for both the properties are the same and are defined as below. Below is an example of the mapping
+
+<Tabs
+  defaultValue="input"
+  values={
+    [
+      { label: 'Input', value: 'input' },
+      { label: 'Mapping Schema', value: 'mapping' },
+      { label: 'Output', value: 'output' },
+    ]
+  }
+>
+<TabItem value="input">
+
+```js
+{
+  requestBody: {
+    status: 'Active'
+  },
+  lookupRequests: {
+    location: 'Unknown'
+  }
+}
+```
+
+</TabItem>
+<TabItem value="mapping">
+
+```json
+{
+  "input": {
+    "requestBody.status": "status",
+    "lookupRequests.location": "location"
+  }
+}
+```
+
+</TabItem>
+<TabItem value="output">
+
+```js
+{
+  status: 'Active',
+  location: 'Unknown'
+}
+```
+
+</TabItem>
+</Tabs>
+
+### 3. Constants
+
+The constants section contains data to be used alongside the client input data. This contains values for fields required in the output data that weren't available from the original client input.
+
+Fields in constants can only be referenced in the transformation, orchestration and mapping sections of the Endpoint schema. See below for a simple example:
+
+<Tabs
+  defaultValue="definition"
+  values={
+    [
+      { label: 'Constants Definition', value: 'definition' },
+      { label: 'Constants Reference', value: 'reference' },
+      { label: 'Output', value: 'output' },
+    ]
+  }>
+  <TabItem value="definition">
+
+Here we define two constants.
+
+```json
+"constants": {
+  "first_constant": "world",
+  "second_constant": 3.1415
+}
+```
+
+  </TabItem>
+    <TabItem value="reference">
+
+The constants are mapped to new output fields `hello` and `pi` respectively.
+
+```json
+  "inputMapping": {
+    "constants.first_constant": "hello",
+    "constants.second_constant": "pi",
+  }
+```
+
+  </TabItem>
+    <TabItem value="output">
+
+The output object then contains constant data independent of the input request data.
+
+```json
+{
+  "hello": "world",
+  "pi": 3.1415
+}
+```
+
+  </TabItem>
+</Tabs>
+
+### 4. Validation
+
+The data from the input request as well as any lookup requests can be validated before the mapping occurs. Below is a sample of a validation schema:
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "weight": {
+      "type": "number",
+      "min": 0.1,
+      "max": 650,
+      "errorMessage": "Weight must be a number between 0.1 and 650"
+    }
+  },
+  "required": ["name"]
+}
+```
+
+This schema will verify a message contains a **required** field called `name` of type string and an **optional** field called `weight` that if provided, is a number within the range 0.1 to 650.
+
+For more details, see the [validation page](../features/validation.md).
+
+### 5. Transformation
+
+The transformation step allows data to undergo complex changes before the mapping step. The Mapping Mediator makes use of the [JSONata library](http://docs.jsonata.org/overview.html) to perform transformations. Transformed data and the original input are both available to be mapped in the mapping step.
+
+<Tabs
+  defaultValue="input"
+  values={
+    [
+      { label: 'Input', value: 'input' },
+      { label: 'Transformation Reference', value: 'reference' },
+      { label: 'Output', value: 'output' },
+    ]
+  }>
+  <TabItem value="input">
+
+Here we define two constants.
+
+```json
+{
+  "first_field": "world",
+  "second_field": 3.1415
+}
+```
+
+  </TabItem>
+    <TabItem value="reference">
+
+The transform schema definition:
+
+```json
+  "inputTransforms": {
+    
+  },
+  "inputMapping": {
+    "constants.first_constant": "hello",
+    "constants.second_constant": "pi",
+  }
+```
+
+  </TabItem>
+    <TabItem value="output">
+
+The output object then contains constant data independent of the input request data.
+
+```json
+{
+  "hello": "world",
+  "pi": 3.1415
+}
+```
+
+  </TabItem>
+</Tabs>
+
+For more details check out [transformation](../features/transformation)
+
+### 6. Orchestrations
 
 This feature allows for data lookups from external services and the sending of the mapped data to external services. The data to look up and the services where the result of the mapping should be sent are specified in the `meta.json`. The data looked up is aggregated with the input data before the validation is done. Below is a sample of a `meta.json`
 
@@ -367,9 +581,8 @@ There are two types of external requests, the `lookup` and the `response`. Query
 
   Configuration reference:
 
-  > `items` - this is the path to any stored variable which must resolve to an array, a request will fire for each array element
-
-  > `concurrency` - (optional) how many requests to execute at any one time, defaults to 1.
+  `items`: this is the path to any stored variable which must resolve to an array, a request will fire for each array element
+  `concurrency`: (optional) how many requests to execute at any one time, defaults to 1.
 
   The current item in the list is also made available as a variable for the requests to use so that each request may be dynamic. E.g:
 
@@ -397,94 +610,4 @@ There are two types of external requests, the `lookup` and the `response`. Query
   </TabItem>
 </Tabs>
 
-### 2. Input Validation Schema
-
-The data to be mapped can be validated before the mapping occurs. A validation schema has to be created in the `input-validation.json` file. Below is a sample of a validation schema
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "name": {"type": "string"},
-    "surname": {"type": "string", "nullable": true},
-  },
-  "required": ["name"]
-}
-```
-
-For more details on this check out [validation](./validation.md)
-
-### 3. Input Mapping Schema
-
-The mapping schema in the `input-mapping.json` JSON document defines how the incoming data will be retrieved and used to build up a new object in the desired outcome.
-
-The root structure of this input mapping schema consists of two properties as defined below
-
-```javascript
-{
-  "input": { ... },
-  "constants": { ... } // optional
-}
-```
-
-The structure for both the properties are the same and are defined as below. Below is an example of the mapping
-
-<Tabs
-  defaultValue="input"
-  values={
-    [
-      { label: 'Input', value: 'input' },
-      { label: 'Mapping Schema', value: 'mapping' },
-      { label: 'Output', value: 'output' },
-    ]
-  }
->
-<TabItem value="input">
-
-```js
-{
-  requestBody: {
-    status: 'Active'
-  },
-  lookupRequests: {
-    location: 'Unknown'
-  }
-}
-```
-
-</TabItem>
-<TabItem value="mapping">
-
-```json
-{
-  "input": {
-    "requestBody.status": "status",
-    "lookupRequests.location": "location"
-  }
-}
-```
-
-</TabItem>
-<TabItem value="output">
-
-```js
-{
-  status: 'Active',
-  location: 'Unknown'
-}
-```
-
-</TabItem>
-</Tabs>
-
-For more details check out [transformation](./transformation)
-
-### 4. Constants
-
-The constants file contains data to be used alongside the client input data. The constants file can contain values for fields required in the output data that weren't available from the original client input.
-
-Fields in the constants file can be referenced in the mapping schema in the `constants` section similar to the user input mapping.
-
-### 5. Output
-
----
+### 7. State

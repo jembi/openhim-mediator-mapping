@@ -16,7 +16,7 @@ Before we can continue with the sample endpoint configuration, we need to ensure
 
 Copy the [bahmni](https://github.com/jembi/openhim-mediator-mapping/tree/master/samples/endpoints/bahmni) directory to the [endpoints](https://github.com/jembi/openhim-mediator-mapping/tree/master/endpoints) directory.
 
-The server will require a restart for the new endpoint files to be initialized and the endpoint successfully created 
+The server will require a restart for the new endpoint files to be initialized and the endpoint successfully created.
 
 ## Config
 
