@@ -35,7 +35,7 @@ curl --location --request POST 'http://localhost:3003/endpoints' \
 }'
 ```
 
-This is a RESTful API that supports POST, PUT, GET, and DELETE. Therefore, once an `Endpoint` has been created it can be retrieved, updated, and deleted. For information please see the [Mapping Mediator API]() documentation.
+This is a RESTful API that supports POST, PUT, GET, and DELETE. Therefore, once an `Endpoint` has been created it can be retrieved, updated, and deleted. For more information, please see the [Mapping Mediator API](./api.md) documentation.
 
 The schema can be broken down into 7 major areas of concern:
 
