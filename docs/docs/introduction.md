@@ -4,11 +4,11 @@ title: Introduction
 sidebar_label: Introduction
 ---
 
-The OpenHIM Mediator Mapping is a tool with various uses to meet a range of common bushiness use cases.
+The OpenHIM Mediator Mapping is a generic mapping tool that can help facilitate many common data exchange needs.
 
-The main concept behind the OpenHIM Mediator Mapping is to simplify the creation of business logic without having the need to get developers involved in creating these business flows.
+The aim of the OpenHIM Mediator Mapping is to simplify implementing business logic without needing developers to create the business flows.
 
-It allows a non technical person to define some configuration and allow the OpenHIM Mediator Mapping to do the heavy lifting.
+A non-technical person can define the configuration and the Mapping Mediator will do the rest.
 
 Some of the features the OpenHIM Mediator Mapping caters for are as follows:
 
