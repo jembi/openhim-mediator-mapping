@@ -14,11 +14,11 @@ The output format of this endpoint will produce a `FHIR bundle` that contains `L
 
 ## Setup
 
-Before we can continue with the sample endpoint configuration, we need to ensure we have followed the [getting started](setup.md) steps so that we have a working version of the mapping mediator.
+Before we can continue with the sample endpoint configuration, we need to ensure we have followed the [getting started](../gettingStarted/setup.md) steps so that we have a working version of the mapping mediator.
 
 Copy the [dhis2](https://github.com/jembi/openhim-mediator-mapping/tree/master/samples/endpoints/dhis2) directory to the [endpoints](https://github.com/jembi/openhim-mediator-mapping/tree/master/endpoints) directory.
 
-The server will require a restart for the new endpoint files to be initialized and the endpoint successfully created 
+The server will require a restart for the new endpoint files to be initialized and the endpoint successfully created
 
 ## Config
 
