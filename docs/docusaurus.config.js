@@ -7,7 +7,9 @@ module.exports = {
   organizationName: 'jembi', // Usually your GitHub org/user name.
   projectName: 'openhim-mediator-mapping', // Usually your repo name.
   themeConfig: {
-    disableDarkMode: false,
+    colorMode: {
+      disableSwitch: false
+    },
     navbar: {
       title: 'Mapper',
       logo: {
