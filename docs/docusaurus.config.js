@@ -14,8 +14,8 @@ module.exports = {
         alt: 'Mapper - OpenHIM Mediator',
         src: 'img/logo.png'
       },
-      links: [
-        {to: 'docs/setup', label: 'Docs', position: 'left'},
+      items: [
+        {to: 'docs/gettingStarted/setup', label: 'Docs', position: 'left'},
         {
           href: 'https://github.com/jembi/openhim-mediator-mapping',
           label: 'GitHub',

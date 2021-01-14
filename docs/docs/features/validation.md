@@ -12,7 +12,7 @@ This features can be used completely on its own without having to execute any of
 
 Applying the validation feature is recommended but optional. The level of validation is completely configurable by the user. Any fields that don't require validation can be left out of the validation schema.
 
-For the validation, the module [AJV](https://www.npmjs.com/package/ajv) is used. The validation schema has to be defined in a file named `input-validation.json` within your created subdirectory within `/endpoints`. By default, the values of the user's input properties can be set to `nullable`. To prevent any `null` values passing validation supply the following [environment variable](setup.md#environment-variables) **VALIDATION_ACCEPT_NULL_VALUES=false** on app start up. Below is an example of the validation schema.
+For the validation, the module [AJV](https://www.npmjs.com/package/ajv) is used. The validation schema has to be defined in a file named `input-validation.json` within your created subdirectory within `/endpoints`. By default, the values of the user's input properties can be set to `nullable`. To prevent any `null` values passing validation supply the following [environment variable](../gettingStarted/setup.md#environment-variables) **VALIDATION_ACCEPT_NULL_VALUES=false** on app start up. Below is an example of the validation schema.
 
 ## How does this work?
 
