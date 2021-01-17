@@ -49,7 +49,7 @@ The schema can be broken down into 7 major areas of concern:
 
 ### 1. Metadata
 
-The `metadata` section contains the details involved for route setup. The following can be set in the root level of the config object:
+The `metadata` section contains the details involved in route setup. The following can be set in the root level of the config object:
 
 - Endpoint `name`
 - Endpoint `description`
@@ -72,24 +72,39 @@ Specify the desired output message type for this specific endpoint to allow the 
 
 ### 2. Mapping
 
-The mapping schema in the `input-mapping.json` JSON document defines how the incoming data will be retrieved and used to build up a new object in the desired outcome.
+The mapping schema is defined within the `input-mapping`field. This section defines how the incoming data will be used to build up a new object in the desired structure. Our mapping is done using the [node object mapper library](https://github.com/jembi/node-object-mapper).
 
-The root structure of this input mapping schema consists of two properties as defined below
+Every mapping field in this section follows this pattern
 
-```javascript
+```json
 {
-  "input": { ... },
-  "constants": { ... } // optional
+  "path.to.input.data": "path.to.output.field"
 }
 ```
 
-The structure for both the properties are the same and are defined as below. Below is an example of the mapping
+#### Data available for mapping
+
+All input data, populated from different sources, are stored in the following internal object structure:
+
+```json
+{
+  "requestBody": {...},
+  "lookupRequests": {...},
+  "transforms": {...},
+  "constants": {...},
+  "urlParams": {...},
+  "state": {...},
+  "timestamps": {...},
+}
+```
+
+See the full flow of examples to follow:
 
 <Tabs
   defaultValue="input"
   values={
     [
-      { label: 'Input', value: 'input' },
+      { label: 'Input Data', value: 'input' },
       { label: 'Mapping Schema', value: 'mapping' },
       { label: 'Output', value: 'output' },
     ]
@@ -97,13 +112,13 @@ The structure for both the properties are the same and are defined as below. Bel
 >
 <TabItem value="input">
 
-```js
+```json
 {
-  requestBody: {
-    status: 'Active'
+  "requestBody": {
+    "status": "Active"
   },
-  lookupRequests: {
-    location: 'Unknown'
+  "lookupRequests": {
+    "location": "Unknown"
   }
 }
 ```
@@ -123,10 +138,10 @@ The structure for both the properties are the same and are defined as below. Bel
 </TabItem>
 <TabItem value="output">
 
-```js
+```json
 {
-  status: 'Active',
-  location: 'Unknown'
+  "status": "Active",
+  "location": "Unknown"
 }
 ```
 
@@ -188,7 +203,7 @@ The output object then contains constant data independent of the input request d
 
 ### 4. Validation
 
-The data from the input request as well as any lookup requests can be validated before the mapping occurs. Below is a sample of a validation schema:
+The data from the input request as well as any lookup requests can be validated before the mapping occurs. We use the [ajv library](https://ajv.js.org/) to handle our validation. Below is a sample of a validation schema:
 
 ```json
 {
@@ -216,23 +231,25 @@ For more details, see the [validation page](../features/validation.md).
 
 The transformation step allows data to undergo complex changes before the mapping step. The Mapping Mediator makes use of the [JSONata library](http://docs.jsonata.org/overview.html) to perform transformations. Transformed data and the original input are both available to be mapped in the mapping step.
 
+> Note: Transformed data will not be included in the output data unless it is mapped to an output field
+
 <Tabs
   defaultValue="input"
   values={
     [
-      { label: 'Input', value: 'input' },
+      { label: 'Input Data', value: 'input' },
       { label: 'Transformation Reference', value: 'reference' },
       { label: 'Output', value: 'output' },
     ]
   }>
   <TabItem value="input">
 
-Here we define two constants.
+Here we define two input request fields.
 
 ```json
 {
-  "first_field": "world",
-  "second_field": 3.1415
+  "radius": "10",
+  "subject": "world"
 }
 ```
 
@@ -241,25 +258,29 @@ Here we define two constants.
 
 The transform schema definition:
 
-```json
+```json {2,3}
   "inputTransforms": {
-    
+    "areaOfObject": "(constants.pi * requestBody.radius * requestBody.radius) & 'cm³'",
+    "capsSubject": "$uppercase( requestBody.subject )"
   },
   "inputMapping": {
-    "constants.first_constant": "hello",
-    "constants.second_constant": "pi",
+    "transforms.capsSubject": "HELLO",
+    "transforms.areaOfObject": "mediumPizzaArea",
+  },
+  "constants": {
+    "pi": 3.1415
   }
 ```
 
   </TabItem>
     <TabItem value="output">
 
-The output object then contains constant data independent of the input request data.
+The output object then contains the transformed and mapped data
 
 ```json
 {
-  "hello": "world",
-  "pi": 3.1415
+  "HELLO": "WORLD",
+  "mediumPizzaArea": "314.15cm³"
 }
 ```
 
@@ -270,62 +291,37 @@ For more details check out [transformation](../features/transformation)
 
 ### 6. Orchestrations
 
-This feature allows for data lookups from external services and the sending of the mapped data to external services. The data to look up and the services where the result of the mapping should be sent are specified in the `meta.json`. The data looked up is aggregated with the input data before the validation is done. Below is a sample of a `meta.json`
+This feature allows for data lookups from external services and the sending of the mapped data to external services.
+The data to look up and the services where the result of the mapping should be sent are specified in the `requests` section.
+The data looked up is aggregated with the input data before the validation is done. Response data is not validated before being sent.
+For more orchestrations details please see the [Orchestrations feature documentation](../features/orchestration).
+Below is an extract of some request orchestrations.
 
 ```json
 {
-  "name": "Test",
-  "endpoint": {
-    "pattern": "/test"
-  },
-  "transformation": {
-    "input": "XML",
-    "output": "JSON"
-  },
+  ...
   "requests": {
     "lookup": [
       {
-        "id": "1223",
-        "forwardExistingRequestBody": true,
+        "id": "dhis2",
         "config": {
           "method": "get",
-          "url": "http://localhost:3444/encounters/",
-          "params": {
-            "query": {
-              "id": {
-                "path": "payload.id",
-                "prefix": "",
-                "postfix": ""
-              },
-              "address":{
-                "path": "query.location",
-                "prefix": "",
-                "postfix": ""
-              }
-            }
+          "url": "https://play.dhis2.org/2.35/api/organisationUnits.json?paging=false",
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Basic YWRtaW46ZGlzdHJpY3Q="
           }
         }
       }
     ],
     "response": [
       {
-        "id": "4433",
+        "id": "hapi-fhir",
         "config": {
           "method": "post",
-          "url": "http://localhost:3456/encounters?msn=23",
-          "params": {
-            "query": {
-              "place":{
-                "path": "payload.location[0].code",
-                "prefix": "",
-                "postfix": ""
-              },
-              "code": {
-                "path": "query.unit",
-                "postfix": "",
-                "prefix": ""
-              }
-            }
+          "url": "http://hapi.fhir.org/baseR4/",
+          "headers": {
+            "Content-Type": "application/json"
           }
         }
       }
@@ -334,7 +330,9 @@ This feature allows for data lookups from external services and the sending of t
 }
 ```
 
-There are two types of external requests, the `lookup` and the `response`. Query parameters for the external request can be dynamically populated
+In the example above, the lookup request gets facility data from DHIS2. That data would then be mapped (schema not shown for brevity) and the output data sent to a FHIR server. These requests can include query and url parameters which can be extracted from incoming data. Chaining together endpoint calls using this orchestration mechanism can lead to very complex logic being implemented.
+
+There are two types of external requests, the `lookup` and the `response`. Query and url parameters for the external request can be dynamically populated
 
 <Tabs
   defaultValue="lookup"
@@ -348,41 +346,41 @@ There are two types of external requests, the `lookup` and the `response`. Query
   }>
   <TabItem value="lookup">
 
-  You can fetch data that you want to map. The retrieved data will be aggregated with the input data supplied in the request body. The following shows the aggregation
+  You can fetch data to map. The retrieved data will be aggregated with the input data supplied in the request body. The following shows the aggregation
 
-  ```json
+  ```json {7}
   Lookup request:
 
   {
     "requests": {
       "lookup": [
         {
-          "id": "location",
+          "id": "dhis2",
           "config": {
             "method": "get",
-            "url": "http://localhost:3444/location/1",
-            "params": {
-              "query": {
-                "id": {
-                  "path": "payload.id"
-                }
-              }
+            "url": "https://play.dhis2.org/2.35/api/organisationUnits.json?paging=false",
+            "headers": {
+              "Content-Type": "application/json",
+              "Authorization": "Basic YWRtaW46ZGlzdHJpY3Q="
             }
           }
         }
       ]
     }
   }
+  ```
 
+  The data retrived from the lookup request will be aggregated inside the lookupRequests object using its id as the nested field name. The full list off input data available for mapping is listed [above](#data-available-for-mapping).
 
-  The aggregated input that will be validated and then mapped will look like below
-
-
+```json
   {
-    lookupRequests: {
-      location: <Result from lookup>
-    },
-    responseBody: {}
+    ...
+    "lookupRequests": {
+      "dhis2": {
+        ...
+        //<Data from lookup>
+      }
+    }
   }
   ```
 
@@ -390,46 +388,29 @@ There are two types of external requests, the `lookup` and the `response`. Query
 
   <TabItem value="response">
 
-  The result of the mapping can be orchestrated to external services. The result that will be sent back to the user is the response from the external services. If the mapped data is being orchestrated to multiple services, the response sent back is an aggregation of the responses from the multiple services unless one of the external requests is set to be the `primary`.
+  The result of the mapping can be orchestrated to external services.
+  The result that will be sent back to the user in the response from the external services.
+  If the mapped data is being orchestrated to multiple services, the response sent back is an aggregation of the responses from the multiple services unless one of the external requests is set to be the `primary`.
 
   The examples below show the expected responses when there is a primary request and when there is not.
 
   ```json
-  Primary request specified:
-
+  //Primary request specified
   {
     "requests": {
       "response": [
         {
           "id": "dhis",
           "config": {
-            "method": "get",
-            "url": "http://localhost:3444/encounters/1",
-            "params": {
-              "query": {
-                "id": {
-                  "path": "payload.id",
-                  "prefix": "",
-                  "postfix": ""
-                }
-              }
-            }
+            "method": "post",
+            "url": "http://localhost:3000/example/",
           }
         },
         {
           "id": "redcap",
           "config": {
-            "method": "get",
-            "url": "http://localhost:3444/encounters/1",
-            "params": {
-              "query": {
-                "id": {
-                  "path": "payload.id",
-                  "prefix": "",
-                  "postfix": ""
-                }
-              }
-            },
+            "method": "post",
+            "url": "http://localhost:3444/example/",
             "primary": false
           }
         }
@@ -438,13 +419,18 @@ There are two types of external requests, the `lookup` and the `response`. Query
   }
   ```
 
-  ```js
-  Expected response:
-
+  ```json
+  // Expected response:
   {
-    body: {
-      dhis: 'Response from dhis',
-      redcap: 'Response from redcap'
+    "body": {
+      "dhis": {
+        ...
+        // Response from dhis
+      },
+      "redcap": {
+        ...
+        // Response from redcap
+      }
     }
   }
   ```
@@ -453,17 +439,22 @@ There are two types of external requests, the `lookup` and the `response`. Query
 
   ```js
   {
-    body: 'Response body'
+    body: {
+    ... 
+     // Primary Response body
+    }
   }
   ```
 
   </TabItem>
   <TabItem value="query">
 
-  The query or URL parameters for the external requests can be populated from the incoming request's body and query object. The parameters to be added can be specified in the `meta.json` as shown below in config `params` object
+  The query or URL parameters for the external requests can be populated from the incoming request's body and query object.
+  The parameters to be added can be specified in the lookup config as shown below in the `params` object.
 
   ```json
   {
+    ...
     "requests": {
       "lookup": [
         {
@@ -492,7 +483,9 @@ There are two types of external requests, the `lookup` and the `response`. Query
   }
   ```
 
-  The `id` is the name of the query parameter. The `path` is the location of the value of the parameter in the incoming request body or query object. For values retrieved from the request body the `path` is specified by prefixing the path with the key word `payload` and for retrieving from the query the keyword is `query`. Below are examples of paths
+  The `id` is the name of the query parameter. The `path` is the location of the value of the parameter in the incoming request body or query object.
+  For values retrieved from the request body the `path` is specified by prefixing the path with the key word `payload` and for retrieving from the query the keyword is `query`.
+  Below are examples of paths.
 
   ```json
   {
@@ -511,9 +504,8 @@ There are two types of external requests, the `lookup` and the `response`. Query
   }
   ```
 
-  The properties `postfix` and `prefix` are optional. An example use case is given below
-
-  For a query parameter that has the following format `code:<Facility code>:section:52`, if we are retrieving the `Facility code` from the payload or query we can specify this as shown below
+  The properties `postfix` and `prefix` are optional.
+  For a query parameter that has the following format `code:<Facility code>:section:52`, if we are retrieving the `Facility code` from the payload or query we can specify this as shown below.
 
   ```json
   {
@@ -529,7 +521,7 @@ There are two types of external requests, the `lookup` and the `response`. Query
   }
   ```
 
-  If say the facility code in the payload is **1223**, the specification above will enable us to have a query parameter - **?filter=code:1223:section:52**
+  If for example the facility code in the payload is **1223**, the specification above will enable us to have a query parameter - **?filter=code:1223:section:52**
 
   For URL parameter the name of the parameter must be included in the url with a `:` prefix. This parameter will be replaced in the URL at runtime with the value that you specify. For example:
 
@@ -563,14 +555,14 @@ There are two types of external requests, the `lookup` and the `response`. Query
 
   Both lookups and responses support ForEach requests. These are requests that are executed for each element in an array variable. The configuration for these requests is done using the `forEach` property on the request object as shown below:
 
-  ```js {5-8}
+  ```json {5-8}
   {
     "lookup": [
       {
         "id": "test",
         "forEach": {
           "items": "payload.entry",
-          "concurrency": "2" // if not specified default to 1
+          "concurrency": "2" // if not specified defaults to 1
         },
         "config": {
         }
@@ -586,20 +578,20 @@ There are two types of external requests, the `lookup` and the `response`. Query
 
   The current item in the list is also made available as a variable for the requests to use so that each request may be dynamic. E.g:
 
-  ```js {9,13}
+  ```json {9,13}
   {
-    id: 'fhirPatient',
-    forwardExistingRequestBody: true,
-    forEach: {
-      items: 'payload.test'
+    "id": "fhirPatient",
+    "forwardExistingRequestBody": true,
+    "forEach": {
+      "items": "payload.test"
     },
-    config: {
-      method: 'post',
-      url: `http://localhost:8080/Patient/:id`,
-      params: {
-        url: {
-          id: {
-            path: 'item.id'
+    "config": {
+      "method": "post",
+      "url": "http://localhost:8080/Patient/:id",
+      "params": {
+        "url": {
+          "id": {
+            "path": "item.id"
           }
         }
       }
