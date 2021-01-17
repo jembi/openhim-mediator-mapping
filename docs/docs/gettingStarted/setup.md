@@ -236,23 +236,23 @@ Finally, go back to your browser and navigate to the `Mediators` section. Here y
 
 The supported environment variables are listed as follows:
 
-| Variable Name | Default Value | Description |
+| Variable Name | Description | Default Value |
 | --- | --- | --- |
-| SERVER_PORT | **3003** | The server port to start the application on |
-| LOG_LEVEL | **info** | The log level at which the logs should be printed out |
-| ENABLE_LOGGING | **true** | Define if the application should print out any logs |
-| MONGO_URL | **mongodb://localhost:27017,localhost:27018,localhost:27019/mapping-mediator?replicaSet=mapper-mongo-set** | The MongoDB url for connecting to the replica set database |
-| OPENHIM_URL | <https://localhost:8080> | The URL to the OpenHIM instance.<br />If running the OpenHIM in a docker container substitute in the **container name** instead of **localhost**. |
-| OPENHIM_USERNAME | **root@openhim.org** | The OpenHIM user to authenticate with |
-| OPENHIM_PASSWORD | **openhim-password** | The OpenHIM password for the supplied user to authenticate with |
-| TRUST_SELF_SIGNED | **true** | Bypass the nodejs ssl certificate check on self signed certificates.<br />Only set this variable to `true` if you are using it in a non-production environment |
-| OPENHIM_REGISTER | **true** | Set to **false** if you do not wish to have this mediator register itself with the openhim instance |
-| ENABLE_LOGGING | **true** | Output logs |
-| PARSER_LIMIT | **1mb** | Define the incoming body limit size. If the incoming body is bigger than the specified limit, the validation will fail |
-| PARSER_XML_OPTIONS_TRIM | **true** | Trim the whitespace at the beginning and end of text nodes |
-| PARSER_XML_OPTIONS_EXPLICIT_ROOT | **false** | Set this if you want to get the root node in the resulting object |
-| PARSER_XML_OPTIONS_EXPLICIT_ARRAY | **false** | Always put child nodes in an array if true; otherwise an array is created only if there is more than one |
-| VALIDATION_ACCEPT_NULL_VALUES | **false** | This is used to configure the validation middleware to accept `null` values |
-| VALIDATION_COERCE_TYPES | **false** | Allow the validation middleware to coerce the incoming data values into the defined validation type. If the property validation type is defined  as `number` and the value being supplied is a `string`, then the validation middleware will format the value into a `number` |
-| DYNAMIC_ENDPOINTS | **true** | Define wether MongoDB should create a listener on the Endpoints collection to automatically apply endpoint changes |
-| MEDIATOR_URN | **urn:mediator:generic_mapper** | Set a unique identifier to allow for multiple `openhim-mediator-mapping` instances to be registered to the OpenHIM. |
+| SERVER_PORT | The server port to start the application on | **3003** |
+| LOG_LEVEL | The log level at which the logs should be printed out | **info** |
+| ENABLE_LOGGING | Define if the application should print out any logs | **true** |
+| MONGO_URL | The MongoDB url for connecting to the replica set database | **mongodb://localhost:27017,localhost:27018,localhost:27019/mapping-mediator?replicaSet=mapper-mongo-set** |
+| OPENHIM_URL | The URL to the OpenHIM instance.<br />If running the OpenHIM in a docker container substitute in the **container name** instead of **localhost**. | <https://localhost:8080> |
+| OPENHIM_USERNAME | The OpenHIM user to authenticate with | **root@openhim.org** |
+| OPENHIM_PASSWORD | The OpenHIM password for the supplied user to authenticate with | **openhim-password** |
+| TRUST_SELF_SIGNED | Bypass the nodejs ssl certificate check on self signed certificates.<br />Only set this variable to `true` if you are using it in a non-production environment | **true** |
+| OPENHIM_REGISTER | Set to **false** if you do not wish to have this mediator register itself with the openhim instance | **true** |
+| ENABLE_LOGGING | Output logs | **true** |
+| PARSER_LIMIT | Define the incoming body limit size. If the incoming body is bigger than the specified limit, the validation will fail | **1mb** |
+| PARSER_XML_OPTIONS_TRIM | Trim the whitespace at the beginning and end of text nodes | **true** |
+| PARSER_XML_OPTIONS_EXPLICIT_ROOT | Set this if you want to get the root node in the resulting object | **false** |
+| PARSER_XML_OPTIONS_EXPLICIT_ARRAY | Always put child nodes in an array if true; otherwise an array is created only if there is more than one | **false** |
+| VALIDATION_ACCEPT_NULL_VALUES | This is used to configure the validation middleware to accept `null` values | **false** |
+| VALIDATION_COERCE_TYPES | Allow the validation middleware to coerce the incoming data values into the defined validation type. If the property validation type is defined  as `number` and the value being supplied is a `string`, then the validation middleware will format the value into a `number` | **false** |
+| DYNAMIC_ENDPOINTS | Define wether MongoDB should create a listener on the Endpoints collection to automatically apply endpoint changes | **true** |
+| MEDIATOR_URN | Set a unique identifier to allow for multiple `openhim-mediator-mapping` instances to be registered to the OpenHIM. | **urn:mediator:generic_mapper** |
