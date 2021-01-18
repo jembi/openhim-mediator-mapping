@@ -440,7 +440,7 @@ There are two types of external requests, the `lookup` and the `response`. Query
   ```js
   {
     body: {
-    ... 
+    ...
      // Primary Response body
     }
   }
@@ -603,3 +603,82 @@ There are two types of external requests, the `lookup` and the `response`. Query
 </Tabs>
 
 ### 7. State
+
+The state management configuration is a useful feature when the results of previous requests influence details within the current request.
+For example, say you want to poll for recent data within a range - using the endpoint state you could store when the last time this Endpoint was triggered and use that state value as the timestamp within your period request.
+Please see the [feature documentation](../features/state-management) for an in-depth look at Endpoint State.
+
+In the example below, we are extracting two fields to be stored on the Endpoint State. The organisationId is taken from the current requestBody. The pageNumber is taken from the current page query value.
+
+```json {6,9}
+{
+  ...
+  "state": {
+  "extract": {
+    "requestBody": {
+      "organisationId": "organisation[0].facilityId"
+    },
+    "query": {
+      "pageNumber": "page"
+    }
+  }
+}
+```
+
+In the next request to this stateful endpoint the previous requests values will be available within the full list off input data available for mapping is listed [above](#data-available-for-mapping). The two stored fields would be available as follows:
+
+```json {7-14}
+{
+  "requestBody": {...},
+  "lookupRequests": {...},
+  "transforms": {...},
+  "constants": {...},
+  "urlParams": {...},
+  "state": {
+    "requestBody": {
+      "organisationId": "<id_value"
+    },
+    "query": {
+      "pageNumber": "<page_number_value>"
+    }
+  },
+  "timestamps": {...},
+}
+```
+
+Therefore to reference the value in a schema for example you could use the follow:
+
+```json {13,18}
+{
+  ...
+  "requests": {
+    "lookup": [
+      {
+        "id": "organisation-details",
+        "config": {
+          "method": "get",
+          "url": "https://play.dhis2.org/2.35/api/organisationUnits/:org-id",
+          "params": {
+            "url": {
+              "org-id": {
+                "path": "state.requestBody.organisationId"
+              }
+            },
+            "query": {
+              "pageNumber": {
+                "path": "state.query.pageNumber"
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}
+```
+
+This would result in a url with this format:
+
+```http
+https://play.dhis2.org/2.35/api/organisationUnits/<id_value>?pageNumber=<page_number_value>
+```
