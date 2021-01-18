@@ -206,3 +206,22 @@ request1 response payload:
 
 </TabItem>
 </Tabs>
+
+## Include or Exclude saved states
+
+When using endpoint state we can configure our endpoint to only use saved states if they received a specific http response or no network errors.
+This is useful for polling data and ignoring request attempts that failed due to network or server issues.
+See below for an example config:
+
+```json
+  "state": {
+    "config": {
+      "networkErrors": "exclude",
+      "includeStatuses": ["2xx"]
+    },
+    "extract": {...}
+  }
+```
+
+The config above would not read any saved state data where there were network errors or where the https status was not in the 2xx range.
+If the latest state in the DB recorded a network error the next chronological state without errors would be returned.
