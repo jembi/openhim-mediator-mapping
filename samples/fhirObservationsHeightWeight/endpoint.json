@@ -143,7 +143,6 @@
     "transforms.heightInCm": "entry[1].resource.valueQuantity.value"
   },
   "requests": {
-    "lookup": [],
     "response": [
       {
         "id": "hapi-fhir",

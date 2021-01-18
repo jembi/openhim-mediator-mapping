@@ -12,7 +12,8 @@ module.exports = {
       'gettingStarted/quick-start',
       'gettingStarted/setup',
       'gettingStarted/endpoints',
-      'gettingStarted/api'
+      'gettingStarted/api',
+      'gettingStarted/samples'
     ],
     Features: [
       'features/content-negotiation',
@@ -21,7 +22,6 @@ module.exports = {
       'features/transformation',
       'features/mapping',
       'features/state-management'
-    ],
-    Samples: ['samples/dhis2-lookup', 'samples/bahmni-fhir-transform']
+    ]
   }
 }

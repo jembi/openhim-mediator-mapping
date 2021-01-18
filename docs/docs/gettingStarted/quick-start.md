@@ -4,7 +4,7 @@ title: Quick Start
 sidebar_label: Quick Start
 ---
 
-This quick start guide should get you up and running in just a few minutes (without the OpenHIM Core)
+This quick start guide should get you up and running in just a few minutes (**without the OpenHIM Core**)
 
 ## Prerequisite
 
