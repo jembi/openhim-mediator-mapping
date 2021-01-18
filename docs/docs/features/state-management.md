@@ -107,15 +107,17 @@ Below is a basic example of the `state` object within the `endpoint` schema
             "Content-Type": "application/json"
           },
           "params": {
-            "_since": {
-              "path": "state.system.timestamps.lookupRequests.lookup1.requestStart",
-              "prefix": null,
-              "postfix": null
-            },
-            "page": {
-              "path": "state.query.pageNumber",
-              "prefix": null,
-              "postfix": null
+             "query": {
+                "_since": {
+                "path": "state.system.timestamps.lookupRequests.lookup1.requestStart",
+                "prefix": null,
+                "postfix": null
+              },
+              "page": {
+                "path": "state.query.pageNumber",
+                "prefix": null,
+                "postfix": null
+              }
             }
           }
         }
