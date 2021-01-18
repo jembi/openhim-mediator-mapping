@@ -7,8 +7,20 @@
 
 module.exports = {
   someSidebar: {
-    'Getting Started': ['gettingStarted/introduction', 'gettingStarted/quick-start', 'gettingStarted/setup', 'gettingStarted/endpoints', 'gettingStarted/api'],
-    Features: ['features/content-negotiation', 'features/validation', 'features/orchestration', 'features/transformation', 'features/state-management'],
+    'Getting Started': [
+      'gettingStarted/introduction',
+      'gettingStarted/quick-start',
+      'gettingStarted/setup',
+      'gettingStarted/endpoints',
+      'gettingStarted/api'
+    ],
+    Features: [
+      'features/content-negotiation',
+      'features/validation',
+      'features/orchestration',
+      'features/transformation',
+      'features/state-management'
+    ],
     Samples: ['samples/dhis2-lookup', 'samples/bahmni-fhir-transform']
   }
 }
