@@ -19,6 +19,7 @@ module.exports = {
       'features/validation',
       'features/orchestration',
       'features/transformation',
+      'features/mapping',
       'features/state-management'
     ],
     Samples: ['samples/dhis2-lookup', 'samples/bahmni-fhir-transform']
