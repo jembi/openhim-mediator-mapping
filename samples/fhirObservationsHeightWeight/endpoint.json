@@ -84,7 +84,8 @@
         },
         "required": ["id", "display", "height", "weight"]
       }
-    }
+    },
+    "required": ["requestBody"]
   },
   "inputTransforms": {
     "patientReference": "'Patient/' & requestBody.id",
