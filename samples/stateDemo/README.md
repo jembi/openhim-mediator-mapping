@@ -27,7 +27,7 @@ To test the endpoint configured successfully, execute the below curl command fro
 curl -X POST -d '{"statusCode": 404}' -H "Content-Type: application/json" http://localhost:3003/state-demo
 ```
 
-With this command you will see in the `state-status` field that `"No state captured yet || No captured state available that matches status and network filters"`. Run that same command and the `state-status` should remain the same. This is because the endpoint is configured to only return past state values that meet lookup request status code filters - in this example the only valid status code are in the 2xx range the code 300. Since we've been sending through 404s the state is captured but not returned.
+With this command, you will see in the `state-status` field the text `"No state captured yet || No captured state available that matches status and network filters"`. Run that same command and the `state-status` should remain the same. This is because the endpoint is configured to only return past state values that meet lookup request status code filters - in this example the only valid status code are in the 2xx range the code 300. Since we've been sending through 404s the state is captured but not returned.
 
 Test the endpoint again with the following command:
 
