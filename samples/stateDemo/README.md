@@ -1,6 +1,6 @@
 # State Demo
 
-This sample endpoint accepts a tiny payload containing a statusCode value. This value the value returned by an online test api. It is useful for checking how we can manipulate "valid" state with http status code and network filters.
+This sample endpoint accepts a tiny payload containing a statusCode value. This is the value returned by an online test api. It is useful for checking how we can manipulate "valid" state with http status code and network filters.
 The endpoint also maps a few state captured values to demonstrate how one would go about accessing them.
 
 ## Features
