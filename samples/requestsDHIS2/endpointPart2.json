@@ -71,30 +71,28 @@
   "inputValidation": {
     "type": "object",
     "properties": {
-      "lookupRequests": {
+      "requestBody": {
         "type": "object",
         "properties": {
-          "dhis-orgs": {
-            "type": "object",
-            "properties": {
-              "organisationUnits": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "displayName": {
-                      "type": "string"
-                    },
-                    "id": {
-                      "type": "string"
-                    }
-                  }
+          "consolidated": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "displayName": {
+                  "type": "string"
+                },
+                "id": {
+                  "type": "string"
                 }
-              }
+              },
+              "required": ["displayName", "id"]
             }
           }
-        }
+        },
+        "required": ["consolidated"]
       }
-    }
+    },
+    "required": ["requestBody"]
   }
 }

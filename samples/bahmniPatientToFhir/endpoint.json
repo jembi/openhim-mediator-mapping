@@ -284,8 +284,10 @@
               }
             }
           }
-        }
+        },
+        "required": ["identifiers"]
       }
-    }
+    },
+    "required": ["requestBody"]
   }
 }

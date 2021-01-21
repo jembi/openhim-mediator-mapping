@@ -323,9 +323,13 @@ tap.test('Initiate Middleware', {autoend: true}, t => {
           statePropertyFromKey: 'queryParamKey'
         },
         lookupRequests: {
-          lookup1value: 'firstRequest.text',
-          lookup2value: 'secondRequest.text',
-          lookup2ArrayValue: 'secondRequest.array[1]'
+          firstRequest: {
+            lookup1value: 'text'
+          },
+          secondRequest: {
+            lookup2value: 'text',
+            lookup2ArrayValue: 'array[1]'
+          }
         }
       }
 
@@ -349,9 +353,13 @@ tap.test('Initiate Middleware', {autoend: true}, t => {
         statePropertyFromKey: 'queryParamValue'
       })
       t.deepEqual(extractedStateValues.lookupRequests, {
-        lookup1value: 'a response value from the first request',
-        lookup2value: 'a response value from the second request',
-        lookup2ArrayValue: 'two'
+        firstRequest: {
+          lookup1value: 'a response value from the first request'
+        },
+        secondRequest: {
+          lookup2value: 'a response value from the second request',
+          lookup2ArrayValue: 'two'
+        }
       })
     })
   })

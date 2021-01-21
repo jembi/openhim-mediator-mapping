@@ -28,6 +28,9 @@ const createFilterObject = (
     for (const pattern of httpStatusFilters) {
       const validRange = pattern.match(/\d+?(?=xx)/g)
       if (validRange) {
+        // We only store one http status for an endpoint.
+        // Generally the larger the status codes the more important. i.e 500 > 200
+        // Therefore when multiple lookup requests are made only the largest status code is stored.
         mongoFilterArray.push({
           lookupHttpStatus: {
             $gte: Number(validRange[0] * 100),
