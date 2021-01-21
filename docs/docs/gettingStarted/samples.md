@@ -14,6 +14,8 @@ To use these sample schemas, you require an instance of the Mapping Mediator run
 
 > Note: Start up your Mapping Mediator instance with the flag `VALIDATION_ACCEPT_NULL_VALUES=true` to support the BAHMNI test data.
 
+If you experience any issues with our sample Endpoints, please log an issue on our [GitHub page](https://github.com/jembi/openhim-mediator-mapping/issues).
+
 ## Import Postman Collection
 
 In your Postman desktop application, click the import button in the top left of the screen. Then click the link tab and paste in the following collection URL: <https://www.getpostman.com/collections/93d96917e29ee55f56c9>
@@ -73,3 +75,17 @@ Features Covered:
 - Mapping
 - **Chained (internal) Endpoint Orchestration**
 - Response Orchestration
+
+### State Demo
+
+This example makes two requests to the httpbin API. This API provides configurable mock responses to the client. The first lookup request makes a get request and configures a specific expected https staus code. The second lookup request gets a random uuid.
+These values are then extracted and stored to the Endpoint state. The values are available the next endpoint request. The endpoint state can be configured to only return state data that has desired httpStatus codes. Or data from transactions that didn't experience network issues. The endpoint state default is no filters.
+
+To test out how state works, run the `payload` request a few times with different request body values. Try the following values in succession 201, 404, 400, 300, 201.
+
+Features Covered:
+
+- **State**
+- Lookup Orchestration
+- Transformation
+- **Mapping**
