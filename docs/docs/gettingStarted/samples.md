@@ -78,7 +78,7 @@ Features Covered:
 
 ### State Demo
 
-This example makes two requests to the httpbin API. This API provides configurable mock responses to the client. The first lookup request makes a get request and configures a specific expected https staus code. The second lookup request gets a random uuid.
+This example makes two requests to the httpbin API. This API provides configurable mock responses to the client. The first lookup request makes a get request and configures a specific expected https status code. The second lookup request gets a random uuid.
 These values are then extracted and stored to the Endpoint state. The values are available the next endpoint request. The endpoint state can be configured to only return state data that has desired httpStatus codes. Or data from transactions that didn't experience network issues. The endpoint state default is no filters.
 
 To test out how state works, run the `payload` request a few times with different request body values. Try the following values in succession 201, 404, 400, 300, 201.
