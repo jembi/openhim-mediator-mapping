@@ -1,0 +1,70 @@
+{
+  "name": "State Demo",
+  "description": "",
+  "endpoint": {
+    "pattern": "/state-demo",
+    "method": "GET"
+  },
+  "transformation": {
+    "input": "JSON",
+    "output": "JSON"
+  },
+  "inputMapping": {
+    "transforms.message": "state-status",
+    "state.requestBody.httpStatus": "http-status-requestId1-state",
+    "requestBody.statusCode": "http-status-requestId1-current",
+    "state.system.timestamps.lookupRequests.requestId1.requestStart": "start-time-requestId1-state",
+    "timestamps.endpointStart": "start-time-requestId1-current",
+    "state.lookupRequests.requestId2.state-stored-uuid": "uuid-requestId2-state",
+    "lookupRequests.requestId2.uuid": "uuid-requestId2-current"
+  },
+  "inputTransforms": {
+    "message": "$boolean(state.system) ? constants.validState : constants.noState"
+  },
+  "requests": {
+    "lookup": [
+      {
+        "id": "requestId1",
+        "allowedStatuses": ["2xx", "3xx", "4xx", "5xx"],
+        "config": {
+          "method": "GET",
+          "url": "https://httpbin.org/status/:statusCode",
+          "params": {
+            "url": {
+              "statusCode": {
+                "path": "payload.statusCode"
+              }
+            }
+          }
+        }
+      },
+      {
+        "id": "requestId2",
+        "config": {
+          "method": "GET",
+          "url": "http://httpbin.org/uuid"
+        }
+      }
+    ]
+  },
+  "state": {
+    "config": {
+      "networkErrors": "exclude",
+      "includeStatuses": ["2xx", 300]
+    },
+    "extract": {
+      "requestBody": {
+        "httpStatus": "statusCode"
+      },
+      "lookupRequests": {
+        "requestId2": {
+          "state-stored-uuid": "uuid"
+        }
+      }
+    }
+  },
+  "constants": {
+    "validState": "Valid state returned",
+    "noState": "No state captured yet || No captured state available that matches status and network filters"
+  }
+}

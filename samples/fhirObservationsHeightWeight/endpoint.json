@@ -84,7 +84,8 @@
         },
         "required": ["id", "display", "height", "weight"]
       }
-    }
+    },
+    "required": ["requestBody"]
   },
   "inputTransforms": {
     "patientReference": "'Patient/' & requestBody.id",
@@ -143,7 +144,6 @@
     "transforms.heightInCm": "entry[1].resource.valueQuantity.value"
   },
   "requests": {
-    "lookup": [],
     "response": [
       {
         "id": "hapi-fhir",

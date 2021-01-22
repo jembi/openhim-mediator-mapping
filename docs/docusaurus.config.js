@@ -1,21 +1,23 @@
 module.exports = {
   title: 'OpenHIM Mapping Mediator',
-  tagline: 'Simplifying data adaption between systems',
+  tagline: 'Simplifying data adaptation between systems',
   url: 'https://jembi.github.io',
   baseUrl: '/openhim-mediator-mapping/',
   favicon: 'img/favicon.ico',
   organizationName: 'jembi', // Usually your GitHub org/user name.
   projectName: 'openhim-mediator-mapping', // Usually your repo name.
   themeConfig: {
-    disableDarkMode: false,
+    colorMode: {
+      disableSwitch: false
+    },
     navbar: {
       title: 'Mapper',
       logo: {
         alt: 'Mapper - OpenHIM Mediator',
         src: 'img/logo.png'
       },
-      links: [
-        {to: 'docs/setup', label: 'Docs', position: 'left'},
+      items: [
+        {to: 'docs/gettingStarted/setup', label: 'Docs', position: 'left'},
         {
           href: 'https://github.com/jembi/openhim-mediator-mapping',
           label: 'GitHub',

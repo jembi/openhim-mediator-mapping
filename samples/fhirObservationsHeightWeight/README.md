@@ -14,7 +14,7 @@ This sample endpoint accepts a basic flat object and converts it into a FHIR tra
 
 ## Setup
 
-To create this endpoint within the Mapping Mediator, execute the below curl command from the location of this sample endpoint.
+To create this endpoint within the OpenHIM Mediator Mapping, execute the below curl command from the location of this sample endpoint.
 
 ```sh
 curl -X POST -d "@endpoint.json" -H "Content-Type: application/json" http://localhost:3003/endpoints
@@ -22,7 +22,7 @@ curl -X POST -d "@endpoint.json" -H "Content-Type: application/json" http://loca
 
 ## Test
 
-To test the endpoint configured successfully, execute the below curl command from the location of this sample endpoint.
+To test the endpoint is configured successfully, execute the below curl command from the location of this sample endpoint.
 
 ```sh
 curl -X POST -d "@input.json" -H "Content-Type: application/json" http://localhost:3003/create-height-weight-observations

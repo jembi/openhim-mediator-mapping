@@ -1,31 +1,19 @@
 ---
-id: transformation
-title: Transformation
-sidebar_label: Transformation
+id: mapping
+title: Mapping
+sidebar_label: Mapping
 ---
 
-For the transformation, a mapping schema in the `input-mapping.json` JSON document has to be created and this schema defines how the incoming data will be retrieved and used to build up a new object with the desired outcome.
+For the mapping, a `inputMapping` section in the Endpoint schema has to be added and this defines how the incoming data will be used to build up a new object with the desired structure.
 
 The basic structure of this schema is `key:value` based. This means that the `key` of the object defines where to look for a value from the incoming document, and the `value` of that `key` defines where to populate/build the new property on the outgoing document.
+The root `inputMapping` property is used to define the mapping of the incoming document and populate/build the outgoing object.
 
-The root structure of this input mapping schema consists of two properties as defined below
+The example below lists the different mapping syntax available:
 
-The root structure of this input mapping schema consists of two properties as defined below
-
-```javascript
+```json
 {
-  "input": { ... },
-  "constants": { ... } // optional
-}
-```
-
-The root `input` property is used to define the mapping of the incoming document and populate/build the outgoing object. The `constants` property is used to make reference to the `constants.json` schema for using static values that do not come from the incoming document.
-
-The structure for both these properties are the same and are defined as below.
-
-```javascript
-{
-  "input": {
+  "inputMapping": {
     "rootProperty": "rootProperty", // map incoming root property to an outgoing root property
     "rootObject.object1.object2.property": "rootObject.property", // map incoming nested property to an outgoing nested property
     "array[]": "array", // map incoming root array to an outgoing array.

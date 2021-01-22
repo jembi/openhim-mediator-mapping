@@ -65,15 +65,21 @@ const extractStateValues = (ctx, extract) => {
     updatedState.query = extractByType('query', extract, allData)
   }
 
+  // The lookupRequests section is slightly different as it contains nested objects - the others are flat objects
   if (
     extract.lookupRequests &&
     Object.keys(extract.lookupRequests).length > 0
   ) {
-    updatedState.lookupRequests = extractByType(
-      'lookupRequests',
-      extract,
-      allData
-    )
+    if (updatedState.lookupRequests == null) {
+      updatedState.lookupRequests = {}
+    }
+    Object.keys(extract.lookupRequests).forEach(prop => {
+      updatedState.lookupRequests[prop] = extractByType(
+        prop,
+        extract.lookupRequests,
+        allData.lookupRequests
+      )
+    })
   }
 
   return updatedState

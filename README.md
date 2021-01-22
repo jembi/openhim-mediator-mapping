@@ -5,9 +5,9 @@
 [![Total alerts](https://img.shields.io/lgtm/alerts/g/jembi/openhim-mediator-mapping.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/jembi/openhim-mediator-mapping/alerts/)
 [![Language grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/jembi/openhim-mediator-mapping.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/jembi/openhim-mediator-mapping/context:javascript)
 
-This Mapping mediator is a POC. It's function is to allow data validation, and mapping to allow communication between previously disparate systems. What makes it different from other existing mapping mediators is that it is generic. Users can define their own validation and mapping schemas for their specific use case. This is useful as it opens up Mapping Mediators to users without any coding knowledge.
+The Mapping Mediator's function is to allow data validation, mapping, and orchestration between previously disparate systems. What makes it different from other existing mapping mediators is that it is generic. Users can define their own validation and mapping schemas for their specific use case. This is useful as it opens up Mapping Mediators to users without any coding knowledge.
 
-Please see our [docs](https://jembi.github.io/openhim-mediator-mapping/docs/setup) for setup more details.
+Please see [our documentation page](https://jembi.github.io/openhim-mediator-mapping) for more details.
 
 ## Prerequisite
 
@@ -24,7 +24,7 @@ This set up guide will make use of Docker to run the Mongo cluster and yarn to r
 
 The easiest way to setup the mongo containers is to use a `docker-compose` script. One is provided in the repo (`docker-compose.mongo.yml`)
 
-Run the script with the following command:
+Run the script from the project root directory with the following command:
 
 ```sh
 docker-compose -f docker-compose.mongo.yml up -d
@@ -119,12 +119,12 @@ config = {
 rs.initiate(config)
 ```
 
-> Note: The Mongo replica set config between the **docker and yarn setup instructions are not interchangable**.
+> Note: The Mongo replica set config between the **docker and yarn setup instructions are not interchangeable**.
 
 With your replica set running, you can start up your Mapping Mediator with the following command:
 
 ```sh
-docker run -it -p 3003:3003 -e OPENHIM_REGISTER=false -e MONGO_URL='mongodb://mapper-mongo-1:27017,mapper-mongo-2:27017,mapper-mongo:27017/mapping-mediator?replicaSet=mapper-mongo-set' --network {directory-name}_mapper-cluster-network jembi/openhim-mapping-mediator:latest
+docker run -it -p 3003:3003 -e OPENHIM_REGISTER=false -e MONGO_URL='mongodb://mapper-mongo-1:27017,mapper-mongo-2:27017,mapper-mongo:27017/mapping-mediator?replicaSet=mapper-mongo-set' --network mapper-cluster-network jembi/openhim-mediator-mapping:latest
 ```
 
 The following parameters are specific to the docker start up process:
@@ -159,13 +159,14 @@ Open a browser and navigate to <http://localhost:9000>. Login with the default u
 
 To register the mediator, you will need the following environment variables:
 
-- OPENHIM_URL=https://localhost:8080
-- OPENHIM_PASSWORD={openhim_password}
+- `MONGO_URL='mongodb://localhost:27017,localhost:27018,localhost:27019/mapping-mediator?replicaSet=mapper-mongo-set'`
+- `OPENHIM_URL=https://localhost:8080`
+- `OPENHIM_PASSWORD={openhim_password}`
 
 Substitute in your openhim password into the following command:
 
 ```sh
-OPENHIM_URL=https://localhost:8080 OPENHIM_PASSWORD={openhim_password} yarn start
+MONGO_URL='mongodb://localhost:27017,localhost:27018,localhost:27019/mapping-mediator?replicaSet=mapper-mongo-set' OPENHIM_URL=https://localhost:8080 OPENHIM_PASSWORD={openhim_password} yarn start
 ```
 
 The output logs should contain the message: **Successfully registered mediator!**
@@ -176,9 +177,9 @@ Finally, go back to your browser and navigate to the `Mediators` section. Here y
 
 To register as a mediator, you will need the following environment variables:
 
-- OPENHIM_URL=https://openhim-core:8080
-- OPENHIM_PASSWORD={openhim_password}
-- MONGO_URL=mongodb://mapper-mongo-1:27017,mapper-mongo-2:27017,mapper-mongo-3:27017/mapping-mediator?replicaSet=mapper-mongo-set
+- `OPENHIM_URL=https://openhim-core:8080`
+- `OPENHIM_PASSWORD={openhim_password}`
+- `MONGO_URL=mongodb://mapper-mongo-1:27017,mapper-mongo-2:27017,mapper-mongo-3:27017/mapping-mediator?replicaSet=mapper-mongo-set`
 
 ```sh
 docker run -e OPENHIM_URL=https://openhim-core:8080 -e OPENHIM_PASSWORD={openhim_password} -e MONGO_URL=mongodb://mapper-mongo-1:27017,mapper-mongo-2:27017,mapper-mongo-3:27017/mapping-mediator?replicaSet=mapper-mongo-set --network mapper-cluster-network --name mapper -d jembi/openhim-mediator-mapping:v2.2.0
