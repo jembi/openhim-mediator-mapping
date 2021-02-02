@@ -245,7 +245,7 @@ const prepareLookupRequests = ctx => {
               incomingData[lookupConfig.id] = parsedResponse
             } catch (error) {
               logger.warn(
-                `Not stringified JSON. Therefore no parsing needed: ${error.essage}`
+                `No stringified JSON. Therefore no parsing needed: ${error.essage}`
               )
             }
           }
