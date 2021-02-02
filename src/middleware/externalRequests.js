@@ -224,8 +224,33 @@ const prepareLookupRequests = ctx => {
         logger.info(
           `${ctx.state.metaData.name} (${ctx.state.uuid}): Successfully performed request/s`
         )
-        // set the lookup payload as useable data point
-        ctx.state.allData.lookupRequests = Object.assign({}, ...data)
+        /* 
+          If the response body is stringified JSON from an OpenHIM Mediator,
+          parse it and assign the parsed object to the allData lookupRequest field.
+          This will give the mapper access to the data as an object. It will also strip off
+          the unnecessary orchestration data from the response. This orchestration data is
+          passed to the OpenHIM in a separate object. This was causing large response bodies
+          with duplicate data.
+        */
+        const incomingData = Object.assign({}, ...data)
+        requests.lookup.forEach(lookupConfig => {
+          const lookupResponse = incomingData[lookupConfig.id]
+          if (
+            lookupResponse &&
+            lookupResponse['x-mediator-urn'] &&
+            lookupResponse.response
+          ) {
+            try {
+              const parsedResponse = JSON.parse(lookupResponse.response.body)
+              incomingData[lookupConfig.id] = parsedResponse
+            } catch (error) {
+              logger.warn(
+                `No stringified JSON. Therefore no parsing needed: ${error.message}`
+              )
+            }
+          }
+        })
+        ctx.state.allData.lookupRequests = incomingData
       })
       .catch(error => {
         throw new Error(`Rejected Promise: ${error}`)

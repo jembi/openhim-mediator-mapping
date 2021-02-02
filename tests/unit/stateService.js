@@ -105,8 +105,6 @@ tap.test('States DB Services', {autoend: true}, t => {
       }
       await createEndpointState(stateObject)
         .then(data => {
-          console.log(data.system.timestamps.endpointEnd)
-          console.log(endpointEnd)
           t.deepEquals(
             data._endpointReference,
             new ObjectId('507f1f77bcf86cd799439011')
@@ -119,7 +117,6 @@ tap.test('States DB Services', {autoend: true}, t => {
           )
         })
         .catch(error => {
-          console.log(error)
           t.fail(`Should not reach here. ${error.message}`)
         })
     })
