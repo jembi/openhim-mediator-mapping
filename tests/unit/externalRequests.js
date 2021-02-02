@@ -726,7 +726,7 @@ tap.test('External Requests', {autoend: true}, t => {
     })
 
     t.test(
-      'should not reach the request making function is there is no lookup config',
+      'should not reach the request making function if there is no lookup config',
       t => {
         let called = false
         const performLookupRequestsStub = externalRequests.__set__({
