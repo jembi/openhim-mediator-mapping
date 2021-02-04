@@ -235,18 +235,17 @@ const prepareLookupRequests = ctx => {
         const incomingData = Object.assign({}, ...data)
         requests.lookup.forEach(lookupConfig => {
           const lookupResponse = incomingData[lookupConfig.id]
-          if (
-            lookupResponse &&
-            lookupResponse['x-mediator-urn'] &&
-            lookupResponse.response
-          ) {
-            try {
-              const parsedResponse = JSON.parse(lookupResponse.response.body)
+          if (Array.isArray(lookupResponse)) {
+            lookupResponse.forEach((arrayResponseItem, index) => {
+              const parsedResponse = parseMediatorResponse(arrayResponseItem)
+              if (parsedResponse) {
+                incomingData[lookupConfig.id][index] = parsedResponse
+              }
+            })
+          } else {
+            const parsedResponse = parseMediatorResponse(lookupResponse)
+            if (parsedResponse) {
               incomingData[lookupConfig.id] = parsedResponse
-            } catch (error) {
-              logger.warn(
-                `No stringified JSON. Therefore no parsing needed: ${error.message}`
-              )
             }
           }
         })
@@ -259,6 +258,22 @@ const prepareLookupRequests = ctx => {
   logger.debug(
     `${ctx.state.metaData.name} (${ctx.state.uuid}): No request/s to make`
   )
+}
+
+const parseMediatorResponse = lookupResponse => {
+  if (
+    lookupResponse &&
+    lookupResponse['x-mediator-urn'] &&
+    lookupResponse.response
+  ) {
+    try {
+      return JSON.parse(lookupResponse.response.body)
+    } catch (error) {
+      logger.debug(
+        `No stringified JSON. Therefore no parsing needed: ${error.message}`
+      )
+    }
+  }
 }
 
 const prepareRequestConfig = (
