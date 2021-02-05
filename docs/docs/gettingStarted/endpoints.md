@@ -560,6 +560,7 @@ There are two types of external requests, the `lookup` and the `response`. Query
     "lookup": [
       {
         "id": "test",
+        "forwardExistingRequestBody": true, // If you need access to the payload this field MUST be specified
         "forEach": {
           "items": "payload.entry",
           "concurrency": "2" // if not specified defaults to 1
