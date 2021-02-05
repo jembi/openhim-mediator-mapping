@@ -12,6 +12,8 @@ Setting up the OpenHIM (Core and Console) is recommended but not required.
 
 > This guide is aimed at Linux users.
 
+Follow our [YouTube setup video](https://youtu.be/I6NTXZvJxW0) for a step by step guide.
+
 ## Prerequisites
 
 To store endpoint data:

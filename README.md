@@ -7,7 +7,7 @@
 
 The Mapping Mediator's function is to allow data validation, mapping, and orchestration between previously disparate systems. What makes it different from other existing mapping mediators is that it is generic. Users can define their own validation and mapping schemas for their specific use case. This is useful as it opens up Mapping Mediators to users without any coding knowledge.
 
-Please see [our documentation page](https://jembi.github.io/openhim-mediator-mapping) for more details.
+Please see [our documentation page](https://jembi.github.io/openhim-mediator-mapping) for more details and our [YouTube setup Video](https://youtu.be/I6NTXZvJxW0) for a step by step guide.
 
 ## Prerequisite
 
