@@ -39,7 +39,7 @@ Zipped repository:
 wget https://github.com/jembi/openhim-mediator-mapping/archive/master.zip
 ```
 
-Zipped release version. Tagged releases can be downloaded by executing the below command, and replacing the <RELEASE_VERSION> placeholder with an actual [release tag](https://github.com/jembi/openhim-mediator-mapping/releases): E.g `v2.2.0`
+Zipped release version. Tagged releases can be downloaded by executing the below command, and replacing the <RELEASE_VERSION> placeholder with an actual [release tag](https://github.com/jembi/openhim-mediator-mapping/releases): E.g `v2.2.2`
 
 ```sh
 wget https://github.com/jembi/openhim-mediator-mapping/releases/download/<RELEASE_VERSION>/build.openhim-mediator-mapping.<RELEASE_VERSION>.zip
