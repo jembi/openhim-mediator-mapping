@@ -88,7 +88,7 @@ tap.test(
 
           t.ok(
             result.body.error.match(
-              /Duplicate error: regex created from endpoint pattern /
+              /Duplicate error: HTTP method and regex created from endpoint pattern /
             )
           )
           t.end()
