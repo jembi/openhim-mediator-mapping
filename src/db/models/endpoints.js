@@ -23,10 +23,7 @@ const endpointSchema = new mongoose.Schema(
       pattern: {
         type: String,
         match: MIDDLEWARE_PATH_REGEX,
-        required: true,
-        index: {
-          unique: true
-        }
+        required: true
       },
       method: {
         type: String,
@@ -101,15 +98,29 @@ endpointSchema.pre('save', async function (next) {
     'endpoint.pattern': {$regex: endpointMatchingRegex}
   }).then(result => {
     if (result.length > 0) {
-      const error = new Error(
-        `Duplicate error: regex created from endpoint pattern ${endpoint.endpoint.pattern} for matching requests already exists`
-      )
-      return next(error)
+      let duplicate = false
+      result.forEach(existingEndpoint => {
+        if (existingEndpoint.endpoint.method === endpoint.endpoint.method) {
+          duplicate = true
+        }
+      })
+
+      if (duplicate) {
+        const error = new Error(
+          `Duplicate error: HTTP method and regex created from endpoint pattern ${endpoint.endpoint.pattern} for matching requests already exists`
+        )
+        return next(error)
+      }
     }
 
     return next()
   })
 })
+
+endpointSchema.index(
+  {'endpoint.pattern': 1, 'endpoint.method': 1},
+  {unique: true}
+)
 
 const EndpointModel = mongoose.model('endpoint', endpointSchema)
 

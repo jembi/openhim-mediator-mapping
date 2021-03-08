@@ -139,7 +139,8 @@ tap.test('Database interactions', {autoend: true}, t => {
         const testEndpointConfig = {
           name: 'test 1',
           endpoint: {
-            pattern: '/test'
+            pattern: '/test',
+            method: 'POST'
           },
           transformation: {
             input: 'JSON',
@@ -160,7 +161,8 @@ tap.test('Database interactions', {autoend: true}, t => {
         const samePatternTestEndpointConfig = {
           name: 'test 2',
           endpoint: {
-            pattern: '/test'
+            pattern: '/test',
+            method: 'POST'
           },
           transformation: {
             input: 'JSON',
@@ -176,7 +178,7 @@ tap.test('Database interactions', {autoend: true}, t => {
           .catch(error => {
             t.equals(
               error.message,
-              'Duplicate error: regex created from endpoint pattern /test for matching requests already exists'
+              'Duplicate error: HTTP method and regex created from endpoint pattern /test for matching requests already exists'
             )
           })
       }
