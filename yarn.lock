@@ -3156,7 +3156,7 @@ object-keys@^1.0.12, object-keys@^1.1.1:
 
 object-mapper@jembi/node-object-mapper:
   version "0.1.0"
-  resolved "https://codeload.github.com/jembi/node-object-mapper/tar.gz/bf9a1475f0ab98df4a990dfaa1595f3559994d3b"
+  resolved "https://codeload.github.com/jembi/node-object-mapper/tar.gz/5dfa15b0319d67caf40af78116b3a976fe32cbc6"
   dependencies:
     minimatch "^3.0.4"
 
