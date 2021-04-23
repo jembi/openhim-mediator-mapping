@@ -1365,6 +1365,161 @@ tap.test(
             })
         }
       )
+
+      t.test(
+        'requestMiddleware should send successful response request',
+        async t => {
+          t.plan(1)
+          server.on('request', async (req, res) => {
+            if (req.method === 'POST' && req.url.startsWith('/Patient/')) {
+              res.writeHead(200, {'Content-Type': 'application/json'})
+              req.pipe(res)
+              return
+            }
+            res.writeHead(404)
+            res.end()
+            return
+          })
+
+          const testEndpoint = {
+            name: 'External Request Test Endpoint 16',
+            endpoint: {
+              pattern: '/externalRequestTest16'
+            },
+            transformation: {
+              input: 'JSON',
+              output: 'JSON'
+            },
+            requests: {
+              response: [
+                {
+                  id: 'fhirPatient',
+                  config: {
+                    method: 'post',
+                    url: `http://localhost:${mockServerPort}/Patient/:id`,
+                    params: {
+                      url: {
+                        id: {
+                          path: 'payload.id'
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+
+          await request(`http://localhost:${testMapperPort}`)
+            .post('/endpoints')
+            .send(testEndpoint)
+            .set('Content-Type', 'application/json')
+            .expect(201)
+
+          // The mongoDB endpoint collection change listeners may take a few milliseconds to update the endpoint cache.
+          // This wouldn't be a problem in the normal use case as a user would not create an endpoint and
+          // immediately start posting to it within a few milliseconds. Therefore this timeout here should be fine...
+          await sleep(100)
+
+          const requestData = {
+            id: 111
+          }
+
+          await request(`http://localhost:${testMapperPort}`)
+            .post('/externalRequestTest16')
+            .send(requestData)
+            .set('Content-Type', 'application/json')
+            .expect(response => {
+              t.deepEquals(response.body, {id: 111})
+            })
+        }
+      )
+
+      t.test(
+        'requestMiddleware should send multiple successful (non-array) response requests',
+        async t => {
+          t.plan(1)
+          server.on('request', async (req, res) => {
+            if (req.method === 'POST' && req.url.startsWith('/Patient/')) {
+              res.writeHead(200, {'Content-Type': 'application/json'})
+              req.pipe(res)
+              return
+            }
+            res.writeHead(404)
+            res.end()
+            return
+          })
+
+          const testEndpoint = {
+            name: 'External Request Test Endpoint 17',
+            endpoint: {
+              pattern: '/externalRequestTest17'
+            },
+            transformation: {
+              input: 'JSON',
+              output: 'JSON'
+            },
+            requests: {
+              response: [
+                {
+                  id: 'fhirPatient-1',
+                  config: {
+                    method: 'post',
+                    url: `http://localhost:${mockServerPort}/Patient/:id`,
+                    params: {
+                      url: {
+                        id: {
+                          path: 'payload.id'
+                        }
+                      }
+                    }
+                  }
+                },
+                {
+                  id: 'fhirPatient-2',
+                  config: {
+                    method: 'post',
+                    url: `http://localhost:${mockServerPort}/Patient/:id`,
+                    params: {
+                      url: {
+                        id: {
+                          path: 'payload.id'
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+
+          await request(`http://localhost:${testMapperPort}`)
+            .post('/endpoints')
+            .send(testEndpoint)
+            .set('Content-Type', 'application/json')
+            .expect(201)
+
+          // The mongoDB endpoint collection change listeners may take a few milliseconds to update the endpoint cache.
+          // This wouldn't be a problem in the normal use case as a user would not create an endpoint and
+          // immediately start posting to it within a few milliseconds. Therefore this timeout here should be fine...
+          await sleep(100)
+
+          const requestData = {
+            id: 111
+          }
+
+          await request(`http://localhost:${testMapperPort}`)
+            .post('/externalRequestTest17')
+            .send(requestData)
+            .set('Content-Type', 'application/json')
+            .expect(response => {
+              t.deepEquals(response.body, {
+                'fhirPatient-1': {id: 111},
+                'fhirPatient-2': {id: 111}
+              })
+            })
+        }
+      )
     })
   )
 )

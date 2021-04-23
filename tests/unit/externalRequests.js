@@ -431,6 +431,7 @@ tap.test('External Requests', {autoend: true}, t => {
               }
             }
           },
+          body: {},
           request: {}
         }
         await prepareResponseRequests(ctx)
