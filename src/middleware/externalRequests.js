@@ -311,10 +311,6 @@ const prepareRequestConfig = (
 }
 
 const performResponseRequestArray = async (ctx, request) => {
-  // Empty the koa response body. It contains the mapped data that is to be sent out.
-  // This data will be replaced with the array item value
-  ctx.body = {}
-
   const items = extractParamValue(request.forEach.items, ctx)
 
   if (!items || !Array.isArray(items)) {
@@ -334,11 +330,11 @@ const performResponseRequestArray = async (ctx, request) => {
     itemRequest.primary = false
     const itemCtx = Object.assign({}, ctx)
 
-    itemCtx.body = item
+    itemCtx.body = {}
     itemCtx.state.allData.item = item
 
     const promise = makeQuerablePromise(
-      performResponseRequest(itemCtx, itemRequest)
+      performResponseRequest(itemCtx, item, itemRequest)
     )
     currentlyExecuting.push(promise)
     allPromises.push(promise)
@@ -374,6 +370,11 @@ const performResponseRequests = (ctx, requests) => {
   if (!ctx.orchestrations) {
     ctx.orchestrations = []
   }
+
+  const body = JSON.parse(JSON.stringify(ctx.body))
+  // Empty the koa response body. It already contains the mapped data.
+  // This body field will be repopulated with response data from the request/s
+  ctx.body = {}
 
   return requests.map(request => {
     if (
@@ -411,7 +412,7 @@ const performResponseRequests = (ctx, requests) => {
         return performResponseRequestArray(ctx, request)
       }
 
-      return performResponseRequest(ctx, request)
+      return performResponseRequest(ctx, body, request)
     }
   })
 }
@@ -541,7 +542,7 @@ const setKoaResponseBody = (ctx, request, body) => {
   }
 }
 
-const performResponseRequest = (ctx, requestDetails) => {
+const performResponseRequest = (ctx, body, requestDetails) => {
   const reqTimestamp = DateTime.utc().toISO()
   let response, orchestrationError, responseTimestamp
 
@@ -549,10 +550,6 @@ const performResponseRequest = (ctx, requestDetails) => {
   ctx.state.allData.timestamps.lookupRequests[requestDetails.id] = {
     requestStart: reqTimestamp
   }
-
-  // Empty the koa response body. It contains the mapped data that is to be sent out
-  const body = ctx.body
-  ctx.body = {}
 
   const params = addRequestQueryParameters(ctx, requestDetails.config)
   const requestUrl = resolveRequestUrl(ctx, requestDetails.config)
