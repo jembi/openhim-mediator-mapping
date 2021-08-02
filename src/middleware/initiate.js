@@ -178,7 +178,8 @@ exports.initiateContextMiddleware = () => async (ctx, next) => {
       endpointStart,
       endpointEnd: null,
       lookupRequests: {}
-    }
+    },
+    requestHeaders: ctx.request.headers || {}
   }
 
   ctx.state.uuid = requestUUID
