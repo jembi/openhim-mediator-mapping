@@ -94,7 +94,8 @@ tap.test(
           },
           inputMapping: {
             'requestBody.name': 'test.name',
-            'lookupRequests.checkTestServerUp.milliseconds': 'test.duration'
+            'lookupRequests.checkTestServerUp.data.milliseconds':
+              'test.duration'
           }
         }
 

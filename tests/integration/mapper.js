@@ -106,14 +106,19 @@ tap.test(
               lookupRequests: {
                 type: 'object',
                 properties: {
-                  checkTestServerUp: {
+                  data: {
                     type: 'object',
                     properties: {
-                      milliseconds: {
-                        type: 'number'
+                      checkTestServerUp: {
+                        type: 'object',
+                        properties: {
+                          milliseconds: {
+                            type: 'number'
+                          }
+                        },
+                        required: ['milliseconds']
                       }
-                    },
-                    required: ['milliseconds']
+                    }
                   }
                 },
                 required: ['checkTestServerUp']
@@ -202,17 +207,22 @@ tap.test(
             lookupRequests: {
               type: 'object',
               properties: {
-                checkTestServerUp: {
+                data: {
                   type: 'object',
                   properties: {
-                    milliseconds: {
-                      type: 'number'
+                    checkTestServerUp: {
+                      type: 'object',
+                      properties: {
+                        milliseconds: {
+                          type: 'number'
+                        }
+                      },
+                      required: ['milliseconds']
                     }
                   },
-                  required: ['milliseconds']
+                  required: ['checkTestServerUp']
                 }
-              },
-              required: ['checkTestServerUp']
+              }
             },
             requestBody: {
               type: 'object',
@@ -286,7 +296,7 @@ tap.test(
           ]
         },
         inputMapping: {
-          'lookupRequests.checkTestServerUp': 'uptime',
+          'lookupRequests.checkTestServerUp.data': 'uptime',
           'requestBody.name': 'firstName',
           'requestBody.surname': 'lastName'
         },
@@ -296,17 +306,22 @@ tap.test(
             lookupRequests: {
               type: 'object',
               properties: {
-                checkTestServerUp: {
+                data: {
                   type: 'object',
                   properties: {
-                    milliseconds: {
-                      type: 'number'
+                    checkTestServerUp: {
+                      type: 'object',
+                      properties: {
+                        milliseconds: {
+                          type: 'number'
+                        }
+                      },
+                      required: ['milliseconds']
                     }
                   },
-                  required: ['milliseconds']
+                  required: ['checkTestServerUp']
                 }
-              },
-              required: ['checkTestServerUp']
+              }
             },
             requestBody: {
               type: 'object',
@@ -381,7 +396,7 @@ tap.test(
             ]
           },
           inputMapping: {
-            'lookupRequests.checkTestServerUp': 'uptime',
+            'lookupRequests.checkTestServerUp.data': 'uptime',
             'requestBody.name': 'firstName',
             'requestBody.surname': 'lastName'
           },
@@ -391,17 +406,27 @@ tap.test(
               lookupRequests: {
                 type: 'object',
                 properties: {
-                  checkTestServerUp: {
+                  data: {
                     type: 'object',
                     properties: {
-                      milliseconds: {
-                        type: 'number'
+                      data: {
+                        type: 'object',
+                        properties: {
+                          checkTestServerUp: {
+                            type: 'object',
+                            properties: {
+                              milliseconds: {
+                                type: 'number'
+                              }
+                            },
+                            required: ['milliseconds']
+                          }
+                        },
+                        required: ['checkTestServerUp']
                       }
-                    },
-                    required: ['milliseconds']
+                    }
                   }
-                },
-                required: ['checkTestServerUp']
+                }
               },
               requestBody: {
                 type: 'object',

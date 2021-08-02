@@ -79,8 +79,8 @@ tap.test(
             ]
           },
           inputMapping: {
-            'lookupRequests.fhirPatient': 'fhirPatient',
-            'lookupRequests.fhirObservation': 'fhirObservation'
+            'lookupRequests.fhirPatient.data': 'fhirPatient',
+            'lookupRequests.fhirObservation.data': 'fhirObservation'
           }
         }
 
@@ -186,8 +186,8 @@ tap.test(
               ]
             },
             inputMapping: {
-              'lookupRequests.fhirPatient': 'fhirPatient',
-              'lookupRequests.fhirObservation': 'fhirObservation'
+              'lookupRequests.fhirPatient.data': 'fhirPatient',
+              'lookupRequests.fhirObservation.data': 'fhirObservation'
             }
           }
 
@@ -301,8 +301,8 @@ tap.test(
               ]
             },
             inputMapping: {
-              'lookupRequests.fhirPatient': 'fhirPatient',
-              'lookupRequests.fhirObservation': 'fhirObservation'
+              'lookupRequests.fhirPatient.data': 'fhirPatient',
+              'lookupRequests.fhirObservation.data': 'fhirObservation'
             }
           }
 
@@ -464,8 +464,8 @@ tap.test(
               ]
             },
             inputMapping: {
-              'lookupRequests.fhir-server.resourceType': 'resourceType',
-              'lookupRequests.fhir-server.gender': 'gender'
+              'lookupRequests.fhir-server.data.resourceType': 'resourceType',
+              'lookupRequests.fhir-server.data.gender': 'gender'
             }
           }
 
@@ -678,8 +678,8 @@ tap.test(
               ]
             },
             inputMapping: {
-              'lookupRequests.fhir-server.resourceType': 'resourceType',
-              'lookupRequests.fhir-server.gender': 'gender'
+              'lookupRequests.fhir-server.data.resourceType': 'resourceType',
+              'lookupRequests.fhir-server.data.gender': 'gender'
             }
           }
 
@@ -765,8 +765,8 @@ tap.test(
               ]
             },
             inputMapping: {
-              'lookupRequests.fhir-server.resourceType': 'resourceType',
-              'lookupRequests.fhir-server.gender': 'gender'
+              'lookupRequests.fhir-server.data.resourceType': 'resourceType',
+              'lookupRequests.fhir-server.data.gender': 'gender'
             }
           }
 
@@ -844,7 +844,7 @@ tap.test(
               ]
             },
             inputMapping: {
-              'lookupRequests.fhirPatient': 'fhirPatient'
+              'lookupRequests.fhirPatient.data': 'fhirPatient'
             }
           }
 
@@ -916,7 +916,7 @@ tap.test(
               ]
             },
             inputMapping: {
-              'lookupRequests.fhirPatient': 'fhirPatient'
+              'lookupRequests.fhirPatient.data': 'fhirPatient'
             }
           }
 
@@ -999,7 +999,7 @@ tap.test(
               ]
             },
             inputMapping: {
-              'lookupRequests.fhirPatient': 'fhirPatient'
+              'lookupRequests.fhirPatient.data': 'fhirPatient'
             }
           }
 
@@ -1062,7 +1062,7 @@ tap.test(
               ]
             },
             inputMapping: {
-              'lookupRequests.fhirPatient': 'fhirPatient'
+              'lookupRequests.fhirPatient.data': 'fhirPatient'
             }
           }
 
@@ -1142,7 +1142,7 @@ tap.test(
               ]
             },
             inputMapping: {
-              'lookupRequests.fhirPatient': 'fhirPatient'
+              'lookupRequests.fhirPatient.data': 'fhirPatient'
             }
           }
 

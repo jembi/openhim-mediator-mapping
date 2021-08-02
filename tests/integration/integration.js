@@ -110,15 +110,20 @@ tap.test(
                     'fhir-server': {
                       type: 'object',
                       properties: {
-                        gender: {
-                          type: 'string',
-                          enum: ['female', 'unknown']
-                        },
-                        resourceType: {
-                          type: 'string'
+                        data: {
+                          type: 'object',
+                          properties: {
+                            gender: {
+                              type: 'string',
+                              enum: ['female', 'unknown']
+                            },
+                            resourceType: {
+                              type: 'string'
+                            }
+                          },
+                          required: ['gender']
                         }
-                      },
-                      required: ['gender']
+                      }
                     }
                   }
                 },
@@ -146,11 +151,10 @@ tap.test(
               }
             },
             inputTransforms: {
-              age:
-                '$floor( ( $toMillis( $now() ) - $toMillis( requestBody.dob ) ) / 31556952000 )'
+              age: '$floor( ( $toMillis( $now() ) - $toMillis( requestBody.dob ) ) / 31556952000 )'
             },
             inputMapping: {
-              'lookupRequests.fhir-server.gender': {
+              'lookupRequests.fhir-server.data.gender': {
                 key: 'sex',
                 transform: {
                   function: 'mapCodes',
@@ -286,22 +290,27 @@ tap.test(
                     'fhir-server': {
                       type: 'object',
                       properties: {
-                        gender: {
-                          type: 'string',
-                          enum: ['male', 'female', 'other', 'unknown']
-                        },
-                        resourceType: {
-                          type: 'string'
+                        data: {
+                          type: 'object',
+                          properties: {
+                            gender: {
+                              type: 'string',
+                              enum: ['male', 'female', 'other', 'unknown']
+                            },
+                            resourceType: {
+                              type: 'string'
+                            }
+                          },
+                          required: ['gender']
                         }
-                      },
-                      required: ['gender']
+                      }
                     }
                   }
                 }
               }
             },
             inputMapping: {
-              'lookupRequests.fhir-server.gender': {
+              'lookupRequests.fhir-server.data.gender': {
                 key: 'sex',
                 transform: {
                   function: 'mapCodes',
