@@ -1520,6 +1520,83 @@ tap.test(
             })
         }
       )
+
+      t.test(
+        'requestMiddleware should retrieve data from response and request headers',
+        async t => {
+          t.plan(2)
+          const fhirPatient = {
+            resourceType: 'Patient',
+            gender: 'other'
+          }
+          const client_id = '12344455'
+          const requesting_client = '233333'
+
+          server.on('request', async (req, res) => {
+            if (req.method === 'GET' && req.url === '/Patient') {
+              t.pass()
+              res.writeHead(200, {
+                'Content-Type': 'application/json',
+                client_id
+              })
+              res.end(JSON.stringify(fhirPatient))
+              return
+            }
+            res.writeHead(404)
+            res.end()
+            return
+          })
+
+          const testEndpoint = {
+            name: 'External Request Test Endpoint 18',
+            endpoint: {
+              pattern: '/externalRequestTest18'
+            },
+            transformation: {
+              input: 'JSON',
+              output: 'JSON'
+            },
+            requests: {
+              lookup: [
+                {
+                  id: 'fhirPatient',
+                  config: {
+                    method: 'get',
+                    url: `http://localhost:${mockServerPort}/Patient`
+                  }
+                }
+              ]
+            },
+            inputMapping: {
+              'lookupRequests.fhirPatient.data': 'fhirPatient',
+              'lookupRequests.fhirPatient.headers.client_id': 'client_id',
+              'requestHeaders.requesting_client': 'requesting_client'
+            }
+          }
+
+          await request(`http://localhost:${testMapperPort}`)
+            .post('/endpoints')
+            .send(testEndpoint)
+            .set('Content-Type', 'application/json')
+            .expect(201)
+
+          // The mongoDB endpoint collection change listeners may take a few milliseconds to update the endpoint cache.
+          // This wouldn't be a problem in the normal use case as a user would not create an endpoint and
+          // immediately start posting to it within a few milliseconds. Therefore this timeout here should be fine...
+          await sleep(100)
+
+          await request(`http://localhost:${testMapperPort}`)
+            .get('/externalRequestTest18')
+            .set('Content-Type', 'application/json')
+            .set('requesting_client', requesting_client)
+            .expect(response => {
+              t.deepEquals(
+                response.body,
+                Object.assign({}, {fhirPatient, requesting_client, client_id})
+              )
+            })
+        }
+      )
     })
   )
 )
