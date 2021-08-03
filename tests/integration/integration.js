@@ -151,7 +151,8 @@ tap.test(
               }
             },
             inputTransforms: {
-              age: '$floor( ( $toMillis( $now() ) - $toMillis( requestBody.dob ) ) / 31556952000 )'
+              age:
+                '$floor( ( $toMillis( $now() ) - $toMillis( requestBody.dob ) ) / 31556952000 )'
             },
             inputMapping: {
               'lookupRequests.fhir-server.data.gender': {
