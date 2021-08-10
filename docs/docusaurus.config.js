@@ -1,5 +1,3 @@
-const versions = require('./versions.json');
-
 module.exports = {
   title: 'OpenHIM Mapping Mediator',
   tagline: 'Simplifying data adaptation between systems',
@@ -19,17 +17,6 @@ module.exports = {
         src: 'img/logo.png'
       },
       items: [
-        {
-          to: 'versions',
-          label: `${versions[0]}`,
-          position: 'left',
-          style: {
-            whiteSpace: 'nowrap',
-            padding: '0.25rem 0.5rem 0.2rem 0.25rem',
-            fontSize: 'calc(0.9 * var(--ifm-font-size-base))',
-            textDecoration: 'underline',
-          },
-        },
         {to: 'docs/gettingStarted/setup', label: 'Docs', position: 'left'},
         {
           href: 'https://github.com/jembi/openhim-mediator-mapping',

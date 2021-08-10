@@ -89,13 +89,7 @@ All input data, populated from different sources, are stored in the following in
 ```json
 {
   "requestBody": {...},
-  "requestHeaders": {...},
-  "lookupRequests": {
-    "id": {
-      "headers": {...},
-      "data": {...}
-    } 
-  },
+  "lookupRequests": {...},
   "transforms": {...},
   "constants": {...},
   "urlParams": {...},
@@ -123,16 +117,8 @@ See the full flow of examples to follow:
   "requestBody": {
     "status": "Active"
   },
-  "requestHeaders": {
-    "token-id": "azsc567yuiehgngjklk"
-  },
   "lookupRequests": {
-    "location": {
-      "data": "Unknown",
-      "headers": {
-        "client-id": "12345"
-      }
-    }
+    "location": "Unknown"
   }
 }
 ```
@@ -144,9 +130,7 @@ See the full flow of examples to follow:
 {
   "input": {
     "requestBody.status": "status",
-    "requestHeaders.token-id": "accessToken",
-    "lookupRequests.location.data": "location",
-    "lookupRequests.location.headers.client-id": "client-id"
+    "lookupRequests.location": "location"
   }
 }
 ```
@@ -157,9 +141,7 @@ See the full flow of examples to follow:
 ```json
 {
   "status": "Active",
-  "accessToken": "azsc567yuiehgngjklk",
-  "location": "Unknown",
-  "client-id": "12345"
+  "location": "Unknown"
 }
 ```
 
@@ -395,8 +377,8 @@ There are two types of external requests, the `lookup` and the `response`. Query
     ...
     "lookupRequests": {
       "dhis2": {
-        "data": {...}, //<Data from lookup>
-        "headers": {...} // <Response Headers from look up>
+        ...
+        //<Data from lookup>
       }
     }
   }
