@@ -89,12 +89,23 @@ All input data, populated from different sources, are stored in the following in
 ```json
 {
   "requestBody": {...},
-  "lookupRequests": {...},
+  "requestHeaders": {...}, // Only in versions above v2.3.1
+  "lookupRequests": {
+    "<id>": {
+      "headers": {...},
+      "data": {...} // response body
+    }
+  },
+
+  // In versions below v3.0.0 the lookupRequests has the following structure
+  "lookupRequests": {
+    "<id>": {...} // response body
+  },
   "transforms": {...},
   "constants": {...},
   "urlParams": {...},
   "state": {...},
-  "timestamps": {...},
+  "timestamps": {...}
 }
 ```
 
@@ -118,7 +129,12 @@ See the full flow of examples to follow:
     "status": "Active"
   },
   "lookupRequests": {
-    "location": "Unknown"
+    "location": {
+      "data": "Unknown",
+      "headers": {
+        "type": "live"
+      }
+    }
   }
 }
 ```
@@ -128,9 +144,10 @@ See the full flow of examples to follow:
 
 ```json
 {
-  "input": {
+  "inputMapping": {
     "requestBody.status": "status",
-    "lookupRequests.location": "location"
+    "lookupRequests.location.data": "location",
+    "lookupRequests.location.headers.type": "locationType"
   }
 }
 ```
@@ -141,7 +158,8 @@ See the full flow of examples to follow:
 ```json
 {
   "status": "Active",
-  "location": "Unknown"
+  "location": "Unknown",
+  "locationType": "live"
 }
 ```
 
@@ -377,8 +395,8 @@ There are two types of external requests, the `lookup` and the `response`. Query
     ...
     "lookupRequests": {
       "dhis2": {
-        ...
-        //<Data from lookup>
+        "data": {...},
+        "headers": {...}
       }
     }
   }

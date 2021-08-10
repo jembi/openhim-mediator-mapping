@@ -25,9 +25,9 @@ tap.test('Endpoint Routes', {autoend: true}, async t => {
     sandbox.restore()
   })
 
-  t.teardown(async () => {
-    await endpointService.deleteEndpoints({})
-  })
+  // t.teardown(async () => {
+  //   //await endpointService.deleteEndpoints({})
+  // })
 
   t.test('createEndpointRoute should create endpoint', t => {
     t.plan(2)
