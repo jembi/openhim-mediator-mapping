@@ -217,7 +217,7 @@ tap.test('External Requests', {autoend: true}, t => {
       }
 
       await Promise.all(performLookupRequests(ctx, requests)).then(res => {
-        t.deepEqual(res[0], {123: 'Body'})
+        t.deepEqual(res[0]['123'].data, 'Body')
         t.equals(ctx.state.allData.state.currentLookupHttpStatus, 200)
         t.equals(ctx.orchestrations.length, 1)
         t.end()
@@ -328,8 +328,14 @@ tap.test('External Requests', {autoend: true}, t => {
       t.equals(ctx.orchestrations.length, 2)
       t.ok(ctx.state.allData.lookupRequests)
       t.deepEqual(ctx.state.allData.lookupRequests, {
-        chrome: 'Body',
-        safari: 'Body'
+        chrome: {
+          data: 'Body',
+          headers: {}
+        },
+        safari: {
+          data: 'Body',
+          headers: {}
+        }
       })
       t.end()
     })

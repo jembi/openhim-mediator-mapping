@@ -41,17 +41,22 @@ tap.test(
               lookupRequests: {
                 type: 'object',
                 properties: {
-                  checkTestServerUp: {
+                  data: {
                     type: 'object',
                     properties: {
-                      milliseconds: {
-                        type: 'number'
+                      checkTestServerUp: {
+                        type: 'object',
+                        properties: {
+                          milliseconds: {
+                            type: 'number'
+                          }
+                        },
+                        required: ['milliseconds']
                       }
                     },
-                    required: ['milliseconds']
+                    required: ['checkTestServerUp']
                   }
-                },
-                required: ['checkTestServerUp']
+                }
               },
               requestBody: {
                 type: 'object',

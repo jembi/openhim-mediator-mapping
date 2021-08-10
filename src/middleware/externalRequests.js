@@ -93,7 +93,13 @@ const performLookupRequest = async (ctx, requestDetails) => {
           : response.status
 
       // Assign any data received from the response to the assigned ID in the context
-      return {[requestDetails.id]: res.data}
+      return {
+        [requestDetails.id]: Object.assign(
+          {},
+          {data: res.data},
+          {headers: res.headers}
+        )
+      }
     })
     .catch(error => {
       orchestrationError = error

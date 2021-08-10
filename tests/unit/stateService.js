@@ -134,9 +134,9 @@ tap.test('States DB Services', {autoend: true}, t => {
             t.fail(`Should not reach here. ${data}`)
           })
           .catch(error => {
-            t.equals(
+            t.match(
               error.message,
-              'Cast to ObjectId failed for value "InvalidObjectId" at path "_endpointReference" for model "state"'
+              'Cast to ObjectId failed for value "InvalidObjectId"'
             )
           })
       }
