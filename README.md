@@ -61,6 +61,11 @@ rs.initiate(config)
 
 > **NOTE:** The IP used here is the local docker bridge IP. This IP is generally consistent, however different docker configurations could result in differences. You can confirm your IP with this terminal command: `ifconfig docker0`
 
+#### WSL setup
+
+There is no docker0 broadcasting channel when running in WSL, use eth0 inet IP instead. Replace the host values in the mongo replica set config above. You can confirm your IP with this terminal command: `ifconfig eth0`. You can confirm your current config in Mongo by using:
+`docker exec -it mapper-mongo-1 mongo` and then `rs.conf()`.
+
 With your replica set running, you can start up your Mapping Mediator. First install the Node dependencies by running `yarn`. Then include the following environment variable configs to connect your Mapping Mediator to the MongoDB replica set:
 
 - MONGO_URL='mongodb://localhost:27017,localhost:27018,localhost:27019/mapping-mediator?replicaSet=mapper-mongo-set'

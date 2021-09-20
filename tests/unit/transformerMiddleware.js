@@ -60,8 +60,7 @@ tap.test('Transformer Middleware', {autoend: true}, t => {
               name: 'Test endpoint',
               inputTransforms: {
                 totalAmount: '$sum(requestBody.items.(amount * units))', // 1100
-                bmi:
-                  '$round(requestBody.patient.(weight / height / height) * 10000, 2)', // 25.54
+                bmi: '$round(requestBody.patient.(weight / height / height) * 10000, 2)', // 25.54
                 patientReference: "'Patient/' & requestBody.patient.uuid" // Patient/a-random-uuid
               }
             },
@@ -115,8 +114,7 @@ tap.test('Transformer Middleware', {autoend: true}, t => {
               name: 'Test endpoint',
               inputTransforms: {
                 totalAmount: '$sum(requestBody.items.(amount * units', // should throw an error - missing end brackets
-                bmi:
-                  '$round(requestBody.patient.(weight / height / height) * 10000, 2)', // 25.54
+                bmi: '$round(requestBody.patient.(weight / height / height) * 10000, 2)', // 25.54
                 patientReference: "'Patient/' & requestBody.patient.uuid" // Patient/a-random-uuid
               }
             },
@@ -168,8 +166,7 @@ tap.test('Transformer Middleware', {autoend: true}, t => {
             name: 'Test endpoint',
             inputTransforms: {
               totalAmount: '$sum(requestBody.items.(amount * units))', // should throw an error - missing end brackets
-              bmi:
-                '$round(requestBody.patient.(weight / height / height) * 10000, 2)', // 25.54
+              bmi: '$round(requestBody.patient.(weight / height / height) * 10000, 2)', // 25.54
               patientReference: "'Patient/' & requestBody.patient.uuid" // Patient/a-random-uuid
             }
           },
