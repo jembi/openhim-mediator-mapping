@@ -1,5 +1,6 @@
 'use strict'
 
+require('dotenv').config()
 const koa = require('koa')
 const koaRouter = require('koa-router')
 const {DateTime} = require('luxon')

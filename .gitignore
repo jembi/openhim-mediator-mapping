@@ -9,3 +9,7 @@ coverage.lcov
 # generated files
 /docs/.docusaurus
 /docs/.cache-loader
+
+# dotenv environment variables file
+.env
+.env.test

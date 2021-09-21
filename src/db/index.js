@@ -1,6 +1,7 @@
 'use strict'
 
 const mongoose = require('mongoose')
+const { MONGOOSE_RECONNECT_INTERVAL } = require('../constants')
 
 const logger = require('../logger')
 
@@ -10,34 +11,58 @@ const {
   setupEventListeners
 } = require('./services/endpoints/cache')
 
+let reconnectInterval
+let eventListenersSet
+
 exports.open = mongoUrl => {
-  return mongoose
-    .connect(mongoUrl, {
+  let mongooseConnection = function(){
+    mongoose.connect(mongoUrl, {
       poolSize: 20,
       useCreateIndex: true,
       useNewUrlParser: true,
       useFindAndModify: false,
       useUnifiedTopology: true
-    })
-    .then(connection => {
-      logger.info(`Connected to mongo on ${mongoUrl}`)
-      if (dynamicEndpoints) {
-        setupEventListeners()
+      // reconnectInterval: 1000, Does not work on replica sets
+      // reconnectTries: 60
+    }, (err) => {
+      if(err)
+      {
+        logger.error(
+          `Failed to connect to mongo. Caused by: ${err.message}`,
+          err
+        )
       }
-      return connection
-    })
-    .catch(error => {
-      logger.error(
-        `Failed to connect to mongo. Caused by: ${error.message}`,
-        error
-      )
-      throw error
-    })
+     }
+    )
+  }
+  mongooseConnection()
+  mongoose.connection.on('disconnected', () => { //This might currently result in issues if the connection is intentionally disconnected
+    if(!reconnectInterval)
+    {
+      reconnectInterval = setInterval(() => {
+        mongooseConnection()
+      }, MONGOOSE_RECONNECT_INTERVAL);
+    }
+  })
+  mongoose.connection.on('connected', () => {
+    logger.info(`Connected to mongo on ${mongoUrl}`)
+    if (dynamicEndpoints && !eventListenersSet) {
+      setupEventListeners()
+      eventListenersSet = true
+    }
+    if(reconnectInterval)
+    {
+      clearInterval(reconnectInterval)
+      reconnectInterval = null
+    }
+  })
+  return mongooseConnection
 }
 
 exports.close = async () => {
   if (dynamicEndpoints) {
     removeEventListeners()
+    eventListenersSet = false
   }
   await mongoose
     .disconnect()
@@ -52,11 +77,3 @@ exports.close = async () => {
       throw error
     })
 }
-
-// TODO: Add DB connection listeners to Mongoose Connection.
-// This will be useful for reconnecting to Mongo after an error
-// and re-establishing the dynamic endpoint functionality without
-// having to restart the Mapping mediator (resulting in downtime)
-// These Connection Listeners would work to re-enable the Event
-// Change listeners
-// https://mongoosejs.com/docs/connections.html#connection-events

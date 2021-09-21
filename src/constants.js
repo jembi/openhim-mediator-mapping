@@ -13,6 +13,8 @@ exports.MIDDLEWARE_PATH_REGEX = /^(?!\/endpoints|\/uptime)\/[\d\w-._~/:]+$/
 exports.MONGOOSE_STRING_TIMESTAMP_REGEX =
   /^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[01]|0[1-9]|[12][0-9])T(2[0-3]|[01][0-9]):([0-5][0-9]):([0-5][0-9])\.([0-9]+)?(Z)?$/
 
+exports.MONGOOSE_RECONNECT_INTERVAL = 1000
+
 exports.OPENHIM_TRANSACTION_HEADER = 'x-openhim-transactionid'
 
 // Only allows the values from 100 to 599 which spans the possible valid HTTP statuses
