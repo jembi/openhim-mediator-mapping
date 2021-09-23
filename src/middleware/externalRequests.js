@@ -4,7 +4,7 @@ const axios = require('axios')
 const {DateTime} = require('luxon')
 
 const logger = require('../logger')
-const {OPENHIM_TRANSACTION_HEADER} = require('../constants')
+const {OPENHIM_TRANSACTION_HEADER, ORIGIN_HEADER} = require('../constants')
 
 const {createOrchestration} = require('../orchestrations')
 const {extractValueFromObject, makeQuerablePromise} = require('../util')
@@ -39,7 +39,8 @@ const performLookupRequest = async (ctx, requestDetails) => {
     requestDetails.config.headers = Object.assign(
       {
         [OPENHIM_TRANSACTION_HEADER]:
-          ctx.request.headers[OPENHIM_TRANSACTION_HEADER]
+          ctx.request.headers[OPENHIM_TRANSACTION_HEADER],
+        [ORIGIN_HEADER]: 'Mapper'
       },
       requestDetails.config.headers
     )
@@ -394,7 +395,8 @@ const performResponseRequests = (ctx, requests) => {
         request.config.headers = Object.assign(
           {
             [OPENHIM_TRANSACTION_HEADER]:
-              ctx.request.headers[OPENHIM_TRANSACTION_HEADER]
+              ctx.request.headers[OPENHIM_TRANSACTION_HEADER],
+            [ORIGIN_HEADER]: 'Mapper'
           },
           request.config.headers
         )
