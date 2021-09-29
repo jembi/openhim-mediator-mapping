@@ -9,7 +9,7 @@ const db = require('../../src/db')
 tap.test('Database interactions', {autoend: true}, t => {
   t.test('Connect to DB', {autoend: true}, t => {
     t.afterEach(async () => {
-      if (mongoose.connection) await mongoose.connection.close()
+      await mongoose.disconnect()
     })
 
     t.test('should fail to connect to db', {autoend: true}, async t => {
