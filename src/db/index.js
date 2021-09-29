@@ -1,7 +1,7 @@
 'use strict'
 
 const mongoose = require('mongoose')
-const { MONGOOSE_RECONNECT_INTERVAL } = require('../constants')
+const {MONGOOSE_RECONNECT_INTERVAL} = require('../constants')
 
 const logger = require('../logger')
 
@@ -13,35 +13,34 @@ const {
 
 let reconnectInterval
 let eventListenersSet
-
-exports.open = mongoUrl => {
-  let mongooseConnection = function(){
-    mongoose.connect(mongoUrl, {
+let mongooseConnection = function (mongoUrl) {
+  return mongoose
+    .connect(mongoUrl, {
       poolSize: 20,
       useCreateIndex: true,
       useNewUrlParser: true,
       useFindAndModify: false,
       useUnifiedTopology: true
-      // reconnectInterval: 1000, Does not work on replica sets
-      // reconnectTries: 60
-    }, (err) => {
-      if(err)
-      {
-        logger.error(
-          `Failed to connect to mongo. Caused by: ${err.message}`,
-          err
-        )
-      }
-     }
-    )
-  }
-  mongooseConnection()
-  mongoose.connection.on('disconnected', () => { //This might currently result in issues if the connection is intentionally disconnected
-    if(!reconnectInterval)
-    {
+    })
+    .then(connection => {
+      return connection
+    })
+    .catch(error => {
+      logger.error(
+        `Failed to connect to mongo. Caused by: ${error.message}`,
+        error
+      )
+      if (!reconnectInterval) throw error
+    })
+}
+
+exports.open = mongoUrl => {
+  mongoose.connection.on('disconnected', () => {
+    //This might currently result in issues if the connection is intentionally disconnected
+    if (!reconnectInterval) {
       reconnectInterval = setInterval(() => {
-        mongooseConnection()
-      }, MONGOOSE_RECONNECT_INTERVAL);
+        mongooseConnection(mongoUrl)
+      }, MONGOOSE_RECONNECT_INTERVAL)
     }
   })
   mongoose.connection.on('connected', () => {
@@ -50,13 +49,12 @@ exports.open = mongoUrl => {
       setupEventListeners()
       eventListenersSet = true
     }
-    if(reconnectInterval)
-    {
+    if (reconnectInterval) {
       clearInterval(reconnectInterval)
       reconnectInterval = null
     }
   })
-  return mongooseConnection
+  return mongooseConnection(mongoUrl)
 }
 
 exports.close = async () => {
