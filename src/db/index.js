@@ -1,7 +1,6 @@
 'use strict'
 
 const mongoose = require('mongoose')
-const {MONGOOSE_RECONNECT_INTERVAL} = require('../constants')
 
 const logger = require('../logger')
 
@@ -11,8 +10,8 @@ const {
   setupEventListeners
 } = require('./services/endpoints/cache')
 
-let reconnectInterval
-let eventListenersSet
+let reconnectPromise = null
+let eventListenersSet = false
 let mongooseConnection = function (mongoUrl) {
   return mongoose
     .connect(mongoUrl, {
@@ -30,17 +29,19 @@ let mongooseConnection = function (mongoUrl) {
         `Failed to connect to mongo. Caused by: ${error.message}`,
         error
       )
-      if (!reconnectInterval) throw error
+      if (!reconnectPromise) throw error
     })
 }
 
 exports.open = mongoUrl => {
   mongoose.connection.on('disconnected', () => {
-    //This might currently result in issues if the connection is intentionally disconnected
-    if (!reconnectInterval) {
-      reconnectInterval = setInterval(() => {
-        mongooseConnection(mongoUrl)
-      }, MONGOOSE_RECONNECT_INTERVAL)
+    if (
+      mongoose.connection._hasOpened === true &&
+      mongoose.connection._closeCalled !== true
+    ) {
+      if (!reconnectPromise) {
+        reconnectPromise = mongooseConnection(mongoUrl)
+      }
     }
   })
   mongoose.connection.on('connected', () => {
@@ -49,9 +50,8 @@ exports.open = mongoUrl => {
       setupEventListeners()
       eventListenersSet = true
     }
-    if (reconnectInterval) {
-      clearInterval(reconnectInterval)
-      reconnectInterval = null
+    if (reconnectPromise) {
+      reconnectPromise = null
     }
   })
   return mongooseConnection(mongoUrl)
