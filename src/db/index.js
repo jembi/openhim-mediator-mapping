@@ -10,7 +10,9 @@ const {
   setupEventListeners
 } = require('./services/endpoints/cache')
 
-exports.open = mongoUrl => {
+let reconnectPromise = null
+let eventListenersSet = false
+let mongooseConnection = function (mongoUrl) {
   return mongoose
     .connect(mongoUrl, {
       poolSize: 20,
@@ -20,10 +22,6 @@ exports.open = mongoUrl => {
       useUnifiedTopology: true
     })
     .then(connection => {
-      logger.info(`Connected to mongo on ${mongoUrl}`)
-      if (dynamicEndpoints) {
-        setupEventListeners()
-      }
       return connection
     })
     .catch(error => {
@@ -31,13 +29,38 @@ exports.open = mongoUrl => {
         `Failed to connect to mongo. Caused by: ${error.message}`,
         error
       )
-      throw error
+      if (!reconnectPromise) throw error
     })
+}
+
+exports.open = mongoUrl => {
+  mongoose.connection.on('disconnected', () => {
+    if (
+      mongoose.connection._hasOpened === true &&
+      mongoose.connection._closeCalled !== true
+    ) {
+      if (!reconnectPromise) {
+        reconnectPromise = mongooseConnection(mongoUrl)
+      }
+    }
+  })
+  mongoose.connection.on('connected', () => {
+    logger.info(`Connected to mongo on ${mongoUrl}`)
+    if (dynamicEndpoints && !eventListenersSet) {
+      setupEventListeners()
+      eventListenersSet = true
+    }
+    if (reconnectPromise) {
+      reconnectPromise = null
+    }
+  })
+  return mongooseConnection(mongoUrl)
 }
 
 exports.close = async () => {
   if (dynamicEndpoints) {
     removeEventListeners()
+    eventListenersSet = false
   }
   await mongoose
     .disconnect()
@@ -52,11 +75,3 @@ exports.close = async () => {
       throw error
     })
 }
-
-// TODO: Add DB connection listeners to Mongoose Connection.
-// This will be useful for reconnecting to Mongo after an error
-// and re-establishing the dynamic endpoint functionality without
-// having to restart the Mapping mediator (resulting in downtime)
-// These Connection Listeners would work to re-enable the Event
-// Change listeners
-// https://mongoosejs.com/docs/connections.html#connection-events
