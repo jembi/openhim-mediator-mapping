@@ -8,6 +8,20 @@ const {
   DEFAULT_ENDPOINT_METHOD,
   MIDDLEWARE_PATH_REGEX
 } = require('../../constants')
+const {
+  subscribeTopicToConsumer,
+  unsubscribeTopicFromConsumer
+} = require('../../kafka')
+
+const Config = {
+  method: String,
+  url: String,
+  headers: {},
+  params: {
+    url: {},
+    query: {}
+  }
+}
 
 const endpointSchema = new mongoose.Schema(
   {
@@ -18,6 +32,7 @@ const endpointSchema = new mongoose.Schema(
         unique: true
       }
     },
+    kafkaConsumerTopic: String,
     description: String,
     endpoint: {
       pattern: {
@@ -50,8 +65,29 @@ const endpointSchema = new mongoose.Schema(
       output: {type: String, enum: ALLOWED_CONTENT_TYPES, required: true}
     },
     requests: {
-      lookup: [],
-      response: []
+      lookup: [
+        {
+          id: String,
+          forwardExistingRequestBody: Boolean,
+          forEach: {
+            items: String,
+            concurrency: Number
+          },
+          config: Config,
+          allowedStatuses: []
+        }
+      ],
+      response: [
+        {
+          id: String,
+          forEach: {
+            items: String,
+            concurrency: Number
+          },
+          config: Config,
+          kafkaProducerTopic: String
+        }
+      ]
     },
     constants: {},
     inputMapping: {},
@@ -76,6 +112,30 @@ const endpointSchema = new mongoose.Schema(
   }
 )
 
+endpointSchema.pre('findOneAndUpdate', async function (next) {
+  const updateObject = this.getUpdate()
+  const endpoint = await EndpointModel.find(this.getQuery())
+
+  if ('kafkaConsumerTopic' in updateObject) {
+    if (endpoint.kafkaConsumerTopic) {
+      await unsubscribeTopicFromConsumer(endpoint.kafkaConsumerTopic)
+    }
+    await subscribeTopicToConsumer(updateObject)
+  }
+
+  return next()
+})
+
+endpointSchema.pre('deleteOne', async function (next) {
+  const endpoint = await EndpointModel.find(this.getQuery())
+
+  if (endpoint.kafkaConsumerTopic) {
+    await unsubscribeTopicFromConsumer(endpoint.kafkaConsumerTopic)
+  }
+
+  return next()
+})
+
 endpointSchema.pre('save', async function (next) {
   var endpoint = this
 
@@ -99,13 +159,15 @@ endpointSchema.pre('save', async function (next) {
 
   await EndpointModel.find({
     'endpoint.pattern': {$regex: endpointMatchingRegex}
-  }).then(result => {
+  }).then(async result => {
     if (result.length > 0) {
       const error = new Error(
         `Duplicate error: regex created from endpoint pattern ${endpoint.endpoint.pattern} for matching requests already exists`
       )
       return next(error)
     }
+
+    await subscribeTopicToConsumer(endpoint)
 
     return next()
   })
