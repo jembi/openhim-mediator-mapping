@@ -41,7 +41,10 @@ class KafkaClient {
       logCreator: kafkaLogger
     })
     this.producer = client.producer()
-    this.consumer = client.consumer({groupId: kafkaConfig.groupId, allowAutoTopicCreation: true})
+    this.consumer = client.consumer({
+      groupId: kafkaConfig.groupId,
+      allowAutoTopicCreation: true
+    })
   }
 }
 
@@ -55,7 +58,7 @@ class KafkaProducer extends KafkaClient {
   }
 
   async disconnect() {
-   await this.producer.disconnect()
+    await this.producer.disconnect()
   }
 
   async send(topic, message) {
@@ -123,13 +126,15 @@ class KafkaConsumer extends KafkaClient {
   }
 
   processKafKaMessage(topic, partition, message) {
-    logger.info(`Received data from topic - ${topic} on partition - ${partition}`)
-  
+    logger.info(
+      `Received data from topic - ${topic} on partition - ${partition}`
+    )
+
     axios({
       url: this.topicsDetails[topic].url,
       method: 'POST',
       headers: this.topicsDetails[topic].headers,
-      data: message.value?.toString()
+      data: message.value.toString()
     }).catch(() => {})
   }
 
