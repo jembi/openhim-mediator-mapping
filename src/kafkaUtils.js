@@ -113,7 +113,7 @@ class KafkaConsumer extends KafkaClient {
     }
 
     await this.consumer.subscribe(subscriptionOptions)
-    logger.info(`Successfully subcribed topic - ${topic} for kafka consumption`)
+    logger.info(`Successfully subscribed topic "${topic}" for kafka consumption`)
 
     this.topicsDetails[topic] = topicRequestDetails
     this.topicsArray.push(topic)
@@ -127,7 +127,7 @@ class KafkaConsumer extends KafkaClient {
 
   processKafKaMessage(topic, partition, message) {
     logger.info(
-      `Received data from topic - ${topic} on partition - ${partition}`
+      `Received data from topic "${topic}" on partition - ${partition}`
     )
 
     axios({
@@ -136,32 +136,6 @@ class KafkaConsumer extends KafkaClient {
       headers: this.topicsDetails[topic].headers,
       data: message.value.toString()
     }).catch(() => {})
-  }
-
-  async unsubscribe(topic) {
-    const newTopicsArray = this.topicsArray.filter(tpc => tpc !== topic)
-    const subscriptionOptions = {
-      fromBeginning: true
-    }
-    if (newTopicsArray.length === 1) {
-      subscriptionOptions.topic = newTopicsArray[0]
-    } else {
-      subscriptionOptions.topics = newTopicsArray
-    }
-    await this.consumer.stop()
-
-    await this.consumer.subscribe(subscriptionOptions)
-    await this.consumer.run({
-      eachMessage: async ({topic, partition, message}) => {
-        this.processKafKaMessage(topic, partition, message)
-      }
-    })
-    delete this.topicRequestDetails[topic]
-    this.topicsArray = newTopicsArray
-
-    logger.info(
-      `Successfully unsubscribed topic ${topic} from kafka consumption`
-    )
   }
 }
 

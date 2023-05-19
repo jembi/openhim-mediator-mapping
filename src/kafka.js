@@ -28,14 +28,18 @@ const subscribeTopicToConsumer = async endpoint => {
   }
 }
 
-const unsubscribeTopicFromConsumer = async endpoint => {
-  if (endpoint.kafkaConsumerTopic) {
-    await kafkaConsumer.unsubscribe(endpoint.kafkaConsumerTopic)
-  }
+// Library being used does not have a way to unsubscribe a topic. Workaround it to disconnect the consumer and create a new instance of the consumer
+const unsubscribeTopicFromConsumer = async (topic, remainingEndpoints) => {
+  logger.info('Disconnecting consumer to allow for unsubscribing to take place!')
+
+  await kafkaConsumer.disconnect()
+  await initiateKafkaClient(remainingEndpoints)
+
+  logger.info(`Successfully unsubscribed topic "${topic}"`)
 }
 
 const sendToKafka = async (topic, message) => {
-  logger.info(`Sending data to kafka topic - ${topic}`)
+  logger.info(`Sending data to kafka topic "${topic}"`)
   return kafkaProducer.send(topic, message)
 }
 
