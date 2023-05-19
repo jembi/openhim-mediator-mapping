@@ -114,23 +114,38 @@ const endpointSchema = new mongoose.Schema(
 
 endpointSchema.pre('findOneAndUpdate', async function (next) {
   const updateObject = this.getUpdate()
-  const endpoint = await EndpointModel.find(this.getQuery())
+  const query = this.getQuery()
+  const endpoint = await EndpointModel.findOne(query)
 
   if ('kafkaConsumerTopic' in updateObject) {
-    if (endpoint.kafkaConsumerTopic) {
-      await unsubscribeTopicFromConsumer(endpoint.kafkaConsumerTopic)
+    if (
+      endpoint.kafkaConsumerTopic &&
+      endpoint.kafkaConsumerTopic != updateObject.kafkaConsumerTopic
+    ) {
+      const endpoints = await EndpointModel.find({
+        _id: {$ne: query._id}
+      })
+      await unsubscribeTopicFromConsumer(
+        endpoint.kafkaConsumerTopic,
+        endpoints
+      )
     }
-    await subscribeTopicToConsumer(updateObject)
+    await subscribeTopicToConsumer({...endpoint, ...updateObject})
   }
 
   return next()
 })
 
 endpointSchema.pre('deleteOne', async function (next) {
-  const endpoint = await EndpointModel.find(this.getQuery())
+  const query = this.getQuery()
+  const endpoint = await EndpointModel.findOne(query)
 
   if (endpoint.kafkaConsumerTopic) {
-    await unsubscribeTopicFromConsumer(endpoint.kafkaConsumerTopic)
+    const remainingEndpoints = await EndpointModel.find({_id: {$ne: query._id}})
+    await unsubscribeTopicFromConsumer(
+      endpoint.kafkaConsumerTopic,
+      remainingEndpoints
+    )
   }
 
   return next()
@@ -166,9 +181,9 @@ endpointSchema.pre('save', async function (next) {
       )
       return next(error)
     }
-
-    await subscribeTopicToConsumer(endpoint)
-
+    if (!this.validateSync()) {
+      await subscribeTopicToConsumer(endpoint)
+    }
     return next()
   })
 })
