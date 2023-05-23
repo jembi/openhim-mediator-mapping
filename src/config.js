@@ -48,11 +48,11 @@ exports.getConfig = function () {
     }),
     dynamicEndpoints: parseStringToBoolean(process.env.DYNAMIC_ENDPOINTS, true),
     kafkaConfig: {
-      brokers: process.env.KAFKA_BROKERS || 'kafka-01:9092',
+      brokers: process.env.KAFKA_BROKERS || 'localhost:9092',
       clientId: process.env.KAFKA_CLIENTID || 'mapping-mediator',
       requestTimeout: process.env.KAFKA_REQUEST_TIMEOUT || 60000,
       connectionTimeout: process.env.KAFKA_CONNECTION_TIMEOUT || 60000,
-      groupId: process.env.KAFKA_CONSUMER_GROUPID || 'mappinng-mediator'
+      groupId: process.env.KAFKA_CONSUMER_GROUPID || 'mapping-mediator'
     }
   })
 }

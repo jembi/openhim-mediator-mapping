@@ -35,7 +35,7 @@ Next, setup the replica set. Once the containers have started up exec into one o
 Inside the shell enter the following:
 
 ```sh
-config = {
+config1 = {
   "_id": "mapper-mongo-set",
   "members": [
     {
@@ -56,7 +56,7 @@ config = {
   ]
 }
 
-rs.initiate(config)
+rs.initiate(config1)
 ```
 
 > **NOTE:** The IP used here is the local docker bridge IP. This IP is generally consistent, however different docker configurations could result in differences. You can confirm your IP with this terminal command: `ifconfig docker0`
@@ -201,3 +201,38 @@ docker logs -f mapper
 Here you should see the message: **Successfully registered mediator!**
 
 Finally, go back to your browser and navigate to the `Mediators` section. Here you should see your mapping mediator instance registered on the OpenHIM with a recent *heartbeat*.
+
+## Kafka Integration
+
+The mediator can consume and produce to [kafka](https://kafka.apache.org/). The kafka broker will have to to set in the [config](./src/config.js) file or via the env variable KAFKA_BLOKERS (default is `localhost:9092`). The topic to consume from (`kafkaConsumerTopic`) or to produce to (`kafkaProducerTopic`) are specified in the endpoint schema as done below.
+
+```js
+{
+  "name": "External Request Test",
+  "endpoint": {
+    "pattern": "/externalRequestTest"
+  },
+  "transformation": {
+    "input": "JSON",
+    "output": "JSON"
+  },
+  "kafkaConsumerTopic": "2xx",
+  "requests": {
+    "response": [
+      {
+        "id": "fhirPatient",
+         "kafkaProducerTopic": "3xx"
+      }
+    ]
+  }
+}
+```
+
+There are scripts for setting up a kafka instance locally. Run following script in the root folder
+
+```sh
+docker-compose -f docker-compose.kafka.yml up -d
+
+# To create topics got to the root folder of the running container and run
+./opt/bitnami/kafka/bin/kafka-topics.sh --create --bootstrap-server localhost:9092 --topic mytopic
+```

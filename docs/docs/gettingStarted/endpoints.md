@@ -57,6 +57,7 @@ The `metadata` section contains the details involved in route setup. The followi
 - Route HTTP `method`
 - Expected `input` message data type
 - Desired `output` message data type
+- Kakfa Input Topic `kafkaConsumerTopic`
 
 #### Route Path Pattern
 
@@ -69,6 +70,10 @@ Specify the expected input message type for this specific endpoint to allow the 
 #### Desired Output
 
 Specify the desired output message type for this specific endpoint to allow the OpenHIM Mapping Mediator to parse the outgoing message. Currently accepted formats are `JSON` and `XML`
+
+#### Kafka Input Topic
+
+Specify the kafka topic to consume data from using property `kafkaConsumerTopic`.
 
 ### 2. Mapping
 
@@ -431,6 +436,11 @@ There are two types of external requests, the `lookup` and the `response`. Query
             "url": "http://localhost:3444/example/",
             "primary": false
           }
+        },
+        // for producing to kafka
+        {
+          "id": "kafka",
+          "kafkaProducerTopic": "2xx"
         }
       ]
     }

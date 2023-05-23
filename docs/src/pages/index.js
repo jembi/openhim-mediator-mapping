@@ -21,7 +21,7 @@ const features = [
     imageUrl: 'img/undraw_timeline.svg',
     description: (
       <span>
-        Perform various requests to external (or internal) services to send or retrieve data
+        Perform various requests to external (or internal) services to send or retrieve data. Kafka integration is also supported.
       </span>
     ),
   },

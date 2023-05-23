@@ -125,12 +125,9 @@ endpointSchema.pre('findOneAndUpdate', async function (next) {
       const endpoints = await EndpointModel.find({
         _id: {$ne: query._id}
       })
-      await unsubscribeTopicFromConsumer(
-        endpoint.kafkaConsumerTopic,
-        endpoints
-      )
+      await unsubscribeTopicFromConsumer(endpoint.kafkaConsumerTopic, endpoints)
     }
-    await subscribeTopicToConsumer({...endpoint, ...updateObject})
+    await subscribeTopicToConsumer(Object.assign({}, endpoint, updateObject))
   }
 
   return next()
@@ -140,7 +137,7 @@ endpointSchema.pre('deleteOne', async function (next) {
   const query = this.getQuery()
   const endpoint = await EndpointModel.findOne(query)
 
-  if (endpoint.kafkaConsumerTopic) {
+  if (endpoint && endpoint.kafkaConsumerTopic) {
     const remainingEndpoints = await EndpointModel.find({_id: {$ne: query._id}})
     await unsubscribeTopicFromConsumer(
       endpoint.kafkaConsumerTopic,

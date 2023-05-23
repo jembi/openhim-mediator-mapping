@@ -64,7 +64,7 @@ class KafkaProducer extends KafkaClient {
   async send(topic, message) {
     if (!this.isConnected) {
       await this.producer.connect()
-      this.isconnected = true
+      this.isConnected = true
     }
 
     return this.producer.send({
@@ -113,7 +113,9 @@ class KafkaConsumer extends KafkaClient {
     }
 
     await this.consumer.subscribe(subscriptionOptions)
-    logger.info(`Successfully subscribed topic "${topic}" for kafka consumption`)
+    logger.info(
+      `Successfully subscribed topic "${topic}" for kafka consumption`
+    )
 
     this.topicsDetails[topic] = topicRequestDetails
     this.topicsArray.push(topic)
