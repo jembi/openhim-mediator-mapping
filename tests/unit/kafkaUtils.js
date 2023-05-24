@@ -3,6 +3,7 @@
 const tap = require('tap')
 const rewire = require('rewire')
 const sinon = require('sinon')
+const nock = require('nock')
 
 const kafka = rewire('../../src/kafkaUtils')
 
@@ -17,6 +18,7 @@ tap.test('KafkaUtils', {autoend: true}, t => {
       const spy1 = sinon.spy()
       const spy2 = sinon.spy()
       const spy3 = sinon.spy()
+      const spy4 = sinon.spy()
 
       consumer.consumer = {
         disconnect: () => {
@@ -30,6 +32,9 @@ tap.test('KafkaUtils', {autoend: true}, t => {
         },
         run: () => {
           spy3.call()
+        },
+        stop: () => {
+          spy4.call()
         }
       }
 
@@ -38,7 +43,7 @@ tap.test('KafkaUtils', {autoend: true}, t => {
 
       const topic = 'test'
       const topicRequestDetails = {
-        url: 'localhost',
+        url: 'http://localhost:1233/test',
         headers: {'Content-Type': 'application/json'}
       }
       await consumer.subscribe(topic, topicRequestDetails)
@@ -48,6 +53,27 @@ tap.test('KafkaUtils', {autoend: true}, t => {
       t.ok(spy3.called)
       t.ok(consumer.isConnected)
 
+      // Fails when topic has already been subscribed
+      try {
+        await consumer.subscribe(topic, topicRequestDetails)
+      } catch (error) {
+        t.equal(
+          error.message,
+          'Kafka topic "test" already attached to another endpoint'
+        )
+      }
+
+      // should subscribe another topic to consumer
+      await consumer.subscribe('test1', {
+        url: 'localhost',
+        headers: {'Content-Type': 'application/json'}
+      })
+      t.ok(spy4.called)
+
+      const scope = nock('http://localhost:1233').post('/test').reply(200)
+      // Process message
+      consumer.processKafkaMessage('test', 0, {value: 'test message'})
+      scope.done()
       t.end()
     })
   })
