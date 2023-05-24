@@ -1,8 +1,10 @@
 'use strict'
 
 const tap = require('tap')
+const sinon = require('sinon')
 
 const db = require('../../src/db')
+const kafka = require('../../src/kafka')
 
 const {
   createEndpoint,
@@ -73,12 +75,45 @@ tap.test('Database interactions', {autoend: true}, t => {
       await createEndpoint(testEndpointConfig)
         .then(data => {
           t.ok(data.id)
-          t.equals(data.name, 'test')
+          t.equal(data.name, 'test')
         })
         .catch(error => {
           t.fail(`Should not reach here. ${error.message}`)
         })
     })
+
+    t.test(
+      'should create Endpoint and subscribekafka topic to consume from',
+      {autoend: true},
+      async t => {
+        t.plan(3)
+        const testEndpointConfig = {
+          name: 'test',
+          endpoint: {
+            pattern: '/test'
+          },
+          transformation: {
+            input: 'JSON',
+            output: 'JSON'
+          },
+          kafkaConsumerTopic: 'test',
+          lastUpdated: Date.now()
+        }
+
+        const stub = sinon.stub(kafka, 'subscribeTopicToConsumer').resolves()
+
+        await createEndpoint(testEndpointConfig)
+          .then(data => {
+            t.ok(data.id)
+            t.equal(data.name, 'test')
+            t.ok(stub.called)
+            stub.restore()
+          })
+          .catch(error => {
+            t.fail(`Should not reach here. ${error.message}`)
+          })
+      }
+    )
 
     t.test(
       'should fail to create Endpoint if an Endpoint with that name already exists',
@@ -333,6 +368,128 @@ tap.test('Database interactions', {autoend: true}, t => {
     })
 
     t.test(
+      'should update Endpoint and subscribe topic to consumer',
+      {autoend: true},
+      async t => {
+        t.plan(4)
+        const testEndpointConfig = {
+          name: 'test',
+          endpoint: {
+            pattern: '/test'
+          },
+          transformation: {
+            input: 'JSON',
+            output: 'JSON'
+          },
+          lastUpdated: Date.now()
+        }
+
+        let endpointId
+
+        await createEndpoint(testEndpointConfig)
+          .then(data => {
+            endpointId = data.id
+            t.ok(data.id)
+          })
+          .catch(error => {
+            t.fail(`Should not reach here. ${error.message}`)
+          })
+
+        const updatedTestEndpointConfig = {
+          name: 'updated test',
+          endpoint: {
+            pattern: '/test'
+          },
+          transformation: {
+            input: 'JSON',
+            output: 'JSON'
+          },
+          kafkaConsumerTopic: 'test',
+          lastUpdated: Date.now()
+        }
+
+        const stub = sinon.stub(kafka, 'subscribeTopicToConsumer').resolves()
+
+        await updateEndpoint(endpointId, updatedTestEndpointConfig)
+          .then(data => {
+            t.equal(data.id, endpointId)
+            t.equal(data.name, 'updated test')
+            t.ok(stub.called)
+            stub.restore()
+          })
+          .catch(error => {
+            t.fail(`Should not reach here. ${error.message}`)
+          })
+      }
+    )
+
+    t.test(
+      'should subscribe new topic to consumer and unsubscribe the old topic',
+      {autoend: true},
+      async t => {
+        t.plan(6)
+
+        const stub = sinon.stub(kafka, 'subscribeTopicToConsumer').resolves()
+        const oldTopic = 'oldTopic'
+        const testEndpointConfig = {
+          name: 'test',
+          endpoint: {
+            pattern: '/test'
+          },
+          transformation: {
+            input: 'JSON',
+            output: 'JSON'
+          },
+          kafkaConsumerTopic: oldTopic,
+          lastUpdated: Date.now()
+        }
+
+        let endpointId
+
+        await createEndpoint(testEndpointConfig)
+          .then(data => {
+            endpointId = data.id
+            t.ok(data.id)
+          })
+          .catch(error => {
+            t.fail(`Should not reach here. ${error.message}`)
+          })
+
+        const newTopic = 'newTopic'
+        const updatedTestEndpointConfig = {
+          name: 'updated test',
+          endpoint: {
+            pattern: '/test'
+          },
+          transformation: {
+            input: 'JSON',
+            output: 'JSON'
+          },
+          kafkaConsumerTopic: newTopic,
+          lastUpdated: Date.now()
+        }
+
+        const stub1 = sinon
+          .stub(kafka, 'unsubscribeTopicFromConsumer')
+          .resolves()
+
+        await updateEndpoint(endpointId, updatedTestEndpointConfig)
+          .then(data => {
+            t.equal(data.id, endpointId)
+            t.equal(data.name, 'updated test')
+            t.equal(data.kafkaConsumerTopic, 'newTopic')
+            t.equal(stub.callCount, 2)
+            t.ok(stub1.called)
+            stub.restore()
+            stub1.restore()
+          })
+          .catch(error => {
+            t.fail(`Should not reach here. ${error.message}`)
+          })
+      }
+    )
+
+    t.test(
       'should fail to update Endpoint when validation fails',
       {autoend: true},
       async t => {
@@ -418,6 +575,55 @@ tap.test('Database interactions', {autoend: true}, t => {
           t.fail(`Should not reach here. ${error.message}`)
         })
     })
+
+    t.test(
+      'should delete Endpoint and unsubsribe topic being consumed',
+      {autoend: true},
+      async t => {
+        t.plan(5)
+
+        const stub = sinon.stub(kafka, 'subscribeTopicToConsumer').resolves()
+        const stub1 = sinon
+          .stub(kafka, 'unsubscribeTopicFromConsumer')
+          .resolves()
+        const testEndpointConfig = {
+          name: 'test',
+          endpoint: {
+            pattern: '/test'
+          },
+          transformation: {
+            input: 'JSON',
+            output: 'JSON'
+          },
+          kafkaConsumerTopic: 'test',
+          lastUpdated: Date.now()
+        }
+
+        let endpointId
+
+        await createEndpoint(testEndpointConfig)
+          .then(data => {
+            t.ok(data.id)
+            endpointId = data.id
+          })
+          .catch(error => {
+            t.fail(`Should not reach here. ${error.message}`)
+          })
+
+        await deleteEndpoint(endpointId)
+          .then(data => {
+            t.equal(data.n, 1)
+            t.equal(data.deletedCount, 1)
+            t.ok(stub.called)
+            t.ok(stub1.called)
+            stub.restore()
+            stub1.restore()
+          })
+          .catch(error => {
+            t.fail(`Should not reach here. ${error.message}`)
+          })
+      }
+    )
 
     t.test(
       'should delete Endpoint even if ObjectId does not exist',
