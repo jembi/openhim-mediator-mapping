@@ -110,4 +110,25 @@ tap.test('KafkaUtils', {autoend: true}, t => {
       t.end()
     })
   })
+
+  t.test('toWinstonLogger', {autoend: true}, t => {
+    t.test('should return the corrent log level', t => {
+      const toWinstonLogLevel = kafka.__get__('toWinstonLogLevel')
+      t.equal(toWinstonLogLevel(0), 'error')
+      t.equal(toWinstonLogLevel(1), 'error')
+      t.equal(toWinstonLogLevel(2), 'warn')
+      t.equal(toWinstonLogLevel(4), 'info')
+      t.equal(toWinstonLogLevel(5), 'debug')
+      t.end()
+    })
+  })
+
+  t.test('kafkaLogger', {autoend: true}, t => {
+    t.test('should return function', t => {
+      const kafkaLogger = kafka.__get__('kafkaLogger')
+
+      t.ok(typeof kafkaLogger() === 'function')
+      t.end()
+    })
+  })
 })
