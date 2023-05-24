@@ -6,21 +6,22 @@ const axios = require('axios')
 const {kafkaConfig} = require('./config').getConfig()
 const logger = require('./logger')
 
+const toWinstonLogLevel = level => {
+  switch (level) {
+    case logLevel.ERROR:
+    case logLevel.NOTHING:
+      return 'error'
+    case logLevel.WARN:
+      return 'warn'
+    case logLevel.INFO:
+      return 'info'
+    case logLevel.DEBUG:
+      return 'debug'
+  }
+}
+
 // Customize Kafka logs
 function kafkaLogger() {
-  const toWinstonLogLevel = level => {
-    switch (level) {
-      case logLevel.ERROR:
-      case logLevel.NOTHING:
-        return 'error'
-      case logLevel.WARN:
-        return 'warn'
-      case logLevel.INFO:
-        return 'info'
-      case logLevel.DEBUG:
-        return 'debug'
-    }
-  }
   return ({level, log}) => {
     const {message, extra} = log
     logger[toWinstonLogLevel(level)]({
