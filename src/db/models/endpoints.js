@@ -8,10 +8,7 @@ const {
   DEFAULT_ENDPOINT_METHOD,
   MIDDLEWARE_PATH_REGEX
 } = require('../../constants')
-const {
-  subscribeTopicToConsumer,
-  unsubscribeTopicFromConsumer
-} = require('../../kafka')
+const kafka = require('../../kafka')
 
 const Config = {
   method: String,
@@ -125,9 +122,14 @@ endpointSchema.pre('findOneAndUpdate', async function (next) {
       const endpoints = await EndpointModel.find({
         _id: {$ne: query._id}
       })
-      await unsubscribeTopicFromConsumer(endpoint.kafkaConsumerTopic, endpoints)
+      await kafka.unsubscribeTopicFromConsumer(
+        endpoint.kafkaConsumerTopic,
+        endpoints
+      )
     }
-    await subscribeTopicToConsumer(Object.assign({}, endpoint, updateObject))
+    await kafka.subscribeTopicToConsumer(
+      Object.assign({}, endpoint, updateObject)
+    )
   }
 
   return next()
@@ -139,7 +141,7 @@ endpointSchema.pre('deleteOne', async function (next) {
 
   if (endpoint && endpoint.kafkaConsumerTopic) {
     const remainingEndpoints = await EndpointModel.find({_id: {$ne: query._id}})
-    await unsubscribeTopicFromConsumer(
+    await kafka.unsubscribeTopicFromConsumer(
       endpoint.kafkaConsumerTopic,
       remainingEndpoints
     )
@@ -179,7 +181,7 @@ endpointSchema.pre('save', async function (next) {
       return next(error)
     }
     if (!this.validateSync()) {
-      await subscribeTopicToConsumer(endpoint)
+      await kafka.subscribeTopicToConsumer(endpoint)
     }
     return next()
   })

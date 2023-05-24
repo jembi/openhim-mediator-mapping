@@ -8,7 +8,7 @@ const {OPENHIM_TRANSACTION_HEADER} = require('../constants')
 
 const {createOrchestration} = require('../orchestrations')
 const {extractValueFromObject, makeQuerablePromise} = require('../util')
-const {sendToKafka} = require('../kafka')
+const kafka = require('../kafka')
 
 const validateRequestStatusCode = allowedStatuses => {
   const stringStatuses = allowedStatuses.map(String)
@@ -540,7 +540,8 @@ const setKoaResponseBody = (ctx, request, body) => {
 
 const performResponseRequest = (ctx, body, requestDetails) => {
   if (requestDetails.kafkaProducerTopic) {
-    return sendToKafka(requestDetails.kafkaProducerTopic, body)
+    return kafka
+      .sendToKafka(requestDetails.kafkaProducerTopic, body)
       .then(res => {
         ctx.body = res
       })
