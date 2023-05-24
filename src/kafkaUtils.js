@@ -92,7 +92,7 @@ class KafkaConsumer extends KafkaClient {
 
   async subscribe(topic, topicRequestDetails) {
     if (this.topicsArray.includes(topic)) {
-      throw Error(`Kafka topic - ${topic} already attached to another endpoint`)
+      throw Error(`Kafka topic "${topic}" already attached to another endpoint`)
     }
 
     // Subscriptions can not be done whilst the consumer is running. Workaround is to disconnect and connect again
@@ -122,12 +122,12 @@ class KafkaConsumer extends KafkaClient {
 
     await this.consumer.run({
       eachMessage: async ({topic, partition, message}) => {
-        this.processKafKaMessage(topic, partition, message)
+        this.processKafkaMessage(topic, partition, message)
       }
     })
   }
 
-  processKafKaMessage(topic, partition, message) {
+  processKafkaMessage(topic, partition, message) {
     logger.info(
       `Received data from topic "${topic}" on partition - ${partition}`
     )
