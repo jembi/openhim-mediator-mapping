@@ -112,7 +112,7 @@ const endpointSchema = new mongoose.Schema(
 endpointSchema.pre('findOneAndUpdate', async function (next) {
   const updateObject = this.getUpdate()
   const query = this.getQuery()
-  const endpoint = await EndpointModel.findOne(query)
+  const endpoint = await EndpointModel.findOne(query).lean()
 
   if ('kafkaConsumerTopic' in updateObject) {
     if (
