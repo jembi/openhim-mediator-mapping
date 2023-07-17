@@ -6,21 +6,24 @@ const logger = require('./logger')
 
 let kafkaConsumer, kafkaProducer
 
-const initiateKafkaClient = async (endpoints = []) => {
+const initiateKafkaClient = (endpoints = []) => {
   kafkaConsumer = new KafkaConsumer()
   kafkaProducer = new KafkaProducer()
 
-  for (let i = 0; i < endpoints.length; i++) {
-    const endpoint = endpoints[i]
-
-    await subscribeTopicToConsumer(endpoint)
+  try {
+    for (let i = 0; i < endpoints.length; i++) {
+      const endpoint = endpoints[i]
+      subscribeTopicToConsumer(endpoint)
+    }
+  } catch (error) {
+    logger.error(error)
   }
 }
 
 const subscribeTopicToConsumer = async endpoint => {
   if (endpoint.kafkaConsumerTopic) {
     await kafkaConsumer.subscribe(endpoint.kafkaConsumerTopic, {
-      url: `http://localhost:${port}/${endpoint.endpoint.pattern}`,
+      url: `http://localhost:${port}${endpoint.endpoint.pattern}`,
       headers: {
         'Content-Type': `application/${endpoint.transformation.input.toLowerCase()}`
       }
