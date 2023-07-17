@@ -3,8 +3,11 @@
 const nock = require('nock')
 const rewire = require('rewire')
 const tap = require('tap')
+const sinon = require('sinon')
 
 const {OPENHIM_TRANSACTION_HEADER} = require('../../src/constants')
+const kafka = require('../../src/kafka')
+
 const externalRequests = rewire('../../src/middleware/externalRequests')
 
 const prepareResponseRequests = externalRequests.__get__(
@@ -506,6 +509,96 @@ tap.test('External Requests', {autoend: true}, t => {
         t.end()
       }
     )
+
+    t.test('should produce to a kafka topic', async t => {
+      const id = '1233243'
+
+      const ctx = {
+        status: 200,
+        state: {
+          metaData: {
+            requests: {
+              response: [
+                {
+                  id: id,
+                  kafkaProducerTopic: 'test',
+                  config: {}
+                }
+              ]
+            }
+          },
+          allData: {
+            constants: {},
+            state: {},
+            timestamps: {
+              lookupRequests: {}
+            }
+          }
+        },
+        request: {
+          headers: {[OPENHIM_TRANSACTION_HEADER]: '1232244'}
+        },
+        response: {
+          headers: {}
+        },
+        body: {},
+        set: (key, value) => {
+          ctx.response.headers[key] = value
+        }
+      }
+
+      const stub = sinon.stub(kafka, 'sendToKafka').resolves()
+      await prepareResponseRequests(ctx)
+
+      t.ok(stub.called)
+      stub.restore()
+      t.end()
+    })
+
+    t.test('should catch the error when sending to kafka fails', async t => {
+      const id = '1233243'
+
+      const ctx = {
+        status: 200,
+        state: {
+          metaData: {
+            requests: {
+              response: [
+                {
+                  id: id,
+                  kafkaProducerTopic: 'test',
+                  config: {}
+                }
+              ]
+            }
+          },
+          allData: {
+            constants: {},
+            state: {},
+            timestamps: {
+              lookupRequests: {}
+            }
+          }
+        },
+        request: {
+          headers: {[OPENHIM_TRANSACTION_HEADER]: '1232244'}
+        },
+        response: {
+          headers: {}
+        },
+        body: {},
+        set: (key, value) => {
+          ctx.response.headers[key] = value
+        }
+      }
+
+      const stub = sinon.stub(kafka, 'sendToKafka').rejects()
+      await prepareResponseRequests(ctx)
+
+      t.ok(stub.called)
+      stub.restore()
+      t.end()
+    })
 
     t.test('should send requests and record the orchestrations', async t => {
       const url = 'http://localhost:8000/'

@@ -2709,6 +2709,11 @@ just-extend@^4.0.2:
   resolved "https://registry.yarnpkg.com/just-extend/-/just-extend-4.2.1.tgz#ef5e589afb61e5d66b24eca749409a8939a8c744"
   integrity sha512-g3UB796vUFIY90VIv/WX3L2c8CS2MdWUww3CNrYmqza1Fg0DURc2K/O4YrnklBdQarSJ/y8JnJYDGc+1iumQjg==
 
+kafkajs@2.2.2:
+  version "2.2.2"
+  resolved "https://registry.yarnpkg.com/kafkajs/-/kafkajs-2.2.2.tgz#0b605e9583ac2ac36f843ceb55c93a4f0fee3112"
+  integrity sha512-9wpGLAwRVbVtSew3xwi2f2BMuYLXWhYcoYB/O7gd1JYOYuYTAEC60CeFgRQugI016MxqvOKnOOA+l1jx+4b84g==
+
 kareem@2.3.2:
   version "2.3.2"
   resolved "https://registry.yarnpkg.com/kareem/-/kareem-2.3.2.tgz#78c4508894985b8d38a0dc15e1a8e11078f2ca93"

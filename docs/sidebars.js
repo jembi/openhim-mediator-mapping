@@ -19,6 +19,7 @@ module.exports = {
       'features/content-negotiation',
       'features/validation',
       'features/orchestration',
+      'features/kafka-integration',
       'features/transformation',
       'features/mapping',
       'features/state-management'
