@@ -115,7 +115,7 @@ const parseIncomingBody = async (ctx, inputFormat) => {
     try {
       const parserStartTime = new Date()
 
-      // Cater for custom json types such as application/fhir+json, application/openhim+fhir
+      // Cater for custom json types such as application/fhir+json, application/fhir+openhim
       // The body parser does not support these content-types
       if (inputFormat.toLowerCase().match('json') && ctx.headers) {
         ctx.headers['content-type'] = 'application/json'
