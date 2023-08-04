@@ -1,6 +1,6 @@
 'use strict'
 
-exports.ALLOWED_CONTENT_TYPES = ['JSON', 'XML']
+exports.ALLOWED_CONTENT_TYPES = ['JSON', 'XML', 'FHIR+JSON', 'JSON+OPENHIM']
 
 exports.ALLOWED_ENDPOINT_METHODS = ['PUT', 'POST', 'DELETE', 'GET']
 
