@@ -77,6 +77,130 @@ tap.test(
       }
     )
 
+    t.test('should accept fhir+json content type', async t => {
+      const testEndpoint = {
+        name: 'Mapping Test Endpoint01',
+        endpoint: {
+          pattern: '/mappingTest01'
+        },
+        transformation: {
+          input: 'FHIR+JSON',
+          output: 'FHIR+JSON'
+        },
+        requests: {},
+        inputValidation: {
+          type: 'object',
+          properties: {
+            requestBody: {
+              type: 'object',
+              properties: {
+                name: {
+                  type: 'string'
+                },
+                surname: {
+                  type: 'string'
+                },
+                id: {
+                  type: 'string'
+                }
+              },
+              required: ['name', 'id']
+            }
+          },
+          required: ['requestBody']
+        }
+      }
+
+      await request(`http://localhost:${port}`)
+        .post('/endpoints')
+        .send(testEndpoint)
+        .set('Content-Type', 'application/json')
+        .expect(201)
+
+      // The mongoDB endpoint collection change listeners may take a few milliseconds to update the endpoint cache.
+      // This wouldn't be a problem in the normal use case as a user would not create an endpoint and
+      // immediately start posting to it within a few milliseconds. Therefore this timeout here should be fine...
+      await sleep(100)
+
+      const requestData = {
+        name: 'Taylor',
+        surname: 'Ross',
+        id: '12334'
+      }
+
+      const result = await request(`http://localhost:${port}`)
+        .post('/mappingTest01')
+        .send(requestData)
+        .set('Content-Type', 'application/fhir+json')
+        .expect(200)
+
+      t.deepEqual(result.body, requestData)
+      t.equal(result.headers['content-type'], 'application/fhir+json')
+      t.end()
+    })
+
+    t.test('should accept json+openhim content type', async t => {
+      const testEndpoint = {
+        name: 'Mapping Test Endpoint02',
+        endpoint: {
+          pattern: '/mappingTest02'
+        },
+        transformation: {
+          input: 'JSON+OPENHIM',
+          output: 'JSON+OPENHIM'
+        },
+        requests: {},
+        inputValidation: {
+          type: 'object',
+          properties: {
+            requestBody: {
+              type: 'object',
+              properties: {
+                name: {
+                  type: 'string'
+                },
+                surname: {
+                  type: 'string'
+                },
+                id: {
+                  type: 'string'
+                }
+              },
+              required: ['name', 'id']
+            }
+          },
+          required: ['requestBody']
+        }
+      }
+
+      await request(`http://localhost:${port}`)
+        .post('/endpoints')
+        .send(testEndpoint)
+        .set('Content-Type', 'application/json')
+        .expect(201)
+
+      // The mongoDB endpoint collection change listeners may take a few milliseconds to update the endpoint cache.
+      // This wouldn't be a problem in the normal use case as a user would not create an endpoint and
+      // immediately start posting to it within a few milliseconds. Therefore this timeout here should be fine...
+      await sleep(100)
+
+      const requestData = {
+        name: 'Taylor',
+        surname: 'Ross',
+        id: '12334'
+      }
+
+      const result = await request(`http://localhost:${port}`)
+        .post('/mappingTest02')
+        .send(requestData)
+        .set('Content-Type', 'application/json+openhim')
+        .expect(200)
+
+      t.deepEqual(result.body, requestData)
+      t.equal(result.headers['content-type'], 'application/json+openhim')
+      t.end()
+    })
+
     t.test(
       'should return object sent in request and lookups done when no mapping schema is defined',
       async t => {

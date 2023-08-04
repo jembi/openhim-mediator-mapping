@@ -381,6 +381,10 @@ tap.test('Parser', {autoend: true}, t => {
                 output: 'JSON'
               }
             }
+          },
+          set: (key, value) => {
+            ctx.headers = {}
+            ctx.headers[key] = value
           }
         }
 
