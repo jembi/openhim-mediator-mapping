@@ -25,7 +25,8 @@ tap.test('Parser', {autoend: true}, t => {
           },
           request: {
             query: {}
-          }
+          },
+          headers: {}
         }
         const inputFormat = 'unsupported'
 
@@ -61,7 +62,8 @@ tap.test('Parser', {autoend: true}, t => {
             if (name) {
               return contentHeader
             }
-          }
+          },
+          headers: {}
         }
         const inputFormat = 'JSON'
 
@@ -98,7 +100,8 @@ tap.test('Parser', {autoend: true}, t => {
           },
           headers: {[OPENHIM_TRANSACTION_HEADER]: '12333'},
           raw_body: '<xml><name>Moin</name><surname>Sacks</surname></xml>' // ??? raw body us XML but body is JSON
-        }
+        },
+        headers: {}
       }
       const inputFormat = 'XML'
 
@@ -139,7 +142,8 @@ tap.test('Parser', {autoend: true}, t => {
             },
             headers: {[OPENHIM_TRANSACTION_HEADER]: '12333'},
             raw_body: '<xml><name>Moin</name><surname>Sacks</surname></xml>' // ??? raw body us XML but body is JSON
-          }
+          },
+          headers: {}
         }
         const inputFormat = 'XML'
 
@@ -178,7 +182,8 @@ tap.test('Parser', {autoend: true}, t => {
           },
           headers: {[OPENHIM_TRANSACTION_HEADER]: '12333'},
           raw_body: '{"name": "Moin", "surname": "Sacks"}'
-        }
+        },
+        headers: {}
       }
       const inputFormat = 'JSON'
 
@@ -205,7 +210,8 @@ tap.test('Parser', {autoend: true}, t => {
         if (name) {
           return contentHeader
         }
-      }
+      },
+      headers: {}
     }
     const inputFormat = 'XML'
 
@@ -430,7 +436,8 @@ tap.test('Parser', {autoend: true}, t => {
           ctx.headers = {}
           ctx.headers[key] = value
         },
-        request: {}
+        request: {},
+        headers: {}
       }
 
       const next = () => {
