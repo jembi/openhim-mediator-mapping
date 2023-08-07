@@ -139,7 +139,7 @@ tap.test(
       t.end()
     })
 
-    t.test('should accept json+openhim content type', async t => {
+    t.test('should accept openhim+json content type', async t => {
       const testEndpoint = {
         name: 'Mapping Test Endpoint02',
         endpoint: {
