@@ -55,6 +55,8 @@ const parseOutgoingBody = (ctx, outputFormat) => {
         `${ctx.state.metaData.name} (${ctx.state.uuid}): Parsing outgoing body failed: ${error.message}`
       )
     }
+  } else {
+    ctx.set('Content-Type', `application/${outputFormat.toLowerCase()}`)
   }
 
   if (!ctx.statusText) {
@@ -112,6 +114,12 @@ const parseIncomingBody = async (ctx, inputFormat) => {
 
     try {
       const parserStartTime = new Date()
+
+      // Cater for custom json types application/fhir+json and application/openhim+json
+      // The body parser does not support these content-types
+      if (inputFormat.toLowerCase().match('json')) {
+        ctx.headers['content-type'] = 'application/json'
+      }
 
       await KoaBodyParser(options)(ctx, () => {
         // pass in a empty function in place of the next() callback used in the middleware
