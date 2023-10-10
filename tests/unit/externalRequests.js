@@ -835,15 +835,17 @@ tap.test('External Requests', {autoend: true}, t => {
               Promise.resolve({
                 // The first request's details simulate the response from an OpenHIM Mediator
                 fristReq: {
-                  'x-mediator-urn': 'test',
-                  response: {
-                    // The response body will always be a string when it's an OpenHIM Mediator
-                    body: JSON.stringify({test1: 'testA'})
-                  },
-                  orchestrations: []
+                  data: {
+                    'x-mediator-urn': 'test',
+                    response: {
+                      // The response body will always be a string when it's an OpenHIM Mediator
+                      body: JSON.stringify({test1: 'testA'})
+                    },
+                    orchestrations: []
+                  }
                 }
               }),
-              Promise.resolve({secondReq: {test2: 'testB'}})
+              Promise.resolve({secondReq: {data: {test2: 'testB'}}})
             ]
           )
 
@@ -882,7 +884,10 @@ tap.test('External Requests', {autoend: true}, t => {
           prepareLookupRequests(ctx).then(() => {
             // The mediator urn and orchestration data should be stripped from the response
             t.same(
-              {fristReq: {test1: 'testA'}, secondReq: {test2: 'testB'}},
+              {
+                fristReq: {data: {test1: 'testA'}},
+                secondReq: {data: {test2: 'testB'}}
+              },
               ctx.state.allData.lookupRequests
             )
             performLookupRequestsStub()
@@ -901,20 +906,24 @@ tap.test('External Requests', {autoend: true}, t => {
               Promise.resolve({
                 fristReq: [
                   {
-                    'x-mediator-urn': 'test',
-                    response: {
-                      // The response body will always be a string when it's an OpenHIM Mediator
-                      body: JSON.stringify({test1: 'testA'})
-                    },
-                    orchestrations: []
+                    data: {
+                      'x-mediator-urn': 'test',
+                      response: {
+                        // The response body will always be a string when it's an OpenHIM Mediator
+                        body: JSON.stringify({test1: 'testA'})
+                      },
+                      orchestrations: []
+                    }
                   },
                   {
-                    'x-mediator-urn': 'test',
-                    response: {
-                      // The response body will always be a string when it's an OpenHIM Mediator
-                      body: JSON.stringify({test2: 'testB'})
-                    },
-                    orchestrations: []
+                    data: {
+                      'x-mediator-urn': 'test',
+                      response: {
+                        // The response body will always be a string when it's an OpenHIM Mediator
+                        body: JSON.stringify({test2: 'testB'})
+                      },
+                      orchestrations: []
+                    }
                   }
                 ]
               })
@@ -952,7 +961,7 @@ tap.test('External Requests', {autoend: true}, t => {
           prepareLookupRequests(ctx).then(() => {
             // The mediator urn and orchestration data should be stripped from the response
             t.same(
-              {fristReq: [{test1: 'testA'}, {test2: 'testB'}]},
+              {fristReq: [{data: {test1: 'testA'}}, {data: {test2: 'testB'}}]},
               ctx.state.allData.lookupRequests
             )
             performLookupRequestsStub()
