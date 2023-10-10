@@ -240,13 +240,16 @@ const prepareLookupRequests = ctx => {
           const lookupResponse = incomingData[lookupConfig.id]
           if (Array.isArray(lookupResponse)) {
             lookupResponse.forEach((arrayResponseItem, index) => {
-              const parsedResponse = parseMediatorResponse(arrayResponseItem)
+              const parsedResponse = parseMediatorResponse(
+                ctx,
+                arrayResponseItem
+              )
               if (parsedResponse) {
                 incomingData[lookupConfig.id][index] = parsedResponse
               }
             })
           } else {
-            const parsedResponse = parseMediatorResponse(lookupResponse)
+            const parsedResponse = parseMediatorResponse(ctx, lookupResponse)
             if (parsedResponse) {
               incomingData[lookupConfig.id] = parsedResponse
             }
@@ -263,14 +266,21 @@ const prepareLookupRequests = ctx => {
   )
 }
 
-const parseMediatorResponse = lookupResponse => {
+const parseMediatorResponse = (ctx, lookupResponse) => {
   if (
     lookupResponse &&
-    lookupResponse['x-mediator-urn'] &&
-    lookupResponse.response
+    lookupResponse.data &&
+    lookupResponse.data['x-mediator-urn'] &&
+    lookupResponse.data.response &&
+    lookupResponse.data.response.body
   ) {
     try {
-      return JSON.parse(lookupResponse.response.body)
+      if (!ctx.orchestrations) {
+        ctx.orchestrations = []
+      }
+      ctx.orchestrations.push(...lookupResponse.data.orchestrations)
+
+      return {data: JSON.parse(lookupResponse.data.response.body)}
     } catch (error) {
       logger.debug(
         `No stringified JSON. Therefore no parsing needed: ${error.message}`
