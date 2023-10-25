@@ -70,7 +70,7 @@ tap.test('Parser', {autoend: true}, t => {
         try {
           await parseIncomingBody(ctx, inputFormat)
         } catch (error) {
-          t.equals(
+          t.equal(
             error.message,
             `Supplied input format does not match incoming content-type: Expected json format, but received unsupported`
           )
@@ -107,10 +107,10 @@ tap.test('Parser', {autoend: true}, t => {
 
       await parseIncomingBody(ctx, inputFormat)
 
-      t.equals(ctx.orchestrations.length, 1)
-      t.equals(ctx.orchestrations[0].name, 'Incoming Parser')
-      t.equals(ctx.orchestrations[0].request.body, ctx.request.raw_body)
-      t.equals(
+      t.equal(ctx.orchestrations.length, 1)
+      t.equal(ctx.orchestrations[0].name, 'Incoming Parser')
+      t.equal(ctx.orchestrations[0].request.body, ctx.request.raw_body)
+      t.equal(
         ctx.orchestrations[0].response.body,
         JSON.stringify(ctx.request.body)
       )
@@ -149,10 +149,10 @@ tap.test('Parser', {autoend: true}, t => {
 
         await parseIncomingBody(ctx, inputFormat)
 
-        t.equals(ctx.orchestrations.length, 1)
-        t.equals(ctx.orchestrations[0].name, 'Incoming Parser')
-        t.equals(ctx.orchestrations[0].request.body, ctx.request.raw_body)
-        t.equals(
+        t.equal(ctx.orchestrations.length, 1)
+        t.equal(ctx.orchestrations[0].name, 'Incoming Parser')
+        t.equal(ctx.orchestrations[0].request.body, ctx.request.raw_body)
+        t.equal(
           ctx.orchestrations[0].response.body,
           JSON.stringify(ctx.request.body)
         )
@@ -218,7 +218,7 @@ tap.test('Parser', {autoend: true}, t => {
     await parseIncomingBody(ctx, inputFormat)
       .then(() => t.fail('Should not reach here'))
       .catch(error => {
-        t.equals(error.message, `Cannot read property 'query' of null`)
+        t.equal(error.message, `Cannot read property 'query' of null`)
       })
     t.end()
   })
@@ -277,8 +277,8 @@ tap.test('Parser', {autoend: true}, t => {
 
       parseOutgoingBody(ctx, outputFormat)
 
-      t.deepEqual(ctx.body, expectedBody)
-      t.deepEqual(ctx.headers, expectedHeader)
+      t.same(ctx.body, expectedBody)
+      t.same(ctx.headers, expectedHeader)
       t.end()
     })
 
@@ -315,10 +315,10 @@ tap.test('Parser', {autoend: true}, t => {
 
         parseOutgoingBody(ctx, outputFormat)
 
-        t.equals(JSON.parse(ctx.body).status, 'Successful')
-        t.deepEqual(ctx.headers, expectedHeader)
-        t.equals(ctx.orchestrations.length, 1)
-        t.equals(ctx.orchestrations[0].name, 'Outgoing Parser')
+        t.equal(JSON.parse(ctx.body).status, 'Successful')
+        t.same(ctx.headers, expectedHeader)
+        t.equal(ctx.orchestrations.length, 1)
+        t.equal(ctx.orchestrations[0].name, 'Outgoing Parser')
         t.end()
       }
     )
@@ -364,10 +364,10 @@ tap.test('Parser', {autoend: true}, t => {
 
         parseOutgoingBody(ctx, outputFormat)
 
-        t.deepEqual(ctx.headers, expectedHeader)
-        t.equals(ctx.orchestrations.length, 1)
-        t.equals(ctx.orchestrations[0].name, 'Outgoing Parser')
-        t.equals(ctx.orchestrations[0].response.body, expectedBody)
+        t.same(ctx.headers, expectedHeader)
+        t.equal(ctx.orchestrations.length, 1)
+        t.equal(ctx.orchestrations[0].name, 'Outgoing Parser')
+        t.equal(ctx.orchestrations[0].response.body, expectedBody)
         t.end()
       }
     )
@@ -395,7 +395,7 @@ tap.test('Parser', {autoend: true}, t => {
         }
 
         const next = () => {
-          t.equals(ctx.status, 400)
+          t.equal(ctx.status, 400)
           t.same(ctx.body, {
             error:
               'Test endpoint (unique-id): transformation method "INVALID" not yet supported'
@@ -445,7 +445,7 @@ tap.test('Parser', {autoend: true}, t => {
       }
       await parseBodyMiddleware()(ctx, next)
 
-      t.equals(
+      t.equal(
         ctx.body,
         [
           '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>',

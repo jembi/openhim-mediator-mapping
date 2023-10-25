@@ -46,8 +46,8 @@ tap.test('Endpoint Routes', {autoend: true}, async t => {
       }
     }
     const next = () => {
-      t.equals(ctx.status, 201)
-      t.deepEquals(ctx.body, result)
+      t.equal(ctx.status, 201)
+      t.same(ctx.body, result)
     }
     const router = {
       post: (_pattern, _parser, callback) => {
@@ -73,8 +73,8 @@ tap.test('Endpoint Routes', {autoend: true}, async t => {
         }
       }
       const next = () => {
-        t.equals(ctx.status, 400)
-        t.deepEquals(ctx.body, {error: 'Create endpoint failed:Boom!'})
+        t.equal(ctx.status, 400)
+        t.same(ctx.body, {error: 'Create endpoint failed:Boom!'})
       }
       const router = {
         post: (_pattern, _parser, callback) => {
@@ -99,8 +99,8 @@ tap.test('Endpoint Routes', {autoend: true}, async t => {
         }
       }
       const next = () => {
-        t.equals(ctx.status, 500)
-        t.deepEquals(ctx.body, {error: 'Create endpoint failed:Boom!'})
+        t.equal(ctx.status, 500)
+        t.same(ctx.body, {error: 'Create endpoint failed:Boom!'})
       }
       const router = {
         post: (_pattern, _parser, callback) => {
@@ -132,8 +132,8 @@ tap.test('Endpoint Routes', {autoend: true}, async t => {
       }
     }
     const next = () => {
-      t.equals(ctx.status, 200)
-      t.deepEquals(ctx.body, result)
+      t.equal(ctx.status, 200)
+      t.same(ctx.body, result)
     }
     const router = {
       get: (_pattern, callback) => {
@@ -158,8 +158,8 @@ tap.test('Endpoint Routes', {autoend: true}, async t => {
       }
     }
     const next = () => {
-      t.equals(ctx.status, 404)
-      t.deepEquals(ctx.body, {
+      t.equal(ctx.status, 404)
+      t.same(ctx.body, {
         error: 'Endpoint with ID 5e99568a50902917f2bc352b does not exist'
       })
     }
@@ -190,8 +190,8 @@ tap.test('Endpoint Routes', {autoend: true}, async t => {
         }
       }
       const next = () => {
-        t.equals(ctx.status, 500)
-        t.deepEquals(ctx.body, {
+        t.equal(ctx.status, 500)
+        t.same(ctx.body, {
           error: 'Retrieving of endpoint failed: MongoDB Error detected'
         })
       }
@@ -219,8 +219,8 @@ tap.test('Endpoint Routes', {autoend: true}, async t => {
         }
       }
       const next = () => {
-        t.equals(ctx.status, 400)
-        t.deepEquals(ctx.body, {
+        t.equal(ctx.status, 400)
+        t.same(ctx.body, {
           error:
             'Retrieving of endpoint failed: Endpoint ID supplied in url is invalid'
         })
@@ -261,8 +261,8 @@ tap.test('Endpoint Routes', {autoend: true}, async t => {
       }
     }
     const next = () => {
-      t.equals(ctx.status, 200)
-      t.deepEquals(ctx.body, result)
+      t.equal(ctx.status, 200)
+      t.same(ctx.body, result)
     }
     const router = {
       get: (_pattern, callback) => {
@@ -284,8 +284,8 @@ tap.test('Endpoint Routes', {autoend: true}, async t => {
       }
     }
     const next = () => {
-      t.equals(ctx.status, 500)
-      t.deepEquals(ctx.body, {error: 'Retrieving of endpoints failed: Boom!'})
+      t.equal(ctx.status, 500)
+      t.same(ctx.body, {error: 'Retrieving of endpoints failed: Boom!'})
     }
     const router = {
       get: (_pattern, callback) => {
@@ -307,8 +307,8 @@ tap.test('Endpoint Routes', {autoend: true}, async t => {
       }
     }
     const next = () => {
-      t.equals(ctx.status, 500)
-      t.deepEquals(ctx.body, {error: 'Retrieving of endpoints failed: Boom!'})
+      t.equal(ctx.status, 500)
+      t.same(ctx.body, {error: 'Retrieving of endpoints failed: Boom!'})
     }
     const router = {
       get: (_pattern, callback) => {
@@ -345,8 +345,8 @@ tap.test('Endpoint Routes', {autoend: true}, async t => {
       }
     }
     const next = () => {
-      t.equals(ctx.status, 200)
-      t.deepEquals(ctx.body, result)
+      t.equal(ctx.status, 200)
+      t.same(ctx.body, result)
       t.ok(stub.called)
     }
     const router = {
@@ -371,8 +371,8 @@ tap.test('Endpoint Routes', {autoend: true}, async t => {
       }
     }
     const next = () => {
-      t.equals(ctx.status, 400)
-      t.deepEquals(ctx.body, {
+      t.equal(ctx.status, 400)
+      t.same(ctx.body, {
         error:
           'Updating of endpoint failed: Endpoint ID supplied in url is invalid'
       })
@@ -400,8 +400,8 @@ tap.test('Endpoint Routes', {autoend: true}, async t => {
         }
       }
       const next = () => {
-        t.equals(ctx.status, 400)
-        t.deepEquals(ctx.body, {
+        t.equal(ctx.status, 400)
+        t.same(ctx.body, {
           error: 'Updating of endpoint failed: Invalid endpoint object'
         })
       }
@@ -436,8 +436,8 @@ tap.test('Endpoint Routes', {autoend: true}, async t => {
         }
       }
       const next = () => {
-        t.equals(ctx.status, 404)
-        t.deepEquals(ctx.body, {
+        t.equal(ctx.status, 404)
+        t.same(ctx.body, {
           error: 'Endpoint with ID 5e99568a50902917f2bc352b does not exist'
         })
         t.ok(stub.called)
@@ -471,8 +471,8 @@ tap.test('Endpoint Routes', {autoend: true}, async t => {
       }
     }
     const next = () => {
-      t.equals(ctx.status, 400)
-      t.deepEquals(ctx.body, {
+      t.equal(ctx.status, 400)
+      t.same(ctx.body, {
         error: 'Updating of endpoint failed: MongoDB Error Detected'
       })
       t.ok(stub.called)
@@ -500,8 +500,8 @@ tap.test('Endpoint Routes', {autoend: true}, async t => {
       }
     }
     const next = () => {
-      t.equals(ctx.status, 200)
-      t.deepEquals(ctx.body, {
+      t.equal(ctx.status, 200)
+      t.same(ctx.body, {
         message: "Endpoint with ID '5e99568a50902917f2bc352b' deleted"
       })
     }
@@ -522,8 +522,8 @@ tap.test('Endpoint Routes', {autoend: true}, async t => {
       }
     }
     const next = () => {
-      t.equals(ctx.status, 400)
-      t.deepEquals(ctx.body, {
+      t.equal(ctx.status, 400)
+      t.same(ctx.body, {
         error:
           'Endpoint deletion failed: Endpoint ID supplied in url is invalid'
       })
@@ -548,8 +548,8 @@ tap.test('Endpoint Routes', {autoend: true}, async t => {
       }
     }
     const next = () => {
-      t.equals(ctx.status, 404)
-      t.deepEquals(ctx.body, {
+      t.equal(ctx.status, 404)
+      t.same(ctx.body, {
         error: "Endpoint with ID '5e99568a50902917f2bc352b' does not exist"
       })
     }
@@ -575,8 +575,8 @@ tap.test('Endpoint Routes', {autoend: true}, async t => {
       }
     }
     const next = () => {
-      t.equals(ctx.status, 500)
-      t.deepEquals(ctx.body, {
+      t.equal(ctx.status, 500)
+      t.same(ctx.body, {
         error: 'Endpoint deletion failed: Mongo Error Detected!'
       })
     }

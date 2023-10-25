@@ -103,7 +103,7 @@ tap.test(
           .send(requestData)
           .set('Content-Type', 'application/json')
           .expect(response => {
-            t.deepEquals(response.body, {fhirPatient, fhirObservation})
+            t.same(response.body, {fhirPatient, fhirObservation})
           })
       })
 
@@ -139,7 +139,7 @@ tap.test(
           server.on('request', async (req, res) => {
             if (req.method === 'POST' && req.url === '/Patient') {
               req.on('data', chunk => {
-                t.equals(chunk.toString(), JSON.stringify(requestBody))
+                t.equal(chunk.toString(), JSON.stringify(requestBody))
               })
               t.pass()
               res.writeHead(200, {'Content-Type': 'application/json'})
@@ -207,7 +207,7 @@ tap.test(
             .send(requestBody)
             .set('Content-Type', 'application/json')
             .expect(response => {
-              t.deepEquals(response.body, {fhirPatient, fhirObservation})
+              t.same(response.body, {fhirPatient, fhirObservation})
             })
         }
       )
@@ -325,7 +325,7 @@ tap.test(
             .send(requestData)
             .set('Content-Type', 'application/json')
             .expect(response => {
-              t.deepEquals(response.body, {fhirPatient, fhirObservation})
+              t.same(response.body, {fhirPatient, fhirObservation})
             })
         }
       )
@@ -402,8 +402,8 @@ tap.test(
           .send(requestData)
           .set('Content-Type', 'application/json')
           .expect(response => {
-            t.equals(response.status, 201)
-            t.deepEquals(response.body, fhirPatientResponse)
+            t.equal(response.status, 201)
+            t.same(response.body, fhirPatientResponse)
           })
       })
 
@@ -488,8 +488,8 @@ tap.test(
             .send(requestData)
             .set('Content-Type', 'application/json')
             .expect(response => {
-              t.equals(response.status, 200)
-              t.deepEquals(response.body, fhirPatient)
+              t.equal(response.status, 200)
+              t.same(response.body, fhirPatient)
             })
         }
       )
@@ -549,10 +549,10 @@ tap.test(
           .send(requestData)
           .set('Content-Type', 'application/json')
           .expect(response => {
-            t.equals(response.status, 418)
-            t.deepEquals(
+            t.equal(response.status, 418)
+            t.same(
               response.body.error,
-              `Rejected Promise: Error: Incorrect status code 418. I'm a teapot`
+              `Incorrect status code 418. {"message":"I'm a teapot"}`
             )
           })
       })
@@ -615,8 +615,8 @@ tap.test(
           .send(requestData)
           .set('Content-Type', 'application/json')
           .expect(response => {
-            t.equals(response.status, 504)
-            t.deepEquals(response.body.message, 'Gateway Timeout')
+            t.equal(response.status, 504)
+            t.same(response.body.message, 'Gateway Timeout')
           })
       })
 
@@ -701,8 +701,8 @@ tap.test(
             .send(requestData)
             .set('Content-Type', 'application/json')
             .expect(response => {
-              t.equals(response.status, 200)
-              t.deepEquals(response.body, fhirPatient)
+              t.equal(response.status, 200)
+              t.same(response.body, fhirPatient)
             })
         }
       )
@@ -790,13 +790,13 @@ tap.test(
             // forces a mediator response
             .set('x-openhim-transactionid', '123')
             .expect(response => {
-              t.equals(response.status, 200)
-              t.equals(
+              t.equal(response.status, 200)
+              t.equal(
                 response.body['x-mediator-urn'],
                 'urn:mediator:generic_mapper'
               )
-              t.equals(response.body.status, 'Successful')
-              t.equals(
+              t.equal(response.body.status, 'Successful')
+              t.equal(
                 response.body.orchestrations[0].request.path,
                 '/fhir/Patient/pre12345post/_history'
               )
@@ -868,7 +868,7 @@ tap.test(
             .send(requestData)
             .set('Content-Type', 'application/json')
             .expect(response => {
-              t.deepEquals(response.body, {
+              t.same(response.body, {
                 fhirPatient: [{id: 1}, {id: 2}, {id: 3}]
               })
             })
@@ -951,7 +951,7 @@ tap.test(
             .send(requestData)
             .set('Content-Type', 'application/json')
             .expect(response => {
-              t.deepEquals(response.body, {
+              t.same(response.body, {
                 fhirPatient: [
                   {id: 1},
                   {id: 2},
@@ -1023,10 +1023,10 @@ tap.test(
             .send(requestData)
             .set('Content-Type', 'application/json')
             .expect(response => {
-              t.equals(response.status, 400)
-              t.deepEquals(
+              t.equal(response.status, 400)
+              t.same(
                 response.body.error,
-                "Rejected Promise: Error: forEach.items could not be found at the specified path or the resolved value isn't an array"
+                "forEach.items could not be found at the specified path or the resolved value isn't an array"
               )
             })
         }
@@ -1103,7 +1103,7 @@ tap.test(
             .send(requestData)
             .set('Content-Type', 'application/json')
             .expect(response => {
-              t.deepEquals(response.body, {
+              t.same(response.body, {
                 fhirPatient: [{id: 111}, {id: 222}, {id: 333}]
               })
             })
@@ -1160,8 +1160,8 @@ tap.test(
             .send(requestData)
             .set('Content-Type', 'application/json')
             .expect(response => {
-              t.equals(response.status, 400)
-              t.deepEquals(
+              t.equal(response.status, 400)
+              t.same(
                 response.body.error,
                 "Rejected Promise: Error: forEach.items could not be found at the specified path or the resolved value isn't an array"
               )
@@ -1237,7 +1237,7 @@ tap.test(
             .send(requestData)
             .set('Content-Type', 'application/json')
             .expect(response => {
-              t.deepEquals(response.body, {
+              t.same(response.body, {
                 fhirPatient: [{id: 111}, {id: 222}, {id: 333}]
               })
             })
@@ -1308,7 +1308,7 @@ tap.test(
             .send(requestData)
             .set('Content-Type', 'application/json')
             .expect(response => {
-              t.deepEquals(response.body, {id: 111})
+              t.same(response.body, {id: 111})
             })
         }
       )
@@ -1391,7 +1391,7 @@ tap.test(
             .send(requestData)
             .set('Content-Type', 'application/json')
             .expect(response => {
-              t.deepEquals(response.body, {
+              t.same(response.body, {
                 'fhirPatient-1': {id: 111},
                 'fhirPatient-2': {id: 111}
               })
@@ -1468,7 +1468,7 @@ tap.test(
             .set('Content-Type', 'application/json')
             .set('requesting_client', requesting_client)
             .expect(response => {
-              t.deepEquals(
+              t.same(
                 response.body,
                 Object.assign({}, {fhirPatient, requesting_client, client_id})
               )

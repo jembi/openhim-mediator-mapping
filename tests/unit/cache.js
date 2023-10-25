@@ -32,7 +32,7 @@ tap.test('Endpoint Cache', {autoend: true}, t => {
     cache.setupEventListeners()
 
     t.ok(modelWatchStub.calledOnce)
-    t.deepEquals(Object.keys(emitter._events), ['change', 'end', 'error'])
+    t.same(Object.keys(emitter._events), ['change', 'end', 'error'])
   })
 
   t.test('should listen for error events', t => {
@@ -71,7 +71,7 @@ tap.test('Endpoint Cache', {autoend: true}, t => {
 
   t.test('should listen for change event and update cache', async t => {
     t.plan(6)
-    t.equals(cache.endpointCache.length, 0)
+    t.equal(cache.endpointCache.length, 0)
 
     const emitter = new EventEmitter()
 
@@ -83,7 +83,7 @@ tap.test('Endpoint Cache', {autoend: true}, t => {
 
     cache.setupEventListeners()
 
-    t.deepEquals(Object.keys(emitter._events), ['change', 'end', 'error'])
+    t.same(Object.keys(emitter._events), ['change', 'end', 'error'])
 
     emitter.emit('change', {
       documentKey: {_id: '1234'},
@@ -108,7 +108,7 @@ tap.test('Endpoint Cache', {autoend: true}, t => {
     const modelWatchStub = sandbox.stub(EndpointModel, 'watch').returns(emitter)
 
     cache.setupEventListeners()
-    t.deepEquals(Object.keys(emitter._events), ['change', 'end', 'error'])
+    t.same(Object.keys(emitter._events), ['change', 'end', 'error'])
 
     cache.removeEventListeners()
     t.notOk(Object.keys(emitter._events).length)

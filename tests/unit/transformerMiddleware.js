@@ -92,7 +92,7 @@ tap.test('Transformer Middleware', {autoend: true}, t => {
 
         await jsonataTransformer(ctx)
 
-        t.deepEquals(ctx.state.allData.transforms, {
+        t.same(ctx.state.allData.transforms, {
           totalAmount: 1100,
           bmi: 25.54,
           patientReference: 'Patient/a-random-uuid'
@@ -197,7 +197,7 @@ tap.test('Transformer Middleware', {autoend: true}, t => {
       }
 
       const next = () => {
-        t.deepEquals(ctx.state.allData.transforms, {
+        t.same(ctx.state.allData.transforms, {
           totalAmount: 1100,
           bmi: 25.54,
           patientReference: 'Patient/a-random-uuid'
