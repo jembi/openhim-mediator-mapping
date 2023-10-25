@@ -12,6 +12,7 @@ const {
 } = require('../constants')
 const {createOrchestration, setStatusText} = require('../orchestrations')
 const {constructOpenhimResponse} = require('../openhim')
+const {formatErrorToFhir} = require('../util')
 
 const xmlBuilder = new xml2js.Builder()
 
@@ -197,10 +198,15 @@ exports.parseBodyMiddleware = () => async (ctx, next) => {
   } catch (error) {
     ctx.status = ctx.statusCode ? ctx.statusCode : 400
     ctx.statusText = 'Failed'
-    logger.error(error.message)
+    logger.error(error)
 
     // parse outgoing body
     ctx.body = {error: error.message}
+
+    // For endpoints that expect fhir responses
+    if (ctx.fhirResponse) {
+      formatErrorToFhir(error, ctx)
+    }
     return parseOutgoingBody(ctx, outputContentType)
   }
 }

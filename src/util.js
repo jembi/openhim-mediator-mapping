@@ -121,3 +121,21 @@ exports.makeQuerablePromise = promise => {
 
   return result
 }
+
+// This enables us to respond with a fhir formatted error (an operation outcome resource)
+exports.formatErrorToFhir = (error, ctx) => {
+  if (!error.resourceType || error.resourceType != 'OperationOutcome') {
+    ctx.body = {
+      resourceType: 'OperationOutcome',
+      issue: [
+        {
+          severity: 'error',
+          code: 'processsing',
+          diagnostic: error
+        }
+      ]
+    }
+  } else {
+    ctx.body = error
+  }
+}
