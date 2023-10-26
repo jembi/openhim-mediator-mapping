@@ -557,6 +557,72 @@ tap.test(
           })
       })
 
+      t.test(
+        'requestMiddleware should fail lookup request and return fhir response',
+        async t => {
+          t.plan(5)
+          server.on('request', async (req, res) => {
+            if (req.method === 'GET' && req.url === '/Patient') {
+              t.pass()
+              res.writeHead(418, {'Content-Type': 'application/json'})
+              res.end(JSON.stringify({message: `I'm a teapot`}))
+              return
+            }
+            res.writeHead(404)
+            res.end()
+            return
+          })
+
+          const testEndpoint = {
+            name: 'External Request Test Endpoint 4 - fhir error',
+            endpoint: {
+              pattern: '/externalRequestTestFhir4'
+            },
+            transformation: {
+              input: 'JSON',
+              output: 'JSON'
+            },
+            requests: {
+              lookup: [
+                {
+                  id: 'fhirPatient',
+                  config: {
+                    method: 'get',
+                    url: `http://localhost:${mockServerPort}/Patient`
+                  },
+                  fhirResponse: true
+                }
+              ]
+            }
+          }
+
+          await request(`http://localhost:${testMapperPort}`)
+            .post('/endpoints')
+            .send(testEndpoint)
+            .set('Content-Type', 'application/json')
+            .expect(201)
+
+          // The mongoDB endpoint collection change listeners may take a few milliseconds to update the endpoint cache.
+          // This wouldn't be a problem in the normal use case as a user would not create an endpoint and
+          // immediately start posting to it within a few milliseconds. Therefore this timeout here should be fine...
+          await sleep(100)
+
+          // The mapper currently only accepts POSTs
+          const requestData = {}
+
+          await request(`http://localhost:${testMapperPort}`)
+            .post('/externalRequestTestFhir4')
+            .send(requestData)
+            .set('Content-Type', 'application/json')
+            .expect(response => {
+              t.equal(response.status, 418)
+              t.equal(response.body.resourceType, 'OperationOutcome')
+              t.ok(response.body.issue)
+              t.ok(response.body.issue[0].diagnostic)
+            })
+        }
+      )
+
       t.test('requestMiddleware should fail response request', async t => {
         t.plan(3)
         server.on('request', async (req, res) => {
