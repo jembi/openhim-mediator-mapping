@@ -568,11 +568,6 @@ const performResponseRequest = (ctx, body, requestDetails) => {
       })
   }
 
-  // Enables us to respond in fhir format
-  if (requestDetails.fhirResponse) {
-    ctx.fhirResponse = true
-  }
-
   const reqTimestamp = DateTime.utc().toISO()
   let response, orchestrationError, responseTimestamp
 
