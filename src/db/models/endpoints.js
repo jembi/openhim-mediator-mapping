@@ -83,8 +83,7 @@ const endpointSchema = new mongoose.Schema(
             concurrency: Number
           },
           config: Config,
-          kafkaProducerTopic: String,
-          fhirResponse: Boolean
+          kafkaProducerTopic: String
         }
       ]
     },
