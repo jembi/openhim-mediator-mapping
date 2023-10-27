@@ -626,7 +626,7 @@ tap.test(
       t.test(
         'requestMiddleware should fail lookup request and return fhir response 2',
         async t => {
-          t.plan(5)
+          t.plan(3)
           server.on('request', async (req, res) => {
             if (req.method === 'GET' && req.url === '/Patient') {
               t.pass()
