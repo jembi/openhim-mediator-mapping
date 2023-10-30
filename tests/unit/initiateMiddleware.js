@@ -12,7 +12,7 @@ const {OPENHIM_TRANSACTION_HEADER} = require('../../src/constants')
 const extractByType = initiate.__get__('extractByType')
 const extractStateValues = initiate.__get__('extractStateValues')
 const updateEndpointState = initiate.__get__('updateEndpointState')
-const getEndpointByPath = initiate.__get__('getEndpointByPath')
+const getEndpointByPathAndMethod = initiate.__get__('getEndpointByPathAndMethod')
 
 const endpointStart = DateTime.utc().toISO()
 const defaultEndpoint = {
@@ -531,7 +531,7 @@ tap.test('Initiate Middleware', {autoend: true}, t => {
     })
   })
 
-  t.test('getEndpointByPath', {autoend: true}, t => {
+  t.test('getEndpointByPathAndMethod', {autoend: true}, t => {
     t.test('should return the endpoint for the supplied path', async t => {
       t.plan(3)
       const endpointCache = [
@@ -539,14 +539,16 @@ tap.test('Initiate Middleware', {autoend: true}, t => {
           _id: 'endpoint1',
           name: 'Endpoint 1',
           endpoint: {
-            pattern: '/path'
+            pattern: '/path',
+            method: 'post'
           }
         },
         {
           _id: 'endpoint2',
           name: 'Endpoint 2',
           endpoint: {
-            pattern: '/path-2'
+            pattern: '/path-2',
+            method: 'post'
           }
         }
       ]
@@ -556,7 +558,7 @@ tap.test('Initiate Middleware', {autoend: true}, t => {
         endpointCache
       )
 
-      const {endpoint} = getEndpointByPath('/path')
+      const {endpoint} = getEndpointByPathAndMethod('/path', 'post')
 
       endpointCacheMockRevert()
 
@@ -573,14 +575,16 @@ tap.test('Initiate Middleware', {autoend: true}, t => {
           _id: 'endpoint1',
           name: 'Endpoint 1',
           endpoint: {
-            pattern: '/path'
+            pattern: '/path',
+            method: 'post'
           }
         },
         {
           _id: 'endpoint2',
           name: 'Endpoint 2',
           endpoint: {
-            pattern: '/path-2'
+            pattern: '/path-2',
+            method: 'post'
           }
         }
       ]
@@ -590,7 +594,7 @@ tap.test('Initiate Middleware', {autoend: true}, t => {
         endpointCache
       )
 
-      const {endpoint} = getEndpointByPath('/path-doesnt-exist')
+      const {endpoint} = getEndpointByPathAndMethod('/path-doesnt-exist', 'post')
 
       endpointCacheMockRevert()
 
@@ -605,14 +609,16 @@ tap.test('Initiate Middleware', {autoend: true}, t => {
             _id: 'endpoint1',
             name: 'Endpoint 1',
             endpoint: {
-              pattern: '/path/:id'
+              pattern: '/path/:id',
+              method: 'post'
             }
           },
           {
             _id: 'endpoint2',
             name: 'Endpoint 2',
             endpoint: {
-              pattern: '/path2/:id'
+              pattern: '/path2/:id',
+              method: 'post'
             }
           }
         ]
@@ -623,7 +629,7 @@ tap.test('Initiate Middleware', {autoend: true}, t => {
         )
 
         const id = '123334'
-        const {endpoint, urlParams} = getEndpointByPath(`/path/${id}`)
+        const {endpoint, urlParams} = getEndpointByPathAndMethod(`/path/${id}`, 'post')
 
         endpointCacheMockRevert()
 
@@ -693,8 +699,8 @@ tap.test('Initiate Middleware', {autoend: true}, t => {
         response: {}
       }
 
-      const getEndpointByPathMockRevert = initiate.__set__(
-        'getEndpointByPath',
+      const getEndpointByPathAndMethodMockRevert = initiate.__set__(
+        'getEndpointByPathAndMethod',
         () => {
           return {
             endpoint: {
@@ -742,7 +748,7 @@ tap.test('Initiate Middleware', {autoend: true}, t => {
       })
 
       // revert the mock function changes
-      getEndpointByPathMockRevert()
+      getEndpointByPathAndMethodMockRevert()
       updateEndpointStateMockRevert()
 
       t.equal(ctxMock.status, 500)
@@ -764,8 +770,8 @@ tap.test('Initiate Middleware', {autoend: true}, t => {
         response: {}
       }
 
-      const getEndpointByPathMockRevert = initiate.__set__(
-        'getEndpointByPath',
+      const getEndpointByPathAndMethodMockRevert = initiate.__set__(
+        'getEndpointByPathAndMethod',
         () => {
           return {
             endpoint: {
@@ -808,7 +814,7 @@ tap.test('Initiate Middleware', {autoend: true}, t => {
       })
 
       // revert the mock function changes
-      getEndpointByPathMockRevert()
+      getEndpointByPathAndMethodMockRevert()
     })
   })
 })
