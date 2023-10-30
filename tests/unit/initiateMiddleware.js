@@ -12,7 +12,9 @@ const {OPENHIM_TRANSACTION_HEADER} = require('../../src/constants')
 const extractByType = initiate.__get__('extractByType')
 const extractStateValues = initiate.__get__('extractStateValues')
 const updateEndpointState = initiate.__get__('updateEndpointState')
-const getEndpointByPathAndMethod = initiate.__get__('getEndpointByPathAndMethod')
+const getEndpointByPathAndMethod = initiate.__get__(
+  'getEndpointByPathAndMethod'
+)
 
 const endpointStart = DateTime.utc().toISO()
 const defaultEndpoint = {
@@ -594,7 +596,10 @@ tap.test('Initiate Middleware', {autoend: true}, t => {
         endpointCache
       )
 
-      const {endpoint} = getEndpointByPathAndMethod('/path-doesnt-exist', 'post')
+      const {endpoint} = getEndpointByPathAndMethod(
+        '/path-doesnt-exist',
+        'post'
+      )
 
       endpointCacheMockRevert()
 
@@ -629,7 +634,10 @@ tap.test('Initiate Middleware', {autoend: true}, t => {
         )
 
         const id = '123334'
-        const {endpoint, urlParams} = getEndpointByPathAndMethod(`/path/${id}`, 'post')
+        const {endpoint, urlParams} = getEndpointByPathAndMethod(
+          `/path/${id}`,
+          'post'
+        )
 
         endpointCacheMockRevert()
 
