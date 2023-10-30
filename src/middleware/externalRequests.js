@@ -113,8 +113,16 @@ const performLookupRequest = async (ctx, requestDetails) => {
           error.response.status
             ? ctx.state.allData.state.currentLookupHttpStatus
             : error.response.status
+
+        // Enables us to respond in fhir format
+        if (requestDetails.fhirResponse) {
+          ctx.fhirResponse = true
+          throw error.response.data
+        }
         throw new Error(
-          `Incorrect status code ${error.response.status}. ${error.response.data.message}`
+          `Incorrect status code ${error.response.status}. ${JSON.stringify(
+            error.response.data
+          )}`
         )
       } else if (error.request) {
         ctx.state.allData.state.currentLookupNetworkError = true
@@ -258,7 +266,7 @@ const prepareLookupRequests = ctx => {
         ctx.state.allData.lookupRequests = incomingData
       })
       .catch(error => {
-        throw new Error(`Rejected Promise: ${error}`)
+        throw error
       })
   }
   logger.debug(

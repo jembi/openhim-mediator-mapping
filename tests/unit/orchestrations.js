@@ -18,7 +18,7 @@ tap.test('createOrchestrations()', {autoend: true}, t => {
     try {
       createOrchestration(request, null, reqTimestamp, null, name)
     } catch (error) {
-      t.equals(
+      t.equal(
         error.message,
         'Orchestration creation failed: required parameter not supplied - reqTimestamp | orchestrationName'
       )
@@ -38,7 +38,7 @@ tap.test('createOrchestrations()', {autoend: true}, t => {
     try {
       createOrchestration(request, null, reqTimestamp, null, null, name)
     } catch (error) {
-      t.equals(
+      t.equal(
         error.message,
         'Orchestration creation failed: required parameter not supplied - reqTimestamp | orchestrationName'
       )
@@ -102,7 +102,7 @@ tap.test('createOrchestrations()', {autoend: true}, t => {
       null
     )
 
-    t.deepEqual(expectedOrch, orchestration)
+    t.same(expectedOrch, orchestration)
     t.end()
   })
 
@@ -114,7 +114,7 @@ tap.test('createOrchestrations()', {autoend: true}, t => {
 
       setStatusText(ctx)
 
-      t.equals(ctx.statusText, 'Failed')
+      t.equal(ctx.statusText, 'Failed')
       t.end()
     })
 
@@ -125,7 +125,7 @@ tap.test('createOrchestrations()', {autoend: true}, t => {
 
       setStatusText(ctx)
 
-      t.equals(ctx.statusText, 'Completed with error(s)')
+      t.equal(ctx.statusText, 'Completed with error(s)')
       t.end()
     })
 
@@ -136,7 +136,7 @@ tap.test('createOrchestrations()', {autoend: true}, t => {
 
       setStatusText(ctx)
 
-      t.equals(ctx.statusText, 'Completed')
+      t.equal(ctx.statusText, 'Completed')
       t.end()
     })
 
@@ -149,7 +149,7 @@ tap.test('createOrchestrations()', {autoend: true}, t => {
 
         setStatusText(ctx)
 
-        t.equals(ctx.statusText, 'Completed')
+        t.equal(ctx.statusText, 'Completed')
         t.end()
       }
     )
@@ -159,7 +159,7 @@ tap.test('createOrchestrations()', {autoend: true}, t => {
 
       setStatusText(ctx)
 
-      t.equals(ctx.statusText, 'Successful')
+      t.equal(ctx.statusText, 'Successful')
       t.end()
     })
   })

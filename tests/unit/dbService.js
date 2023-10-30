@@ -51,7 +51,7 @@ tap.test('Database interactions', {autoend: true}, t => {
             t.fail(`Should not reach here. ${data}`)
           })
           .catch(error => {
-            t.equals(
+            t.equal(
               error.message,
               'endpoint validation failed: transformation.output: Path `transformation.output` is required.'
             )
@@ -135,7 +135,7 @@ tap.test('Database interactions', {autoend: true}, t => {
         await createEndpoint(testEndpointConfig)
           .then(data => {
             t.ok(data.id)
-            t.equals(data.name, 'test')
+            t.equal(data.name, 'test')
           })
           .catch(error => {
             t.fail(`Should not reach here. ${error.message}`)
@@ -158,7 +158,7 @@ tap.test('Database interactions', {autoend: true}, t => {
             t.fail(`Should not reach here. ${data}`)
           })
           .catch(error => {
-            t.equals(
+            t.equal(
               error.message,
               'E11000 duplicate key error collection: unitTest.endpoints index: name_1 dup key: { name: "test" }'
             )
@@ -186,7 +186,7 @@ tap.test('Database interactions', {autoend: true}, t => {
         await createEndpoint(testEndpointConfig)
           .then(data => {
             t.ok(data.id)
-            t.equals(data.name, 'test 1')
+            t.equal(data.name, 'test 1')
           })
           .catch(error => {
             t.fail(`Should not reach here. ${error.message}`)
@@ -209,7 +209,7 @@ tap.test('Database interactions', {autoend: true}, t => {
             t.fail(`Should not reach here. ${data}`)
           })
           .catch(error => {
-            t.equals(
+            t.equal(
               error.message,
               'Duplicate error: regex created from endpoint pattern /test for matching requests already exists'
             )
@@ -222,7 +222,7 @@ tap.test('Database interactions', {autoend: true}, t => {
 
       await readEndpoints({})
         .then(data => {
-          t.equals(data.length, 0)
+          t.equal(data.length, 0)
         })
         .catch(error => {
           t.fail(`Should not reach here. ${error.message}`)
@@ -250,7 +250,7 @@ tap.test('Database interactions', {autoend: true}, t => {
 
       await readEndpoints({})
         .then(data => {
-          t.equals(data.length, 1)
+          t.equal(data.length, 1)
         })
         .catch(error => {
           t.fail(`Should not reach here. ${error.message}`)
@@ -262,7 +262,7 @@ tap.test('Database interactions', {autoend: true}, t => {
 
       await readEndpoints({})
         .then(data => {
-          t.equals(data.length, 0)
+          t.equal(data.length, 0)
         })
         .catch(error => {
           t.fail(`Should not reach here. ${error.message}`)
@@ -313,7 +313,7 @@ tap.test('Database interactions', {autoend: true}, t => {
             t.fail(`Should not reach here. ${data}`)
           })
           .catch(error => {
-            t.equals(
+            t.equal(
               error.message,
               'Parameter "filter" to find() must be an object, got Invalid'
             )
@@ -359,8 +359,8 @@ tap.test('Database interactions', {autoend: true}, t => {
       }
       await updateEndpoint(endpointId, updatedTestEndpointConfig)
         .then(data => {
-          t.equals(data.id, endpointId)
-          t.equals(data.name, 'updated test')
+          t.equal(data.id, endpointId)
+          t.equal(data.name, 'updated test')
         })
         .catch(error => {
           t.fail(`Should not reach here. ${error.message}`)
@@ -533,7 +533,7 @@ tap.test('Database interactions', {autoend: true}, t => {
             t.fail(`Should not reach here. ${data}`)
           })
           .catch(error => {
-            t.equals(
+            t.equal(
               error.message,
               'Validation failed: transformation.output: `Invalid` is not a valid enum value for path `transformation.output`.'
             )
@@ -568,8 +568,8 @@ tap.test('Database interactions', {autoend: true}, t => {
 
       await deleteEndpoint(endpointId)
         .then(data => {
-          t.equals(data.n, 1)
-          t.equals(data.deletedCount, 1)
+          t.equal(data.n, 1)
+          t.equal(data.deletedCount, 1)
         })
         .catch(error => {
           t.fail(`Should not reach here. ${error.message}`)
@@ -633,8 +633,8 @@ tap.test('Database interactions', {autoend: true}, t => {
         await deleteEndpoint('5e8d99cdbd40b81685123231')
           .then(data => {
             // The numbers here should be zero as the document did not exist
-            t.equals(data.n, 0)
-            t.equals(data.deletedCount, 0)
+            t.equal(data.n, 0)
+            t.equal(data.deletedCount, 0)
           })
           .catch(error => {
             t.fail(`Should not reach here. ${error.message}`)
@@ -651,7 +651,7 @@ tap.test('Database interactions', {autoend: true}, t => {
         try {
           await deleteEndpoint('Not Valid')
         } catch (error) {
-          t.equals(
+          t.equal(
             error.message,
             'Argument passed in must be a single String of 12 bytes or a string of 24 hex characters'
           )
@@ -703,8 +703,8 @@ tap.test('Database interactions', {autoend: true}, t => {
 
       await deleteEndpoints({})
         .then(data => {
-          t.equals(data.n, 2)
-          t.equals(data.deletedCount, 2)
+          t.equal(data.n, 2)
+          t.equal(data.deletedCount, 2)
         })
         .catch(error => {
           t.fail(`Should not reach here. ${error.message}`)

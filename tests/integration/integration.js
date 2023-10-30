@@ -39,7 +39,7 @@ tap.test(
             }
             if (req.method == 'POST' && req.url === '/api') {
               req.on('data', chunk => {
-                t.equals(
+                t.equal(
                   chunk.toString(),
                   `{"sex":"U","age":${Math.floor(
                     (Date.now() - new Date('1945-09-03')) / 31556952000
@@ -199,12 +199,12 @@ tap.test(
             .set('Content-Type', 'application/json')
             .set(OPENHIM_TRANSACTION_HEADER, 'requestUUID')
             .expect(response => {
-              t.equals(
+              t.equal(
                 response.body.response.body,
                 '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<root/>'
               )
-              t.equals(response.body.orchestrations.length, 5)
-              t.equals(response.status, 201)
+              t.equal(response.body.orchestrations.length, 5)
+              t.equal(response.status, 201)
             })
         }
       )
@@ -229,7 +229,7 @@ tap.test(
             }
             if (req.method == 'POST' && req.url === '/api') {
               req.on('data', chunk => {
-                t.equals(
+                t.equal(
                   chunk.toString(),
                   '{"sex":"U","nationality":"South Africa"}'
                 )
@@ -341,12 +341,12 @@ tap.test(
             .get('/integrationTest2')
             .set(OPENHIM_TRANSACTION_HEADER, 'requestUUID')
             .expect(response => {
-              t.equals(
+              t.equal(
                 response.body.response.body,
                 '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<root/>'
               )
-              t.equals(response.body.orchestrations.length, 5)
-              t.equals(response.status, 201)
+              t.equal(response.body.orchestrations.length, 5)
+              t.equal(response.status, 201)
             })
         }
       )

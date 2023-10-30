@@ -119,8 +119,8 @@ tap.test(
           .set('Accept', 'application/json')
           .expect(200)
           .then(response => {
-            t.equals(response.body.test.name, 'Parser')
-            t.equals(typeof response.body.test.duration, 'number')
+            t.equal(response.body.test.name, 'Parser')
+            t.equal(typeof response.body.test.duration, 'number')
           })
 
         t.end()
@@ -160,8 +160,8 @@ tap.test(
           .set('Content-Type', 'application/xml')
           .set(OPENHIM_TRANSACTION_HEADER, 'requestUUID')
           .expect(response => {
-            t.equals(response.status, 400)
-            t.equals(
+            t.equal(response.status, 400)
+            t.equal(
               response.body.response.body,
               '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<error>Parser Test Endpoint Bad XML output XML (requestUUID): Parsing incoming body failed: Bad Request</error>'
             )
@@ -204,8 +204,8 @@ tap.test(
           .set('Content-Type', 'application/xml')
           .set(OPENHIM_TRANSACTION_HEADER, 'requestUUID')
           .expect(response => {
-            t.equals(response.status, 400)
-            t.deepEqual(JSON.parse(response.body.response.body), {
+            t.equal(response.status, 400)
+            t.same(JSON.parse(response.body.response.body), {
               error:
                 'Parser Test Endpoint Bad XML output JSON (requestUUID): Parsing incoming body failed: Bad Request'
             })

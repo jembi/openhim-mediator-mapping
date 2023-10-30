@@ -26,7 +26,7 @@ tap.test('constructOpenhimResponse()', {autoend: true}, t => {
     try {
       mediatorSetup()
     } catch (error) {
-      t.equals(error.message, 'Boom')
+      t.equal(error.message, 'Boom')
     }
   })
 
@@ -102,7 +102,7 @@ tap.test('constructOpenhimResponse()', {autoend: true}, t => {
 
     constructOpenhimResponse(ctx, timestamp)
 
-    t.deepEqual(JSON.parse(ctx.body), expectedResponse)
+    t.same(JSON.parse(ctx.body), expectedResponse)
     t.end()
   })
 })

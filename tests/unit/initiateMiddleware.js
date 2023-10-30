@@ -112,7 +112,7 @@ tap.test('Initiate Middleware', {autoend: true}, t => {
 
       const extractedObject = extractByType(type, extract, allData)
 
-      t.deepEqual(extractedObject, {})
+      t.same(extractedObject, {})
     })
 
     t.test('should return an empty object when "extract" not supplied', t => {
@@ -128,7 +128,7 @@ tap.test('Initiate Middleware', {autoend: true}, t => {
 
       const extractedObject = extractByType(type, extract, allData)
 
-      t.deepEqual(extractedObject, {})
+      t.same(extractedObject, {})
     })
 
     t.test('should return an empty object when "allData" not supplied', t => {
@@ -144,7 +144,7 @@ tap.test('Initiate Middleware', {autoend: true}, t => {
 
       const extractedObject = extractByType(type, extract, allData)
 
-      t.deepEqual(extractedObject, {})
+      t.same(extractedObject, {})
     })
 
     t.test(
@@ -166,7 +166,7 @@ tap.test('Initiate Middleware', {autoend: true}, t => {
 
         const extractedObject = extractByType(type, extract, allData)
 
-        t.deepEqual(extractedObject, {
+        t.same(extractedObject, {
           stateQueryParam: 'queryParamValue'
         })
       }
@@ -340,19 +340,19 @@ tap.test('Initiate Middleware', {autoend: true}, t => {
         endpointStart
       )
 
-      t.deepEqual(extractedStateValues.requestBody, {
+      t.same(extractedStateValues.requestBody, {
         statePropertyText: 'a property on a nested object',
         statePropertyArray0: 'one',
         statePropertyArray2: 'three'
       })
-      t.deepEqual(extractedStateValues.responseBody, {
+      t.same(extractedStateValues.responseBody, {
         statePropertyValueOne: 'two',
         statePropertyValueTwo: 'three'
       })
-      t.deepEqual(extractedStateValues.query, {
+      t.same(extractedStateValues.query, {
         statePropertyFromKey: 'queryParamValue'
       })
-      t.deepEqual(extractedStateValues.lookupRequests, {
+      t.same(extractedStateValues.lookupRequests, {
         firstRequest: {
           lookup1value: 'a response value from the first request'
         },
@@ -630,7 +630,7 @@ tap.test('Initiate Middleware', {autoend: true}, t => {
         t.equal(endpoint._id, 'endpoint1')
         t.equal(endpoint.name, 'Endpoint 1')
         t.equal(endpoint.endpoint.pattern, '/path/:id')
-        t.deepEqual(urlParams, {id: id})
+        t.same(urlParams, {id: id})
         t.end()
       }
     )

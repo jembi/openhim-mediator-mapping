@@ -48,7 +48,7 @@ tap.test('States DB Services', {autoend: true}, t => {
             t.fail(`Should not reach here. ${data}`)
           })
           .catch(error => {
-            t.equals(
+            t.equal(
               error.message,
               'state validation failed: _endpointReference: Path `_endpointReference` is required.'
             )
@@ -78,7 +78,7 @@ tap.test('States DB Services', {autoend: true}, t => {
             t.fail(`Should not reach here. ${data}`)
           })
           .catch(error => {
-            t.equals(
+            t.equal(
               error.message,
               'state validation failed: system.timestamps.endpointStart: Path `system.timestamps.endpointStart` is invalid (Not a valid timestamp)., system.timestamps.endpointEnd: Path `system.timestamps.endpointEnd` is required.'
             )
@@ -105,13 +105,13 @@ tap.test('States DB Services', {autoend: true}, t => {
       }
       await createEndpointState(stateObject)
         .then(data => {
-          t.deepEquals(
+          t.same(
             data._endpointReference,
             new ObjectId('507f1f77bcf86cd799439011')
           )
-          t.equals(data.system.timestamps.endpointStart, endpointStart)
-          t.equals(data.system.timestamps.endpointEnd, endpointEnd)
-          t.equals(
+          t.equal(data.system.timestamps.endpointStart, endpointStart)
+          t.equal(data.system.timestamps.endpointEnd, endpointEnd)
+          t.equal(
             data.system.timestamps.endpointDuration.milliseconds,
             endpointDurationMs
           )
@@ -216,15 +216,15 @@ tap.test('States DB Services', {autoend: true}, t => {
         await readLatestEndpointStateById(endpointId, 'no-filter', [])
           .then(data => {
             t.ok(data._id)
-            t.deepEquals(data._endpointReference, endpointId)
-            t.equals(data.system.timestamps.endpointStart, endpointStart2)
-            t.equals(data.system.timestamps.endpointEnd, endpointEnd2)
-            t.equals(
+            t.same(data._endpointReference, endpointId)
+            t.equal(data.system.timestamps.endpointStart, endpointStart2)
+            t.equal(data.system.timestamps.endpointEnd, endpointEnd2)
+            t.equal(
               data.system.timestamps.endpointDuration.milliseconds,
               endpointDurationMs2
             )
-            t.equals(data.lookupNetworkError, false)
-            t.equals(data.lookupHttpStatus, 200)
+            t.equal(data.lookupNetworkError, false)
+            t.equal(data.lookupHttpStatus, 200)
           })
           .catch(error => {
             t.fail(`Should not reach here. ${error.message}`)
@@ -247,7 +247,7 @@ tap.test('States DB Services', {autoend: true}, t => {
             t.fail(`Should not reach here. ${JSON.stringify(data)}`)
           })
         } catch (error) {
-          t.equals(error.message, `Invalid HTTP Status filter`)
+          t.equal(error.message, `Invalid HTTP Status filter`)
         }
       }
     )
@@ -328,15 +328,15 @@ tap.test('States DB Services', {autoend: true}, t => {
         await readLatestEndpointStateById(endpointId, 'include', ['5xx'])
           .then(data => {
             t.ok(data._id)
-            t.deepEquals(data._endpointReference, endpointId)
-            t.equals(data.system.timestamps.endpointStart, endpointStart2)
-            t.equals(data.system.timestamps.endpointEnd, endpointEnd2)
-            t.equals(
+            t.same(data._endpointReference, endpointId)
+            t.equal(data.system.timestamps.endpointStart, endpointStart2)
+            t.equal(data.system.timestamps.endpointEnd, endpointEnd2)
+            t.equal(
               data.system.timestamps.endpointDuration.milliseconds,
               endpointDurationMs2
             )
-            t.equals(data.lookupNetworkError, true)
-            t.equals(data.lookupHttpStatus, 502)
+            t.equal(data.lookupNetworkError, true)
+            t.equal(data.lookupHttpStatus, 502)
           })
           .catch(error => {
             t.fail(`Should not reach here. ${error.message}`)
@@ -447,15 +447,15 @@ tap.test('States DB Services', {autoend: true}, t => {
         await readLatestEndpointStateById(endpointId, 'exclude', ['301'])
           .then(data => {
             t.ok(data._id)
-            t.deepEquals(data._endpointReference, endpointId)
-            t.equals(data.system.timestamps.endpointStart, endpointStart1)
-            t.equals(data.system.timestamps.endpointEnd, endpointEnd1)
-            t.equals(
+            t.same(data._endpointReference, endpointId)
+            t.equal(data.system.timestamps.endpointStart, endpointStart1)
+            t.equal(data.system.timestamps.endpointEnd, endpointEnd1)
+            t.equal(
               data.system.timestamps.endpointDuration.milliseconds,
               endpointDurationMs1
             )
-            t.equals(data.lookupNetworkError, false)
-            t.equals(data.lookupHttpStatus, 301)
+            t.equal(data.lookupNetworkError, false)
+            t.equal(data.lookupHttpStatus, 301)
           })
           .catch(error => {
             t.fail(`Should not reach here. ${error.message}`)

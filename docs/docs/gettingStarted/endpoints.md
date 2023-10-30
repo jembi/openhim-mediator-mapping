@@ -334,7 +334,8 @@ Below is an extract of some request orchestrations.
             "Content-Type": "application/json",
             "Authorization": "Basic YWRtaW46ZGlzdHJpY3Q="
           }
-        }
+        },
+        "fhirResponse": true
       }
     ],
     "response": [
@@ -353,7 +354,7 @@ Below is an extract of some request orchestrations.
 }
 ```
 
-In the example above, the lookup request gets facility data from DHIS2. That data would then be mapped (schema not shown for brevity) and the output data sent to a FHIR server. These requests can include query and url parameters which can be extracted from incoming data. Chaining together endpoint calls using this orchestration mechanism can lead to very complex logic being implemented.
+In the example above, the lookup request gets facility data from DHIS2. That data would then be mapped (schema not shown for brevity) and the output data sent to a FHIR server. These requests can include query and url parameters which can be extracted from incoming data. Chaining together endpoint calls using this orchestration mechanism can lead to very complex logic being implemented. The `fhirResponse` parameter in the `lookup` ensures that the error is returned in fhir format (an OperationOutcome resource).
 
 There are two types of external requests, the `lookup` and the `response`. Query and url parameters for the external request can be dynamically populated
 

@@ -36,7 +36,7 @@ tap.test('External Requests', {autoend: true}, t => {
       const status = 500
 
       const valid = validateRequestStatusCode(allowedStatuses)(status)
-      t.equals(valid, false)
+      t.equal(valid, false)
       t.end()
     })
 
@@ -45,7 +45,7 @@ tap.test('External Requests', {autoend: true}, t => {
       const status = 200
 
       const valid = validateRequestStatusCode(allowedStatuses)(status)
-      t.equals(valid, true)
+      t.equal(valid, true)
       t.end()
     })
 
@@ -54,7 +54,7 @@ tap.test('External Requests', {autoend: true}, t => {
       const status = 202
 
       const valid = validateRequestStatusCode(allowedStatuses)(status)
-      t.equals(valid, true)
+      t.equal(valid, true)
       t.end()
     })
   })
@@ -122,8 +122,8 @@ tap.test('External Requests', {autoend: true}, t => {
         try {
           await Promise.all(performLookupRequests(ctx, requests))
         } catch (error) {
-          t.equals(ctx.orchestrations.length, 1)
-          t.equals(ctx.state.allData.state.currentLookupNetworkError, true)
+          t.equal(ctx.orchestrations.length, 1)
+          t.equal(ctx.state.allData.state.currentLookupNetworkError, true)
           t.match(
             error.message,
             /No response from lookup '1233243'. connect ECONNREFUSED/
@@ -174,9 +174,12 @@ tap.test('External Requests', {autoend: true}, t => {
         try {
           await Promise.all(performLookupRequests(ctx, requests))
         } catch (error) {
-          t.equals(ctx.orchestrations.length, 1)
-          t.equals(ctx.state.allData.state.currentLookupHttpStatus, 400)
-          t.match(error.message, /Incorrect status code 400. Bad request/)
+          t.equal(ctx.orchestrations.length, 1)
+          t.equal(ctx.state.allData.state.currentLookupHttpStatus, 400)
+          t.same(
+            error.message,
+            `Incorrect status code 400. {"message":"Bad request"}`
+          )
           t.end()
         }
       }
@@ -220,9 +223,9 @@ tap.test('External Requests', {autoend: true}, t => {
       }
 
       await Promise.all(performLookupRequests(ctx, requests)).then(res => {
-        t.deepEqual(res[0]['123'].data, 'Body')
-        t.equals(ctx.state.allData.state.currentLookupHttpStatus, 200)
-        t.equals(ctx.orchestrations.length, 1)
+        t.same(res[0]['123'].data, 'Body')
+        t.equal(ctx.state.allData.state.currentLookupHttpStatus, 200)
+        t.equal(ctx.orchestrations.length, 1)
         t.end()
       })
     })
@@ -328,9 +331,9 @@ tap.test('External Requests', {autoend: true}, t => {
       }
       await prepareLookupRequests(ctx)
 
-      t.equals(ctx.orchestrations.length, 2)
+      t.equal(ctx.orchestrations.length, 2)
       t.ok(ctx.state.allData.lookupRequests)
-      t.deepEqual(ctx.state.allData.lookupRequests, {
+      t.same(ctx.state.allData.lookupRequests, {
         chrome: {
           data: 'Body',
           headers: {}
@@ -363,7 +366,7 @@ tap.test('External Requests', {autoend: true}, t => {
 
       await prepareResponseRequests(ctx)
 
-      t.equals(ctx.orchestrations, undefined)
+      t.equal(ctx.orchestrations, undefined)
       t.end()
     })
 
@@ -387,7 +390,7 @@ tap.test('External Requests', {autoend: true}, t => {
         }
         await prepareResponseRequests(ctx)
 
-        t.equals(ctx.orchestrations)
+        t.equal(ctx.orchestrations)
         t.end()
       }
     )
@@ -416,7 +419,7 @@ tap.test('External Requests', {autoend: true}, t => {
 
         await prepareResponseRequests(ctx)
 
-        t.equals(ctx.orchestrations, undefined)
+        t.equal(ctx.orchestrations, undefined)
         t.end()
       }
     )
@@ -445,7 +448,7 @@ tap.test('External Requests', {autoend: true}, t => {
         }
         await prepareResponseRequests(ctx)
 
-        t.equals(ctx.orchestrations.length, 0)
+        t.equal(ctx.orchestrations.length, 0)
         t.end()
       }
     )
@@ -504,7 +507,7 @@ tap.test('External Requests', {autoend: true}, t => {
 
         await prepareResponseRequests(ctx)
 
-        t.equals(ctx.orchestrations.length, 2)
+        t.equal(ctx.orchestrations.length, 2)
         t.match(ctx.orchestrations[0].error.message, /ECONNREFUSED/)
         t.end()
       }
@@ -660,8 +663,8 @@ tap.test('External Requests', {autoend: true}, t => {
 
       await prepareResponseRequests(ctx)
 
-      t.equals(ctx.orchestrations.length, 2)
-      t.deepEqual(ctx.orchestrations[1].response.body, JSON.stringify(response))
+      t.equal(ctx.orchestrations.length, 2)
+      t.same(ctx.orchestrations[1].response.body, JSON.stringify(response))
 
       t.end()
     })
@@ -718,9 +721,9 @@ tap.test('External Requests', {autoend: true}, t => {
 
         await prepareResponseRequests(ctx)
 
-        t.equals(ctx.orchestrations.length, 0)
+        t.equal(ctx.orchestrations.length, 0)
 
-        t.deepEqual(ctx.body, response)
+        t.same(ctx.body, response)
         t.end()
       }
     )
@@ -766,8 +769,8 @@ tap.test('External Requests', {autoend: true}, t => {
 
         prepareLookupRequests(ctx).catch(err => {
           performLookupRequestsStub()
-          t.type(err, Error)
-          t.equal(err.message, 'Rejected Promise: Fail')
+          t.type(err, 'string')
+          t.equal(err, 'Fail')
         })
       })
 
@@ -1076,11 +1079,7 @@ tap.test('External Requests', {autoend: true}, t => {
         prepareLookupRequests(ctx)
 
         performLookupRequestsStub()
-        t.equals(
-          called,
-          false,
-          'performLookupRequestsStub should not be called'
-        )
+        t.equal(called, false, 'performLookupRequestsStub should not be called')
         t.end()
       }
     )
@@ -1124,7 +1123,7 @@ tap.test('External Requests', {autoend: true}, t => {
         requestBody,
         queryParams
       )
-      t.equals(requestConfig.data, requestBody)
+      t.equal(requestConfig.data, requestBody)
       t.end()
     })
 
@@ -1169,7 +1168,7 @@ tap.test('External Requests', {autoend: true}, t => {
         queryParams,
         requestUrl
       )
-      t.equals(requestConfig.url, requestUrl)
+      t.equal(requestConfig.url, requestUrl)
       t.end()
     })
   })
@@ -1185,7 +1184,7 @@ tap.test('External Requests', {autoend: true}, t => {
       }
 
       setKoaResponseBody(ctx, request, body)
-      t.deepEqual(ctx.body[request.id], body)
+      t.same(ctx.body[request.id], body)
       t.end()
     })
 
@@ -1200,7 +1199,7 @@ tap.test('External Requests', {autoend: true}, t => {
       }
 
       setKoaResponseBody(ctx, request, null)
-      t.equals(ctx.body[request.id], undefined)
+      t.equal(ctx.body[request.id], undefined)
       t.end()
     })
   })
@@ -1219,10 +1218,10 @@ tap.test('External Requests', {autoend: true}, t => {
       const body = {message: 'success'}
 
       setKoaResponseBodyAndHeadersFromPrimary(ctx, status, headers, body)
-      t.deepEqual(ctx.status, status)
-      t.deepEqual(ctx.headers, headers)
-      t.deepEqual(ctx.body, body)
-      t.equals(ctx.hasPrimaryRequest, true)
+      t.same(ctx.status, status)
+      t.same(ctx.headers, headers)
+      t.same(ctx.body, body)
+      t.equal(ctx.hasPrimaryRequest, true)
       t.end()
     })
   })
@@ -1239,7 +1238,7 @@ tap.test('External Requests', {autoend: true}, t => {
 
       const result = handleRequestError(ctx, request, err)
 
-      t.deepEqual(result.error, err)
+      t.same(result.error, err)
       t.end()
     })
 
@@ -1261,8 +1260,8 @@ tap.test('External Requests', {autoend: true}, t => {
 
         const result = handleRequestError(ctx, request, err)
 
-        t.deepEqual(result.response.body, err.response.data)
-        t.equals(
+        t.same(result.response.body, err.response.data)
+        t.equal(
           ctx.routerResponseStatuses.includes('primaryReqFailError'),
           true
         )
@@ -1287,10 +1286,7 @@ tap.test('External Requests', {autoend: true}, t => {
         }
 
         handleRequestError(ctx, request, err)
-        t.equals(
-          ctx.routerResponseStatuses.includes('secondaryFailError'),
-          true
-        )
+        t.equal(ctx.routerResponseStatuses.includes('secondaryFailError'), true)
         t.end()
       }
     )
@@ -1313,8 +1309,8 @@ tap.test('External Requests', {autoend: true}, t => {
 
         const result = handleRequestError(ctx, request, err)
 
-        t.deepEqual(result.response.body, err.response.data)
-        t.equals(ctx.routerResponseStatuses.includes('primaryCompleted'), true)
+        t.same(result.response.body, err.response.data)
+        t.equal(ctx.routerResponseStatuses.includes('primaryCompleted'), true)
         t.end()
       }
     )
@@ -1337,11 +1333,8 @@ tap.test('External Requests', {autoend: true}, t => {
 
         const result = handleRequestError(ctx, request, err)
 
-        t.deepEqual(result.response.body, err.response.data)
-        t.equals(
-          ctx.routerResponseStatuses.includes('secondaryCompleted'),
-          true
-        )
+        t.same(result.response.body, err.response.data)
+        t.equal(ctx.routerResponseStatuses.includes('secondaryCompleted'), true)
         t.end()
       }
     )
@@ -1466,24 +1459,24 @@ tap.test('External Requests', {autoend: true}, t => {
 
       const params = addRequestQueryParameters(ctx, request)
 
-      t.equals(params.id, ctx.request.body.id)
-      t.equals(params.place, ctx.request.body.place.address)
-      t.equals(params.code, ctx.request.query.code)
-      t.equals(params.status, ctx.request.body.status[1].rich.status[0].sp)
-      t.equals(params.name, `${prefix + ctx.request.query.name + postfix}`)
+      t.equal(params.id, ctx.request.body.id)
+      t.equal(params.place, ctx.request.body.place.address)
+      t.equal(params.code, ctx.request.query.code)
+      t.equal(params.status, ctx.request.body.status[1].rich.status[0].sp)
+      t.equal(params.name, `${prefix + ctx.request.query.name + postfix}`)
       // Query params are strings therefore the digit will be converted
-      t.equals(params.floor, ctx.state.allData.transforms.floor.toString())
-      t.equals(
+      t.equal(params.floor, ctx.state.allData.transforms.floor.toString())
+      t.equal(
         params.children,
         ctx.state.allData.lookupRequests.children.toString()
       )
-      t.equals(params.brother, ctx.state.allData.responseBody.brother)
-      t.equals(params.lastAddress, ctx.state.allData.state.lastAddress)
-      t.equals(params.location, ctx.state.allData.urlParams.location)
-      t.equals(params.building, ctx.state.allData.transforms.building)
-      t.equals(params.extension, ctx.state.allData.transforms.extension)
-      t.equals(params.multiplier, ctx.state.allData.constants.multiplier)
-      t.equals(params.time, ctx.state.allData.timestamps.endpointStart)
+      t.equal(params.brother, ctx.state.allData.responseBody.brother)
+      t.equal(params.lastAddress, ctx.state.allData.state.lastAddress)
+      t.equal(params.location, ctx.state.allData.urlParams.location)
+      t.equal(params.building, ctx.state.allData.transforms.building)
+      t.equal(params.extension, ctx.state.allData.transforms.extension)
+      t.equal(params.multiplier, ctx.state.allData.constants.multiplier)
+      t.equal(params.time, ctx.state.allData.timestamps.endpointStart)
       t.notOk(params.moreInfo)
       t.end()
     })
@@ -1502,7 +1495,7 @@ tap.test('External Requests', {autoend: true}, t => {
       try {
         addRequestQueryParameters(ctx, request)
       } catch (error) {
-        t.equals(
+        t.equal(
           error.message,
           'Unsupported Query Parameter Extract Type: invalidPath'
         )
@@ -1514,7 +1507,7 @@ tap.test('External Requests', {autoend: true}, t => {
 
   t.test('resolveRequestUrl', {autoend: true}, t => {
     t.test('should return the request url if there are no url params', t => {
-      t.equals(
+      t.equal(
         resolveRequestUrl({}, {url: 'http://test.org'}),
         'http://test.org'
       )
@@ -1547,7 +1540,7 @@ tap.test('External Requests', {autoend: true}, t => {
           }
         }
       )
-      t.equals(
+      t.equal(
         url,
         'http://test.org/url/params/are/fun/params/to-test-thoroughly/'
       )
@@ -1582,7 +1575,7 @@ tap.test('External Requests', {autoend: true}, t => {
             }
           }
         )
-        t.equals(url, 'http://test.org/url/:test1/are/fun/:test1/:test2/')
+        t.equal(url, 'http://test.org/url/:test1/are/fun/:test1/:test2/')
         t.end()
       }
     )
@@ -1613,7 +1606,7 @@ tap.test('External Requests', {autoend: true}, t => {
           }
         }
       )
-      t.equals(url, 'http://test.org/url//are/fun//to-0-thoroughly/')
+      t.equal(url, 'http://test.org/url//are/fun//to-0-thoroughly/')
       t.end()
     })
   })

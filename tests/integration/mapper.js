@@ -72,7 +72,7 @@ tap.test(
           .set('Content-Type', 'application/json')
           .expect(200)
 
-        t.deepEqual(result.body, requestData)
+        t.same(result.body, requestData)
         t.end()
       }
     )
@@ -134,7 +134,7 @@ tap.test(
         .set('Content-Type', 'application/fhir+json')
         .expect(200)
 
-      t.deepEqual(result.body, requestData)
+      t.same(result.body, requestData)
       t.equal(result.headers['content-type'], 'application/fhir+json')
       t.end()
     })
@@ -196,7 +196,7 @@ tap.test(
         .set('Content-Type', 'application/json+openhim')
         .expect(200)
 
-      t.deepEqual(result.body, requestData)
+      t.same(result.body, requestData)
       t.equal(result.headers['content-type'], 'application/json+openhim')
       t.end()
     })
@@ -290,7 +290,7 @@ tap.test(
           .set('Content-Type', 'application/json')
           .expect(200)
 
-        t.deepEqual(result.body.requestBody, requestData)
+        t.same(result.body.requestBody, requestData)
         t.ok(result.body.lookupRequests)
         t.end()
       }
@@ -391,7 +391,7 @@ tap.test(
         .set('Content-Type', 'application/json')
         .expect(500)
 
-      t.deepEqual(result.body, {
+      t.same(result.body, {
         error:
           'Input transform error: Object mapping schema invalid: No function exists for key: inValidFunction'
       })
@@ -490,8 +490,8 @@ tap.test(
         .set('Content-Type', 'application/json')
         .expect(200)
 
-      t.deepEqual(result.body.firstName, requestData.name)
-      t.deepEqual(result.body.lastName, requestData.surname)
+      t.same(result.body.firstName, requestData.name)
+      t.same(result.body.lastName, requestData.surname)
       t.ok(result.body.uptime)
       t.end()
     })
@@ -596,7 +596,7 @@ tap.test(
           .expect(200)
 
         t.ok(result.body['x-mediator-urn'])
-        t.equals(result.body.status, 'Successful')
+        t.equal(result.body.status, 'Successful')
         t.equal(result.body.orchestrations.length, 3)
         t.equal(
           result.body.orchestrations[1].name,

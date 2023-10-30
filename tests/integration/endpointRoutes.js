@@ -42,8 +42,8 @@ tap.test(
           .set('Content-Type', 'application/json')
           .expect(201)
 
-        t.equals(result.body.name, testEndpoint.name)
-        t.equals(result.body.pattern, testEndpoint.pattern)
+        t.equal(result.body.name, testEndpoint.name)
+        t.equal(result.body.pattern, testEndpoint.pattern)
         t.end()
       })
 
@@ -168,7 +168,7 @@ tap.test(
             .get(`/endpoints/${endpointId}`)
             .expect(400)
 
-          t.equals(
+          t.equal(
             result.body.error,
             'Retrieving of endpoint failed: Endpoint ID supplied in url is invalid'
           )
@@ -185,7 +185,7 @@ tap.test(
             .get(`/endpoints/${endpointId}`)
             .expect(404)
 
-          t.equals(
+          t.equal(
             result.body.error,
             `Endpoint with ID ${endpointId} does not exist`
           )
@@ -215,8 +215,8 @@ tap.test(
           .get(`/endpoints/${endpoint.body._id}`)
           .expect(200)
 
-        t.equals(result.body.name, testEndpoint.name)
-        t.equals(result.body.pattern, testEndpoint.pattern)
+        t.equal(result.body.name, testEndpoint.name)
+        t.equal(result.body.pattern, testEndpoint.pattern)
         t.end()
       })
     })
@@ -304,9 +304,9 @@ tap.test(
           .get(`/endpoints?_id=${endpoint.body._id}`)
           .expect(200)
 
-        t.equals(result.body.length, 1)
-        t.equals(result.body[0].name, testEndpoint.name)
-        t.equals(result.body[0].pattern, testEndpoint.pattern)
+        t.equal(result.body.length, 1)
+        t.equal(result.body[0].name, testEndpoint.name)
+        t.equal(result.body[0].pattern, testEndpoint.pattern)
         t.end()
       })
     })
@@ -358,7 +358,7 @@ tap.test(
             .set('Content-Type', 'application/json')
             .expect(404)
 
-          t.equals(
+          t.equal(
             result.body.error,
             `Endpoint with ID ${endpointId} does not exist`
           )
@@ -396,7 +396,7 @@ tap.test(
           .set('Content-Type', 'application/json')
           .expect(200)
 
-        t.deepEqual(result.body.transformation, update.transformation)
+        t.same(result.body.transformation, update.transformation)
         t.end()
       })
     })
@@ -424,7 +424,7 @@ tap.test(
             .delete(`/endpoints/${endpointId}`)
             .expect(404)
 
-          t.equals(
+          t.equal(
             result.body.error,
             `Endpoint with ID '${endpointId}' does not exist`
           )
@@ -454,7 +454,7 @@ tap.test(
           .delete(`/endpoints/${endpoint.body._id}`)
           .expect(200)
 
-        t.deepEqual(
+        t.same(
           result.body.message,
           `Endpoint with ID '${endpoint.body._id}' deleted`
         )

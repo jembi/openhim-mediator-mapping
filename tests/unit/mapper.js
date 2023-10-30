@@ -35,7 +35,7 @@ tap.test('Mapper', {autoend: true}, t => {
 
         createMappedObject(ctx)
 
-        t.deepEqual(ctx.body, {
+        t.same(ctx.body, {
           requestBody: ctx.state.allData.requestBody,
           lookupRequests: ctx.state.allData.lookupRequests
         })
@@ -65,7 +65,7 @@ tap.test('Mapper', {autoend: true}, t => {
 
         createMappedObject(ctx)
 
-        t.deepEqual(ctx.body, ctx.state.allData.requestBody)
+        t.same(ctx.body, ctx.state.allData.requestBody)
         t.end()
       }
     )
@@ -106,7 +106,7 @@ tap.test('Mapper', {autoend: true}, t => {
 
         createMappedObject(ctx)
 
-        t.deepEqual(ctx.body, expected)
+        t.same(ctx.body, expected)
         t.end()
       }
     )
@@ -158,8 +158,8 @@ tap.test('Mapper', {autoend: true}, t => {
 
         createMappedObject(ctx)
 
-        t.deepEqual(ctx.body, expected)
-        t.equals(ctx.status, 200)
+        t.same(ctx.body, expected)
+        t.equal(ctx.status, 200)
         t.end()
       }
     )
@@ -196,7 +196,7 @@ tap.test('Mapper', {autoend: true}, t => {
         try {
           createMappedObject(ctx)
         } catch (error) {
-          t.equals(
+          t.equal(
             error.message,
             'Object mapping schema invalid: No function exists for key: inValidFunction'
           )
@@ -245,9 +245,9 @@ tap.test('Mapper', {autoend: true}, t => {
 
       createMappedObject(ctx)
 
-      t.equals(ctx.orchestrations.length, 1)
-      t.equals(ctx.orchestrations[0].name, 'Endpoint Mapping: Testing endpoint')
-      t.deepEqual(ctx.orchestrations[0].response.body, JSON.stringify(expected))
+      t.equal(ctx.orchestrations.length, 1)
+      t.equal(ctx.orchestrations[0].name, 'Endpoint Mapping: Testing endpoint')
+      t.same(ctx.orchestrations[0].response.body, JSON.stringify(expected))
       t.end()
     })
 
@@ -294,15 +294,12 @@ tap.test('Mapper', {autoend: true}, t => {
 
         createMappedObject(ctx)
 
-        t.equals(ctx.orchestrations.length, 1)
-        t.equals(
+        t.equal(ctx.orchestrations.length, 1)
+        t.equal(
           ctx.orchestrations[0].name,
           'Endpoint Mapping: Testing endpoint'
         )
-        t.deepEqual(
-          ctx.orchestrations[0].response.body,
-          JSON.stringify(expected)
-        )
+        t.same(ctx.orchestrations[0].response.body, JSON.stringify(expected))
         t.end()
       }
     )

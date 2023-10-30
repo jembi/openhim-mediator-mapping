@@ -71,7 +71,8 @@ const endpointSchema = new mongoose.Schema(
             concurrency: Number
           },
           config: Config,
-          allowedStatuses: []
+          allowedStatuses: [],
+          fhirResponse: Boolean
         }
       ],
       response: [
