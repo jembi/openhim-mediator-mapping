@@ -1558,7 +1558,8 @@ tap.test(
           const testEndpoint = {
             name: 'External Request Test Endpoint 18',
             endpoint: {
-              pattern: '/externalRequestTest18'
+              pattern: '/externalRequestTest18',
+              method: 'GET'
             },
             transformation: {
               input: 'JSON',

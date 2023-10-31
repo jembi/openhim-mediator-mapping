@@ -113,22 +113,24 @@ const updateEndpointState = async (ctx, endpoint) => {
     })
 }
 
-const getEndpointByPath = urlPath => {
+const getEndpointByPathAndMethod = (urlPath, method) => {
   let matchedEndpoint
   let urlParams = {}
 
   for (let endpoint of endpointCache) {
-    if (endpoint.endpoint.pattern === urlPath) {
-      return {endpoint: JSON.parse(JSON.stringify(endpoint)), urlParams}
-    }
+    if (endpoint.endpoint.method.toLowerCase() === method.toLowerCase()) {
+      if (endpoint.endpoint.pattern === urlPath) {
+        return {endpoint: JSON.parse(JSON.stringify(endpoint)), urlParams}
+      }
 
-    const match = urlPath.match(
-      extractRegexFromPattern(endpoint.endpoint.pattern)
-    )
+      const match = urlPath.match(
+        extractRegexFromPattern(endpoint.endpoint.pattern)
+      )
 
-    if (match) {
-      urlParams = match.groups ? match.groups : {}
-      matchedEndpoint = JSON.parse(JSON.stringify(endpoint))
+      if (match) {
+        urlParams = match.groups ? match.groups : {}
+        matchedEndpoint = JSON.parse(JSON.stringify(endpoint))
+      }
     }
   }
 
@@ -143,7 +145,10 @@ exports.initiateContextMiddleware = () => async (ctx, next) => {
     ? ctx.request.headers[OPENHIM_TRANSACTION_HEADER]
     : uuid.v4()
 
-  const {endpoint, urlParams} = getEndpointByPath(ctx.request.path)
+  const {endpoint, urlParams} = getEndpointByPathAndMethod(
+    ctx.request.path,
+    ctx.request.method
+  )
 
   if (!endpoint) {
     logger.error(`Unknown Endpoint: ${ctx.request.path}`)

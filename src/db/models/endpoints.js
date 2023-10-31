@@ -35,10 +35,7 @@ const endpointSchema = new mongoose.Schema(
       pattern: {
         type: String,
         match: MIDDLEWARE_PATH_REGEX,
-        required: true,
-        index: {
-          unique: true
-        }
+        required: true
       },
       method: {
         type: String,
@@ -108,6 +105,11 @@ const endpointSchema = new mongoose.Schema(
     minimize: false,
     timestamps: true // set the created_at/updated_at timestamps on the record
   }
+)
+
+endpointSchema.index(
+  {'endpoint.pattern': 1, 'endpoint.method': 1},
+  {unique: true}
 )
 
 endpointSchema.pre('findOneAndUpdate', async function (next) {

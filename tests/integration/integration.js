@@ -247,7 +247,8 @@ tap.test(
           const testEndpoint = {
             name: 'Integration Test Endpoint 2',
             endpoint: {
-              pattern: '/integrationTest2'
+              pattern: '/integrationTest2',
+              method: 'GET'
             },
             transformation: {
               input: 'JSON',
