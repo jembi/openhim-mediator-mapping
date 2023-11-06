@@ -8,7 +8,8 @@ const logger = require('../logger')
 
 const {
   ALLOWED_CONTENT_TYPES,
-  OPENHIM_TRANSACTION_HEADER
+  OPENHIM_TRANSACTION_HEADER,
+  ORIGIN_HEADER
 } = require('../constants')
 const {createOrchestration, setStatusText} = require('../orchestrations')
 const {constructOpenhimResponse} = require('../openhim')
@@ -68,7 +69,8 @@ const parseOutgoingBody = (ctx, outputFormat) => {
   if (
     ctx.request &&
     ctx.request.headers &&
-    ctx.request.headers[OPENHIM_TRANSACTION_HEADER]
+    ctx.request.headers[OPENHIM_TRANSACTION_HEADER] &&
+    !ctx.request.headers[ORIGIN_HEADER]
   ) {
     constructOpenhimResponse(ctx, Date.now())
   }
